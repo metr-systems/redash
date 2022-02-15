@@ -27,11 +27,6 @@ DOCKER_CACHE_FLAG=""
 while [ -n "$1" ]
 do
     case $1 in
-	-t|--tag)
-	    shift
-	    TAG="$1"
-	    shift;
-	    ;;
 	--build-only)
 	    BUILD_ONLY="True"
 	    shift
@@ -49,14 +44,14 @@ do
 done
 
 
-if [ -z $TAG ] && [ $BUILD_ONLY != "True" ]
+if [ $BUILD_ONLY != "True" ]
 then
 	current_branch=$(git rev-parse --abbrev-ref HEAD )
 	if [ $current_branch = "metr-main" ]
 	then
 		TAG=$(git describe --tags metr-main)
 	else
-		echo "You need to provide a tag in order to push the image to registry."
+		echo "You need to checkout to metr-main branch in order to run this command."
 		echo "If you only want to build the image, use --build-only."
 		exit 1
 	fi
