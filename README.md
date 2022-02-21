@@ -1,6 +1,31 @@
+# Metr Redash
+
 <p align="center">
-  <img title="Redash" src='https://redash.io/assets/images/logo.png' width="200px"/>
+  <img title="Redash" src='client/app/assets/images/redash_icon_small.png'/>
 </p>
+
+This is a fork we've done to be able to customize redash as our needs and to be able to quickly
+fix redash bugs when using multi organizations.
+
+### Branches and tags
+
+To keep our updates isolated from redash's ones, we are defining the `metr-main` branch as the one
+to mirror production and to organize the tags. The `main` branch should keep up to date with redash
+new releases. The way tags are being named is:
+
+`v{redash-version}-metr-r{revision-number}`
+
+Where the `redash-version` should only change if we update our branch with a new version that should
+be present in the `main` one. The `revision-number` is used to control our own updates on top of the
+current redash version and should start on 0 (we're Pythonistas, after all). So, for example, the tag
+`v10.1.0-metr-r1` uses redash 10.1.0 and it's metr's second revision with changes.
+
+### Publishing new images
+
+This repository counts on the `publish_docker_images.sh` to update our docker images repository with a
+new version of this redash fork.
+
+# Redash
 
 [![Documentation](https://img.shields.io/badge/docs-redash.io/help-brightgreen.svg)](https://redash.io/help/)
 [![Datree](https://s3.amazonaws.com/catalog.static.datree.io/datree-badge-20px.svg)](https://datree.io/?src=badge)
