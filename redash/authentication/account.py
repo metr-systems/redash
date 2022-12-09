@@ -55,7 +55,7 @@ def send_invite_email(inviter, invited, invite_url, org):
     context = dict(inviter=inviter, invited=invited, org=org, invite_url=invite_url)
     html_content = render_template("emails/invite.html", **context)
     text_content = render_template("emails/invite.txt", **context)
-    subject = "{} invited you to join Redash".format(inviter.name)
+    subject = "Erhalten Sie Zugriff auf Ihr metr-Dashboard"
 
     send_mail.delay([invited.email], subject, html_content, text_content)
 
@@ -65,7 +65,7 @@ def send_password_reset_email(user):
     context = dict(user=user, reset_link=reset_link)
     html_content = render_template("emails/reset.html", **context)
     text_content = render_template("emails/reset.txt", **context)
-    subject = "Reset your password"
+    subject = "Passwort zurücksetzen"
 
     send_mail.delay([user.email], subject, html_content, text_content)
     return reset_link
