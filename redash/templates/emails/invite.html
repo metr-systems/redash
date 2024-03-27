@@ -2,18 +2,36 @@
 
 {% block content %}
 
-<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">Hi {{ invited.name }},</p>
-<h2 class="intercom-align-left" style="color: #282F33; font-size: 18px; font-weight: bold; margin-bottom: 7px; margin-top: 30px; text-align: left !important" align="left">
-    {{ inviter.name }} (<a href="mailto:{{ inviter.email }}" target="_blank" style="border: none; color: #1251BA; outline: none !important">{{ inviter.email }}</a>)
-    invited you to join the Redash account of {{ org.name }}.
-</h2>
-<table class="intercom-container intercom-align-center" align="center" style="border-collapse: collapse; border-spacing: 0; margin: 17px auto; table-layout: fixed; text-align: center !important"><tr><td style="background: #0071b2; border: 1px none #dadada; border-radius: 3px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; margin: 0; padding: 12px 35px; text-align: left; vertical-align: top" align="left" bgcolor="#0071b2" valign="top"><a class="intercom-h2b-button" target="_blank" href="{{ invite_url }}" style="background: #0071b2; border: none; border-radius: 3px; color: white; display: inline-block; font-size: 14px; font-weight: bold; outline: none !important; text-decoration: none">Setup Account</a></td></tr></table>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">Hallo {{ invited.name }},</p>
+<p class="intercom-align-left" style="color: #282F33; font-size: 18px; margin-bottom: 7px; margin-top: 30px; text-align: left !important" align="left">
+    Sie wurden von  {{ inviter.name }} (<a href="mailto:{{ inviter.email }}" target="_blank" style="border: none; color: #1251BA; outline: none !important">{{ inviter.email }}</a>)
+    zu Ihrem metr-Dashboard eingeladen. Klicken Sie auf den Button, um Ihr Konto zu vervollständigen und Zugriff auf Dashboard zu erhalten:
+</p>
+<table class="intercom-container intercom-align-center" align="center" style="border-collapse: collapse; border-spacing: 0; margin: 17px auto; table-layout: fixed; text-align: center !important">
+    <tr>
+        <td style="background: #0071b2; border: 1px none #dadada; border-radius: 3px; font-family: Helvetica, Arial, sans-serif; font-size: 16px; margin: 0; padding: 12px 35px; text-align: left; vertical-align: top" align="left" bgcolor="#0071b2" valign="top">
+            <a class="intercom-h2b-button" target="_blank" href="{{ invite_url }}" style="background: #0071b2; border: none; border-radius: 3px; color: white; display: inline-block; font-size: 14px; font-weight: bold; outline: none !important; text-decoration: none">
+                Konto vervollständigen
+            </a>
+        </td>
+    </tr>
+</table>
 <p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
-    <small>You may copy/paste this link into your browser: {{ invite_url }}</small>
+    Der Button funktioniert nicht? Dann kopieren Sie bitte diesen Link in Ihren Browser: {{ invite_url }}
 </p>
 <p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
-    Your sign-in email is: {{ invited.email }}<br>
-    Your Redash account is: <a href="{{ url_for('redash.index', org_slug=org.slug, _external=True) }}" target="_blank" style="border: none; color: #1251BA; outline: none !important">{{ url_for('redash.index', org_slug=org.slug, _external=True) }}</a>
+    Ihr Benutzername / Ihre E-Mail-Adresse: {{ invited.email }}<br>
+    Der Zugangslink zu Ihrem metr-Dashboard:  <a href="{{ url_for('redash.index', org_slug=org.slug, _external=True) }}" target="_blank" style="border: none; color: #1251BA; outline: none !important">{{ url_for('redash.index', org_slug=org.slug, _external=True) }}</a>
 </p>
-
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+    Freundliche Grüße<br>
+    Ihr Team von metr
+</p>
+<p class="intercom-align-left" style="line-height: 1.5; margin: 0 0 17px; text-align: left !important" align="left">
+    <br>
+    +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+    <br>
+    Kann man auf diese Mail antworten? <br>
+    Was ist oben für eine Grafik in der Mail? Ist das unser Logo? Dann müsste es nach rechts, falls das geht.
+</p>
 {% endblock %}
