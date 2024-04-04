@@ -1058,6 +1058,20 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    def get_widgets(self, identifier):
+        logging.info(f"Identifier {identifier}")
+        if not identifier:
+            return self.widgets
+        query = Query.get_by_id(2)
+        query_result = query.latest_query_data
+        logger.info(query_result.data)
+        for r in query_result.data["rows"]:
+            if (r["parameter"]) == identifier:
+                query_ids = [int(_id) for _id in r["query_ids"].split(",")]
+                return self.widgets.filter(Widget.id.in_(query_ids))
+        return self.widgets
+
+
     @property
     def name_as_slug(self):
         return utils.slugify(self.name)

@@ -195,13 +195,13 @@ def serialize_alert(alert, full=True):
     return d
 
 
-def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True):
+def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=True, identifier=None):
     layout = obj.layout
 
     widgets = []
 
     if with_widgets:
-        for w in obj.widgets:
+        for w in obj.get_widgets(identifier):
             if w.visualization_id is None:
                 widgets.append(serialize_widget(w))
             elif user and has_access(w.visualization.query_rel, user, view_only):

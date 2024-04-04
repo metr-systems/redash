@@ -1,3 +1,5 @@
+import logging
+
 from flask import request, url_for
 from flask_restful import abort
 from funcy import partial, project
@@ -178,7 +180,7 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
-        response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
+        response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user, identifier=request.args.get("p_parameter")).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
         if api_key:

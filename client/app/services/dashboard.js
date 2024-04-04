@@ -156,8 +156,8 @@ function transformResponse(data) {
 
 const saveOrCreateUrl = data => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
-  get: ({ id, slug }) => {
-    const params = {};
+  get: ({ id, slug, query_params }) => {
+    const params = {...query_params};
     if (!id) {
       params.legacy = null;
     }

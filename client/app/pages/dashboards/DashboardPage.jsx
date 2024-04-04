@@ -174,7 +174,7 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   const handleError = useImmutableCallback(onError);
 
   useEffect(() => {
-    Dashboard.get({ id: dashboardId, slug: dashboardSlug })
+    Dashboard.get({ id: dashboardId, slug: dashboardSlug, query_params: location.search })
       .then(dashboardData => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
