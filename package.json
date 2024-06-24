@@ -98,7 +98,7 @@
     "@types/react-dom": "^16.9.10",
     "@types/sql-formatter": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^2.10.0",
-    "@typescript-eslint/parser": "^2.10.0",
+    "@typescript-eslint/parser": "^7.0.1",
     "atob": "^2.1.2",
     "babel-eslint": "^10.0.3",
     "babel-jest": "^24.1.0",
@@ -143,7 +143,7 @@
     "react-test-renderer": "^16.14.0",
     "request-cookies": "^1.1.0",
     "style-loader": "^2.0.0",
-    "typescript": "^4.1.2",
+    "typescript": "^5.4.5",
     "url-loader": "^4.1.1",
     "webpack": "^4.46.0",
     "webpack-build-notifier": "^2.3.0",
@@ -179,8 +179,8 @@
     ]
   },
   "browser": {
-      "fs": false,
-      "path": false
+    "fs": false,
+    "path": false
   },
   "//": "browserslist set to 'Async functions' compatibility",
   "browserslist": [
