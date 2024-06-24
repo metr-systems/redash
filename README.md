@@ -7,6 +7,12 @@
 This is a fork we've done to be able to customize redash as our needs and to be able to quickly
 fix redash bugs when using multi organizations.
 
+All the metr specific content such as setting up dev environment, deploying and other topics can
+found in [`metr_docs/README.md`](metr_docs/README.md). The following content is from Redash's
+original README.
+
+-------------------------------------------
+
 ### Branches and tags
 
 To keep our updates isolated from redash's ones, we are defining the `metr-main` branch as the one
