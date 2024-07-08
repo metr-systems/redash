@@ -1,0 +1,30 @@
+name: Periodic Snapshot
+
+# 10 minutes after midnight on the first of every month
+on:
+  schedule:
+    - cron: '10 0 1 * *'
+
+permissions:
+  contents: write
+
+jobs:
+  bump-version-and-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{secrets.ACTION_PUSH_KEY}}
+      - run: |
+          # https://api.github.com/users/github-actions[bot]
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+          TAG_NAME="$(date +%y.%m).0-dev"
+          gawk -i inplace -F: -v q=\" -v tag=${TAG_NAME} '/^  "version": / { print $1 FS, q tag q ","; next} { print }' package.json
+          gawk -i inplace -F= -v q=\" -v tag=${TAG_NAME} '/^__version__ =/ { print $1 FS, q tag q; next} { print }' redash/__init__.py
+          gawk -i inplace -F= -v q=\" -v tag=${TAG_NAME} '/^version =/ { print $1 FS, q tag q; next} { print }' pyproject.toml
+          git add package.json redash/__init__.py pyproject.toml
+          git commit -m "Snapshot: ${TAG_NAME}"
+          git tag ${TAG_NAME}
+          git push --atomic origin master refs/tags/${TAG_NAME}
