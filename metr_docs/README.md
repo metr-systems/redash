@@ -62,6 +62,8 @@ $ cd redash
 $ yarn
 ```
 
+Note: if you are using mac, and yarn cannot succeed because of puppeteer, consider [this solution](https://www.broddin.be/fixing-the-chromium-binary-is-not-available-for-arm64/), it should work
+
 # Compile and build
 
 Redash uses [GNU Make](https://www.gnu.org/software/make/) to run things, so if you're not sure about something it's often a good idea to take a look over the [Makefile](https://github.com/getredash/redash/blob/master/Makefile) which can help. :smile:
@@ -138,6 +140,12 @@ $ sudo apt install -y --no-install-recommends default-libmysqlclient-dev freetds
     python3-dev libsasl2-dev libsasl2-modules-gssapi-mit libssl-dev unixodbc-dev xmlsec1
 ```
 
+If you are on mac, you may probably use brew
+
+```
+brew install mysql-client freetds libffi libpq python3-dev cyrus-sasl openssl unixodbc libxmlsec1
+```
+
 Then create a Python virtual environment, for safely installing Python libraries without affecting Python on the rest of the system:
 
 ```
@@ -180,3 +188,16 @@ Enabling Pre-commit check before commit.
 ```
 
 # Next step: [Testing](https://github.com/getredash/redash/wiki/Testing-your-changes)
+
+for installing cypress on mac
+
+```
+brew install gtk+ openlibm libnotify nss libx11 libsoundio libxtst xauth
+```
+
+and then run the tests with
+
+```
+yarn cypress build
+yarn cypress all
+```
