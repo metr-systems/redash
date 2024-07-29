@@ -33,7 +33,6 @@ $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bas
 
 Now log out of your desktop, then back in again, for the group change to become effective and nvm to be available
 
-
 ## Install NodeJS version 18
 
 ```
@@ -68,7 +67,6 @@ Note: if you are using mac, and yarn cannot succeed because of puppeteer, consid
 
 Redash uses [GNU Make](https://www.gnu.org/software/make/) to run things, so if you're not sure about something it's often a good idea to take a look over the [Makefile](https://github.com/getredash/redash/blob/master/Makefile) which can help. :smile:
 
-
 ## Build the Redash front end
 
 ```
@@ -82,11 +80,11 @@ $ make compose_build
 ```
 
 On my desktop (Ryzen 5600X) that took about 12 minutes to complete the first
-time.  After that though, it's much faster at about a minute and a half each time.
+time. After that though, it's much faster at about a minute and a half each time.
 
-It's a good idea to check that the docker images were built ok.  We do that by
+It's a good idea to check that the docker images were built ok. We do that by
 telling docker to show us the local "docker images", which should include
-these three new ones.  It's important the "created" time shows them to be
+these three new ones. It's important the "created" time shows them to be
 very recent... if it's not, then they're old images left over from something
 else. :wink:
 
@@ -149,23 +147,29 @@ brew install mysql-client freetds libffi libpq python3-dev cyrus-sasl openssl un
 Then create a Python virtual environment, for safely installing Python libraries without affecting Python on the rest of the system:
 
 ```
+
 $ python3 -m venv ~/redashvenv1
 $ source ~/redashvenv1/bin/activate
+
 ```
 
 When the Python virtual environment is active in your session, it changes the prompt to look like this:
 
 ```
+
 (redashvenv1) $
+
 ```
 
 With that done, install the rest of the Python dependencies:
 
 ```
+
 (redashvenv1) $ pip3 install wheel  # "wheel" needs to be installed by itself first
 (redashvenv1) $ pip3 install --upgrade black ruff launchpadlib pip setuptools
 (redashvenv1) $ pip3 install poetry
 (redashvenv1) $ poetry install --only main,all_ds,dev
+
 ```
 
 # Configuring Pre-commit
@@ -173,18 +177,22 @@ With that done, install the rest of the Python dependencies:
 Before committing changes to GitHub or creating a pull request, the source code needs to be checked and formatted for certain quality standards:
 
 ```
-(redashvenv1) $ make format
+
+(redashvenv1)$ make format
 pre-commit run --all-files
 isort....................................................................Passed
 black....................................................................Passed
 flake8...................................................................Passed
+
 ```
 
 Enabling Pre-commit check before commit.
 
 ```
+
 (redashvenv1) $ pre-commit install
 (redashvenv1) $ git commit -m 'Added xxx'
+
 ```
 
 # Next step: [Testing](https://github.com/getredash/redash/wiki/Testing-your-changes)
