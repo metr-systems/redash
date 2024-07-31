@@ -2,6 +2,7 @@ import importlib
 import os
 import ssl
 
+from dotenv import load_dotenv
 from flask_talisman import talisman
 from funcy import distinct, remove
 
@@ -15,6 +16,8 @@ from redash.settings.helpers import (
     set_from_string,
 )
 from redash.settings.organization import DATE_FORMAT, TIME_FORMAT  # noqa
+
+load_dotenv()
 
 # _REDIS_URL is the unchanged REDIS_URL we get from env vars, to be used later with RQ
 _REDIS_URL = os.environ.get("REDASH_REDIS_URL", os.environ.get("REDIS_URL", "redis://localhost:6379/0"))
