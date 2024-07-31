@@ -172,6 +172,8 @@ With that done, install the rest of the Python dependencies:
 
 ```
 
+[Temporary note] An alternative would be to do pip3 install -r requirements-metr.txt
+
 # Configuring Pre-commit
 
 Before committing changes to GitHub or creating a pull request, the source code needs to be checked and formatted for certain quality standards:
@@ -195,9 +197,24 @@ Enabling Pre-commit check before commit.
 
 ```
 
+# Running both backend and frontend locally without docker
+
+- make sure redis is running by executing command `redis-server` on terminal
+- make sure to copy .env-example tp `.env` and fill the values for for `REDASH_COOKIE_SECRET` and `REDASH_SECRET_KEY` and `DATABASE_URL`
+- create a local db for redash and run `./manage.py create_tables`
+- make sure that your `REDASH_DATABASE_URL` / `SQLALCHEMY_DATABASE_URI` is updated with the newly created db
+- start the scheduler and the worker with `./manage.py rq scheduler` and `./manage.py rq worker`
+- run the server from inside redash dir with the command `flask run --host=127.0.0.1 --port=5001`
+- run the frontend using `REDASH_BACKEND="http://127.0.0.1:5001" yarn start` (you should have run `yarn build` before)
+- It should tells you where your frontend is running in my case, it was on http://localhost:8080, accessing this url for first time you should be redirected to the setup page like this
+
 # Next step: [Testing](https://github.com/getredash/redash/wiki/Testing-your-changes)
 
-for installing cypress on mac
+- command to test backend is `pytest`
+- command to test frontend is `yarn test`
+  checking your installed dependencies for any failing tests
+
+- for installing cypress on mac
 
 ```
 brew install gtk+ openlibm libnotify nss libx11 libsoundio libxtst xauth
