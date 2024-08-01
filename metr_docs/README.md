@@ -173,8 +173,6 @@ With that done, install the rest of the Python dependencies:
 
 ```
 
-[Temporary note] An alternative would be to do pip3 install -r requirements-metr.txt
-
 # Configuring Pre-commit
 
 Before committing changes to GitHub or creating a pull request, the source code needs to be checked and formatted for certain quality standards:
