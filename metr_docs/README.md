@@ -169,7 +169,8 @@ With that done, install the rest of the Python dependencies:
 (redashvenv1) $ pip3 install --upgrade black ruff launchpadlib pip setuptools
 (redashvenv1) $ pip3 install poetry
 (redashvenv1) $ poetry install --with dev
-(redashvenv1) $ poetry install --only main,all_ds,dev
+# If you need to have the data sources dependencies locally, also install them with
+(redashvenv1) $ poetry install --only all_ds
 
 ```
 
