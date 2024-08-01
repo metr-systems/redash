@@ -141,7 +141,7 @@ $ sudo apt install -y --no-install-recommends default-libmysqlclient-dev freetds
 If you are on mac, you may probably use brew
 
 ```
-brew install mysql-client freetds libffi libpq python3-dev cyrus-sasl openssl unixodbc libxmlsec1
+brew install mysql-client@8.0 freetds libffi libpq python3-dev cyrus-sasl openssl unixodbc libxmlsec1
 ```
 
 Then create a Python virtual environment, for safely installing Python libraries without affecting Python on the rest of the system:
@@ -168,6 +168,7 @@ With that done, install the rest of the Python dependencies:
 (redashvenv1) $ pip3 install wheel  # "wheel" needs to be installed by itself first
 (redashvenv1) $ pip3 install --upgrade black ruff launchpadlib pip setuptools
 (redashvenv1) $ pip3 install poetry
+(redashvenv1) $ poetry install --with dev
 (redashvenv1) $ poetry install --only main,all_ds,dev
 
 ```
