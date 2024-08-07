@@ -35,6 +35,23 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
     : widgets;
 }
 
+function getAllowedWidgetsForCurrentParam(dashboard) {
+  try {
+    // filter the widgets by keeping only the ones we want
+    // get identifier of the current controller
+    const dashQueryParams = dashboard.getParametersDefs();
+    const controllerParam = dashQueryParams.filter(param => param.name === "controller_param")[0].value;
+    // get the allowed widgets for the current controller
+    const allowedWidgetsIds = dashboard.allowed_widgets[controllerParam];
+    // filter the widgets to process
+    dashboard.widgets = dashboard.widgets.filter(widget => allowedWidgetsIds.includes(widget.id));
+  } catch (error) {
+    console.error(error);
+  }
+
+  return dashboard.widgets;
+}
+
 function useDashboard(dashboardData) {
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
@@ -130,6 +147,7 @@ function useDashboard(dashboardData) {
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
+      dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(dashboardRef.current);
       const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
         affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error))
