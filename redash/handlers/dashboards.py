@@ -4,7 +4,6 @@ from funcy import partial, project
 from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models
-from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (
     BaseResource,
     filter_by_tags,
@@ -202,7 +201,7 @@ class DashboardResource(BaseResource):
         return response
 
     def get_allowed_widgets_info(self):
-        query = models.Query.query.filter(models.Query.name=="allowed_widgets",models.Query.org_id==current_org.id ).first()
+        query = models.Query.query.filter(models.Query.name=="allowed_widgets").first()
         allowed_widgets={}
         if query:
             data = query.latest_query_data.data["rows"]
