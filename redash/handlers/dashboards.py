@@ -4,6 +4,7 @@ from funcy import partial, project
 from sqlalchemy.orm.exc import StaleDataError
 
 from redash import models
+from redash.authentication.org_resolving import current_org
 from redash.handlers.base import (
     BaseResource,
     filter_by_tags,
@@ -194,7 +195,20 @@ class DashboardResource(BaseResource):
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
+        allowed_widgets=self.get_allowed_widgets_info()
+        if allowed_widgets:
+            response["allowed_widgets"]=allowed_widgets
+        
         return response
+
+    def get_allowed_widgets_info(self):
+        query = models.Query.query.filter(models.Query.name=="allowed_widgets",models.Query.org_id==current_org.id ).first()
+        allowed_widgets={}
+        if query:
+            data = query.latest_query_data.data["rows"]
+            for row in data:
+                allowed_widgets[row["controller_parameter"]]=row["allowed_widgets"] 
+        return allowed_widgets
 
     @require_permission("edit_dashboard")
     def post(self, dashboard_id):

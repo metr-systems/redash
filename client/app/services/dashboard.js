@@ -136,9 +136,28 @@ function prepareDashboardWidgets(widgets) {
   return prepareWidgetsForDashboard(_.map(widgets, widget => new Widget(widget)));
 }
 
+function getAllowedWidgetsForCurrentParam(dashboard) {
+  try {
+    // filter the widgets by keeping only the ones we want
+    // get identifier of the current controller
+    const widgetQueryParams = dashboard.widgets[0].visualization.query.options.parameters;
+    const controllerParam = widgetQueryParams.filter(param => param.name === "controller_param")[0].value;
+
+    // get the allowed widgets for the current controller
+    const allowedWidgetsIds = dashboard.allowed_widgets[controllerParam];
+    // filter the widgets to process
+    dashboard.widgets = dashboard.widgets.filter(widget => allowedWidgetsIds.includes(widget.id));
+  } catch (error) {
+    console.error(error);
+  }
+
+  return dashboard.widgets;
+}
+
 function transformSingle(dashboard) {
   dashboard = new Dashboard(dashboard);
   if (dashboard.widgets) {
+    dashboard.widgets = getAllowedWidgetsForCurrentParam(dashboard);
     dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
   }
   dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
