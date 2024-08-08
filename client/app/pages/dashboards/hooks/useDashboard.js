@@ -147,6 +147,7 @@ function useDashboard(dashboardData) {
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
+      dashboardRef.current.widgets = dashboardRef.current.saved_all_widgets;
       dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(dashboardRef.current);
       const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
