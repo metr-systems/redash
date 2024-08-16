@@ -17,7 +17,7 @@ import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
 import useDuplicateDashboard from "./useDuplicateDashboard";
 import { policy } from "@/services/policy";
-
+import { getAllowedWidgetsForCurrentParam } from "./utils";
 export { DashboardStatusEnum } from "./useEditModeHandler";
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
@@ -33,27 +33,6 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
           )
       )
     : widgets;
-}
-
-function getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets) {
-  try {
-    // filter the widgets by keeping only the ones we want
-    // get identifier of the current controller
-    for (var param of dashboardParameters) {
-      const controllerParam = param.value;
-      // check if we have allowed widgets for this param value
-      // get the allowed widgets for the current controller
-      if (dashboardAllowedWidgets.hasOwnProperty(controllerParam)) {
-        // filter the widgets to process
-        const allowedWidgetsIds = dashboardAllowedWidgets[controllerParam];
-        return dashboardAllWidgets.filter(widget => allowedWidgetsIds.includes(widget.id));
-      }
-    }
-  } catch (error) {
-    console.error(error);
-  }
-
-  return dashboardAllWidgets;
 }
 
 function useDashboard(dashboardData) {
