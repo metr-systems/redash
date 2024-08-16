@@ -212,6 +212,7 @@ Enabling Pre-commit check before commit.
 
 - command to test backend is `pytest`
 - command to test frontend is `yarn test`
+- command to run one frontend test named "testName" is `yarn jest -t "testName"`
   checking your installed dependencies for any failing tests
 
 - for installing cypress on mac
