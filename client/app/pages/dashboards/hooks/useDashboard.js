@@ -40,11 +40,17 @@ function getAllowedWidgetsForCurrentParam(dashboard) {
     // filter the widgets by keeping only the ones we want
     // get identifier of the current controller
     const dashQueryParams = dashboard.getParametersDefs();
-    const controllerParam = dashQueryParams.filter(param => param.name === "controller_param")[0].value;
-    // get the allowed widgets for the current controller
-    const allowedWidgetsIds = dashboard.allowed_widgets[controllerParam];
-    // filter the widgets to process
-    dashboard.widgets = dashboard.widgets.filter(widget => allowedWidgetsIds.includes(widget.id));
+    for (var param of dashQueryParams) {
+      const controllerParam = param.value;
+      // check if we have allowed widgets for this param value
+      // get the allowed widgets for the current controller
+      if (dashboard.allowed_widgets.hasOwnProperty(controllerParam)) {
+        // filter the widgets to process
+        const allowedWidgetsIds = dashboard.allowed_widgets[controllerParam];
+        dashboard.widgets = dashboard.widgets.filter(widget => allowedWidgetsIds.includes(widget.id));
+        break;
+      }
+    }
   } catch (error) {
     console.error(error);
   }
