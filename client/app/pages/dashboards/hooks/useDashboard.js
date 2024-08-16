@@ -35,27 +35,25 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
     : widgets;
 }
 
-function getAllowedWidgetsForCurrentParam(dashboard) {
+function getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets) {
   try {
     // filter the widgets by keeping only the ones we want
     // get identifier of the current controller
-    const dashQueryParams = dashboard.getParametersDefs();
-    for (var param of dashQueryParams) {
+    for (var param of dashboardParameters) {
       const controllerParam = param.value;
       // check if we have allowed widgets for this param value
       // get the allowed widgets for the current controller
-      if (dashboard.allowed_widgets.hasOwnProperty(controllerParam)) {
+      if (dashboardAllowedWidgets.hasOwnProperty(controllerParam)) {
         // filter the widgets to process
-        const allowedWidgetsIds = dashboard.allowed_widgets[controllerParam];
-        dashboard.widgets = dashboard.widgets.filter(widget => allowedWidgetsIds.includes(widget.id));
-        break;
+        const allowedWidgetsIds = dashboardAllowedWidgets[controllerParam];
+        return dashboardAllWidgets.filter(widget => allowedWidgetsIds.includes(widget.id));
       }
     }
   } catch (error) {
     console.error(error);
   }
 
-  return dashboard.widgets;
+  return dashboardAllWidgets;
 }
 
 function useDashboard(dashboardData) {
@@ -154,7 +152,11 @@ function useDashboard(dashboardData) {
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
       dashboardRef.current.widgets = dashboardRef.current.saved_all_widgets;
-      dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(dashboardRef.current);
+      dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(
+        dashboardRef.current.getParametersDefs(),
+        dashboardRef.current.allowed_widgets,
+        dashboardRef.current.widgets
+      );
       const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
         affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error))
