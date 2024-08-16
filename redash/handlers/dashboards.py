@@ -194,19 +194,20 @@ class DashboardResource(BaseResource):
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
-        allowed_widgets=self.get_allowed_widgets_info()
+        allowed_widgets=self.get_allowed_widgets_info(dashboard_id)
         if allowed_widgets:
             response["allowed_widgets"]=allowed_widgets
         
         return response
 
-    def get_allowed_widgets_info(self):
-        query = models.Query.query.filter(models.Query.name=="allowed_widgets").first()
+    def get_allowed_widgets_info(self,dashboard_id):
+        query_name=f"allowed_widgets_{dashboard_id}"
+        query = models.Query.query.filter(models.Query.name==query_name).first()
         allowed_widgets={}
         if query:
             data = query.latest_query_data.data["rows"]
             for row in data:
-                allowed_widgets[row["controller_parameter"]]=row["allowed_widgets"] 
+                allowed_widgets[row["main_parameter"]]=row["allowed_widgets"] 
         return allowed_widgets
 
     @require_permission("edit_dashboard")
