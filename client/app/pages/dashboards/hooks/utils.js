@@ -1,15 +1,13 @@
 export function getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets) {
   try {
     // filter the widgets by keeping only the ones we want
-    // get identifier of the current controller
     for (var param of dashboardParameters) {
-      const controllerParam = param.value;
+      const paramValue = param.value;
       // check if we have allowed widgets for this param value
-      // get the allowed widgets for the current controller
-      if (dashboardAllowedWidgets.hasOwnProperty(controllerParam)) {
+      if (dashboardAllowedWidgets !== undefined && dashboardAllowedWidgets.hasOwnProperty(paramValue)) {
         // filter the widgets to process
-        const allowedWidgetsIds = dashboardAllowedWidgets[controllerParam];
-        return dashboardAllWidgets.filter(widget => allowedWidgetsIds.includes(widget.id));
+        const allowedWidgets = dashboardAllowedWidgets[paramValue];
+        return dashboardAllWidgets.filter(widget => allowedWidgets.includes(widget.visualization.name));
       }
     }
   } catch (error) {
