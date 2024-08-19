@@ -135,6 +135,18 @@ class MyDashboardsResource(BaseResource):
         return paginate(ordered_results, page, page_size, DashboardSerializer)
 
 
+def get_allowed_widgets_info(dashboard_id):
+    query_name = f"allowed_widgets_{dashboard_id}"
+    query = models.Query.query.filter(models.Query.name == query_name).first()
+    allowed_widgets = {}
+    if query:
+        data = query.latest_query_data.data["rows"]
+        for row in data:
+            if "main_parameter" in row.keys() and "allowed_widgets" in row.keys():
+                allowed_widgets[row["main_parameter"]] = row["allowed_widgets"]
+    return allowed_widgets
+
+
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")
     def get(self, dashboard_id=None):
@@ -194,21 +206,11 @@ class DashboardResource(BaseResource):
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
-        allowed_widgets=self.get_allowed_widgets_info(dashboard_id)
+        allowed_widgets = get_allowed_widgets_info(dashboard_id)
         if allowed_widgets:
-            response["allowed_widgets"]=allowed_widgets
-        
-        return response
+            response["allowed_widgets"] = allowed_widgets
 
-    def get_allowed_widgets_info(self,dashboard_id):
-        query_name=f"allowed_widgets_{dashboard_id}"
-        query = models.Query.query.filter(models.Query.name==query_name).first()
-        allowed_widgets={}
-        if query:
-            data = query.latest_query_data.data["rows"]
-            for row in data:
-                allowed_widgets[row["main_parameter"]]=row["allowed_widgets"] 
-        return allowed_widgets
+        return response
 
     @require_permission("edit_dashboard")
     def post(self, dashboard_id):
