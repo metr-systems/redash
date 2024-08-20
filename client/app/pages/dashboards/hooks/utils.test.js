@@ -1,12 +1,9 @@
 import { getAllowedWidgetsForCurrentParam } from "@/pages/dashboards/hooks/utils";
 describe("filterWidgets", () => {
-  test("filter only for allowed widgets per main param value", () => {
+  test("filter only for allowed widgets per main parameter value", () => {
     let dashboardParameters = [
       {
         name: "controller_param",
-        title: "Controller param",
-        type: "text",
-        urlPrefix: "p_",
         value: "controller12345",
       },
     ];
@@ -26,13 +23,10 @@ describe("filterWidgets", () => {
       { id: 2, visualization: { name: "secondViz" } },
     ]).toStrictEqual(result);
   });
-  test("filters correctly in case of many params", () => {
+  test("filter correctly in case of many parameters", () => {
     let dashboardParameters = [
       {
         name: "controller_param",
-        title: "Controller param",
-        type: "text",
-        urlPrefix: "p_",
         value: "controller12345",
       },
       {
@@ -70,9 +64,6 @@ describe("filterWidgets", () => {
     let dashboardParameters = [
       {
         name: "controller_param",
-        title: "Controller param",
-        type: "text",
-        urlPrefix: "p_",
         value: "controller12345",
       },
     ];
@@ -99,9 +90,6 @@ describe("filterWidgets", () => {
     let dashboardParameters = [
       {
         name: "controller_param",
-        title: "Controller param",
-        type: "text",
-        urlPrefix: "p_",
         value: "controller12345",
       },
     ];
