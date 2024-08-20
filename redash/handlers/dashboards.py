@@ -136,14 +136,21 @@ class MyDashboardsResource(BaseResource):
 
 
 def get_allowed_widgets_info(dashboard_id):
+    """ This function adds allowed_widgets info to the data to return to frontend 
+    if we have a query named as follow f"allowed_widgets_{dashboard_id}". 
+    It returns an empty dictionary if the query does not exist """
+    # get the query having the allowed widgets information for the current dashboard
     query_name = f"allowed_widgets_{dashboard_id}"
     query = models.Query.query.filter(models.Query.name == query_name).first()
+    
+    # construct the allowed_widgets dictionary from the query data
     allowed_widgets = {}
     if query:
         data = query.latest_query_data.data["rows"]
         for row in data:
             if "main_parameter" in row.keys() and "allowed_widgets" in row.keys():
                 allowed_widgets[row["main_parameter"]] = row["allowed_widgets"]
+
     return allowed_widgets
 
 
@@ -206,6 +213,7 @@ class DashboardResource(BaseResource):
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
+        # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
         allowed_widgets = get_allowed_widgets_info(dashboard_id)
         if allowed_widgets:
             response["allowed_widgets"] = allowed_widgets

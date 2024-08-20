@@ -23,6 +23,7 @@ describe("filterWidgets", () => {
       { id: 2, visualization: { name: "secondViz" } },
     ]).toStrictEqual(result);
   });
+
   test("filter correctly in case of many parameters", () => {
     let dashboardParameters = [
       {
@@ -31,16 +32,10 @@ describe("filterWidgets", () => {
       },
       {
         name: "building_address_param", // order of params is important in this test
-        title: "Building address param",
-        type: "text",
-        urlPrefix: "p_",
         value: "building kreuzberg 1234",
       },
       {
         name: "zone_uuid_param",
-        title: "Zone UUID param",
-        type: "text",
-        urlPrefix: "p_",
         value: "zone12ce1e7d-51b5-40b7-bcb8-358cb84da400",
       },
     ];
@@ -60,6 +55,7 @@ describe("filterWidgets", () => {
       { id: 2, visualization: { name: "secondViz" } },
     ]).toStrictEqual(result);
   });
+
   test("return all widgets if allowed_widgets is undefined", () => {
     let dashboardParameters = [
       {
@@ -86,6 +82,7 @@ describe("filterWidgets", () => {
     let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
     expect(dashboardAllWidgets).toStrictEqual(result);
   });
+
   test("not found widget is just not returned", () => {
     let dashboardParameters = [
       {
