@@ -8,8 +8,8 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
 
         # create query holding allowed widgets info
         data = {
-            "rows": [{"main_parameter": "controller1234", "allowed_widgets": ["firstQueryViz", "secondQueryViz"]}],
-            "columns": [{"name": "main_parameter"}, {"name": "allowed_widgets"}],
+            "rows": [{"main_parameter": "controller1234", "widgets": ["firstQueryViz", "secondQueryViz"]}],
+            "columns": [{"name": "main_parameter"}, {"name": "widgets"}],
         }
         query_data_result = self.factory.create_query_result(data=data)
         self.factory.create_query(name=f"allowed_widgets_{dashboard_id}", latest_query_data=query_data_result)
@@ -25,8 +25,8 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
 
         # create query holding allowed widgets info
         data = {
-            "rows": [{"main_param": "controller1234", "allowed_widgets": ["firstQueryViz", "secondQueryViz"]}],
-            "columns": [{"name": "main_param"}, {"name": "allowed_widgets"}],
+            "rows": [{"main_param": "controller1234", "widgets": ["firstQueryViz", "secondQueryViz"]}],
+            "columns": [{"name": "main_param"}, {"name": "widgets"}],
         }
         query_data_result = self.factory.create_query_result(data=data)
 

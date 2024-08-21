@@ -148,8 +148,8 @@ def get_allowed_widgets_info(dashboard_id):
     if query:
         data = query.latest_query_data.data["rows"]
         for row in data:
-            if "main_parameter" in row.keys() and "allowed_widgets" in row.keys():
-                allowed_widgets[row["main_parameter"]] = row["allowed_widgets"]
+            if "main_parameter" in row.keys() and "widgets" in row.keys():
+                allowed_widgets[row["main_parameter"]] = row["widgets"]
 
     return allowed_widgets
 
