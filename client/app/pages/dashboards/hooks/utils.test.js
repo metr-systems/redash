@@ -104,4 +104,28 @@ describe("filterWidgets", () => {
     let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
     expect([{ id: 1, visualization: { name: "someNameViz" } }]).toStrictEqual(result);
   });
+  test("always show textboxes widgets", () => {
+    let dashboardParameters = [
+      {
+        name: "controller_param",
+        value: "controller12345",
+      },
+    ];
+    let dashboardAllowedWidgets = {
+      controller12345: ["firstViz", "someNameViz"],
+    };
+    let dashboardAllWidgets = [
+      { id: 1, visualization: { name: "someNameViz" } },
+      {
+        id: 2,
+        visualization: { name: "someOtherNameViz" },
+      },
+      {
+        id: 3, // textbox widget since it does not have a visualization
+      },
+    ];
+
+    let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
+    expect([{ id: 1, visualization: { name: "someNameViz" } }, { id: 3 }]).toStrictEqual(result);
+  });
 });

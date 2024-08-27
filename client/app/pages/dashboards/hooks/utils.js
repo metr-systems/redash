@@ -7,7 +7,9 @@ export function getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardA
       if (dashboardAllowedWidgets !== undefined && dashboardAllowedWidgets.hasOwnProperty(paramValue)) {
         // filter the widgets to process
         const allowedWidgets = dashboardAllowedWidgets[paramValue];
-        return dashboardAllWidgets.filter(widget => allowedWidgets.includes(widget.visualization.name));
+        return dashboardAllWidgets.filter(
+          widget => !widget.visualization || allowedWidgets.includes(widget.visualization.name)
+        );
       }
     }
   } catch (error) {
