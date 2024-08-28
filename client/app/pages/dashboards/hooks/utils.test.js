@@ -8,8 +8,8 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      controller12345: ["firstViz", "secondViz"],
-      "4d678ac-cdbc-49c4-ba0f-c8800bce5e8c": ["thirdViz"],
+      controller12345: "['firstViz','secondViz']",
+      "4d678ac-cdbc-49c4-ba0f-c8800bce5e8c": "['thirdViz']",
     };
     let dashboardAllWidgets = [
       { id: 1, visualization: { name: "firstViz" } },
@@ -40,8 +40,8 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      "building kreuzberg 1234": ["firstViz", "secondViz"],
-      "zone12ce1e7d-51b5-40b7-bcb8-358cb84da400": ["thirdViz"],
+      "building kreuzberg 1234": "['firstViz','secondViz']",
+      "zone12ce1e7d-51b5-40b7-bcb8-358cb84da400": "['thirdViz']",
     };
     let dashboardAllWidgets = [
       { id: 1, visualization: { name: "firstViz" } },
@@ -91,7 +91,7 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      controller12345: ["firstViz", "someNameViz"],
+      controller12345: "['firstViz','someNameViz']",
     };
     let dashboardAllWidgets = [
       { id: 1, visualization: { name: "someNameViz" } },
@@ -112,7 +112,7 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      controller12345: ["firstViz", "someNameViz"],
+      controller12345: "['firstViz','someNameViz']",
     };
     let dashboardAllWidgets = [
       { id: 1, visualization: { name: "someNameViz" } },
@@ -127,5 +127,29 @@ describe("filterWidgets", () => {
 
     let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
     expect([{ id: 1, visualization: { name: "someNameViz" } }, { id: 3 }]).toStrictEqual(result);
+  });
+  test("support compount visualization names", () => {
+    let dashboardAllowedWidgets = {
+      controller1: "['group1,group2']",
+      controller2: "['group1']",
+      controller3: "['group2']",
+    };
+    let dashboardAllWidgets = [
+      { id: 1, visualization: { name: "group1;group2" } },
+      {
+        id: 2,
+        visualization: { name: "someOtherNameViz" },
+      },
+    ];
+
+    // test for "group1"
+    let dashboardParameters2 = [
+      {
+        name: "controller_param",
+        value: "controller2",
+      },
+    ];
+    let result2 = getAllowedWidgetsForCurrentParam(dashboardParameters2, dashboardAllowedWidgets, dashboardAllWidgets);
+    expect([{ id: 1, visualization: { name: "group1;group2" } }]).toStrictEqual(result2);
   });
 });
