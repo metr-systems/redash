@@ -201,7 +201,7 @@ Enabling Pre-commit check before commit.
 
 - make sure redis is running by executing command `redis-server` on terminal
 - make sure to copy .env-example tp `.env` and fill the values for for `REDASH_COOKIE_SECRET` and `REDASH_SECRET_KEY` and `DATABASE_URL`
-- create a local db for redash and run `./manage.py create_tables`
+- create a local db for redash and run `./manage.py database create_tables`
 - make sure that your `REDASH_DATABASE_URL` / `SQLALCHEMY_DATABASE_URI` is updated with the newly created db
 - start the scheduler and the worker with `./manage.py rq scheduler` and `./manage.py rq worker`
 - run the server from inside redash dir with the command `flask run --host=127.0.0.1 --port=5001`
