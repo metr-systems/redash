@@ -135,7 +135,7 @@ class MyDashboardsResource(BaseResource):
         return paginate(ordered_results, page, page_size, DashboardSerializer)
 
 
-def get_allowed_widgets_info(dashboard_id):
+def get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name):
     """ This function adds allowed_widgets info to the data to return to frontend 
     if we have a query named as follow f"allowed_widgets_{dashboard_id}". 
     It returns an empty dictionary if the query does not exist """
@@ -148,8 +148,8 @@ def get_allowed_widgets_info(dashboard_id):
     if query:
         data = query.latest_query_data.data["rows"]
         for row in data:
-            if "main_parameter" in row.keys() and "widgets" in row.keys():
-                allowed_widgets[row["main_parameter"]] = row["widgets"]
+            if parameter_col_name in row.keys() and widgets_col_name in row.keys():
+                allowed_widgets[row[parameter_col_name]] = row[widgets_col_name]
 
     return allowed_widgets
 
@@ -214,7 +214,9 @@ class DashboardResource(BaseResource):
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
         # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
-        allowed_widgets = get_allowed_widgets_info(dashboard_id)
+        parameter_col_name="main_parameter"
+        widgets_col_name="widgets"
+        allowed_widgets = get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name)
         if allowed_widgets:
             response["allowed_widgets"] = allowed_widgets
 
