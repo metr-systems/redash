@@ -153,9 +153,22 @@ def get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name):
 
     return allowed_widgets
 
+def add_allowed_widgets_info(method):
+    def wrapper(self, dashboard_id):
+        result=method(self, dashboard_id)
+
+        # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
+        parameter_col_name="main_parameter"
+        widgets_col_name="widgets"
+        allowed_widgets = get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name)
+        if allowed_widgets:
+            result["allowed_widgets"] = allowed_widgets
+        return result
+    return wrapper
 
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")
+    @add_allowed_widgets_info
     def get(self, dashboard_id=None):
         """
         Retrieves a dashboard.
@@ -212,14 +225,6 @@ class DashboardResource(BaseResource):
         response["can_edit"] = can_modify(dashboard, self.current_user)
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
-
-        # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
-        parameter_col_name="main_parameter"
-        widgets_col_name="widgets"
-        allowed_widgets = get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name)
-        if allowed_widgets:
-            response["allowed_widgets"] = allowed_widgets
-
         return response
 
     @require_permission("edit_dashboard")
