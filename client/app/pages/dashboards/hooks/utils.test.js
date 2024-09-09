@@ -8,19 +8,19 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      controller12345: "['firstViz','secondViz']",
-      "4d678ac-cdbc-49c4-ba0f-c8800bce5e8c": "['thirdViz']",
+      controller12345: "['firstTag','secondTag']",
+      "4d678ac-cdbc-49c4-ba0f-c8800bce5e8c": "['thirdTag']",
     };
     let dashboardAllWidgets = [
-      { id: 1, visualization: { name: "firstViz" } },
-      { id: 2, visualization: { name: "secondViz" } },
-      { id: 3, visualization: { name: "thirdViz" } },
+      { id: 1, query: { tags: ["firstTag"] }, visualization: {} },
+      { id: 2, query: { tags: ["secondTag"] }, visualization: {} },
+      { id: 3, query: { tags: ["thirdTag"] }, visualization: {} },
     ];
 
     let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
     expect([
-      { id: 1, visualization: { name: "firstViz" } },
-      { id: 2, visualization: { name: "secondViz" } },
+      { id: 1, query: { tags: ["firstTag"] }, visualization: {} },
+      { id: 2, query: { tags: ["secondTag"] }, visualization: {} },
     ]).toStrictEqual(result);
   });
 
@@ -40,19 +40,19 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      "building kreuzberg 1234": "['firstViz','secondViz']",
-      "zone12ce1e7d-51b5-40b7-bcb8-358cb84da400": "['thirdViz']",
+      "building kreuzberg 1234": "['firstTag','secondTag']",
+      "zone12ce1e7d-51b5-40b7-bcb8-358cb84da400": "['thirdTag']",
     };
     let dashboardAllWidgets = [
-      { id: 1, visualization: { name: "firstViz" } },
-      { id: 2, visualization: { name: "secondViz" } },
-      { id: 3, visualization: { name: "thirdViz" } },
+      { id: 1, query: { tags: ["firstTag"] }, visualization: {} },
+      { id: 2, query: { tags: ["secondTag"] }, visualization: {} },
+      { id: 3, query: { tags: ["thirdTag"] }, visualization: {} },
     ];
 
     let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
     expect([
-      { id: 1, visualization: { name: "firstViz" } },
-      { id: 2, visualization: { name: "secondViz" } },
+      { id: 1, query: { tags: ["firstTag"] }, visualization: {} },
+      { id: 2, query: { tags: ["secondTag"] }, visualization: {} },
     ]).toStrictEqual(result);
   });
 
@@ -67,15 +67,18 @@ describe("filterWidgets", () => {
     let dashboardAllWidgets = [
       {
         id: 1,
-        visualization: { name: "firstViz" },
+        query: { tags: ["firstTag"] },
+        visualization: {},
       },
       {
         id: 2,
-        visualization: { name: "secondViz" },
+        query: { tags: ["secondTag"] },
+        visualization: {},
       },
       {
         id: 3,
-        visualization: { name: "thirdViz" },
+        query: { tags: ["thirdTag"] },
+        visualization: {},
       },
     ];
 
@@ -91,18 +94,19 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      controller12345: "['firstViz','someNameViz']",
+      controller12345: "['firstTag','someNameTag']",
     };
     let dashboardAllWidgets = [
-      { id: 1, visualization: { name: "someNameViz" } },
+      { id: 1, query: { tags: ["someNameTag"] }, visualization: {} },
       {
         id: 2,
-        visualization: { name: "someOtherNameViz" },
+        query: { tags: ["someOtherNameTag"] },
+        visualization: {},
       },
     ];
 
     let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
-    expect([{ id: 1, visualization: { name: "someNameViz" } }]).toStrictEqual(result);
+    expect([{ id: 1, query: { tags: ["someNameTag"] }, visualization: {} }]).toStrictEqual(result);
   });
   test("always show textboxes widgets", () => {
     let dashboardParameters = [
@@ -112,13 +116,14 @@ describe("filterWidgets", () => {
       },
     ];
     let dashboardAllowedWidgets = {
-      controller12345: "['firstViz','someNameViz']",
+      controller12345: "['firstTag','someNameTag']",
     };
     let dashboardAllWidgets = [
-      { id: 1, visualization: { name: "someNameViz" } },
+      { id: 1, query: { tags: ["someNameTag"] }, visualization: {} },
       {
         id: 2,
-        visualization: { name: "someOtherNameViz" },
+        query: { tags: ["someOtherNameTag"] },
+        visualization: {},
       },
       {
         id: 3, // textbox widget since it does not have a visualization
@@ -126,19 +131,20 @@ describe("filterWidgets", () => {
     ];
 
     let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
-    expect([{ id: 1, visualization: { name: "someNameViz" } }, { id: 3 }]).toStrictEqual(result);
+    expect([{ id: 1, query: { tags: ["someNameTag"] }, visualization: {} }, { id: 3 }]).toStrictEqual(result);
   });
-  test("support compount visualization names", () => {
+  test("support compount tag", () => {
     let dashboardAllowedWidgets = {
       controller1: "['group1,group2']",
       controller2: "['group1']",
       controller3: "['group2']",
     };
     let dashboardAllWidgets = [
-      { id: 1, visualization: { name: "group1;group2" } },
+      { id: 1, query: { tags: ["group1;group2"] }, visualization: {} },
       {
         id: 2,
-        visualization: { name: "someOtherNameViz" },
+        query: { tags: ["someOtherNameTag"] },
+        visualization: {},
       },
     ];
 
@@ -150,6 +156,6 @@ describe("filterWidgets", () => {
       },
     ];
     let result2 = getAllowedWidgetsForCurrentParam(dashboardParameters2, dashboardAllowedWidgets, dashboardAllWidgets);
-    expect([{ id: 1, visualization: { name: "group1;group2" } }]).toStrictEqual(result2);
+    expect([{ id: 1, query: { tags: ["group1;group2"] }, visualization: {} }]).toStrictEqual(result2);
   });
 });
