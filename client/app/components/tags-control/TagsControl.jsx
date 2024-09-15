@@ -108,6 +108,10 @@ export const QueryTagsControl = modelTagsControl({
   archivedTooltip: "This query is archived and can't be used in dashboards, or appear in search results.",
 });
 
+export const WidgetTagsControl = modelTagsControl({
+  archivedTooltip: "This widget is archived and can't be used in dashboards.",
+});
+
 export const DashboardTagsControl = modelTagsControl({
   archivedTooltip: "This dashboard is archived and won't be listed in dashboards nor search results.",
 });

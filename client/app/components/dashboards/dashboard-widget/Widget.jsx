@@ -1,14 +1,16 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { isEmpty } from "lodash";
+import { isEmpty, isEqual, map } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
 import recordEvent from "@/services/recordEvent";
+import { axios } from "@/services/axios";
 import { Moment } from "@/components/proptypes";
 import PlainButton from "@/components/PlainButton";
-
+import { WidgetTagsControl } from "@/components/tags-control/TagsControl";
+import getTags from "@/services/getTags";
 import "./Widget.less";
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
@@ -89,11 +91,40 @@ class Widget extends React.Component {
     onDelete: () => {},
   };
 
-  componentDidMount() {
-    const { widget } = this.props;
-    recordEvent("view", "widget", widget.id);
+  constructor(props) {
+    super(props);
+    this.state = {tags: []};
   }
 
+  initTags = async () => {
+    const { widget } = this.props;
+    const id = widget.id;
+    const tags = await getTags(`api/widgets/${id}/tags`);
+    return map(tags, t => t.name);
+  };
+
+  async componentDidMount() {
+    const { widget } = this.props;
+    recordEvent("view", "widget", widget.id);
+
+    const tags = await this.initTags();
+
+    this.setState({ tags });
+  }
+
+
+  handleUpdateTags = async (newTags) => {
+    const { widget } = this.props;
+    const { tags: currentTags } = this.state;
+    const id = widget.id;
+
+    // Check if the new tags are different from the current tags
+    if (!isEqual(newTags, currentTags)) {
+      await axios.post(`api/widgets/${id}/tags`, { tags: newTags });
+      this.setState({ tags: newTags });
+    }
+  };
+  
   deleteWidget = () => {
     const { widget, onDelete } = this.props;
 
@@ -108,7 +139,9 @@ class Widget extends React.Component {
     });
   };
 
+
   render() {
+    const { tags } = this.state;
     const { className, children, header, footer, canEdit, isPublic, menuOptions, tileProps } = this.props;
     const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
@@ -126,6 +159,14 @@ class Widget extends React.Component {
           </div>
           <div className="body-row widget-header">{header}</div>
           {children}
+          <WidgetTagsControl
+            className="d-block"
+            tags={tags}
+            canEdit={canEdit}
+            getAvailableTags={this.initTags}
+            onEdit={tags => this.handleUpdateTags(tags)}
+            tagsExtra={null}
+          />
           {footer && <div className="body-row tile__bottom-control">{footer}</div>}
         </div>
       </div>
