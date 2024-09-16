@@ -1209,6 +1209,8 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
             "text": self.text,
             "visualization_id": self.visualization_id,
             "dashboard_id": dashboard_id,
+        }
+    
 @generic_repr("id", "widget_id")
 class metrWidget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = primary_key("metrWidget")
