@@ -166,6 +166,7 @@ def serialize_widget(object):
         "text": object.text,
         "updated_at": object.updated_at,
         "created_at": object.created_at,
+        "tags":object.metr_widget[0].tags,
     }
 
     if object.visualization and object.visualization.id:
