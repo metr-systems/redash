@@ -2,6 +2,7 @@ import json
 
 from redash import models
 from tests import BaseTestCase
+from tests.handlers.test_widgets import WidgetAPITest
 
 
 class TestMetrWidgetTagsResource(BaseTestCase):
@@ -44,3 +45,16 @@ class TestMetrWidgetTagsResource(BaseTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(metr_widget.tags, new_tags)
+
+
+class TestWidgetAPI(WidgetAPITest):
+    def test_create_widget_creates_also_metr_widget(self):
+        self.assertTrue(len(models.metrWidget.query.all())  == 0)
+
+        dashboard = self.factory.create_dashboard()
+        vis = self.factory.create_visualization()
+
+        rv = self.create_widget(dashboard, vis)
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertTrue(len(models.metrWidget.query.all()) == 1)
