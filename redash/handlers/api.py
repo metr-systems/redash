@@ -92,7 +92,8 @@ from redash.handlers.visualizations import (
     VisualizationListResource,
     VisualizationResource,
 )
-from redash.handlers.widgets import WidgetListResource, WidgetResource, metrWidgetTagsResource
+from redash.handlers.widgets import WidgetListResource, WidgetResource
+from redash.handlers.metr_widgets import metrWidgetTagsResource
 from redash.utils import json_dumps
 
 
