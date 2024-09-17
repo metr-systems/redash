@@ -142,7 +142,7 @@ class Widget extends React.Component {
 
   render() {
     const { tags } = this.state;
-    const { className, children, header, footer, canEdit, isPublic, menuOptions, tileProps } = this.props;
+    const { className, children, header, footer, canEdit, isEditing, isPublic, menuOptions, tileProps } = this.props;
     const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
       <div className="widget-wrapper">
@@ -162,7 +162,7 @@ class Widget extends React.Component {
           <WidgetTagsControl
             className="d-block"
             tags={tags}
-            canEdit={canEdit}
+            canEdit={canEdit && isEditing}
             getAvailableTags={this.initTags}
             onEdit={tags => this.handleUpdateTags(tags)}
             tagsExtra={null}

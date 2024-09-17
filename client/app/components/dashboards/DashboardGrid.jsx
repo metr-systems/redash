@@ -70,7 +70,7 @@ const DashboardWidget = React.memo(
       );
     }
     if (type === WidgetTypeEnum.TEXTBOX) {
-      return <TextboxWidget widget={widget} canEdit={canEdit} isPublic={isPublic} onDelete={onDelete} />;
+      return <TextboxWidget widget={widget} canEdit={canEdit} isEditing={isEditing} isPublic={isPublic} onDelete={onDelete} />;
     }
     return <RestrictedWidget widget={widget} />;
   },
