@@ -1,11 +1,7 @@
 import _ from "lodash";
 
 function convertStringIntoList(stringList) {
-  return stringList
-    .replace("[", "")
-    .replace("]", "")
-    .replaceAll("'", "")
-    .split(",");
+  return stringList.replace(/[\[\]']/g, "").split(",");
 }
 
 function isWidgetToShow(allowedWidgets, listOfTags) {
@@ -30,13 +26,10 @@ export function getAllowedWidgetsForCurrentParam(dashboardParameters, AllowedWid
         // filter the widgets to process
         let allowedWidgets = convertStringIntoList(AllowedWidgetsIdentifiers[paramValue]);
 
-        let filtered_wgt_id = [];
-        dashboardAllWidgets.forEach(widget => {
-          if (isWidgetToShow(allowedWidgets, widget.tags)) {
-            // if widget tag -or any subset of it- is in allowedWidgets list - we show it
-            filtered_wgt_id.push(widget.id);
-          }
-        });
+        let filtered_wgt_id = dashboardAllWidgets
+          .filter(widget => isWidgetToShow(allowedWidgets, widget.tags))
+          .map(widget => widget.id);
+
         // we only consider one main parameter, this is why we return here
         return dashboardAllWidgets.filter(widget => filtered_wgt_id.includes(widget.id));
       }
