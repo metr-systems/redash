@@ -130,11 +130,8 @@ function useDashboard(dashboardData) {
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
-      // get the new values of the parameters
-      const widgetFilterParams =
-        dashboardRef.current.getParametersDefs().length > 0
-          ? dashboardRef.current.getParametersDefs()
-          : updatedParameters;
+      // get the values of the parameters
+      const widgetFilterParams = updatedParameters.length > 0 ? updatedParameters : globalParameters;
 
       // filter widgets to show from all the widgets according to the current parameters
       dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(
