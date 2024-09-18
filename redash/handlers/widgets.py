@@ -43,9 +43,6 @@ class WidgetListResource(BaseResource):
         widget = models.Widget(**widget_properties)
         models.db.session.add(widget)
 
-        metrwidget=models.metrWidget(widget=widget, tags=[])
-        models.db.session.add(metrwidget)
-
         models.db.session.commit()
         return serialize_widget(widget)
 
