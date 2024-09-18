@@ -184,7 +184,7 @@ class Widget {
   }
 
   save_tags(value) {
-    return axios.post(`api/widgets/${this.id}/tags`, { tags: value });
+    return axios.post(`api/metrwidgets/${this.id}/tags`, { tags: value });
   }
 
   save(key, value) {
