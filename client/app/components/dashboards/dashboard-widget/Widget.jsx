@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { isEmpty, isEqual, map } from "lodash";
+import { isEmpty, isEqual } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
@@ -9,7 +9,6 @@ import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
 import PlainButton from "@/components/PlainButton";
 import { WidgetTagsControl } from "@/components/tags-control/TagsControl";
-import getTags from "@/services/getTags";
 import "./Widget.less";
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
@@ -104,7 +103,6 @@ class Widget extends React.Component {
   handleUpdateTags = (newTags) => {
     const { widget } = this.props;
     const { tags: currentTags } = this.state;
-    const id = widget.id;
 
     // Check if the new tags are different from the current tags
     // then update the tags and save the widget in backend
@@ -155,7 +153,7 @@ class Widget extends React.Component {
             canEdit={canEdit && isEditing}
             getAvailableTags={tags}
             onEdit={tags => this.handleUpdateTags(tags)}
-            tagsExtra={null}
+            tagsExtra={null} // TODO check if this line is needed
           />}
           {footer && <div className="body-row tile__bottom-control">{footer}</div>}
         </div>
