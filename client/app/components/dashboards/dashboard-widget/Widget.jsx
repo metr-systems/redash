@@ -121,7 +121,7 @@ class Widget extends React.Component {
     // Check if the new tags are different from the current tags
     if (!isEqual(newTags, currentTags)) {
       await axios.post(`api/widgets/${id}/tags`, { tags: newTags });
-      this.setState({ tags: newTags });
+      widget.tags = newTags;
     }
   };
   
