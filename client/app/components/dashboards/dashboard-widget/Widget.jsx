@@ -159,14 +159,14 @@ class Widget extends React.Component {
           </div>
           <div className="body-row widget-header">{header}</div>
           {children}
-          <WidgetTagsControl
+          {canEdit && isEditing && <WidgetTagsControl
             className="d-block"
             tags={tags}
             canEdit={canEdit && isEditing}
             getAvailableTags={this.initTags}
             onEdit={tags => this.handleUpdateTags(tags)}
             tagsExtra={null}
-          />
+          />}
           {footer && <div className="body-row tile__bottom-control">{footer}</div>}
         </div>
       </div>
