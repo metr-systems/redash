@@ -96,20 +96,21 @@ class Widget extends React.Component {
     this.state = { tags: props.widget.tags };
   }
 
-  async componentDidMount() {
+  componentDidMount() {
     const { widget } = this.props;
     recordEvent("view", "widget", widget.id);
   }
 
 
-  handleUpdateTags = async (newTags) => {
+  handleUpdateTags = (newTags) => {
     const { widget } = this.props;
     const { tags: currentTags } = this.state;
     const id = widget.id;
 
     // Check if the new tags are different from the current tags
+    // then update the tags and save the widget in backend
     if (!isEqual(newTags, currentTags)) {
-      await axios.post(`api/widgets/${id}/tags`, { tags: newTags });
+      widget.save_tags(newTags);
       widget.tags = newTags;
       this.setState({ tags: newTags }); 
     }
