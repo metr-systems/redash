@@ -93,23 +93,12 @@ class Widget extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {tags: []};
+    this.state = { tags: props.widget.tags };
   }
-
-  initTags = async () => {
-    const { widget } = this.props;
-    const id = widget.id;
-    const tags = await getTags(`api/widgets/${id}/tags`);
-    return map(tags, t => t.name);
-  };
 
   async componentDidMount() {
     const { widget } = this.props;
     recordEvent("view", "widget", widget.id);
-
-    const tags = await this.initTags();
-
-    this.setState({ tags });
   }
 
 
@@ -122,6 +111,7 @@ class Widget extends React.Component {
     if (!isEqual(newTags, currentTags)) {
       await axios.post(`api/widgets/${id}/tags`, { tags: newTags });
       widget.tags = newTags;
+      this.setState({ tags: newTags }); 
     }
   };
   
@@ -163,7 +153,7 @@ class Widget extends React.Component {
             className="d-block"
             tags={tags}
             canEdit={canEdit && isEditing}
-            getAvailableTags={this.initTags}
+            getAvailableTags={tags}
             onEdit={tags => this.handleUpdateTags(tags)}
             tagsExtra={null}
           />}

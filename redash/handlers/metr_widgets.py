@@ -16,13 +16,6 @@ class metrWidgetTagsResource(BaseResource):
     This resource provides methods for retrieving and updating tags associated with a metrWidget.
     """
 
-    @require_permission("list_dashboards")
-    def get(self, widget_id):
-        widget=models.Widget.get_by_id_and_org(widget_id, self.current_org)
-        metr_widget = models.metrWidget.query.filter(models.metrWidget.widget == widget).first()
-        tags = metr_widget.tags if metr_widget else []
-        return {"tags": [{"name": name} for name in tags]}
-
     @require_permission("edit_dashboard")
     def post(self, widget_id):
         widget = models.Widget.get_by_id_and_org(widget_id, self.current_org)
