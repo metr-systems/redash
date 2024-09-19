@@ -99,7 +99,6 @@ class Widget extends React.Component {
     recordEvent("view", "widget", widget.id);
   }
 
-
   handleUpdateTags = (newTags) => {
     const { widget } = this.props;
     const { tags: currentTags } = this.state;
@@ -151,9 +150,7 @@ class Widget extends React.Component {
             className="d-block"
             tags={tags}
             canEdit={canEdit && isEditing}
-            getAvailableTags={tags}
             onEdit={tags => this.handleUpdateTags(tags)}
-            tagsExtra={null} // TODO check if this line is needed
           />}
           {footer && <div className="body-row tile__bottom-control">{footer}</div>}
         </div>
