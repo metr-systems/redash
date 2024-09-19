@@ -147,7 +147,7 @@ class Widget extends React.Component {
           <div className="body-row widget-header">{header}</div>
           {children}
           {canEdit && isEditing && <WidgetTagsControl
-            className="d-block"
+            className="justify-content-start tile__bottom-control"
             tags={tags}
             canEdit={canEdit && isEditing}
             onEdit={tags => this.handleUpdateTags(tags)}
