@@ -9,7 +9,7 @@ from redash.permissions import (
 )
 from redash.serializers import serialize_widget
 
-class metrWidgetTagsResource(BaseResource):
+class MetrWidgetTagsResource(BaseResource):
     """
     Resource for handling tags of a metrWidget.
 
