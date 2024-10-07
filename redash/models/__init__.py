@@ -1215,7 +1215,7 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
 class metrWidget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = primary_key("metrWidget")
     widget_id = Column(key_type("Widget"), db.ForeignKey("widgets.id"))
-    widget = db.relationship(Widget,  backref=backref("metr_widget", cascade="delete"),uselist=False)
+    widget = db.relationship(Widget, backref=backref("metr_widget", cascade="delete", uselist=False))
     tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
 
     __tablename__ = "metrwidgets"

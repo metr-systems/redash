@@ -29,5 +29,5 @@ class TestMetrWidgetTagsResource(BaseTestCase):
         response =  self.make_request("post",f"/api/metrwidgets/{widget.id}/tags", data=widget_properties)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(widget.metr_widget[0].tags, new_tags)
-        self.assertEqual(widget.metr_widget[0].widget_id,widget.id)
+        self.assertEqual(widget.metr_widget.tags, new_tags)
+        self.assertEqual(widget.metr_widget.widget_id,widget.id)
