@@ -23,11 +23,10 @@ class MetrWidgetTagsResource(BaseResource):
         widget_properties = request.get_json(force=True)
         tags = widget_properties["tags"]
 
-        metrWidget = models.metrWidget.query.filter_by(widget=widget).first()
-        if metrWidget is None:
+        if widget.metr_widget is None:
             metrWidget = models.metrWidget(widget=widget)
             models.db.session.add(metrWidget)
 
-        metrWidget.tags = tags
+        widget.metr_widget.tags = tags
         models.db.session.commit()
         return serialize_widget(widget)
