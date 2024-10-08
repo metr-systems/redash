@@ -183,6 +183,10 @@ class Widget {
     return this.queryResult.toPromise();
   }
 
+  save_tags(value) {
+    return axios.post(`api/metrwidgets/${this.id}/tags`, { tags: value });
+  }
+
   save(key, value) {
     const data = pick(this, "options", "text", "id", "width", "dashboard_id", "visualization_id");
     if (key && value) {

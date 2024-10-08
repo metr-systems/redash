@@ -1210,7 +1210,15 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
             "visualization_id": self.visualization_id,
             "dashboard_id": dashboard_id,
         }
+    
+@generic_repr("id", "widget_id")
+class metrWidget(TimestampMixin, BelongsToOrgMixin, db.Model):
+    id = primary_key("metrWidget")
+    widget_id = Column(key_type("Widget"), db.ForeignKey("widgets.id"))
+    widget = db.relationship(Widget, backref=backref("metr_widget", cascade="delete", uselist=False))
+    tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
 
+    __tablename__ = "metrwidgets"
 
 @generic_repr("id", "object_type", "object_id", "action", "user_id", "org_id", "created_at")
 class Event(db.Model):
