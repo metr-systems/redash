@@ -115,6 +115,7 @@ describe("filterWidgets", () => {
       },
       {
         id: 3, // textbox widget since it does not have a visualization
+        tags: ["someOtherNameTag"],
       },
     ];
 
@@ -145,5 +146,51 @@ describe("filterWidgets", () => {
     ];
     let result2 = getAllowedWidgetsForCurrentParam(dashboardParameters2, dashboardAllowedWidgets, dashboardAllWidgets);
     expect([{ id: 1, tags: ["group1;group2"], visualization: {} }]).toStrictEqual(result2);
+  });
+  test("show widgets and textboxes that have no tag", () => {
+    let dashboardParameters = [
+      {
+        name: "controller_param",
+        value: "controller12345",
+      },
+    ];
+    let dashboardAllowedWidgets = {
+      controller12345: "['firstTag','secondTag']",
+    };
+    let dashboardAllWidgets = [
+      { id: 1, tags: ["firstTag"], visualization: {} },
+      { id: 2, tags: ["secondTag"], visualization: {} },
+      { id: 3, tags: [], visualization: {} }, // widget with no tag
+      { id: 4, tags: [] }, // textbox with no tag
+      { id: 5, tags: ["anotherTag"], visualization: {} }, // widget with a tag to not show
+      { id: 6, tags: ["anotherTag"] }, // textbox  with a tag to not show
+    ];
+
+    let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
+    expect([
+      { id: 1, tags: ["firstTag"], visualization: {} },
+      { id: 2, tags: ["secondTag"], visualization: {} },
+      { id: 3, tags: [], visualization: {} },
+      { id: 4, tags: [] },
+    ]).toStrictEqual(result);
+  });
+
+  test("show all widgets and textboxes when allowedWidgets is undefined", () => {
+    let dashboardParameters = [
+      {
+        name: "controller_param",
+        value: "controller12345",
+      },
+    ];
+    let dashboardAllowedWidgets = undefined;
+    let dashboardAllWidgets = [
+      { id: 1, tags: ["firstTag"], visualization: {} },
+      { id: 2, tags: ["secondTag"], visualization: {} },
+      { id: 3, tags: [], visualization: {} }, // widget with no tag
+      { id: 4, tags: [] }, // textbox with no tag
+    ];
+
+    let result = getAllowedWidgetsForCurrentParam(dashboardParameters, dashboardAllowedWidgets, dashboardAllWidgets);
+    expect(dashboardAllWidgets).toStrictEqual(result);
   });
 });
