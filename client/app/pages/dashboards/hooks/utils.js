@@ -5,6 +5,9 @@ function convertStringIntoList(stringList) {
 }
 
 function isWidgetToShow(allowedWidgets, listOfTags) {
+  if (listOfTags.length === 0) {
+    return true;
+  }
   for (let index in listOfTags) {
     let tag = listOfTags[index];
     let listOfNames = tag.split(";");
