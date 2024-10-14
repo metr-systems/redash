@@ -17,7 +17,7 @@ import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
 import useDuplicateDashboard from "./useDuplicateDashboard";
 import { policy } from "@/services/policy";
-
+import { getAllowedWidgetsForCurrentParam } from "./utils";
 export { DashboardStatusEnum } from "./useEditModeHandler";
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
@@ -130,6 +130,16 @@ function useDashboard(dashboardData) {
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
+      // get the values of the parameters
+      const widgetFilterParams = updatedParameters.length > 0 ? updatedParameters : globalParameters;
+
+      // filter widgets to show from all the widgets according to the current parameters
+      dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(
+        widgetFilterParams,
+        dashboardRef.current.allowed_widgets,
+        dashboardRef.current.saved_all_widgets
+      );
+
       const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
         affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error))

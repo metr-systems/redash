@@ -139,6 +139,9 @@ function prepareDashboardWidgets(widgets) {
 function transformSingle(dashboard) {
   dashboard = new Dashboard(dashboard);
   if (dashboard.widgets) {
+    // save all widgets so that we can re-filter without refreshing the dashboard later
+    dashboard.saved_all_widgets = prepareDashboardWidgets(dashboard.widgets);
+
     dashboard.widgets = prepareDashboardWidgets(dashboard.widgets);
   }
   dashboard.publicAccessEnabled = dashboard.public_url !== undefined;
