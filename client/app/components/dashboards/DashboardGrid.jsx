@@ -83,6 +83,76 @@ const DashboardWidget = React.memo(
     prevProps.isEditing === nextProps.isEditing
 );
 
+function fixLayouts(initialLayouts, layouts) {
+  const groupedInitialLayouts = chain(initialLayouts)
+    .groupBy("y")
+    .map((row, y) => ({
+      y: parseInt(y, 10),
+      items: row.sort((a, b) => a.x - b.x)
+    }))
+    .value();
+  const groupedLayouts = chain(layouts)
+    .groupBy("y")
+    .map((row, y) => ({
+      y: parseInt(y, 10),
+      items: row.sort((a, b) => a.x - b.x)
+    }))
+    .value();
+
+  console.log("groupedInitialLayouts", groupedInitialLayouts);
+  console.log("groupedLayouts", groupedLayouts);
+
+  const initialItemsMap = new Map();
+  groupedInitialLayouts.forEach(group => {
+    group.items.forEach(item => {
+      initialItemsMap.set(item.i, item);
+    });
+  });
+
+  groupedLayouts.forEach(group => {
+    group.items.forEach(item => {
+      const initialItem = initialItemsMap.get(item.i);
+
+      if (initialItem && initialItem.y !== item.y) {
+        console.log(
+          `Item with id ${item.i} changed group from y=${initialItem.y} to y=${item.y}`
+        );
+        if (initialItem.y < item.y) {
+          console.log(
+            `Item with id ${item.i} moved down from y=${initialItem.y} to y=${item.y}`
+          );
+          const conflictItem = group.items.find(
+            otherItem =>
+              otherItem.y === initialItem.y &&
+              otherItem.x === initialItem.x &&
+              otherItem.i !== item.i
+          );
+
+          if (conflictItem) {
+            console.log(
+              `Conflict detected: Item with id ${conflictItem.i} is occupying the same position as initial item with id ${initialItem.i}`
+            );
+          } else {
+            // TODO add more constraint and be sure to position it next to its old companion
+            console.log("no conflict");
+            item.y = initialItem.y;
+          }
+        }
+      }
+    });
+  });
+
+  console.log("corrected groupedLayouts", groupedLayouts);
+
+  const newLayouts = chain(groupedLayouts)
+    .flatMap("items")
+    .value();
+
+  console.log("newLayouts", newLayouts);
+
+  return newLayouts;
+}
+
 class DashboardGrid extends React.Component {
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
@@ -136,6 +206,7 @@ class DashboardGrid extends React.Component {
     super(props);
 
     this.state = {
+      initialLayouts: {},
       layouts: {},
       disableAnimations: true,
     };
@@ -164,11 +235,16 @@ class DashboardGrid extends React.Component {
   }
 
   onLayoutChange = (_, layouts) => {
+    if (!this.state.initialLayouts[MULTI]) {
+      this.setState({ initialLayouts: { [MULTI]: layouts[MULTI] } });
+    }
+
+    let newLayouts=fixLayouts(this.state.initialLayouts[MULTI],layouts[MULTI])
     // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
     if (layouts[MULTI]) {
-      this.setState({ layouts });
+      this.setState({ layouts:newLayouts });
     }
 
     // workaround for https://github.com/STRML/react-grid-layout/issues/889
