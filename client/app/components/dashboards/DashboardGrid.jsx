@@ -12,6 +12,31 @@ import { WidgetTypeEnum } from "@/services/widget";
 import "react-grid-layout/css/styles.css";
 import "./dashboard-grid.less";
 
+function compactLayoutsHorizontally(layouts) {
+  // group layouts by row
+  const grouped = chain(layouts[MULTI])
+    .groupBy("y")
+    .mapValues(row => row.sort((a, b) => a.x - b.x))
+    .values()
+    .value();
+
+  console.log("grouped", grouped);
+  // compact each row
+  let currentY = 0;
+  const compacted = grouped.map(row => {
+    const maxHeight = Math.max(...row.map(item => item.h));
+    row.forEach(item => {
+      if (item.y !== currentY) {
+        item.y = currentY;
+      }
+    });
+    currentY += maxHeight;
+    return row;
+  }).flat();
+
+  console.log("compacted", compacted);
+  return compacted;
+}
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 const WidgetType = PropTypes.shape({
@@ -136,7 +161,7 @@ class DashboardGrid extends React.Component {
     super(props);
 
     this.state = {
-      layouts: {},
+      layouts:{},
       disableAnimations: true,
     };
 
@@ -164,11 +189,19 @@ class DashboardGrid extends React.Component {
   }
 
   onLayoutChange = (_, layouts) => {
+    console.log("layouts", layouts);
+
+    let compactedLayout = compactLayoutsHorizontally(layouts)
+    console.log("compactedLayout ", compactedLayout);
+
+    //compactedLayout = compact(layouts[MULTI], "horizintal");
+    //console.log("compactedLayout h", compactedLayout);
+
     // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
-    if (layouts[MULTI]) {
-      this.setState({ layouts });
+    if (compactedLayout[MULTI]) {
+      this.setState({ layouts:compactedLayout });
     }
 
     // workaround for https://github.com/STRML/react-grid-layout/issues/889
@@ -186,7 +219,9 @@ class DashboardGrid extends React.Component {
       .mapValues(this.normalizeTo)
       .value();
 
+    //console.log("normalized",normalized);
     this.props.onLayoutChange(normalized);
+    //console.log("normalized - 2",normalized);
   };
 
   onBreakpointChange = mode => {
@@ -254,6 +289,7 @@ class DashboardGrid extends React.Component {
           layouts={this.state.layouts}
           onLayoutChange={this.onLayoutChange}
           onBreakpointChange={this.onBreakpointChange}
+          compactType={null}
           breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}>
           {widgets.map(widget => (
             <div
