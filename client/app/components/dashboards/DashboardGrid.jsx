@@ -83,76 +83,29 @@ const DashboardWidget = React.memo(
     prevProps.isEditing === nextProps.isEditing
 );
 
-function fixLayouts(initialLayouts, layouts) {
-  const groupedInitialLayouts = chain(initialLayouts)
-    .groupBy("y")
-    .map((row, y) => ({
-      y: parseInt(y, 10),
-      items: row.sort((a, b) => a.x - b.x)
-    }))
-    .value();
-  const groupedLayouts = chain(layouts)
-    .groupBy("y")
-    .map((row, y) => ({
-      y: parseInt(y, 10),
-      items: row.sort((a, b) => a.x - b.x)
-    }))
-    .value();
+function keepLayoutsOrder(orderedLayoutsIds, layouts) {
+  const newLayouts = [];
+  let currentY = 0;
+  let previousLayout = null;
 
-  console.log("groupedInitialLayouts", groupedInitialLayouts);
-  console.log("groupedLayouts", groupedLayouts);
-
-  const initialItemsMap = new Map();
-  groupedInitialLayouts.forEach(group => {
-    group.items.forEach(item => {
-      initialItemsMap.set(item.i, item);
-    });
-  });
-
-  groupedLayouts.forEach(group => {
-    group.items.forEach(item => {
-      const initialItem = initialItemsMap.get(item.i);
-
-      if (initialItem && initialItem.y !== item.y) {
-        console.log(
-          `Item with id ${item.i} changed group from y=${initialItem.y} to y=${item.y}`
-        );
-        if (initialItem.y < item.y) {
-          console.log(
-            `Item with id ${item.i} moved down from y=${initialItem.y} to y=${item.y}`
-          );
-          const conflictItem = group.items.find(
-            otherItem =>
-              otherItem.y === initialItem.y &&
-              otherItem.x === initialItem.x &&
-              otherItem.i !== item.i
-          );
-
-          if (conflictItem) {
-            console.log(
-              `Conflict detected: Item with id ${conflictItem.i} is occupying the same position as initial item with id ${initialItem.i}`
-            );
-          } else {
-            // TODO add more constraint and be sure to position it next to its old companion
-            console.log("no conflict");
-            item.y = initialItem.y;
-          }
-        }
+  orderedLayoutsIds.forEach(id => {
+    const layout = layouts.find(l => l.i === id.toString());
+    if (layout) {
+      if (previousLayout && ((previousLayout.w + layout.w) === cfg.columns)) {
+        layout.y = previousLayout.y;
+        layout.x = previousLayout.x === 0 ? previousLayout.w : 0;
+        currentY += Math.max(previousLayout.h, layout.h) - previousLayout.h;
+      } else {
+        layout.y = currentY;
+        currentY += layout.h;
       }
-    });
+      newLayouts.push(layout);
+      previousLayout = layout;
+    }
   });
-
-  console.log("corrected groupedLayouts", groupedLayouts);
-
-  const newLayouts = chain(groupedLayouts)
-    .flatMap("items")
-    .value();
-
-  console.log("newLayouts", newLayouts);
 
   return newLayouts;
 }
-
 class DashboardGrid extends React.Component {
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
@@ -186,7 +139,7 @@ class DashboardGrid extends React.Component {
     } = widget;
 
     return {
-      i: id.toString(),
+      i: id.toString(), // NOTE i for a layout is same as widget id
       x: pos.col,
       y: pos.row,
       w: pos.sizeX,
@@ -206,7 +159,6 @@ class DashboardGrid extends React.Component {
     super(props);
 
     this.state = {
-      initialLayouts: {},
       layouts: {},
       disableAnimations: true,
     };
@@ -235,15 +187,16 @@ class DashboardGrid extends React.Component {
   }
 
   onLayoutChange = (_, layouts) => {
-    if (!this.state.initialLayouts[MULTI]) {
-      this.setState({ initialLayouts: { [MULTI]: layouts[MULTI] } });
-    }
-
-    let newLayouts=fixLayouts(this.state.initialLayouts[MULTI],layouts[MULTI])
+    let newLayouts=layouts
     // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
     if (layouts[MULTI]) {
+      // get the order of widgets from saved_all_widgets
+      const saved_all_widgets = this.props.dashboard.saved_all_widgets;
+      const savedWidgetIds = saved_all_widgets.map(widget => widget.id);
+      // make sure our layouts order is correct
+      newLayouts = keepLayoutsOrder(savedWidgetIds, layouts[MULTI]);
       this.setState({ layouts:newLayouts });
     }
 
@@ -257,7 +210,7 @@ class DashboardGrid extends React.Component {
       return;
     }
 
-    const normalized = chain(layouts[MULTI])
+    const normalized = chain(newLayouts[MULTI])
       .keyBy("i")
       .mapValues(this.normalizeTo)
       .value();
