@@ -2,7 +2,6 @@ import { keepLayoutsOrder } from "./utils";
 
 // Assumptions for now:
 // titles (textboxes) are always on left
-// we have two widgets per line
 
 describe("keepLayoutsOrder", () => {
   it("widget moves to left when there is space", () => {
@@ -827,6 +826,64 @@ describe("keepLayoutsOrder", () => {
         y: 8,
         i: "5",
       },
+    ]);
+  });
+  it("case of many widgets per line", () => {
+    /** 
+        full layout looks like this:
+        ------------- ------------- ------------- ------------- ------------- -------------
+        |           | |           | |           | |           | |           | |           |
+        | vis1      | |  vis2     | | vis3      | |  vis4     | |  vis5     | |  vis6     |
+        ------------- ------------- ------------- ------------- ------------- -------------
+        --------------------------- ------------- -------------
+        |                         | |           | |           |
+        | vis7                    | | vis8      | |  vis9     |
+        --------------------------- ------------- -------------
+
+        layout with hidden widget 3 and 6 look like this:
+
+        ------------- ------------- ------------- ------------- ---------------------------
+        |           | |           | |           | |           | |                         |
+        | vis1      | |  vis2     | | vis4      | |  vis5     | | vis7                    |
+        ------------- ------------- ------------- ------------- ---------------------------
+        ------------- ------------- ´
+        |           | |           | 
+        | vis8      | |  vis9     | 
+        ------------- ------------- 
+
+        */
+    const orderedLayoutsIds = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+    const layouts = [
+      { w: 1, h: 4, x: 0, y: 0, i: "1" },
+      { w: 1, h: 4, x: 1, y: 0, i: "2" },
+      // hidden { w: 1, h: 4, x: 2, y: 0, i: "3" },
+      { w: 1, h: 4, x: 3, y: 0, i: "4" },
+      { w: 1, h: 4, x: 4, y: 0, i: "5" },
+      // hidden { w: 1, h: 4, x: 5, y: 0, i: "6" },
+      { w: 2, h: 4, x: 0, y: 4, i: "7" },
+      { w: 1, h: 4, x: 2, y: 4, i: "8" },
+      { w: 1, h: 4, x: 3, y: 4, i: "9" },
+    ];
+    const widgets = [
+      { id: 1, visualization: {} },
+      { id: 2, visualization: {} },
+      //{ id: 3, visualization: {} },
+      { id: 4, visualization: {} },
+      { id: 5, visualization: {} },
+      //{ id: 6, visualization: {} },
+      { id: 7, visualization: {} },
+      { id: 8, visualization: {} },
+      { id: 9, visualization: {} },
+    ];
+    const result = keepLayoutsOrder(orderedLayoutsIds, layouts, widgets);
+    expect(result).toEqual([
+      { w: 1, h: 4, x: 0, y: 0, i: "1" },
+      { w: 1, h: 4, x: 1, y: 0, i: "2" },
+      { w: 1, h: 4, x: 2, y: 0, i: "4" },
+      { w: 1, h: 4, x: 3, y: 0, i: "5" },
+      { w: 2, h: 4, x: 4, y: 0, i: "7" },
+      { w: 1, h: 4, x: 0, y: 4, i: "8" },
+      { w: 1, h: 4, x: 1, y: 4, i: "9" },
     ]);
   });
 });

@@ -39,7 +39,7 @@ export function keepLayoutsOrder(orderedLayoutsIds, layouts, widgets) {
         } else {
           // Same line
           layout.y = previousLayout.y;
-          layout.x = previousLayout.x === 0 ? previousLayout.w : 0;
+          layout.x = previousLayout.x + previousLayout.w;
           biggestHeightInLine = Math.max(biggestHeightInLine, layout.h);
           usedColumns += layout.w;
         }
