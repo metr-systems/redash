@@ -174,7 +174,6 @@ class DashboardGrid extends React.Component {
       // get the order of widgets from saved_all_widgets
       const saved_all_widgets = this.props.dashboard.saved_all_widgets;
       const savedWidgetIds = saved_all_widgets.map(widget => widget.id);
-      console.log(saved_all_widgets)
 
       // make sure our layouts order is correct
       newLayouts = keepLayoutsOrder(savedWidgetIds, layouts[MULTI], this.props.widgets);
