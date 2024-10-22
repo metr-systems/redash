@@ -8,6 +8,7 @@ import { FiltersType } from "@/components/Filters";
 import cfg from "@/config/dashboard-grid-options";
 import AutoHeightController from "./AutoHeightController";
 import { WidgetTypeEnum } from "@/services/widget";
+import { keepLayoutsOrder } from "./utils";
 
 import "react-grid-layout/css/styles.css";
 import "./dashboard-grid.less";
@@ -83,29 +84,7 @@ const DashboardWidget = React.memo(
     prevProps.isEditing === nextProps.isEditing
 );
 
-function keepLayoutsOrder(orderedLayoutsIds, layouts) {
-  const newLayouts = [];
-  let currentY = 0;
-  let previousLayout = null;
 
-  orderedLayoutsIds.forEach(id => {
-    const layout = layouts.find(l => l.i === id.toString());
-    if (layout) {
-      if (previousLayout && ((previousLayout.w + layout.w) === cfg.columns)) {
-        layout.y = previousLayout.y;
-        layout.x = previousLayout.x === 0 ? previousLayout.w : 0;
-        currentY += Math.max(previousLayout.h, layout.h) - previousLayout.h;
-      } else {
-        layout.y = currentY;
-        currentY += layout.h;
-      }
-      newLayouts.push(layout);
-      previousLayout = layout;
-    }
-  });
-
-  return newLayouts;
-}
 class DashboardGrid extends React.Component {
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
@@ -195,8 +174,10 @@ class DashboardGrid extends React.Component {
       // get the order of widgets from saved_all_widgets
       const saved_all_widgets = this.props.dashboard.saved_all_widgets;
       const savedWidgetIds = saved_all_widgets.map(widget => widget.id);
+      console.log(saved_all_widgets)
+
       // make sure our layouts order is correct
-      newLayouts = keepLayoutsOrder(savedWidgetIds, layouts[MULTI]);
+      newLayouts = keepLayoutsOrder(savedWidgetIds, layouts[MULTI], this.props.widgets);
       this.setState({ layouts:newLayouts });
     }
 
