@@ -474,4 +474,359 @@ describe("keepLayoutsOrder", () => {
       { w: 3, h: 4, x: 3, y: 10, i: "9" },
     ]);
   });
+  it("right widget with  different height is hidden", () => {
+    /** 
+        full layout looks like this:
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        ------------- |           |
+        ------------- |           |
+        |           | |           |
+        | vis3      | |           |
+        ------------- -------------
+
+        layout with hidden widget 2 look like this:
+
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis3     |
+        ------------- -------------
+        */
+    const orderedLayoutsIds = [1, 2, 3];
+    const layouts = [
+      { w: 3, h: 4, x: 0, y: 0, i: "1" },
+      // hidden { w: 3, h: 8, x: 3, y: 0, i: "2" },
+      { w: 3, h: 4, x: 3, y: 4, i: "3" },
+    ];
+    const widgets = [
+      { id: 1, visualization: {} },
+      //{ id: 2, visualization: {} },
+      { id: 3, visualization: {} },
+    ];
+    const result = keepLayoutsOrder(orderedLayoutsIds, layouts, widgets);
+    expect(result).toEqual([
+      { w: 3, h: 4, x: 0, y: 0, i: "1" },
+      { w: 3, h: 4, x: 3, y: 0, i: "3" },
+    ]);
+  });
+  it("left widget with  different height is hidden", () => {
+    /** 
+        full layout looks like this:
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        |           | -------------
+        |           | -------------
+        |           | |           |
+        |           | |  vis3     |
+        ------------- -------------
+
+        layout with hidden widget 1 look like this:
+
+        ------------- -------------
+        |           | |           |
+        | vis2      | |  vis3     |
+        ------------- -------------
+        */
+    const orderedLayoutsIds = [1, 2, 3];
+    const layouts = [
+      // hidden { w: 3, h: 8, x: 0, y: 0, i: "1" },
+      { w: 3, h: 4, x: 3, y: 0, i: "2" },
+      { w: 3, h: 4, x: 3, y: 4, i: "3" },
+    ];
+    const widgets = [
+      //{ id: 1, visualization: {} },
+      { id: 2, visualization: {} },
+      { id: 3, visualization: {} },
+    ];
+    const result = keepLayoutsOrder(orderedLayoutsIds, layouts, widgets);
+    expect(result).toEqual([
+      { w: 3, h: 4, x: 0, y: 0, i: "2" },
+      { w: 3, h: 4, x: 3, y: 0, i: "3" },
+    ]);
+  });
+  it("widget next to right widget with  different height is hidden", () => {
+    /** 
+        full layout looks like this:
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        ------------- |           |
+        ------------- |           |
+        |           | |           |
+        | vis3      | |           |
+        ------------- -------------
+
+        layout with hidden widget 3 look like this:
+
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        ------------- |           |
+                      |           |
+                      |           |
+                      |           |
+                      -------------
+        */
+    const orderedLayoutsIds = [1, 2, 3];
+    const layouts = [
+      { w: 3, h: 4, x: 0, y: 0, i: "1" },
+      { w: 3, h: 8, x: 3, y: 0, i: "2" },
+      // hidden { w: 3, h: 4, x: 3, y: 4, i: "3" },
+    ];
+    const widgets = [
+      { id: 1, visualization: {} },
+      { id: 2, visualization: {} },
+      //{ id: 3, visualization: {} },
+    ];
+    const result = keepLayoutsOrder(orderedLayoutsIds, layouts, widgets);
+    expect(result).toEqual([
+      { w: 3, h: 4, x: 0, y: 0, i: "1" },
+      { w: 3, h: 8, x: 3, y: 0, i: "2" },
+    ]);
+  });
+  it("widget next to right widget with  different height is hidden, senario 2", () => {
+    /** 
+        full layout looks like this:
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        ------------- |           |
+        ------------- |           |
+        |           | |           |
+        | vis3      | |           |
+        ------------- -------------
+        ------------- -------------
+        |           | |           |
+        | vis4      | |  vis5     |
+        ------------- -------------
+
+        layout with hidden widget 3 look like this:
+
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        ------------- |           |
+                      |           |
+                      |           |
+                      |           |
+                      -------------
+        ------------- -------------
+        |           | |           |
+        | vis4      | |  vis5     |
+        ------------- -------------
+        */
+    const orderedLayoutsIds = [1, 2, 3, 4, 5];
+    const layouts = [
+      {
+        w: 3,
+        h: 4,
+        x: 0,
+        y: 0,
+        i: "1",
+      },
+      {
+        w: 3,
+        h: 8,
+        x: 3,
+        y: 0,
+        i: "2",
+      },
+      // hidden { w: 3, h: 4, x: 3, y: 4, i: "3" },
+      {
+        w: 3,
+        h: 4,
+        x: 0,
+        y: 10, // to confirm that it gets corrected to 8
+        i: "4",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 3,
+        y: 10, // to confirm that it gets corrected to 8
+        i: "5",
+      },
+    ];
+    const widgets = [
+      { id: 1, visualization: {} },
+      { id: 2, visualization: {} },
+      //{ id: 3, visualization: {} },
+      { id: 4, visualization: {} },
+      { id: 5, visualization: {} },
+    ];
+    const result = keepLayoutsOrder(orderedLayoutsIds, layouts, widgets);
+    expect(result).toEqual([
+      {
+        w: 3,
+        h: 4,
+        x: 0,
+        y: 0,
+        i: "1",
+      },
+      {
+        w: 3,
+        h: 8,
+        x: 3,
+        y: 0,
+        i: "2",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 0,
+        y: 8,
+        i: "4",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 3,
+        y: 8,
+        i: "5",
+      },
+    ]);
+  });
+  it("widget next to left widget with  different height is hidden", () => {
+    /** 
+        full layout looks like this:
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        |           | -------------
+        |           | -------------
+        |           | |           |
+        |           | |  vis3     |
+        ------------- -------------
+
+        layout with hidden widget 2 look like this:
+
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis3     |
+        |           | -------------
+        |           | 
+        |           | 
+        |           | 
+        ------------- 
+        */
+    const orderedLayoutsIds = [1, 2, 3];
+    const layouts = [
+      { w: 3, h: 8, x: 0, y: 0, i: "1" },
+      // hidden { w: 3, h: 4, x: 3, y: 0, i: "2" },
+      { w: 3, h: 4, x: 3, y: 4, i: "3" },
+    ];
+    const widgets = [
+      { id: 1, visualization: {} },
+      //{ id: 2, visualization: {} },
+      { id: 3, visualization: {} },
+    ];
+    const result = keepLayoutsOrder(orderedLayoutsIds, layouts, widgets);
+    expect(result).toEqual([
+      { w: 3, h: 8, x: 0, y: 0, i: "1" },
+      { w: 3, h: 4, x: 3, y: 0, i: "3" },
+    ]);
+  });
+  it("widget next to left widget with  different height is hidden, senario 2", () => {
+    /** 
+        full layout looks like this:
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis2     |
+        |           | -------------
+        |           | -------------
+        |           | |           |
+        |           | |  vis3     |
+        ------------- -------------
+        ------------- -------------
+        |           | |           |
+        | vis4      | |  vis5     |
+        ------------- -------------
+        layout with hidden widget 2 look like this:
+
+        ------------- -------------
+        |           | |           |
+        | vis1      | |  vis3     |
+        |           | -------------
+        |           | 
+        |           | 
+        |           | 
+        ------------- 
+        ------------- -------------
+        |           | |           |
+        | vis4      | |  vis5     |
+        ------------- -------------
+        */
+    const orderedLayoutsIds = [1, 2, 3, 4, 5];
+    const layouts = [
+      {
+        w: 3,
+        h: 8,
+        x: 0,
+        y: 0,
+        i: "1",
+      },
+      // hidden { w: 3, h: 4, x: 3, y: 0, i: "2" },
+      {
+        w: 3,
+        h: 4,
+        x: 3,
+        y: 4,
+        i: "3",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 0,
+        y: 10, // to confirm that it gets corrected to 8
+        i: "4",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 3,
+        y: 10, // to confirm that it gets corrected to 8
+        i: "5",
+      },
+    ];
+    const widgets = [
+      { id: 1, visualization: {} },
+      //{ id: 2, visualization: {} },
+      { id: 3, visualization: {} },
+      { id: 4, visualization: {} },
+      { id: 5, visualization: {} },
+    ];
+    const result = keepLayoutsOrder(orderedLayoutsIds, layouts, widgets);
+    expect(result).toEqual([
+      {
+        w: 3,
+        h: 8,
+        x: 0,
+        y: 0,
+        i: "1",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 3,
+        y: 0,
+        i: "3",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 0,
+        y: 8,
+        i: "4",
+      },
+      {
+        w: 3,
+        h: 4,
+        x: 3,
+        y: 8,
+        i: "5",
+      },
+    ]);
+  });
 });
