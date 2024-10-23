@@ -1,8 +1,11 @@
 import { keepLayoutsOrder } from "./utils";
 
-// Assumptions for now:
-// titles (textboxes) are always on left
-
+/*
+  Assumptions for now:
+  - Titles (textboxes) are always on left
+  - A textbox always induces a new line, either we are adding a layout after a textbox or a textbox after a layout
+  or a textbox after a textbox
+*/
 describe("keepLayoutsOrder", () => {
   it("widget moves to left when there is space", () => {
     /** 
@@ -342,7 +345,7 @@ describe("keepLayoutsOrder", () => {
       { w: 3, h: 4, x: 3, y: 4, i: "6" },
     ]);
   });
-  it("hidden corner widgets moves widgets up and from left to right, second senario", () => {
+  it("hidden corner widgets moves widgets up and from left to right, second scenario", () => {
     /** 
         full layout looks like this:
         ------------- -------------
@@ -585,7 +588,7 @@ describe("keepLayoutsOrder", () => {
       { w: 3, h: 8, x: 3, y: 0, i: "2" },
     ]);
   });
-  it("widget next to right widget with  different height is hidden, senario 2", () => {
+  it("widget next to right widget with  different height is hidden, scenario 2", () => {
     /** 
         full layout looks like this:
         ------------- -------------
@@ -727,7 +730,7 @@ describe("keepLayoutsOrder", () => {
       { w: 3, h: 4, x: 3, y: 0, i: "3" },
     ]);
   });
-  it("widget next to left widget with  different height is hidden, senario 2", () => {
+  it("widget next to left widget with  different height is hidden, scenario 2", () => {
     /** 
         full layout looks like this:
         ------------- -------------
@@ -886,7 +889,7 @@ describe("keepLayoutsOrder", () => {
       { w: 1, h: 4, x: 1, y: 4, i: "9" },
     ]);
   });
-  it("integration test senario 1", () => {
+  it("integration test scenario 1", () => {
     /**
      full layout looks like this (similar to logamatic5000 one): 
       --------------------------------------------------
