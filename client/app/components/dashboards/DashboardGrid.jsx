@@ -172,12 +172,15 @@ class DashboardGrid extends React.Component {
     // TODO: open react-grid-layout issue
     if (layouts[MULTI]) {
       // get the order of widgets from saved_all_widgets
-      const saved_all_widgets = this.props.dashboard.saved_all_widgets;
-      const savedWidgetIds = saved_all_widgets.map(widget => widget.id);
+      if (!this.props.isEditing) {
+        const saved_all_widgets = this.props.dashboard.saved_all_widgets;
+        const savedWidgetIds = saved_all_widgets.map(widget => widget.id);
 
-      // make sure our layouts order is correct
-      newLayouts = keepLayoutsOrder(savedWidgetIds, layouts[MULTI], this.props.widgets);
-      this.setState({ layouts:newLayouts });
+        // make sure our layouts order is correct
+        newLayouts = keepLayoutsOrder(savedWidgetIds, layouts[MULTI], this.props.widgets);
+      }
+
+      this.setState({ layouts: newLayouts });
     }
 
     // workaround for https://github.com/STRML/react-grid-layout/issues/889
