@@ -98,6 +98,8 @@ class DashboardGrid extends React.Component {
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
+    editedlayoutsOrder: PropTypes.array,
+    setEditedlayoutsOrder: PropTypes.func.isRequired, 
   };
 
   static defaultProps = {
@@ -109,6 +111,7 @@ class DashboardGrid extends React.Component {
     onLayoutChange: () => {},
     onBreakpointChange: () => {},
     onParameterMappingsChange: () => {},
+    setEditedlayoutsOrder: () => {},
   };
 
   static normalizeFrom(widget) {
@@ -134,11 +137,16 @@ class DashboardGrid extends React.Component {
 
   autoHeightCtrl = null;
 
+  setLayoutsIdsOrder = (newOrder) => {
+    this.setState({ layoutsIdsOrder: newOrder });
+  };
+
   constructor(props) {
     super(props);
 
     this.state = {
       layouts: {},
+      layoutsIdsOrder: (this.props.dashboard.saved_all_widgets ? this.props.dashboard.saved_all_widgets.map(widget => widget.id) : []),
       disableAnimations: true,
     };
 
@@ -173,13 +181,17 @@ class DashboardGrid extends React.Component {
     if (layouts[MULTI]) {
       // get the order of widgets from saved_all_widgets
       if (!this.props.isEditing) {
-        const saved_all_widgets = this.props.dashboard.saved_all_widgets;
-        const savedWidgetIds = saved_all_widgets.map(widget => widget.id);
-
-        // make sure our layouts order is correct
-        newLayouts = keepLayoutsOrder(savedWidgetIds, layouts[MULTI], this.props.widgets);
+        if (this.props.editedlayoutsOrder.length > 0) {// means there was an edition
+          // we use the edited layouts Order
+          newLayouts= keepLayoutsOrder(this.props.editedlayoutsOrder, layouts[MULTI], this.props.widgets);
+          // we save the new order and reset the edited layouts Order
+          this.setLayoutsIdsOrder(this.props.editedlayoutsOrder); 
+          this.props.setEditedlayoutsOrder([]); 
+        } else {
+          // we don't have an edited layouts Order, so we use the state order
+          newLayouts = keepLayoutsOrder(this.state.layoutsIdsOrder, layouts[MULTI], this.props.widgets);
+        }
       }
-
       this.setState({ layouts: newLayouts });
     }
 
