@@ -16,12 +16,26 @@ function getChangedPositions(widgets, nextPositions = {}) {
     return !isMatch(prevPos, nextPos);
   });
 }
+function calculateLayoutsOrder(layouts) {
+  /**
+   Example:
+   {10: {col: 0, row: 0, sizeX: 3, sizeY: 8}, 
+    11: {col: 0, row: 8, sizeX: 3, sizeY: 8},
+   12:{col: 0, row: 16, sizeX: 3, sizeY: 4}}
+   result: [10, 11, 12]
+  */
+  return Object.keys(layouts)
+    .map(key => ({ key, ...layouts[key] }))
+    .sort((a, b) => a.row - b.row || a.col - b.col)
+    .map(layout => layout.key.toString());
+}
 
 export default function useEditModeHandler(canEditDashboard, widgets) {
   const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, "edit"));
   const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
   const [recentPositions, setRecentPositions] = useState([]);
   const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
+  const [editedlayoutsOrder, setEditedlayoutsOrder] = useState([]);
 
   useEffect(() => {
     location.setSearch({ edit: editingLayout ? true : null }, true);
@@ -87,13 +101,16 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
         return;
       }
       setEditingLayout(canEditDashboard && editing);
+      if (!editing) setEditedlayoutsOrder(calculateLayoutsOrder(recentPositions));
     },
-    [dashboardStatus, canEditDashboard]
+    [dashboardStatus, canEditDashboard, recentPositions]
   );
 
   return {
     editingLayout: canEditDashboard && editingLayout,
     setEditingLayout: setEditing,
+    editedlayoutsOrder,
+    setEditedlayoutsOrder,
     saveDashboardLayout: editingLayout ? saveDashboardLayoutDebounced : saveDashboardLayout,
     retrySaveDashboardLayout,
     doneBtnClickedWhileSaving,
