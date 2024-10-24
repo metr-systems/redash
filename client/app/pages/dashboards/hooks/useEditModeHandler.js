@@ -2,6 +2,7 @@ import { debounce, find, has, isMatch, map, pickBy } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import location from "@/services/location";
 import notification from "@/services/notification";
+import { calculateLayoutsOrder } from "./utils";
 
 export const DashboardStatusEnum = {
   SAVED: "saved",
@@ -15,19 +16,6 @@ function getChangedPositions(widgets, nextPositions = {}) {
     const prevPos = widget.options.position;
     return !isMatch(prevPos, nextPos);
   });
-}
-function calculateLayoutsOrder(layouts) {
-  /**
-   Example:
-   {10: {col: 0, row: 0, sizeX: 3, sizeY: 8}, 
-    11: {col: 0, row: 8, sizeX: 3, sizeY: 8},
-   12:{col: 0, row: 16, sizeX: 3, sizeY: 4}}
-   result: [10, 11, 12]
-  */
-  return Object.keys(layouts)
-    .map(key => ({ key, ...layouts[key] }))
-    .sort((a, b) => a.row - b.row || a.col - b.col)
-    .map(layout => layout.key.toString());
 }
 
 export default function useEditModeHandler(canEditDashboard, widgets) {
