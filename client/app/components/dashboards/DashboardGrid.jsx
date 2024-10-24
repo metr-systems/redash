@@ -179,16 +179,8 @@ class DashboardGrid extends React.Component {
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
     if (layouts[MULTI]) {
-
       if (!this.props.isEditing) {
-        const { editedlayoutsOrder, widgets, setEditedlayoutsOrder } = this.props;
-        const { layoutsOrder } = this.state;
-
-        if (editedlayoutsOrder.length > 0) {
-          this.setLayoutsOrder(editedlayoutsOrder);
-          setEditedlayoutsOrder([]);
-        } 
-        newLayouts = keepLayoutsOrder(layoutsOrder, layouts[MULTI], widgets);
+      newLayouts = this.applyLayoutsOrder(layouts);
       }
       this.setState({ layouts: newLayouts });
     }
@@ -238,6 +230,18 @@ class DashboardGrid extends React.Component {
 
     this.autoHeightCtrl.resume();
   };
+
+
+  applyLayoutsOrder(layouts) {
+    const { editedlayoutsOrder, widgets, setEditedlayoutsOrder } = this.props;
+    const { layoutsOrder } = this.state;
+
+    if (editedlayoutsOrder.length > 0) {
+      this.setLayoutsOrder(editedlayoutsOrder);
+      setEditedlayoutsOrder([]);
+    }
+    return keepLayoutsOrder(layoutsOrder, layouts[MULTI], widgets);
+  }
 
   normalizeTo = layout => ({
     col: layout.x,
