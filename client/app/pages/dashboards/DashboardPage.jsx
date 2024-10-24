@@ -85,6 +85,8 @@ function DashboardComponent(props) {
     refreshDashboard,
     refreshWidget,
     editingLayout,
+    editedlayoutsOrder,
+    setEditedlayoutsOrder,
     setGridDisabled,
   } = dashboardConfiguration;
 
@@ -149,6 +151,8 @@ function DashboardComponent(props) {
           dashboard={dashboard}
           widgets={dashboard.widgets}
           filters={filters}
+          editedlayoutsOrder={editedlayoutsOrder}
+          setEditedlayoutsOrder= {setEditedlayoutsOrder}
           isEditing={editingLayout}
           onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
           onBreakpointChange={setGridDisabled}

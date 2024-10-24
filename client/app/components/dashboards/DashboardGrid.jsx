@@ -8,6 +8,7 @@ import { FiltersType } from "@/components/Filters";
 import cfg from "@/config/dashboard-grid-options";
 import AutoHeightController from "./AutoHeightController";
 import { WidgetTypeEnum } from "@/services/widget";
+import { keepLayoutsOrder } from "./utils";
 
 import "react-grid-layout/css/styles.css";
 import "./dashboard-grid.less";
@@ -83,6 +84,7 @@ const DashboardWidget = React.memo(
     prevProps.isEditing === nextProps.isEditing
 );
 
+
 class DashboardGrid extends React.Component {
   static propTypes = {
     isEditing: PropTypes.bool.isRequired,
@@ -96,6 +98,8 @@ class DashboardGrid extends React.Component {
     onRemoveWidget: PropTypes.func,
     onLayoutChange: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
+    editedlayoutsOrder: PropTypes.array,
+    setEditedlayoutsOrder: PropTypes.func.isRequired, 
   };
 
   static defaultProps = {
@@ -107,6 +111,7 @@ class DashboardGrid extends React.Component {
     onLayoutChange: () => {},
     onBreakpointChange: () => {},
     onParameterMappingsChange: () => {},
+    setEditedlayoutsOrder: () => {},
   };
 
   static normalizeFrom(widget) {
@@ -116,7 +121,7 @@ class DashboardGrid extends React.Component {
     } = widget;
 
     return {
-      i: id.toString(),
+      i: id.toString(), // NOTE i for a layout is same as widget id
       x: pos.col,
       y: pos.row,
       w: pos.sizeX,
@@ -132,11 +137,16 @@ class DashboardGrid extends React.Component {
 
   autoHeightCtrl = null;
 
+  setLayoutsOrder = (newOrder) => {
+    this.setState({ layoutsOrder: newOrder });
+  };
+
   constructor(props) {
     super(props);
 
     this.state = {
       layouts: {},
+      layoutsOrder: (this.props.dashboard.saved_all_widgets ? this.props.dashboard.saved_all_widgets.map(widget => widget.id) : []),
       disableAnimations: true,
     };
 
@@ -164,11 +174,15 @@ class DashboardGrid extends React.Component {
   }
 
   onLayoutChange = (_, layouts) => {
+    let newLayouts=layouts
     // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
     if (layouts[MULTI]) {
-      this.setState({ layouts });
+      if (!this.props.isEditing) {
+      newLayouts = this.applyLayoutsOrder(layouts);
+      }
+      this.setState({ layouts: newLayouts });
     }
 
     // workaround for https://github.com/STRML/react-grid-layout/issues/889
@@ -181,7 +195,7 @@ class DashboardGrid extends React.Component {
       return;
     }
 
-    const normalized = chain(layouts[MULTI])
+    const normalized = chain(newLayouts[MULTI])
       .keyBy("i")
       .mapValues(this.normalizeTo)
       .value();
@@ -216,6 +230,18 @@ class DashboardGrid extends React.Component {
 
     this.autoHeightCtrl.resume();
   };
+
+
+  applyLayoutsOrder(layouts) {
+    const { editedlayoutsOrder, widgets, setEditedlayoutsOrder } = this.props;
+    const { layoutsOrder } = this.state;
+
+    if (editedlayoutsOrder.length > 0) {
+      this.setLayoutsOrder(editedlayoutsOrder);
+      setEditedlayoutsOrder([]);
+    }
+    return keepLayoutsOrder(layoutsOrder, layouts[MULTI], widgets);
+  }
 
   normalizeTo = layout => ({
     col: layout.x,

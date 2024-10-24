@@ -2,6 +2,7 @@ import { debounce, find, has, isMatch, map, pickBy } from "lodash";
 import { useCallback, useEffect, useState } from "react";
 import location from "@/services/location";
 import notification from "@/services/notification";
+import { calculateLayoutsOrder } from "./utils";
 
 export const DashboardStatusEnum = {
   SAVED: "saved",
@@ -22,6 +23,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
   const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
   const [recentPositions, setRecentPositions] = useState([]);
   const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
+  const [editedlayoutsOrder, setEditedlayoutsOrder] = useState([]);
 
   useEffect(() => {
     location.setSearch({ edit: editingLayout ? true : null }, true);
@@ -87,13 +89,16 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
         return;
       }
       setEditingLayout(canEditDashboard && editing);
+      if (!editing) setEditedlayoutsOrder(calculateLayoutsOrder(recentPositions));
     },
-    [dashboardStatus, canEditDashboard]
+    [dashboardStatus, canEditDashboard, recentPositions]
   );
 
   return {
     editingLayout: canEditDashboard && editingLayout,
     setEditingLayout: setEditing,
+    editedlayoutsOrder,
+    setEditedlayoutsOrder,
     saveDashboardLayout: editingLayout ? saveDashboardLayoutDebounced : saveDashboardLayout,
     retrySaveDashboardLayout,
     doneBtnClickedWhileSaving,

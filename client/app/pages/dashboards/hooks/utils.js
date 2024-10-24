@@ -43,3 +43,17 @@ export function getAllowedWidgetsForCurrentParam(dashboardParameters, AllowedWid
 
   return dashboardAllWidgets;
 }
+
+export function calculateLayoutsOrder(layouts) {
+  /**
+   Example:
+   {10: {col: 0, row: 0, sizeX: 3, sizeY: 8}, 
+    11: {col: 0, row: 8, sizeX: 3, sizeY: 8},
+   12:{col: 0, row: 16, sizeX: 3, sizeY: 4}}
+   result: ["10", "11", "12"]
+  */
+  return Object.keys(layouts)
+    .map(key => ({ key, ...layouts[key] }))
+    .sort((a, b) => a.row - b.row || a.col - b.col)
+    .map(layout => layout.key.toString());
+}
