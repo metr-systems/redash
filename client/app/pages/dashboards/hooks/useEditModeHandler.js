@@ -33,6 +33,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
     if (doneBtnClickedWhileSaving && dashboardStatus === DashboardStatusEnum.SAVED) {
       setDoneBtnClickedWhileSaving(false);
       setEditingLayout(false);
+      setEditedlayoutsOrder(calculateLayoutsOrder(recentPositions));
     }
   }, [doneBtnClickedWhileSaving, dashboardStatus]);
 
