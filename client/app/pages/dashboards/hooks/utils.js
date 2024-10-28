@@ -52,8 +52,7 @@ export function calculateLayoutsOrder(layouts) {
    12:{col: 0, row: 16, sizeX: 3, sizeY: 4}}
    result: ["10", "11", "12"]
   */
-  return Object.keys(layouts)
-    .map(key => ({ key, ...layouts[key] }))
-    .sort((a, b) => a.row - b.row || a.col - b.col)
-    .map(layout => layout.key.toString());
+  const layoutArray = Object.keys(layouts).map(key => ({ key, ...layouts[key] }));
+  const sortedLayouts = _.sortBy(layoutArray, ["row", "col"]);
+  return sortedLayouts.map(layout => layout.key.toString());
 }

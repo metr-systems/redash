@@ -199,8 +199,8 @@ describe("filterWidgets", () => {
 describe("calculateLayoutsOrder", () => {
   test("should return layouts ordered by row and col", () => {
     const layouts = {
-      "10": { col: 0, row: 0, sizeX: 3, sizeY: 8 },
       "11": { col: 0, row: 8, sizeX: 3, sizeY: 8 },
+      "10": { col: 0, row: 0, sizeX: 3, sizeY: 8 },
       "12": { col: 0, row: 16, sizeX: 3, sizeY: 4 },
     };
 
@@ -228,9 +228,9 @@ describe("calculateLayoutsOrder", () => {
 
   test("should handle layouts with same col but different row", () => {
     const layouts = {
+      "12": { col: 0, row: 2, sizeX: 3, sizeY: 4 },
       "10": { col: 0, row: 0, sizeX: 3, sizeY: 8 },
       "11": { col: 0, row: 1, sizeX: 3, sizeY: 8 },
-      "12": { col: 0, row: 2, sizeX: 3, sizeY: 4 },
     };
 
     const result = calculateLayoutsOrder(layouts);
@@ -239,12 +239,28 @@ describe("calculateLayoutsOrder", () => {
 
   test("should handle layouts with mixed rows and cols", () => {
     const layouts = {
+      "12": { col: 1, row: 2, sizeX: 3, sizeY: 4 },
       "10": { col: 0, row: 0, sizeX: 3, sizeY: 8 },
       "11": { col: 2, row: 1, sizeX: 3, sizeY: 8 },
-      "12": { col: 1, row: 2, sizeX: 3, sizeY: 4 },
     };
 
     const result = calculateLayoutsOrder(layouts);
     expect(result).toStrictEqual(["10", "11", "12"]);
+  });
+  test("should handle many layouts with mixed rows and cols", () => {
+    const layouts = {
+      "12": { col: 1, row: 2, sizeX: 3, sizeY: 4 },
+      "10": { col: 0, row: 0, sizeX: 3, sizeY: 8 },
+      "11": { col: 2, row: 1, sizeX: 3, sizeY: 8 },
+      "15": { col: 2, row: 3, sizeX: 3, sizeY: 4 },
+      "13": { col: 0, row: 3, sizeX: 3, sizeY: 8 },
+      "14": { col: 1, row: 3, sizeX: 3, sizeY: 8 },
+      "18": { col: 1, row: 5, sizeX: 3, sizeY: 4 },
+      "17": { col: 2, row: 4, sizeX: 3, sizeY: 8 },
+      "16": { col: 0, row: 4, sizeX: 3, sizeY: 8 },
+    };
+
+    const result = calculateLayoutsOrder(layouts);
+    expect(result).toStrictEqual(["10", "11", "12", "13", "14", "15", "16", "17", "18"]);
   });
 });
