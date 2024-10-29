@@ -46,6 +46,14 @@ export default function FeatureFlagsSettings(props) {
                 Enable multi-byte (Chinese, Japanese, and Korean) search for query names and descriptions (slower)
               </Checkbox>
             </Row>
+            <Row>
+              <Checkbox
+                name="enable_auto_refresh_when_opening_dashboard"
+                checked={values.enable_auto_refresh_when_opening_dashboard}
+                onChange={e => onChange({ enable_auto_refresh_when_opening_dashboard: e.target.checked })}>
+                Enable auto-refresh when opening a dashboard page
+              </Checkbox>
+            </Row>
           </>
         )}
       </Form.Item>
