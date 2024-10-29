@@ -216,7 +216,10 @@ function useDashboard(dashboardData) {
 
   useEffect(() => {
     setDashboard(dashboardData);
-    loadDashboard();
+    if (!refreshing) {
+      setRefreshing(true);
+      loadDashboard(true, []).finally(() => setRefreshing(false));
+    }
   }, [dashboardData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
