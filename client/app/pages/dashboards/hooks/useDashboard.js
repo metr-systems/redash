@@ -151,7 +151,7 @@ function useDashboard(dashboardData) {
         setFilters(updatedFilters);
       });
     },
-    [loadWidget]
+    [globalParameters, loadWidget]
   );
 
   const refreshDashboard = useCallback(
