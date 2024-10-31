@@ -3,6 +3,7 @@ import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } 
 import notification from "@/services/notification";
 import location from "@/services/location";
 import url from "@/services/url";
+import { clientConfig } from "@/services/auth";
 import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -216,7 +217,14 @@ function useDashboard(dashboardData) {
 
   useEffect(() => {
     setDashboard(dashboardData);
-    loadDashboard();
+    if (clientConfig.enableDashboardAutoRefresh) {
+      if (!refreshing) {
+        setRefreshing(true);
+        loadDashboard(true, []).finally(() => setRefreshing(false));
+      }
+    } else {
+      loadDashboard();
+    }
   }, [dashboardData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
