@@ -179,8 +179,8 @@ class DashboardGrid extends React.Component {
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
     if (layouts[MULTI]) {
-      if (!this.props.isEditing) {
-      newLayouts = this.applyLayoutsOrder(layouts);
+      if (!this.props.isEditing && this.props.dashboard.allowed_widgets) {
+        newLayouts = this.applyLayoutsOrder(layouts);
       }
       this.setState({ layouts: newLayouts });
     }
