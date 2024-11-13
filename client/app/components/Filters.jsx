@@ -3,6 +3,9 @@ import moment from "moment";
 import React from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
+
+import { useTranslation } from "react-i18next";
+
 import { formatColumnValue } from "@/lib/utils";
 
 const ALL_VALUES = "###Redash::Filters::SelectAll###";
@@ -67,6 +70,7 @@ export function filterData(rows, filters = []) {
 }
 
 function Filters({ filters, onChange }) {
+  const { t } = useTranslation();
   if (filters.length === 0) {
     return null;
   }
@@ -113,11 +117,11 @@ function Filters({ filters, onChange }) {
                     {filter.multiple && [
                       <Select.Option key={NONE_VALUES} data-test="ClearOption">
                         <i className="fa fa-square-o m-r-5" aria-hidden="true" />
-                        Clear
+                        {t("Clear")}
                       </Select.Option>,
                       <Select.Option key={ALL_VALUES} data-test="SelectAllOption">
                         <i className="fa fa-check-square-o m-r-5" aria-hidden="true" />
-                        Select All
+                        {t("Select All")}
                       </Select.Option>,
                       <Select.OptGroup key="Values" title="Values">
                         {options}

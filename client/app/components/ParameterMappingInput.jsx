@@ -12,6 +12,10 @@ import Tag from "antd/lib/tag";
 import Input from "antd/lib/input";
 import Radio from "antd/lib/radio";
 import Form from "antd/lib/form";
+
+import i18next from "i18next";
+import { withTranslation } from "react-i18next";
+
 import Tooltip from "@/components/Tooltip";
 import ParameterValueInput from "@/components/ParameterValueInput";
 import { ParameterMappingType } from "@/services/widget";
@@ -177,21 +181,21 @@ export class ParameterMappingInput extends React.Component {
     return (
       <Radio.Group value={this.props.mapping.type} onChange={e => this.updateSourceType(e.target.value)}>
         <Radio className="radio" value={MappingType.DashboardAddNew} data-test="NewDashboardParameterOption">
-          New dashboard parameter
+          {i18next.t("Params:New dashboard parameter")}
         </Radio>
         <Radio className="radio" value={MappingType.DashboardMapToExisting} disabled={noExisting}>
-          Existing dashboard parameter{" "}
+          {i18next.t("Params:Existing dashboard parameter")}{" "}
           {noExisting ? (
-            <Tooltip title="There are no dashboard parameters corresponding to this data type">
+            <Tooltip title={i18next.t("Params:There are no dashboard parameters corresponding to this data type")}>
               <QuestionCircleFilledIcon />
             </Tooltip>
           ) : null}
         </Radio>
         <Radio className="radio" value={MappingType.WidgetLevel} data-test="WidgetParameterOption">
-          Widget parameter
+          {i18next.t("Params:Widget parameter")}
         </Radio>
         <Radio className="radio" value={MappingType.StaticValue} data-test="StaticValueOption">
-          Static value
+          {i18next.t("Params:Static value")}
         </Radio>
       </Radio.Group>
     );
@@ -204,7 +208,7 @@ export class ParameterMappingInput extends React.Component {
     return (
       <Input
         value={mapTo}
-        aria-label="Parameter name (key)"
+        aria-label={i18next.t("Params:Parameter name (key)")}
         onChange={e => this.updateParamMapping({ mapTo: e.target.value })}
       />
     );
@@ -235,9 +239,9 @@ export class ParameterMappingInput extends React.Component {
     const { mapping } = this.props;
     switch (mapping.type) {
       case MappingType.DashboardAddNew:
-        return ["Key", "Enter a new parameter keyword", this.renderDashboardAddNew()];
+        return ["Key", i18next.t("Params:Enter a new parameter keyword"), this.renderDashboardAddNew()];
       case MappingType.DashboardMapToExisting:
-        return ["Key", "Select from a list of existing parameters", this.renderDashboardMapToExisting()];
+        return ["Key", i18next.t("Params:Select from a list of existing parameters"), this.renderDashboardMapToExisting()];
       case MappingType.StaticValue:
         return ["Value", null, this.renderStaticValue()];
       default:
@@ -290,13 +294,14 @@ class MappingEditor extends React.Component {
   };
 
   onChange = mapping => {
+    const { t } = this.props;
     let inputError = null;
 
     if (mapping.type === MappingType.DashboardAddNew) {
       if (isEmpty(mapping.mapTo)) {
-        inputError = "Keyword must have a value";
+        inputError = t("Keyword must have a value");
       } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
-        inputError = "A parameter with this name already exists";
+        inputError = t("A parameter with this name already exists");
       }
     }
 
@@ -320,12 +325,13 @@ class MappingEditor extends React.Component {
   };
 
   renderContent() {
+    const { t } = this.props;
     const { mapping, inputError } = this.state;
 
     return (
       <div className="parameter-mapping-editor" data-test="EditParamMappingPopover">
         <header>
-          Edit Source and Value <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
+          {t("Edit Source and Value")} <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
         </header>
         <ParameterMappingInput
           mapping={mapping}
@@ -334,9 +340,9 @@ class MappingEditor extends React.Component {
           inputError={inputError}
         />
         <footer>
-          <Button onClick={this.hide}>Cancel</Button>
+          <Button onClick={this.hide}>{i18next.t("Cancel")}</Button>
           <Button onClick={this.save} disabled={!!inputError} type="primary">
-            OK
+            {i18next.t("OK")}
           </Button>
         </footer>
       </div>
@@ -359,6 +365,7 @@ class MappingEditor extends React.Component {
     );
   }
 }
+const TranslatedMappingEditor=withTranslation("Params")(MappingEditor)
 
 class TitleEditor extends React.Component {
   static propTypes = {
@@ -416,6 +423,7 @@ class TitleEditor extends React.Component {
   };
 
   renderPopover() {
+    const { t } = this.props;
     const {
       param: { title: paramTitle },
     } = this.props.mapping;
@@ -426,7 +434,7 @@ class TitleEditor extends React.Component {
           size="small"
           value={this.state.title}
           placeholder={paramTitle}
-          aria-label="Edit parameter title"
+          aria-label={t("Edit parameter title")}
           onChange={this.onEditingTitleChange}
           onPressEnter={this.save}
           maxLength={100}
@@ -443,10 +451,11 @@ class TitleEditor extends React.Component {
   }
 
   renderEditButton() {
+    const { t } = this.props;
     const { mapping } = this.props;
     if (mapping.type === MappingType.StaticValue) {
       return (
-        <Tooltip placement="right" title="Titles for static values don't appear in widgets">
+        <Tooltip placement="right" title={t("Titles for static values don't appear in widgets")}>
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
           <span tabIndex={0}>
             <i className="fa fa-eye-slash" aria-hidden="true" />
@@ -481,6 +490,7 @@ class TitleEditor extends React.Component {
     );
   }
 }
+const TranslatedTitleEditor=withTranslation("Params")(TitleEditor)
 
 export class ParameterMappingListInput extends React.Component {
   static propTypes = {
@@ -548,13 +558,13 @@ export class ParameterMappingListInput extends React.Component {
       case MappingType.DashboardMapToExisting:
         return (
           <Fragment>
-            Dashboard <Tag className="tag">{mapTo}</Tag>
+            {i18next.t("Params:Dashboard")} <Tag className="tag">{mapTo}</Tag>
           </Fragment>
         );
       case MappingType.WidgetLevel:
-        return "Widget parameter";
+        return i18next.t("Params:Widget parameter");
       case MappingType.StaticValue:
-        return "Static value";
+        return i18next.t("Params:Static value");
       default:
         return ""; // won't happen (typescript-ftw)
     }
@@ -580,11 +590,11 @@ export class ParameterMappingListInput extends React.Component {
       <div className="parameters-mapping-list">
         <Table dataSource={dataSource} size="middle" pagination={false} rowKey={(record, idx) => `row${idx}`}>
           <Table.Column
-            title="Title"
+            title={t("Title")}
             dataIndex="mapping"
             key="title"
             render={mapping => (
-              <TitleEditor
+              <TranslatedTitleEditor
                 existingParams={existingParams}
                 mapping={mapping}
                 onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
@@ -592,20 +602,20 @@ export class ParameterMappingListInput extends React.Component {
             )}
           />
           <Table.Column
-            title="Keyword"
+            title={i18next.t("Params:Keyword")}
             dataIndex="mapping"
             key="keyword"
             className="keyword"
             render={mapping => <code>{`{{ ${mapping.name} }}`}</code>}
           />
           <Table.Column
-            title="Default Value"
+            title={i18next.t("Params:Default Value")}
             dataIndex="mapping"
             key="value"
             render={mapping => this.constructor.getDefaultValue(mapping, this.props.existingParams)}
           />
           <Table.Column
-            title="Value Source"
+            title={i18next.t("Params:Value Source")}
             dataIndex="mapping"
             key="source"
             render={mapping => {
@@ -616,7 +626,7 @@ export class ParameterMappingListInput extends React.Component {
               return (
                 <Fragment>
                   {this.constructor.getSourceTypeLabel(mapping)}{" "}
-                  <MappingEditor
+                  <TranslatedMappingEditor
                     mapping={mapping}
                     existingParamNames={existingParamsNames}
                     onChange={(oldMapping, newMapping) => this.updateParamMapping(oldMapping, newMapping)}

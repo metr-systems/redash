@@ -2,6 +2,7 @@ import React from "react";
 import Alert from "antd/lib/alert";
 import Form from "antd/lib/form";
 import Checkbox from "antd/lib/checkbox";
+import i18next from 'i18next';
 import Tooltip from "@/components/Tooltip";
 import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
@@ -18,13 +19,12 @@ export default function PasswordLoginSettings(props) {
     <DynamicComponent name="OrganizationSettings.PasswordLoginSettings" {...props}>
       {!loading && !settings.auth_password_login_enabled && (
         <Alert
-          message="Password based login is currently disabled and users will
-            be able to login only with the enabled SSO options."
+          message={i18next.t("Settings:Password based login is currently disabled and users will be able to login only with the enabled SSO options.")}
           type="warning"
           className="m-t-15 m-b-15"
         />
       )}
-      <Form.Item label="Password Login">
+      <Form.Item label={i18next.t("Settings:Password Login")}>
         {loading ? (
           <Skeleton title={{ width: 300 }} paragraph={false} active />
         ) : (
@@ -34,10 +34,10 @@ export default function PasswordLoginSettings(props) {
             onChange={e => onChange({ auth_password_login_enabled: e.target.checked })}>
             <Tooltip
               title={
-                isTheOnlyAuthMethod ? "Password login can be disabled only if another login method is enabled." : null
+                isTheOnlyAuthMethod ? i18next.t("Settings:Password login can be disabled only if another login method is enabled.") : null
               }
               placement="right">
-              Password Login Enabled
+              {i18next.t("Settings:Password Login Enabled")}
             </Tooltip>
           </Checkbox>
         )}

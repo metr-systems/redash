@@ -7,6 +7,9 @@ import Input from "antd/lib/input";
 import Button from "antd/lib/button";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import List from "react-virtualized/dist/commonjs/List";
+
+import { useTranslation } from "react-i18next";
+
 import PlainButton from "@/components/PlainButton";
 import Tooltip from "@/components/Tooltip";
 import useDataSourceSchema from "@/pages/queries/hooks/useDataSourceSchema";
@@ -29,6 +32,7 @@ const schemaTableHeight = 22;
 const schemaColumnHeight = 18;
 
 function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
+  const { t } = useTranslation();
   const handleSelect = useCallback(
     (event, ...args) => {
       event.preventDefault();
@@ -55,7 +59,7 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
           </strong>
         </PlainButton>
         <Tooltip
-          title="Insert table name into query text"
+          title={t("Queries:Insert table name into query text")}
           mouseEnterDelay={0}
           mouseLeaveDelay={0}
           placement="topRight"
@@ -68,14 +72,14 @@ function SchemaItem({ item, expanded, onToggle, onSelect, ...props }) {
       {expanded && (
         <div className="table-open">
           {item.loading ? (
-            <div className="table-open">Loading...</div>
+            <div className="table-open">{t("Loading...")}</div>
           ) : (
             map(item.columns, column => {
               const columnName = get(column, "name");
               const columnType = get(column, "type");
               return (
                 <Tooltip
-                  title="Insert column name into query text"
+                  title={t("Queries:Insert column name into query text")}
                   mouseEnterDelay={0}
                   mouseLeaveDelay={0}
                   placement="rightTop">
@@ -211,6 +215,7 @@ export default function SchemaBrowser({
   onOptionsUpdate,
   ...props
 }) {
+  const { t } = useTranslation()
   const [schema, isLoading, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);
@@ -240,16 +245,16 @@ export default function SchemaBrowser({
       <div className="schema-control">
         <Input
           className="m-r-5"
-          placeholder="Search schema..."
-          aria-label="Search schema"
+          placeholder={t("Queries:Search schema...")}
+          aria-label={t("Queries:Search schema")}
           disabled={schema.length === 0}
           onChange={event => handleFilterChange(event.target.value)}
         />
 
-        <Tooltip title="Refresh Schema">
+        <Tooltip title={t("Queries:Refresh Schema")}>
           <Button onClick={() => refreshSchema(true)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": isLoading })} aria-hidden="true" />
-            <span className="sr-only">{isLoading ? "Loading, please wait." : "Press to refresh."}</span>
+            <span className="sr-only">{isLoading ? t("Queries:Loading, please wait.") : t("Queries:Press to refresh.")}</span>
           </Button>
         </Tooltip>
       </div>

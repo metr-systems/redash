@@ -1,6 +1,9 @@
 import { map, trim } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import Tooltip from "@/components/Tooltip";
 import EditTagsDialog from "./EditTagsDialog";
 import PlainButton from "@/components/PlainButton";
@@ -33,6 +36,7 @@ export class TagsControl extends React.Component {
   };
 
   renderEditButton() {
+    const { t } = useTranslation();
     const tags = map(this.props.tags, trim);
     return (
       <PlainButton
@@ -42,13 +46,13 @@ export class TagsControl extends React.Component {
         {tags.length === 0 && (
           <React.Fragment>
             <i className="zmdi zmdi-plus m-r-5" aria-hidden="true" />
-            Add tag
+            {i18next.t("Tags:Add tag")}
           </React.Fragment>
         )}
         {tags.length > 0 && (
           <>
             <i className="zmdi zmdi-edit" aria-hidden="true" />
-            <span className="sr-only">Edit</span>
+            <span className="sr-only">{i18next.t("Edit")}</span>
           </>
         )}
       </PlainButton>
@@ -81,10 +85,10 @@ function modelTagsControl({ archivedTooltip }) {
   function ModelTagsControl({ isDraft, isArchived, ...props }) {
     return (
       <TagsControl {...props}>
-        {!isArchived && isDraft && <span className="label label-tag-unpublished">Unpublished</span>}
+        {!isArchived && isDraft && <span className="label label-tag-unpublished">{t("Unpublished")}</span>}
         {isArchived && (
           <Tooltip placement="right" title={archivedTooltip}>
-            <span className="label label-tag-archived">Archived</span>
+            <span className="label label-tag-archived">{t("Archived")}</span>
           </Tooltip>
         )}
       </TagsControl>
@@ -105,11 +109,11 @@ function modelTagsControl({ archivedTooltip }) {
 }
 
 export const QueryTagsControl = modelTagsControl({
-  archivedTooltip: "This query is archived and can't be used in dashboards, or appear in search results.",
+  archivedTooltip: i18next.t("This query is archived and can't be used in dashboards, or appear in search results."),
 });
 
 export const WidgetTagsControl = modelTagsControl({archivedTooltip: null});
 
 export const DashboardTagsControl = modelTagsControl({
-  archivedTooltip: "This dashboard is archived and won't be listed in dashboards nor search results.",
+  archivedTooltip: i18next.t("This dashboard is archived and won't be listed in dashboards nor search results."),
 });

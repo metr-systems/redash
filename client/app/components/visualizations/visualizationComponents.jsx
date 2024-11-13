@@ -10,6 +10,7 @@ import usaDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/usa-alber
 import subdivJapanDataUrl from "@redash/viz/lib/visualizations/choropleth/maps/japan.prefectures.geo.json";
 
 function wrapComponentWithSettings(WrappedComponent) {
+  //TODO not sure about translating the fileds names here
   return function VisualizationComponent(props) {
     updateVisualizationsSettings({
       HelpTriggerComponent: HelpTrigger,

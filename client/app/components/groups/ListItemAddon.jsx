@@ -1,23 +1,25 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
 import Tooltip from "@/components/Tooltip";
 
 export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, deselectedIcon }) {
+  const { t } = useTranslation();
   if (isStaged) {
     return (
       <>
         <i className="fa fa-remove" aria-hidden="true" />
-        <span className="sr-only">Remove</span>
+        <span className="sr-only">{t("Remove")}</span>
       </>
     );
   }
   if (alreadyInGroup) {
     return (
-      <Tooltip title="Already selected">
+      <Tooltip title={t("Groups:Already selected")}>
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
         <span tabIndex={0}>
           <i className="fa fa-check" aria-hidden="true" />
-          <span className="sr-only">Already selected</span>
+          <span className="sr-only">{t("Groups:Already selected")}</span>
         </span>
       </Tooltip>
     );
@@ -25,12 +27,12 @@ export default function ListItemAddon({ isSelected, isStaged, alreadyInGroup, de
   return isSelected ? (
     <>
       <i className="fa fa-check" aria-hidden="true" />
-      <span className="sr-only">Selected</span>
+      <span className="sr-only">{t("Groups:Selected")}</span>
     </>
   ) : (
     <>
       <i className={`fa ${deselectedIcon}`} aria-hidden="true" />
-      <span className="sr-only">Select</span>
+      <span className="sr-only">{t("Groups:Select")}</span>
     </>
   );
 }

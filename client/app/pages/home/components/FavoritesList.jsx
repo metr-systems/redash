@@ -2,6 +2,8 @@ import { isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
 
+import { Trans, useTranslation } from "react-i18next";
+
 import Link from "@/components/Link";
 import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 
@@ -9,6 +11,7 @@ import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
 
 export function FavoriteList({ title, resource, itemUrl, emptyState }) {
+  const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,7 +37,7 @@ export function FavoriteList({ title, resource, itemUrl, emptyState }) {
                 <i className="fa fa-star" aria-hidden="true" />
               </span>
               {item.name}
-              {item.is_draft && <span className="label label-default m-l-5">Unpublished</span>}
+              {item.is_draft && <span className="label label-default m-l-5">{t("Home:Unpublished")}</span>}
             </Link>
           ))}
         </div>
@@ -53,13 +56,14 @@ FavoriteList.propTypes = {
 FavoriteList.defaultProps = { emptyState: null };
 
 export function DashboardAndQueryFavoritesList() {
+  const { t } = useTranslation();
   return (
     <div className="tile">
       <div className="t-body tb-padding">
         <div className="row home-favorites-list">
           <div className="col-sm-6 m-t-20">
             <FavoriteList
-              title="Favorite Dashboards"
+              title={t("Home:Favorite Dashboards")}
               resource={Dashboard}
               itemUrl={dashboard => dashboard.url}
               emptyState={
@@ -67,14 +71,16 @@ export function DashboardAndQueryFavoritesList() {
                   <span className="btn-favorite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
-                  Favorite <Link href="dashboards">Dashboards</Link> will appear here
+                  <Trans i18nKey="Home:favourite_dashboard">
+                    Favorite <Link href="dashboards">Dashboards</Link> will appear here
+                  </Trans>
                 </p>
               }
             />
           </div>
           <div className="col-sm-6 m-t-20">
             <FavoriteList
-              title="Favorite Queries"
+              title={t("Home:Favorite Queries")}
               resource={Query}
               itemUrl={query => `queries/${query.id}`}
               emptyState={
@@ -82,7 +88,9 @@ export function DashboardAndQueryFavoritesList() {
                   <span className="btn-favorite m-r-5">
                     <i className="fa fa-star" aria-hidden="true" />
                   </span>
-                  Favorite <Link href="queries">Queries</Link> will appear here
+                  <Trans i18nKey="Home:favourite_queries">
+                    Favorite <Link href="queries">Queries</Link> will appear here
+                  </Trans>
                 </p>
               }
             />

@@ -2,6 +2,9 @@ import { without, find, includes, map, toLower } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from "i18next";
+import { withTranslation } from 'react-i18next';
+
 import Link from "@/components/Link";
 import Button from "antd/lib/button";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
@@ -46,7 +49,7 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
         <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />
       )}
       {canUnsubscribe && (
-        <Tooltip title="Remove" mouseEnterDelay={0.5}>
+        <Tooltip title={i18next.t("Remove")} mouseEnterDelay={0.5}>
           <PlainButton className="remove-button" onClick={unsubscribe}>
             {/* TODO: lacks visual feedback */}
             <CloseOutlinedIcon />
@@ -63,7 +66,7 @@ ListItem.propTypes = {
   unsubscribe: PropTypes.func.isRequired,
 };
 
-export default class AlertDestinations extends React.Component {
+class AlertDestinations extends React.Component {
   static propTypes = {
     alertId: PropTypes.any.isRequired,
   };
@@ -86,22 +89,23 @@ export default class AlertDestinations extends React.Component {
 
   showAddAlertSubDialog = () => {
     const { dests, subs } = this.state;
+    const { t } = this.props;
 
     SelectItemsDialog.showModal({
       width: 570,
       showCount: true,
       extraFooterContent: (
         <>
-          <i className="fa fa-info-circle" aria-hidden="true" /> Create new destinations in{" "}
-          <Tooltip title="Opens page in a new tab.">
+          <i className="fa fa-info-circle" aria-hidden="true" /> {t("Alert:Create new destinations in")}{" "}
+          <Tooltip title={t("Alert:Opens page in a new tab.")}>
             <Link href="destinations/new" target="_blank">
-              Alert Destinations
+              {t("Alert:Alert Destinations.")}
             </Link>
           </Tooltip>
         </>
       ),
-      dialogTitle: "Add Existing Alert Destinations",
-      inputPlaceholder: "Search destinations...",
+      dialogTitle: t("Alert:Add Existing Alert Destinations"),
+      inputPlaceholder: t("Alert:Search destinations..."),
       searchItems: searchTerm => {
         searchTerm = toLower(searchTerm);
         return Promise.resolve(dests.filter(d => includes(toLower(d.name), searchTerm)));
@@ -125,10 +129,10 @@ export default class AlertDestinations extends React.Component {
       const promises = map(items, item => this.subscribe(item));
       return Promise.all(promises)
         .then(() => {
-          notification.success("Subscribed.");
+          notification.success(t("Alert:Subscribed."));
         })
         .catch(() => {
-          notification.error("Failed saving subscription.");
+          notification.error(t("Alert:Failed saving subscription."));
           return Promise.reject(null); // keep dialog visible but suppress its default error message
         });
     });
@@ -159,6 +163,7 @@ export default class AlertDestinations extends React.Component {
   };
 
   unsubscribe = sub => {
+    const { t } = this.props;
     AlertSubscription.delete(sub)
       .then(() => {
         // not showing subscribe notification cause it's redundant here
@@ -168,11 +173,12 @@ export default class AlertDestinations extends React.Component {
         });
       })
       .catch(() => {
-        notification.error("Failed unsubscribing.");
+        notification.error(t("Alert:Failed unsubscribing."));
       });
   };
 
   render() {
+    const { t } = this.props;
     if (!this.props.alertId) {
       return null;
     }
@@ -187,14 +193,14 @@ export default class AlertDestinations extends React.Component {
 
     return (
       <div className="alert-destinations" data-test="AlertDestinations">
-        <Tooltip title='Click to add an existing "Alert Destination"' mouseEnterDelay={0.5}>
+        <Tooltip title={t('Alert:Click to add an existing "Alert Destination"')} mouseEnterDelay={0.5}>
           <Button
             data-test="ShowAddAlertSubDialog"
             type="primary"
             size="small"
             className="add-button"
             onClick={this.showAddAlertSubDialog}>
-            <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> Add
+            <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> {t("Alert:Add")}
           </Button>
         </Tooltip>
         <ul>
@@ -221,3 +227,5 @@ export default class AlertDestinations extends React.Component {
     );
   }
 }
+
+export default withTranslation()(AlertDestinations);

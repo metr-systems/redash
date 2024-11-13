@@ -1,6 +1,9 @@
 import { startsWith, has, includes, findKey, values, isObject, isArray } from "lodash";
 import moment from "moment";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import Parameter from "./Parameter";
 
 const DATETIME_FORMATS = {
@@ -21,11 +24,11 @@ const untilNow = (from, now = () => moment()) => (withNow = true) => [from(), wi
 
 const DYNAMIC_DATE_RANGES = {
   today: {
-    name: "Today",
+    name: i18next.t("Params:Today"),
     value: () => [moment().startOf("day"), moment().endOf("day")],
   },
   yesterday: {
-    name: "Yesterday",
+    name: i18next.t("Params:Yesterday"),
     value: () => [
       moment()
         .subtract(1, "day")
@@ -36,19 +39,19 @@ const DYNAMIC_DATE_RANGES = {
     ],
   },
   this_week: {
-    name: "This week",
+    name: i18next.t("Params:This week"),
     value: () => [moment().startOf("week"), moment().endOf("week")],
   },
   this_month: {
-    name: "This month",
+    name: i18next.t("Params:This month"),
     value: () => [moment().startOf("month"), moment().endOf("month")],
   },
   this_year: {
-    name: "This year",
+    name: i18next.t("Params:This year"),
     value: () => [moment().startOf("year"), moment().endOf("year")],
   },
   last_week: {
-    name: "Last week",
+    name: i18next.t("Params:Last week"),
     value: () => [
       moment()
         .subtract(1, "week")
@@ -59,7 +62,7 @@ const DYNAMIC_DATE_RANGES = {
     ],
   },
   last_month: {
-    name: "Last month",
+    name: i18next.t("Params:Last month"),
     value: () => [
       moment()
         .subtract(1, "month")
@@ -70,7 +73,7 @@ const DYNAMIC_DATE_RANGES = {
     ],
   },
   last_year: {
-    name: "Last year",
+    name: i18next.t("Params:Last year"),
     value: () => [
       moment()
         .subtract(1, "year")
@@ -81,19 +84,19 @@ const DYNAMIC_DATE_RANGES = {
     ],
   },
   last_hour: {
-    name: "Last hour",
+    name: i18next.t("Params:Last hour"),
     value: untilNow(() => moment().subtract(1, "hour")),
   },
   last_8_hours: {
-    name: "Last 8 hours",
+    name: i18next.t("Params:Last 8 hours"),
     value: untilNow(() => moment().subtract(8, "hour")),
   },
   last_24_hours: {
-    name: "Last 24 hours",
+    name: i18next.t("Params:Last 24 hours"),
     value: untilNow(() => moment().subtract(24, "hour")),
   },
   last_7_days: {
-    name: "Last 7 days",
+    name: i18next.t("Params:Last 7 days"),
     value: untilNow(
       () =>
         moment()
@@ -103,7 +106,7 @@ const DYNAMIC_DATE_RANGES = {
     ),
   },
   last_14_days: {
-    name: "Last 14 days",
+    name: i18next.t("Params:Last 14 days"),
     value: untilNow(
       () =>
         moment()
@@ -113,7 +116,7 @@ const DYNAMIC_DATE_RANGES = {
     ),
   },
   last_30_days: {
-    name: "Last 30 days",
+    name: i18next.t("Params:Last 30 days"),
     value: untilNow(
       () =>
         moment()
@@ -123,7 +126,7 @@ const DYNAMIC_DATE_RANGES = {
     ),
   },
   last_60_days: {
-    name: "Last 60 days",
+    name: i18next.t("Params:Last 60 days"),
     value: untilNow(
       () =>
         moment()
@@ -133,7 +136,7 @@ const DYNAMIC_DATE_RANGES = {
     ),
   },
   last_90_days: {
-    name: "Last 90 days",
+    name: i18next.t("Params:Last 90 days"),
     value: untilNow(
       () =>
         moment()
@@ -143,7 +146,7 @@ const DYNAMIC_DATE_RANGES = {
     ),
   },
   last_12_months: {
-    name: "Last 12 months",
+    name: i18next.t("Params:Last 12 months"),
     value: untilNow(
       () =>
         moment()

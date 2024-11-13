@@ -5,6 +5,10 @@ import moment from "moment";
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
+
+import i18next from "i18next";
+import { withTranslation } from 'react-i18next';
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
 import { CounterCard, WorkersTable, QueuesTable, QueryJobsTable, OtherJobsTable } from "@/components/admin/RQStatus";
@@ -79,6 +83,7 @@ class Jobs extends React.Component {
   };
 
   render() {
+    const {t} =this.props
     const { isLoading, error, queueCounters, startedJobs, overallCounters, workers, activeTab } = this.state;
     const [startedQueryJobs, otherStartedJobs] = partition(startedJobs, [
       "name",
@@ -93,16 +98,16 @@ class Jobs extends React.Component {
     return (
       <Layout activeTab="jobs">
         <div className="p-15">
-          {error && <Alert type="error" message="Failed loading status. Please refresh." />}
+          {error && <Alert type="error" message={t("Admin:Failed loading status. Please refresh.")} />}
 
           {!error && (
             <React.Fragment>
               <Grid.Row gutter={15} className="m-b-15">
                 <Grid.Col span={8}>
-                  <CounterCard title="Started Jobs" value={overallCounters.started} loading={isLoading} />
+                  <CounterCard title={t("Admin:Started Jobs")} value={overallCounters.started} loading={isLoading} />
                 </Grid.Col>
                 <Grid.Col span={8}>
-                  <CounterCard title="Queued Jobs" value={overallCounters.queued} loading={isLoading} />
+                  <CounterCard title={t("Admin:Queued Jobs")} value={overallCounters.queued} loading={isLoading} />
                 </Grid.Col>
               </Grid.Row>
 
@@ -128,11 +133,13 @@ class Jobs extends React.Component {
   }
 }
 
+const TranslatedJobs = withTranslation()(Jobs);
+
 routes.register(
   "Admin.Jobs",
   routeWithUserSession({
     path: "/admin/queries/jobs",
-    title: "RQ Status",
-    render: pageProps => <Jobs {...pageProps} />,
+    title: i18next.t("Admin:RQ Status"),
+    render: pageProps => <TranslatedJobs {...pageProps} />,
   })
 );

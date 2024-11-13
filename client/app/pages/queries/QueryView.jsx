@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
+import i18next from "i18next";
 
 import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
 import FullscreenExitOutlinedIcon from "@ant-design/icons/FullscreenExitOutlined";
@@ -125,7 +126,7 @@ function QueryView(props) {
             !fullscreen && (
               <PlainButton className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
                 <i className="zmdi zmdi-plus m-r-5" aria-hidden="true" />
-                Add description
+                {i18next.t("Queries:Add description")}
               </PlainButton>
             )
           }
@@ -138,7 +139,7 @@ function QueryView(props) {
               isEditable={queryFlags.canEdit}
               onDone={updateQueryDescription}
               onStopEditing={() => setAddingDescription(false)}
-              placeholder="Add description"
+              placeholder={i18next.t("Queries:Add description")}
               ignoreBlanks={false}
               editorProps={{ autoSize: { minRows: 2, maxRows: 4 } }}
               defaultEditing={addingDescription}
@@ -179,7 +180,7 @@ function QueryView(props) {
                     loading={isExecuting}
                     onClick={doExecuteQuery}>
                     {!isExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
-                    Refresh Now
+                    {i18next.t("Queries:Refresh Now")}
                   </Button>
                 )
               }
@@ -198,7 +199,7 @@ function QueryView(props) {
                 extraActions={
                   <QueryViewButton
                     className="icon-button m-r-5 hidden-xs"
-                    title="Toggle Fullscreen"
+                    title={i18next.t("Queries:Toggle Fullscreen")}
                     type="default"
                     shortcut="alt+f"
                     onClick={toggleFullscreen}>

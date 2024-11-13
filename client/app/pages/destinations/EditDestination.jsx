@@ -3,6 +3,10 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Modal from "antd/lib/modal";
+
+import i18next from 'i18next';
+import { withTranslation } from "react-i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -44,20 +48,21 @@ class EditDestination extends React.Component {
     const { destination } = this.state;
     helper.updateTargetWithValues(destination, values);
     Destination.save(destination)
-      .then(() => successCallback("Saved."))
+      .then(() => successCallback(i18next.t("Saved.")))
       .catch(error => {
-        const message = get(error, "response.data.message", "Failed saving.");
+        const message = get(error, "response.data.message", i18next.t("Failed saving."));
         errorCallback(message);
       });
   };
 
   deleteDestination = callback => {
     const { destination } = this.state;
+    const {t} = this.props;
 
     const doDelete = () => {
       Destination.delete(destination)
         .then(() => {
-          notification.success("Alert destination deleted successfully.");
+          notification.success(t("Alert destination deleted successfully."));
           navigateTo("destinations");
         })
         .catch(() => {
@@ -66,9 +71,9 @@ class EditDestination extends React.Component {
     };
 
     Modal.confirm({
-      title: "Delete Alert Destination",
-      content: "Are you sure you want to delete this alert destination?",
-      okText: "Delete",
+      title: t("Delete Alert Destination"),
+      content: t("Are you sure you want to delete this alert destination?"),
+      okText: i18next.t("Delete"),
       okType: "danger",
       onOk: doDelete,
       onCancel: callback,
@@ -83,7 +88,7 @@ class EditDestination extends React.Component {
     const formProps = {
       fields,
       type,
-      actions: [{ name: "Delete", type: "danger", callback: this.deleteDestination }],
+      actions: [{ name: i18next.t("Delete"), type: "danger", callback: this.deleteDestination }],
       onSubmit: this.saveDestination,
       defaultShowExtraFields: helper.hasFilledExtraField(type, destination),
       feedbackIcons: true,
@@ -107,13 +112,13 @@ class EditDestination extends React.Component {
   }
 }
 
-const EditDestinationPage = wrapSettingsTab("AlertDestinations.Edit", null, EditDestination);
+const EditDestinationPage = withTranslation("Destinations")(wrapSettingsTab("AlertDestinations.Edit", null, EditDestination));
 
 routes.register(
   "AlertDestinations.Edit",
   routeWithUserSession({
     path: "/destinations/:destinationId",
-    title: "Alert Destinations",
+    title: i18next.t("Alert Destinations"),
     render: pageProps => <EditDestinationPage {...pageProps} />,
   })
 );

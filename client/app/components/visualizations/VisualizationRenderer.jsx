@@ -1,6 +1,9 @@
 import { isEqual, map, find, fromPairs } from "lodash";
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+
+import { useTranslation } from "react-i18next";
+
 import useQueryResultData from "@/lib/useQueryResultData";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 import Filters, { FiltersType, filterData } from "@/components/Filters";
@@ -37,6 +40,7 @@ function areFiltersEqual(a, b) {
 }
 
 export default function VisualizationRenderer(props) {
+  const { t } = useTranslation();
   const data = useQueryResultData(props.queryResult);
   const [filters, setFilters] = useState(() => combineFilters(data.filters, props.filters)); // lazy initialization
   const filtersRef = useRef();
@@ -75,7 +79,7 @@ export default function VisualizationRenderer(props) {
 
   // define pagination size based on context for Table visualization
   if (visualization.type === "TABLE") {
-    options.paginationSize = props.context === "widget" ? "small" : "default";
+    options.paginationSize = props.context === "widget" ? t("Visualization:small") : t("Visualization:default");
   }
 
   return (

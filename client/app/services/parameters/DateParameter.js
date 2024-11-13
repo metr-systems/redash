@@ -1,6 +1,9 @@
 import { findKey, startsWith, has, includes, isNull, values } from "lodash";
 import moment from "moment";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import Parameter from "./Parameter";
 
 const DATETIME_FORMATS = {
@@ -14,11 +17,11 @@ const DYNAMIC_PREFIX = "d_";
 
 const DYNAMIC_DATES = {
   now: {
-    name: "Today/Now",
+    name: i18next.t("Today/Now"),
     value: () => moment(),
   },
   yesterday: {
-    name: "Yesterday",
+    name: i18next.t("Yesterday"),
     value: () => moment().subtract(1, "day"),
   },
 };

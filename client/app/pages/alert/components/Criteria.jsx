@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { head, includes, toString, isEmpty } from "lodash";
 
+import { useTranslation } from "react-i18next";
+
 import Input from "antd/lib/input";
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Select from "antd/lib/select";
@@ -36,6 +38,7 @@ DisabledInput.propTypes = {
 };
 
 export default function Criteria({ columnNames, resultValues, alertOptions, onChange, editMode }) {
+  const { t } = useTranslation();
   const columnValue = !isEmpty(resultValues) ? head(resultValues)[alertOptions.column] : null;
   const invalidMessage = (() => {
     // bail if condition is valid for strings
@@ -44,11 +47,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
     }
 
     if (isNaN(alertOptions.value)) {
-      return "Value column type doesn't match threshold type.";
+      return t("Alert:Value column type doesn't match threshold type.");
     }
 
     if (isNaN(columnValue)) {
-      return "Value column isn't supported by condition type.";
+      return t("Alert:Value column isn't supported by condition type.");
     }
 
     return null;
@@ -56,14 +59,14 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
 
   const columnHint = (
     <small className="alert-criteria-hint">
-      Top row value is <code className="p-0">{toString(columnValue) || "unknown"}</code>
+      {t("Alert:Top row value is")} <code className="p-0">{toString(columnValue) || "unknown"}</code>
     </small>
   );
 
   return (
     <div data-test="Criteria">
       <div className="input-title">
-        <span className="input-label">Value column</span>
+        <span className="input-label">{t("Alert:Value column")}</span>
         {editMode ? (
           <Select
             value={alertOptions.column}
@@ -79,7 +82,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span className="input-label">Condition</span>
+        <span className="input-label">{t("Alert:Condition")}</span>
         {editMode ? (
           <Select
             value={alertOptions.op}
@@ -88,28 +91,28 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             dropdownMatchSelectWidth={false}
             style={{ width: 55 }}>
             <Select.Option value=">" label={CONDITIONS[">"]}>
-              {CONDITIONS[">"]} greater than
+              {CONDITIONS[">"]} {t("Alert:greater than")}
             </Select.Option>
             <Select.Option value=">=" label={CONDITIONS[">="]}>
-              {CONDITIONS[">="]} greater than or equals
+              {CONDITIONS[">="]} {t("Alert:greater than or equals")}
             </Select.Option>
             <Select.Option disabled key="dv1">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
             <Select.Option value="<" label={CONDITIONS["<"]}>
-              {CONDITIONS["<"]} less than
+              {CONDITIONS["<"]} {t("Alert:less than")}
             </Select.Option>
             <Select.Option value="<=" label={CONDITIONS["<="]}>
-              {CONDITIONS["<="]} less than or equals
+              {CONDITIONS["<="]} {t("Alert:less than or equals")}
             </Select.Option>
             <Select.Option disabled key="dv2">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
             <Select.Option value="==" label={CONDITIONS["=="]}>
-              {CONDITIONS["=="]} equals
+              {CONDITIONS["=="]} {t("Alert:equals")}
             </Select.Option>
             <Select.Option value="!=" label={CONDITIONS["!="]}>
-              {CONDITIONS["!="]} not equal to
+              {CONDITIONS["!="]} {t("Alert:not equal to")}
             </Select.Option>
           </Select>
         ) : (
@@ -118,7 +121,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
       </div>
       <div className="input-title">
         <label className="input-label" htmlFor="threshold-criterion">
-          Threshold
+          {t("Alert:Threshold")}
         </label>
         {editMode ? (
           <Input

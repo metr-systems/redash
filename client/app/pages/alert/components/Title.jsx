@@ -3,12 +3,15 @@ import PropTypes from "prop-types";
 import Input from "antd/lib/input";
 import { getDefaultName } from "../Alert";
 
+import { useTranslation } from "react-i18next";
+
 import { Alert as AlertType } from "@/components/proptypes";
 
 import "./Title.less";
 
 export default function Title({ alert, editMode, name, onChange, children }) {
   const defaultName = getDefaultName(alert);
+  const {t} = useTranslation();
   return (
     <div className="alert-header">
       <div className="alert-title">
@@ -20,7 +23,7 @@ export default function Title({ alert, editMode, name, onChange, children }) {
               className="f-inherit"
               placeholder={defaultName}
               value={name}
-              aria-label="Alert title"
+              aria-label={t("Alert:Alert title")}
               onChange={e => onChange(e.target.value)}
             />
           ) : (

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
+import i18next from 'i18next';
 import DynamicComponent from "@/components/DynamicComponent";
 import InputWithCopy from "@/components/InputWithCopy";
 import { UserProfile } from "@/components/proptypes";
@@ -32,9 +33,9 @@ export default function ApiKeyForm(props) {
     };
 
     Modal.confirm({
-      title: "Regenerate API Key",
-      content: "Are you sure you want to regenerate?",
-      okText: "Regenerate",
+      title: i18next.t("Users:Regenerate API Key"),
+      content: i18next.t("Users:Are you sure you want to regenerate?"),
+      okText: i18next.t("Users:Regenerate"),
       onOk: doRegenerate,
       maskClosable: true,
       autoFocusButton: null,
@@ -45,11 +46,11 @@ export default function ApiKeyForm(props) {
     <DynamicComponent name="UserProfile.ApiKeyForm" {...props}>
       <Form layout="vertical">
         <hr />
-        <Form.Item label="API Key" className="m-b-10">
+        <Form.Item label={i18next.t("Users:API Key")} className="m-b-10">
           <InputWithCopy id={apiKeyInputId} className="hide-in-percy" value={user.apiKey} data-test="ApiKey" readOnly />
         </Form.Item>
         <Button className="w-100" onClick={regenerateApiKey} loading={loading} data-test="RegenerateApiKey">
-          Regenerate
+          {i18next.t("Users:Regenerate")}
         </Button>
       </Form>
     </DynamicComponent>

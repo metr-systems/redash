@@ -1,6 +1,8 @@
 import React from "react";
 import Button, { ButtonProps as AntdButtonProps } from "antd/lib/button";
 
+import i18next from "i18next";
+
 function DefaultLinkComponent({ children, ...props }: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
   return <a {...props}>{children}</a>;
 }
@@ -33,7 +35,7 @@ Link.WithIcon = LinkWithIcon;
 
 function ExternalLink({
   icon = <i className="fa fa-external-link" aria-hidden="true" />,
-  alt = "(opens in a new tab)",
+  alt = i18next.t("(opens in a new tab)"),
   ...props
 }: Omit<LinkWithIconProps, "target">) {
   return <Link.WithIcon target="_blank" rel="noopener noreferrer" icon={icon} alt={alt} {...props} />;

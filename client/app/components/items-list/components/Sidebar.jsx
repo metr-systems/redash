@@ -3,6 +3,9 @@ import React, { useState, useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
 import Input from "antd/lib/input";
 import AntdMenu from "antd/lib/menu";
+
+import i18next from "i18next";
+
 import Link from "@/components/Link";
 import TagsList from "@/components/TagsList";
 
@@ -49,9 +52,9 @@ SearchInput.propTypes = {
 };
 
 SearchInput.defaultProps = {
-  placeholder: "Search...",
+  placeholder:  i18next.t("Search..."),
   showIcon: false,
-  label: "Search",
+  label: i18next.t("Search"),
 };
 
 /*

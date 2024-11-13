@@ -1,4 +1,6 @@
 import React, { useCallback } from "react";
+import i18next from 'i18next';
+
 import HelpTrigger from "@/components/HelpTrigger";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
@@ -26,7 +28,7 @@ export default function AuthSettings(props) {
   return (
     <DynamicComponent name="OrganizationSettings.AuthSettings" {...props}>
       <h3 className="m-t-0">
-        Authentication <HelpTrigger type="AUTHENTICATION_OPTIONS" />
+        {i18next.t("Settings:Authentication")} <HelpTrigger type="AUTHENTICATION_OPTIONS" />
       </h3>
       <hr />
       <PasswordLoginSettings {...props} onChange={handleChange} />

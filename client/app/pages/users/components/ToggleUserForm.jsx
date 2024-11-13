@@ -33,6 +33,7 @@ export default function ToggleUserForm(props) {
 
   const buttonProps = {
     type: user.isDisabled ? "primary" : "danger",
+    //TODO not sure about translating what follows
     children: user.isDisabled ? "Enable User" : "Disable User",
   };
 

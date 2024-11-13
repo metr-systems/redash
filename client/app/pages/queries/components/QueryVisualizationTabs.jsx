@@ -6,6 +6,7 @@ import useMedia from "use-media";
 import Tabs from "antd/lib/tabs";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+import { useTranslation } from "react-i18next";
 import VisualizationRenderer from "@/components/visualizations/VisualizationRenderer";
 import PlainButton from "@/components/PlainButton";
 
@@ -14,11 +15,12 @@ import "./QueryVisualizationTabs.less";
 const { TabPane } = Tabs;
 
 function EmptyState({ title, message, refreshButton }) {
+  const { t } = useTranslation();
   return (
     <div className="query-results-empty-state">
       <div className="empty-state-content">
         <div>
-          <img src="/static/images/illustrations/no-query-results.svg" alt="No Query Results Illustration" />
+          <img src="/static/images/illustrations/no-query-results.svg" alt={t("Queries:No Query Results Illustration")} />
         </div>
         <h3>{title}</h3>
         <div className="m-b-20">{message}</div>
@@ -39,13 +41,14 @@ EmptyState.defaultProps = {
 };
 
 function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }) {
+  const { t } = useTranslation();
   const handleDelete = useCallback(
     e => {
       e.stopPropagation();
       Modal.confirm({
-        title: "Delete Visualization",
-        content: "Are you sure you want to delete this visualization?",
-        okText: "Delete",
+        title: t("Queries:Delete Visualization"),
+        content: t("Queries:Are you sure you want to delete this visualization?"),
+        okText: t("Queries:Delete"),
         okType: "danger",
         onOk: onDelete,
         maskClosable: true,
@@ -59,7 +62,7 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props 
     <span {...props}>
       {visualizationName}
       {canDelete && (
-        <PlainButton className="delete-visualization-button" onClick={handleDelete} aria-label="Close" title="Close">
+        <PlainButton className="delete-visualization-button" onClick={handleDelete} aria-label={t("Queries:Close")} title={t("Queries:Close")}>
           <i className="zmdi zmdi-close" aria-hidden="true" />
         </PlainButton>
       )}
@@ -95,6 +98,7 @@ export default function QueryVisualizationTabs({
   canRefresh,
   ...props
 }) {
+  const { t } = useTranslation();
   const visualizations = useMemo(
     () => (props.visualizations.length > 0 ? props.visualizations : defaultVisualizations),
     [props.visualizations]
@@ -113,7 +117,7 @@ export default function QueryVisualizationTabs({
         type="link"
         onClick={() => onAddVisualization()}>
         <i className="fa fa-plus" aria-hidden="true" />
-        <span className="m-l-5 hidden-xs">Add Visualization</span>
+        <span className="m-l-5 hidden-xs">{t("Queries:Add Visualization")}</span>
       </Button>
     );
   }
@@ -155,11 +159,11 @@ export default function QueryVisualizationTabs({
             />
           ) : (
             <EmptyState
-              title="Query has no result"
+              title={t("Queries:Query has no result")}
               message={
                 canRefresh
-                  ? "Execute/Refresh the query to show results."
-                  : "You do not have a permission to execute/refresh this query."
+                  ? t("Queries:Execute/Refresh the query to show results.")
+                  : t("Queries:You do not have a permission to execute/refresh this query.")
               }
               refreshButton={refreshButton}
             />

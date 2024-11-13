@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
 
+import i18next from "i18next";
+
 export default class EditInPlace extends React.Component {
   static propTypes = {
     ignoreBlanks: PropTypes.bool,
@@ -86,7 +88,7 @@ export default class EditInPlace extends React.Component {
     return (
       <InputComponent
         defaultValue={value}
-        aria-label="Editing"
+        aria-label={i18next.t("Editing")}
         onBlur={e => this.stopEditing(e.target.value)}
         onKeyDown={this.handleKeyDown}
         autoFocus

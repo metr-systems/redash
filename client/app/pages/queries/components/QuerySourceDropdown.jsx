@@ -1,5 +1,7 @@
 import Select from "antd/lib/select";
 import { map } from "lodash";
+import { useTranslation } from "react-i18next";
+
 import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
 import PropTypes from "prop-types";
 import React from "react";
@@ -7,11 +9,12 @@ import React from "react";
 import "./QuerySourceDropdownItem"; // register QuerySourceDropdownItem
 
 export function QuerySourceDropdown(props) {
+  const { t } = useTranslation();
   return (
     <Select
       className="w-100"
       data-test="SelectDataSource"
-      placeholder="Choose data source..."
+      placeholder={t("Queries:Choose data source...")}
       value={props.value}
       disabled={props.disabled}
       loading={props.loading}

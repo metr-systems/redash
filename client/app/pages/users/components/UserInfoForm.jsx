@@ -1,6 +1,7 @@
 import { get, map } from "lodash";
 import React, { useMemo, useCallback } from "react";
 import PropTypes from "prop-types";
+import i18next from 'i18next';
 import { UserProfile } from "@/components/proptypes";
 import DynamicComponent from "@/components/DynamicComponent";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
@@ -28,11 +29,11 @@ export default function UserInfoForm(props) {
 
       User.save(data)
         .then(user => {
-          successCallback("Saved.");
+          successCallback(i18next.t("Saved."));
           handleChange(User.convertUserInfo(user));
         })
         .catch(error => {
-          errorCallback(get(error, "response.data.message", "Failed saving."));
+          errorCallback(get(error, "response.data.message", i18next.t("Users:Failed saving.")));
         });
     },
     [user, handleChange]
@@ -44,33 +45,33 @@ export default function UserInfoForm(props) {
         [
           {
             name: "name",
-            title: "Name",
+            title: i18next.t("Users:Name"),
             type: "text",
             initialValue: user.name,
           },
           {
             name: "email",
-            title: "Email",
+            title: i18next.t("Users:Email"),
             type: "email",
             initialValue: user.email,
           },
           !user.isDisabled && currentUser.id !== user.id
             ? {
                 name: "group_ids",
-                title: "Groups",
+                title: i18next.t("Users:Groups"),
                 type: "select",
                 mode: "multiple",
                 options: map(allGroups, group => ({ name: group.name, value: group.id })),
                 initialValue: user.groupIds,
                 loading: isLoadingGroups,
-                placeholder: isLoadingGroups ? "Loading..." : "",
+                placeholder: isLoadingGroups ? i18next.t("Loading...") : "",
               }
             : {
                 name: "group_ids",
-                title: "Groups",
+                title: i18next.t("Users:Groups"),
                 type: "content",
                 required: false,
-                content: isLoadingGroups ? "Loading..." : <UserGroups data-test="Groups" groups={groups} />,
+                content: isLoadingGroups ? i18next.t("Loading...") : <UserGroups data-test="Groups" groups={groups} />,
               },
         ],
         field => ({ readOnly: user.isDisabled, required: true, ...field })

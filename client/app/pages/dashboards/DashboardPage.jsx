@@ -5,6 +5,9 @@ import cx from "classnames";
 
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
+
+import { useTranslation } from "react-i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
@@ -25,6 +28,7 @@ import DashboardHeader from "./components/DashboardHeader";
 import "./DashboardPage.less";
 
 function DashboardSettings({ dashboardConfiguration }) {
+  const { t } = useTranslation();
   const { dashboard, updateDashboard } = dashboardConfiguration;
   return (
     <div className="m-b-10 p-15 bg-white tiled">
@@ -32,7 +36,7 @@ function DashboardSettings({ dashboardConfiguration }) {
         checked={!!dashboard.dashboard_filters_enabled}
         onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}
         data-test="DashboardFiltersCheckbox">
-        Use Dashboard Level Filters
+        {t("Dashboards:Use Dashboard Level Filters")}
       </Checkbox>
     </div>
   );
@@ -43,22 +47,22 @@ DashboardSettings.propTypes = {
 };
 
 function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
+  const { t } = useTranslation();
   const { showAddTextboxDialog, showAddWidgetDialog } = dashboardConfiguration;
   return (
     <div className={cx("add-widget-container", className)} {...props}>
       <h2>
         <i className="zmdi zmdi-widgets" aria-hidden="true" />
         <span className="hidden-xs hidden-sm">
-          Widgets are individual query visualizations or text boxes you can place on your dashboard in various
-          arrangements.
+          {t("Dashboards:Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.")}
         </span>
       </h2>
       <div>
         <Button className="m-r-15" onClick={showAddTextboxDialog} data-test="AddTextboxButton">
-          Add Textbox
+          {t("Dashboards:Add Textbox")}
         </Button>
         <Button type="primary" onClick={showAddWidgetDialog} data-test="AddWidgetButton">
-          Add Widget
+          {t("Dashboards:Add Widget")}
         </Button>
       </div>
     </div>

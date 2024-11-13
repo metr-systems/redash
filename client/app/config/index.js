@@ -13,6 +13,7 @@ import "@/pages";
 import "./antd-spinner";
 
 moment.updateLocale("en", {
+  // TODO translate in german
   relativeTime: {
     future: "%s",
     past: "%s",

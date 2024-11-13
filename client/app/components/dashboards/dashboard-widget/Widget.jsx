@@ -5,6 +5,9 @@ import { isEmpty, isEqual } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
+
+import i18next from 'i18next';
+
 import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
 import PlainButton from "@/components/PlainButton";
@@ -16,14 +19,14 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
     <Menu data-test="WidgetDropdownButtonMenu">
       {extraOptions}
       {showDeleteOption && extraOptions && <Menu.Divider />}
-      {showDeleteOption && <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>}
+      {showDeleteOption && <Menu.Item onClick={onDelete}>{i18next.t("Dashboards:Remove from Dashboard")}</Menu.Item>}
     </Menu>
   );
 
   return (
     <div className="widget-menu-regular">
       <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
-        <PlainButton className="action p-l-15 p-r-15" data-test="WidgetDropdownButton" aria-label="More options">
+        <PlainButton className="action p-l-15 p-r-15" data-test="WidgetDropdownButton" aria-label={i18next.t("Dashboards:More options")}>
           <i className="zmdi zmdi-more-vert" aria-hidden="true" />
         </PlainButton>
       </Dropdown>
@@ -48,10 +51,10 @@ function WidgetDeleteButton({ onClick }) {
     <div className="widget-menu-remove">
       <PlainButton
         className="action"
-        title="Remove From Dashboard"
+        title={i18next.t("Dashboards:Remove From Dashboard")}
         onClick={onClick}
         data-test="WidgetDeleteButton"
-        aria-label="Close">
+        aria-label={i18next.t("Close")}>
         <i className="zmdi zmdi-close" aria-hidden="true" />
       </PlainButton>
     </div>
@@ -61,7 +64,8 @@ function WidgetDeleteButton({ onClick }) {
 WidgetDeleteButton.propTypes = { onClick: PropTypes.func };
 WidgetDeleteButton.defaultProps = { onClick: () => {} };
 
-class Widget extends React.Component {
+export default class Widget extends React.Component {
+
   static propTypes = {
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     className: PropTypes.string,
@@ -116,9 +120,9 @@ class Widget extends React.Component {
     const { widget, onDelete } = this.props;
 
     Modal.confirm({
-      title: "Delete Widget",
-      content: "Are you sure you want to remove this widget from the dashboard?",
-      okText: "Delete",
+      title: i18next.t("Dashboards:Delete Widget"),
+      content: i18next.t("Dashboards:Are you sure you want to remove this widget from the dashboard?"),
+      okText: i18next.t("Delete"), // so that it will be in translation.json
       okType: "danger",
       onOk: () => widget.delete().then(onDelete),
       maskClosable: true,
@@ -158,5 +162,3 @@ class Widget extends React.Component {
     );
   }
 }
-
-export default Widget;

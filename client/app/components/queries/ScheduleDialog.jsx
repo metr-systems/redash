@@ -7,6 +7,9 @@ import Select from "antd/lib/select";
 import Radio from "antd/lib/radio";
 import { capitalize, clone, isEqual, omitBy, isNil, isEmpty } from "lodash";
 import moment from "moment";
+
+import i18next from "i18next";
+
 import { secondsToInterval, durationHumanize, pluralize, IntervalEnum, localizeTime } from "@/lib/utils";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { RefreshScheduleType, RefreshScheduleDefault, Moment } from "../proptypes";
@@ -77,7 +80,7 @@ class ScheduleDialog extends React.Component {
       newSchedule,
     };
   }
-
+  
   get intervals() {
     const ret = {
       [IntervalEnum.NEVER]: [],
@@ -189,7 +192,7 @@ class ScheduleDialog extends React.Component {
   }
 
   render() {
-    const { dialog } = this.props;
+    const { dialog, t } = this.props;
     const {
       interval,
       minute,
@@ -199,13 +202,13 @@ class ScheduleDialog extends React.Component {
     } = this.state;
 
     return (
-      <Modal {...dialog.props} title="Refresh Schedule" className="schedule" onOk={() => this.save()}>
+      <Modal {...dialog.props} title={t("Queries:Refresh Schedule")} className="schedule" onOk={() => this.save()}>
         <div className="schedule-component">
-          <h5>Refresh every</h5>
+          <h5>{t("Queries:Refresh every")}</h5>
           <div data-testid="interval">
             <Select className="input" value={seconds} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
               <Option value={null} key="never">
-                Never
+                {t("Queries:Never")}
               </Option>
               {Object.keys(this.intervals)
                 .filter(int => !isEmpty(this.intervals[int]))
@@ -223,7 +226,7 @@ class ScheduleDialog extends React.Component {
         </div>
         {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(interval) !== -1 ? (
           <div className="schedule-component">
-            <h5>On time</h5>
+            <h5>{t("Queries:On time")}</h5>
             <div data-testid="time">
               <TimeEditor
                 defaultValue={
@@ -240,7 +243,7 @@ class ScheduleDialog extends React.Component {
         ) : null}
         {IntervalEnum.WEEKS === interval ? (
           <div className="schedule-component">
-            <h5>On day</h5>
+            <h5>{t("Queries:On day")}</h5>
             <div data-testid="weekday">
               <Radio.Group size="medium" defaultValue={this.state.dayOfWeek} onChange={this.setWeekday}>
                 {WEEKDAYS_SHORT.map(day => (
@@ -254,11 +257,11 @@ class ScheduleDialog extends React.Component {
         ) : null}
         {interval !== IntervalEnum.NEVER ? (
           <div className="schedule-component">
-            <h5>Ends</h5>
+            <h5>{t("Queries:Ends")}</h5>
             <div className="ends" data-testid="ends">
               <Radio.Group size="medium" value={!!until} onChange={this.setUntilToggle}>
-                <Radio value={false}>Never</Radio>
-                <Radio value>On</Radio>
+                <Radio value={false}>{t("Queries:Never")}</Radio>
+                <Radio value>{t("Queries:On")}</Radio>
               </Radio.Group>
               {until ? (
                 <DatePicker

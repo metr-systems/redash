@@ -3,11 +3,15 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+
+import { useTranslation } from "react-i18next";
+
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
+  const { t } = useTranslation();
   const handleSubmit = useCallback(
     (values, successCallback, errorCallback) => {
       const querySnippetId = get(querySnippet, "id");
@@ -18,14 +22,15 @@ function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
 
       dialog
         .close(querySnippetId ? { id: querySnippetId, ...values } : values)
-        .then(() => successCallback("Saved."))
-        .catch(() => errorCallback("Failed saving snippet."));
+        .then(() => successCallback(t("Saved.")))
+        .catch(() => errorCallback(t("Queries:Failed saving snippet.")));
     },
     [dialog, querySnippet]
   );
 
   const isEditing = !!get(querySnippet, "id");
 
+  //TODO not sure about translating titles here
   const formFields = [
     { name: "trigger", title: "Trigger", type: "text", required: true, autoFocus: !isEditing },
     { name: "description", title: "Description", type: "text" },
@@ -37,10 +42,10 @@ function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
   return (
     <Modal
       {...dialog.props}
-      title={isEditing ? querySnippet.trigger : "Create Query Snippet"}
+      title={isEditing ? querySnippet.trigger : t("Queries:Create Query Snippet")}
       footer={[
         <Button key="cancel" {...dialog.props.cancelButtonProps} onClick={dialog.dismiss}>
-          {readOnly ? "Close" : "Cancel"}
+          {readOnly ? t("Close") : t("Cancel")}
         </Button>,
         !readOnly && (
           <Button
@@ -51,7 +56,7 @@ function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
             type="primary"
             form={querySnippetsFormId}
             data-test="SaveQuerySnippetButton">
-            {isEditing ? "Save" : "Create"}
+            {isEditing ? t("Save") : t("Create")}
           </Button>
         ),
       ]}

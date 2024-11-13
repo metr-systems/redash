@@ -1,0 +1,23 @@
+{
+  "Dashboard navigation button": "",
+  "Dashboards": "",
+  "Queries navigation button": "",
+  "Queries": "",
+  "Alerts navigation button": "",
+  "Alerts": "",
+  "Create": "",
+  "New Query": "",
+  "New Dashboard": "",
+  "New Alert": "",
+  "Help": "",
+  "Settings": "",
+  "Profile": "",
+  "System Status": "",
+  "Log out": "",
+  "Edit Profile": "",
+  "Version": "",
+  "It seems like the page you're looking for cannot be found.": "",
+  "It seems like you don’t have permission to see this page.": "",
+  "It seems like we encountered an error. Try refreshing this page or contact your administrator.": "",
+  "[Uncaught SyntaxError: Unexpected token '<'] usually means that a fallback HTML file was returned from the server rather than the expected script. Check that the server is properly serving the file {{filename}}.": ""
+}

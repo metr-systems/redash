@@ -1,5 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
+
+import { useTranslation } from "react-i18next";
+
 import { clientConfig, currentUser } from "@/services/auth";
 import Tooltip from "@/components/Tooltip";
 import Alert from "antd/lib/alert";
@@ -7,6 +10,7 @@ import HelpTrigger from "@/components/HelpTrigger";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 
 export default function EmailSettingsWarning({ featureName, className, mode, adminOnly }) {
+  const { t } = useTranslation();
   const messageDescriptionId = useUniqueId("sr-mail-description");
 
   if (!clientConfig.mailSettingsMissing) {
@@ -19,7 +23,7 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
 
   const message = (
     <span id={messageDescriptionId}>
-      Your mail server isn&apos;t configured correctly, and is needed for {featureName} to work.{" "}
+      {t("EmailSettings:Your mail server isn&apos;t configured correctly, and is needed for {{featureName}} to work.",{featureName})}{" "}
       <HelpTrigger type="MAIL_CONFIG" className="f-inherit" />
     </span>
   );
@@ -28,7 +32,7 @@ export default function EmailSettingsWarning({ featureName, className, mode, adm
     return (
       <Tooltip title={message} placement="topRight" arrowPointAtCenter>
         {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
-        <span className={className} aria-label="Mail alert" aria-describedby={messageDescriptionId} tabIndex={0}>
+        <span className={className} aria-label={t("EmailSettings:Mail alert")} aria-describedby={messageDescriptionId} tabIndex={0}>
           <i className={"fa fa-exclamation-triangle"} aria-hidden="true" />
         </span>
       </Tooltip>

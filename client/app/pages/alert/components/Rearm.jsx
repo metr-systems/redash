@@ -5,6 +5,8 @@ import { toLower, isNumber } from "lodash";
 import InputNumber from "antd/lib/input-number";
 import Select from "antd/lib/select";
 
+import { Trans, useTranslation } from "react-i18next";
+
 import "./Rearm.less";
 
 const DURATIONS = [
@@ -92,13 +94,19 @@ function RearmEditor({ value, onChange }) {
         dropdownMatchSelectWidth={false}
         onChange={_onChange}>
         <Select.Option value={0} label="Just once">
-          Just once <em>until back to normal</em>
+          <Trans i18nKey="Alert:just_once">
+            Just once <em>until back to normal</em>
+          </Trans>
         </Select.Option>
         <Select.Option value={1} label="Each time alert is evaluated">
-          Each time alert is evaluated <em>until back to normal</em>
+          <Trans i18nKey="Alert:each_time_alert_is_evaluated">
+            Each time alert is evaluated <em>until back to normal</em>
+          </Trans>
         </Select.Option>
         <Select.Option value={2} label="At most every">
-          At most every ... <em>when alert is evaluated</em>
+          <Trans i18nKey="Alert:at_most_every">
+            At most every ... <em>when alert is evaluated</em>
+          </Trans>
         </Select.Option>
       </Select>
       {selected === 2 && value && <RearmByDuration value={value} onChange={onChange} editMode />}
@@ -112,23 +120,26 @@ RearmEditor.propTypes = {
 };
 
 function RearmViewer({ value }) {
+  const { t } = useTranslation();
   let phrase = "";
   switch (value) {
     case 0:
-      phrase = "just once, until back to normal";
+      phrase = t("Alert:just once, until back to normal");
       break;
     case 1:
-      phrase = "each time alert is evaluated, until back to normal";
+      phrase = t("Alert:each time alert is evaluated, until back to normal");
       break;
     default:
       phrase = (
         <>
-          at most every <RearmByDuration value={value} editMode={false} />, when alert is evaluated
+          <Trans i18nKey="Alert:at_most_every_when_alert_is_evaluated">
+            at most every <RearmByDuration value={value} editMode={false} />, when alert is evaluated
+          </Trans>
         </>
       );
   }
 
-  return <span>Notifications are sent {phrase}.</span>;
+  return <span>{t("Alert:Notifications are sent")} {phrase}.</span>;
 }
 
 RearmViewer.propTypes = {

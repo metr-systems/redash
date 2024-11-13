@@ -1,6 +1,9 @@
 import { isEqual, isEmpty, map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import Input from "antd/lib/input";
 import InputNumber from "antd/lib/input-number";
@@ -106,7 +109,7 @@ class ParameterValueInput extends React.Component {
         options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
         showSearch
         showArrow
-        notFoundContent={isEmpty(enumOptionsArray) ? "No options available" : null}
+        notFoundContent={isEmpty(enumOptionsArray) ? i18next.t("Params:No options available") : null}
         {...multipleValuesProps}
       />
     );
@@ -139,7 +142,7 @@ class ParameterValueInput extends React.Component {
       <InputNumber
         className={className}
         value={normalize(value)}
-        aria-label="Parameter number value"
+        aria-label={i18next.t("Parameter number value")}
         onChange={val => this.onSelect(normalize(val))}
       />
     );
@@ -153,7 +156,7 @@ class ParameterValueInput extends React.Component {
       <Input
         className={className}
         value={value}
-        aria-label="Parameter text value"
+        aria-label={i18next.t("Parameter text value")}
         data-test="TextParamInput"
         onChange={e => this.onSelect(e.target.value)}
       />

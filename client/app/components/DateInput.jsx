@@ -1,6 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import DatePicker from "antd/lib/date-picker";
+
+import i18next from "i18next";
+
 import { clientConfig } from "@/services/auth";
 import { Moment } from "@/components/proptypes";
 
@@ -19,7 +22,7 @@ const DateInput = React.forwardRef(({ defaultValue, value, onSelect, className, 
       className={className}
       {...additionalAttributes}
       format={format}
-      placeholder="Select Date"
+      placeholder={i18next.t("DateInput:Select Date")}
       onChange={onSelect}
       {...props}
     />

@@ -2,6 +2,9 @@ import React from "react";
 import cx from "classnames";
 
 import Button from "antd/lib/button";
+
+import i18next from 'i18next';
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
@@ -29,19 +32,19 @@ const sidebarMenu = [
   {
     key: "all",
     href: "dashboards",
-    title: "All Dashboards",
+    title: i18next.t("Dashboards:All Dashboards"),
     icon: () => <Sidebar.MenuIcon icon="zmdi zmdi-view-quilt" />,
   },
   {
     key: "my",
     href: "dashboards/my",
-    title: "My Dashboards",
+    title: i18next.t("Dashboards:My Dashboards"),
     icon: () => <Sidebar.ProfileImage user={currentUser} />,
   },
   {
     key: "favorites",
     href: "dashboards/favorites",
-    title: "Favorites",
+    title: i18next.t("Dashboards:Favorites"),
     icon: () => <Sidebar.MenuIcon icon="fa fa-star" />,
   },
 ];
@@ -63,14 +66,14 @@ const listColumns = [
       </React.Fragment>
     ),
     {
-      title: "Name",
+      title: i18next.t("Name"),
       field: "name",
       width: null,
     }
   ),
-  Columns.custom((text, item) => item.user.name, { title: "Created By", width: "1%" }),
+  Columns.custom((text, item) => item.user.name, { title: i18next.t("Dashboards:Created By"), width: "1%" }),
   Columns.dateTime.sortable({
-    title: "Created At",
+    title: i18next.t("Created At"),
     field: "created_at",
     width: "1%",
   }),
@@ -97,7 +100,7 @@ function DashboardList({ controller }) {
             currentUser.hasPermission("create_dashboard") ? (
               <Button block type="primary" onClick={() => CreateDashboardDialog.showModal()}>
                 <i className="fa fa-plus m-r-5" aria-hidden="true" />
-                New Dashboard
+                {i18next.t("Dashboards:New Dashboard")}
               </Button>
             ) : null
           }
@@ -105,8 +108,8 @@ function DashboardList({ controller }) {
         <Layout>
           <Layout.Sidebar className="m-b-0">
             <Sidebar.SearchInput
-              placeholder="Search Dashboards..."
-              label="Search dashboards"
+              placeholder={i18next.t("Dashboards:Search Dashboards...")}
+              label={i18next.t("Dashboards:Search dashboards")}
               value={controller.searchTerm}
               onChange={controller.updateSearch}
             />
@@ -180,7 +183,7 @@ routes.register(
   "Dashboards.List",
   routeWithUserSession({
     path: "/dashboards",
-    title: "Dashboards",
+    title: i18next.t("Dashboards:Dashboards"),
     render: pageProps => <DashboardListPage {...pageProps} currentPage="all" />,
   })
 );
@@ -188,7 +191,7 @@ routes.register(
   "Dashboards.Favorites",
   routeWithUserSession({
     path: "/dashboards/favorites",
-    title: "Favorite Dashboards",
+    title: i18next.t("Dashboards:Favorite Dashboards"),
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
   })
 );
@@ -196,7 +199,7 @@ routes.register(
   "Dashboards.My",
   routeWithUserSession({
     path: "/dashboards/my",
-    title: "My Dashboards",
+    title: i18next.t("Dashboards:My Dashboards"),
     render: pageProps => <DashboardListPage {...pageProps} currentPage="my" />,
   })
 );

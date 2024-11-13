@@ -5,6 +5,9 @@ import React from "react";
 
 import List from "antd/lib/list";
 import Card from "antd/lib/card";
+
+import i18next from 'i18next';
+
 import TimeAgo from "@/components/TimeAgo";
 
 import { toHuman, prettySize } from "@/lib/utils";
@@ -12,8 +15,8 @@ import { toHuman, prettySize } from "@/lib/utils";
 export function General({ info }) {
   info = toPairs(info);
   return (
-    <Card title="General" size="small">
-      {info.length === 0 && <div className="text-muted text-center">No data</div>}
+    <Card title={i18next.t("Admin:General")} size="small">
+      {info.length === 0 && <div className="text-muted text-center">{i18next.t("Admin:No data")}</div>}
       {info.length > 0 && (
         <List
           size="small"
@@ -29,9 +32,10 @@ export function General({ info }) {
 }
 
 export function DatabaseMetrics({ info }) {
+  const { t } = useTranslation();
   return (
-    <Card title="Redash Database" size="small">
-      {info.length === 0 && <div className="text-muted text-center">No data</div>}
+    <Card title={i18next.t("Admin:Redash Database")} size="small">
+      {info.length === 0 && <div className="text-muted text-center">{i18next.t("Admin:No data")}</div>}
       {info.length > 0 && (
         <List
           size="small"
@@ -47,10 +51,11 @@ export function DatabaseMetrics({ info }) {
 }
 
 export function Queues({ info }) {
+  const { t } = useTranslation();
   info = toPairs(info);
   return (
-    <Card title="Queues" size="small">
-      {info.length === 0 && <div className="text-muted text-center">No data</div>}
+    <Card title={i18next.t("Admin:Queues")} size="small">
+      {info.length === 0 && <div className="text-muted text-center">{i18next.t("Admin:No data")}</div>}
       {info.length > 0 && (
         <List
           size="small"
@@ -66,6 +71,7 @@ export function Queues({ info }) {
 }
 
 export function Manager({ info }) {
+  const { t } = useTranslation();
   const items = info
     ? [
         <List.Item
@@ -74,7 +80,7 @@ export function Manager({ info }) {
               <TimeAgo date={info.lastRefreshAt} placeholder="n/a" />
             </span>
           }>
-          Last Refresh
+          {i18next.t("Admin:Last Refresh")}
         </List.Item>,
         <List.Item
           extra={
@@ -82,17 +88,17 @@ export function Manager({ info }) {
               <TimeAgo date={info.startedAt} placeholder="n/a" />
             </span>
           }>
-          Started
+          {i18next.t("Admin:Started")}
         </List.Item>,
         <List.Item extra={<span className="badge">{info.outdatedQueriesCount}</span>}>
-          Outdated Queries Count
+          {i18next.t("Admin:Outdated Queries Count")}
         </List.Item>,
       ]
     : [];
 
   return (
-    <Card title="Manager" size="small">
-      {!info && <div className="text-muted text-center">No data</div>}
+    <Card title={i18next.t("Admin:Manager")} size="small">
+      {!info && <div className="text-muted text-center">{i18next.t("Admin:No data")}</div>}
       {info && <List size="small" itemLayout="vertical" dataSource={items} renderItem={item => item} />}
     </Card>
   );

@@ -1,5 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { useTranslation } from "react-i18next";
+
 import WarningTwoTone from "@ant-design/icons/WarningTwoTone";
 import TimeAgo from "@/components/TimeAgo";
 import Tooltip from "@/components/Tooltip";
@@ -21,6 +23,7 @@ export default function QueryExecutionMetadata({
   onEditVisualization,
   extraActions,
 }) {
+  const { t } = useTranslation();
   const queryResultData = useQueryResultData(queryResult);
   const openAddToDashboardDialog = useAddToDashboardDialog(query);
   const openEmbedDialog = useEmbedDialog(query);
@@ -48,9 +51,9 @@ export default function QueryExecutionMetadata({
             <span className="m-r-5">
               <Tooltip
                 title={
-                  "Result truncated to " +
+                  t("Queries:Result truncated to ") +
                   queryResultData.rows.length +
-                  " rows. Databricks may truncate query results that are unstably large."
+                  t("Queries: rows. Databricks may truncate query results that are unstably large.")
                 }>
                 <WarningTwoTone twoToneColor="#FF9800" />
               </Tooltip>
@@ -62,21 +65,21 @@ export default function QueryExecutionMetadata({
           {!isQueryExecuting && (
             <React.Fragment>
               <strong>{durationHumanize(queryResultData.runtime)}</strong>
-              <span className="hidden-xs"> runtime</span>
+              <span className="hidden-xs">{t("Queries: runtime")}</span>
             </React.Fragment>
           )}
-          {isQueryExecuting && <span>Running&hellip;</span>}
+          {isQueryExecuting && <span>{t("Queries:Running")}&hellip;</span>}
         </span>
         {queryResultData.metadata.data_scanned && (
           <span className="m-l-5">
-            Data Scanned
+            {t("Queries:Data Scanned")}
             <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>
           </span>
         )}
       </span>
       <div>
         <span className="m-r-10">
-          <span className="hidden-xs">Refreshed </span>
+          <span className="hidden-xs">{t("Queries:Refreshed ")}</span>
           <strong>
             <TimeAgo date={queryResultData.retrievedAt} placeholder="-" />
           </strong>

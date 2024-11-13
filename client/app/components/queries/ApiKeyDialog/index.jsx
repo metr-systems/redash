@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import Button from "antd/lib/button";
+
+import { useTranslation } from "react-i18next";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import CodeBlock from "@/components/CodeBlock";
 import { axios } from "@/services/axios";
@@ -15,6 +18,7 @@ import "./index.less";
 import { policy } from "@/services/policy";
 
 function ApiKeyDialog({ dialog, ...props }) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState(props.query);
   const [updatingApiKey, setUpdatingApiKey] = useState(false);
 
@@ -28,7 +32,7 @@ function ApiKeyDialog({ dialog, ...props }) {
       })
       .catch(() => {
         setUpdatingApiKey(false);
-        notification.error("Failed to update API key");
+        notification.error(t("Queries:Failed to update API key"));
       });
   }, [query]);
 
@@ -44,29 +48,29 @@ function ApiKeyDialog({ dialog, ...props }) {
   const jsonResultsLabelId = useUniqueId("json-results-label");
 
   return (
-    <Modal {...dialog.props} width={600} footer={<Button onClick={() => dialog.close(query)}>Close</Button>}>
+    <Modal {...dialog.props} width={600} footer={<Button onClick={() => dialog.close(query)}>{t("Close")}</Button>}>
       <div className="query-api-key-dialog-wrapper">
-        <h5>API Key</h5>
+        <h5>{t("Queries:API Key")}</h5>
         <div className="m-b-20">
           <Input.Group compact>
-            <Input readOnly value={query.api_key} aria-label="Query API Key" />
+            <Input readOnly value={query.api_key} aria-label={t("Queries:Query API Key")}/>
             {policy.canEdit(query) && (
               <Button disabled={updatingApiKey} loading={updatingApiKey} onClick={regenerateQueryApiKey}>
-                Regenerate
+                {t("Queries:Regenerate")}
               </Button>
             )}
           </Input.Group>
         </div>
 
-        <h5>Example API Calls:</h5>
+        <h5>{t("Example API Calls")}:</h5>
         <div className="m-b-10">
-          <span id={csvResultsLabelId}>Results in CSV format:</span>
+          <span id={csvResultsLabelId}>{t("Queries:Results in CSV format")}:</span>
           <CodeBlock aria-labelledby={csvResultsLabelId} copyable>
             {csvUrl}
           </CodeBlock>
         </div>
         <div>
-          <span id={jsonResultsLabelId}>Results in JSON format:</span>
+          <span id={jsonResultsLabelId}>{t("Queries:Results in JSON format")}:</span>
           <CodeBlock aria-labelledby={jsonResultsLabelId} copyable>
             {jsonUrl}
           </CodeBlock>

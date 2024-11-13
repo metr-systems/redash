@@ -2,6 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
+import i18next from "i18next";
+import { useTranslation, withTranslation } from "react-i18next";
+
 import Link from "@/components/Link";
 import TimeAgo from "@/components/TimeAgo";
 import { Alert as AlertType } from "@/components/proptypes";
@@ -22,13 +25,14 @@ import { STATE_CLASS } from "../alerts/AlertsList";
 import DynamicComponent from "@/components/DynamicComponent";
 
 function AlertState({ state, lastTriggered }) {
+  const { t } = useTranslation();
   return (
     <div className="alert-state">
-      <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>Status: {state}</span>
-      {state === "unknown" && <div className="ant-form-item-explain">Alert condition has not been evaluated.</div>}
+      <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>{t("Alert:Status")}: {state}</span>
+      {state === "unknown" && <div className="ant-form-item-explain">{t("Alert:Alert condition has not been evaluated.")}</div>}
       {lastTriggered && (
         <div className="ant-form-item-explain">
-          Last triggered{" "}
+          {t("Alert:Last triggered")}{" "}
           <span className="alert-last-triggered">
             <TimeAgo date={lastTriggered} />
           </span>
@@ -48,7 +52,7 @@ AlertState.defaultProps = {
 };
 
 // eslint-disable-next-line react/prefer-stateless-function
-export default class AlertView extends React.Component {
+class AlertView extends React.Component {
   state = {
     unmuting: false,
   };
@@ -68,10 +72,10 @@ export default class AlertView extends React.Component {
       <>
         <Title name={name} alert={alert}>
           <DynamicComponent name="AlertView.HeaderExtra" alert={alert} />
-          <Tooltip title={canEdit ? "" : "You do not have sufficient permissions to edit this alert"}>
+          <Tooltip title={canEdit ? "" : t("You do not have sufficient permissions to edit this alert")}>
             <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
               <i className="fa fa-edit m-r-5" aria-hidden="true" />
-              Edit
+              {t("Edit")}
             </Button>
             {menuButton}
           </Tooltip>
@@ -83,23 +87,23 @@ export default class AlertView extends React.Component {
                 <HorizontalFormItem>
                   <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
                 </HorizontalFormItem>
-                <HorizontalFormItem label="Query">
+                <HorizontalFormItem label={t("Query")}>
                   <Query query={query} queryResult={queryResult} />
                 </HorizontalFormItem>
                 {queryResult && options && (
                   <>
-                    <HorizontalFormItem label="Trigger when" className="alert-criteria">
+                    <HorizontalFormItem label={t("Trigger when")} className="alert-criteria">
                       <Criteria
                         columnNames={queryResult.getColumnNames()}
                         resultValues={queryResult.getData()}
                         alertOptions={options}
                       />
                     </HorizontalFormItem>
-                    <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
+                    <HorizontalFormItem label={t("Notifications")} className="form-item-line-height-normal">
                       <Rearm value={rearm || 0} />
                       <br />
-                      Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
-                      template.
+                      <Trans i18nKey="set_notification_template" >Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
+                      template.</Trans>
                     </HorizontalFormItem>
                   </>
                 )}
@@ -111,23 +115,23 @@ export default class AlertView extends React.Component {
                   className="m-b-20"
                   message={
                     <>
-                      <i className="fa fa-bell-slash-o" aria-hidden="true" /> Notifications are muted
+                      <i className="fa fa-bell-slash-o" aria-hidden="true" /> {t("Notifications are muted")}
                     </>
                   }
                   description={
                     <>
-                      Notifications for this alert will not be sent.
+                      {t("Notifications for this alert will not be sent.")}
                       <br />
                       {canEdit && (
                         <>
-                          To restore notifications click
+                          {t("To restore notifications click")}
                           <Button
                             size="small"
                             type="primary"
                             onClick={this.unmute}
                             loading={this.state.unmuting}
                             className="m-t-5 m-l-5">
-                            Unmute
+                            {t("Unmute")}
                           </Button>
                         </>
                       )}
@@ -137,11 +141,11 @@ export default class AlertView extends React.Component {
                 />
               )}
               <h4>
-                Destinations{" "}
+                {t("Destinations")}{" "}
                 <Tooltip title="Open Alert Destinations page in a new tab.">
                   <Link href="destinations" target="_blank">
                     <i className="fa fa-external-link f-13" aria-hidden="true" />
-                    <span className="sr-only">(opens in a new tab)</span>
+                    <span className="sr-only">{i18next.t("(opens in a new tab)")}</span>
                   </Link>
                 </Tooltip>
               </h4>
@@ -153,6 +157,8 @@ export default class AlertView extends React.Component {
     );
   }
 }
+
+export default withTranslation("Alert")(AlertView)
 
 AlertView.propTypes = {
   alert: AlertType.isRequired,

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 import Alert from "antd/lib/alert";
+import i18next from 'i18next';
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import recordEvent from "@/services/recordEvent";
@@ -24,10 +25,10 @@ function CreateUserDialog({ dialog }) {
   return (
     <Modal
       {...dialog.props}
-      title="Create a New User"
+      title={i18next.t("Users:Create a New User")}
       footer={[
         <Button key="cancel" {...dialog.props.cancelButtonProps} onClick={dialog.dismiss}>
-          Cancel
+          {i18next.t("Users:Cancel")}
         </Button>,
         <Button
           key="submit"
@@ -36,7 +37,7 @@ function CreateUserDialog({ dialog }) {
           type="primary"
           form={formId}
           data-test="SaveUserButton">
-          Create
+          {i18next.t("Users:Create")}
         </Button>,
       ]}
       wrapProps={{

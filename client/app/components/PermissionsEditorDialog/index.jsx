@@ -7,6 +7,9 @@ import List from "antd/lib/list";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Tag from "antd/lib/tag";
+
+import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/components/Tooltip";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { toHuman } from "@/lib/utils";
@@ -22,6 +25,7 @@ const { Option } = Select;
 const DEBOUNCE_SEARCH_DURATION = 200;
 
 function useGrantees(url) {
+  const { t } = useTranslation();
   const loadGrantees = useCallback(
     () =>
       axios.get(url).then(data => {
@@ -41,7 +45,7 @@ function useGrantees(url) {
     (userId, accessType = "modify") =>
       axios
         .post(url, { access_type: accessType, user_id: userId })
-        .catch(() => notification.error("Could not grant permission to the user")),
+        .catch(() => notification.error(t("Permissions:Could not grant permission to the user"))),
     [url]
   );
 
@@ -49,7 +53,7 @@ function useGrantees(url) {
     (userId, accessType = "modify") =>
       axios
         .delete(url, { data: { access_type: accessType, user_id: userId } })
-        .catch(() => notification.error("Could not remove permission from the user")),
+        .catch(() => notification.error(t("Permissions:Could not remove permission from the user"))),
     [url]
   );
 
@@ -62,11 +66,12 @@ const searchUsers = searchTerm =>
     .catch(() => []);
 
 function PermissionsEditorDialogHeader({ context }) {
+  const { t } = useTranslation();
   return (
     <>
-      Manage Permissions
+      {t("Manage Permissions")}
       <div className="modal-header-desc">
-        {`Editing this ${context} is enabled for the users in this list and for admins. `}
+        {t("Permissions:Editing this {{context}} is enabled for the users in this list and for admins.", { context })}
         <HelpTrigger type="MANAGE_PERMISSIONS" />
       </div>
     </>
@@ -77,6 +82,7 @@ PermissionsEditorDialogHeader.propTypes = { context: PropTypes.oneOf(["query", "
 PermissionsEditorDialogHeader.defaultProps = { context: "query" };
 
 function UserSelect({ onSelect, shouldShowUser }) {
+  const { t } = useTranslation();
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -100,14 +106,14 @@ function UserSelect({ onSelect, shouldShowUser }) {
   return (
     <Select
       className="w-100 m-b-10"
-      placeholder="Add users..."
+      placeholder={t("Permissions:Add users...")}
       showSearch
       onSearch={setSearchTerm}
       suffixIcon={
         loadingUsers ? (
           <span role="status" aria-live="polite" aria-relevant="additions removals">
             <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-            <span className="sr-only">Loading...</span>
+            <span className="sr-only">{t("Loading...")}</span>
           </span>
         ) : (
           <i className="fa fa-search" aria-hidden="true" />
@@ -134,6 +140,7 @@ UserSelect.propTypes = {
 UserSelect.defaultProps = { onSelect: () => {}, shouldShowUser: () => true };
 
 function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
+  const { t } = useTranslation();
   const [loadingGrantees, setLoadingGrantees] = useState(true);
   const [grantees, setGrantees] = useState([]);
   const { loadGrantees, addPermission, removePermission } = useGrantees(aclUrl);
@@ -141,7 +148,7 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
     setLoadingGrantees(true);
     loadGrantees()
       .then(setGrantees)
-      .catch(() => notification.error("Failed to load grantees list"))
+      .catch(() => notification.error(t("Permissions:Failed to load grantees list")))
       .finally(() => setLoadingGrantees(false));
   }, [loadGrantees]);
 
@@ -165,11 +172,11 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
         shouldShowUser={user => !userHasPermission(user)}
       />
       <div className="d-flex align-items-center m-t-5">
-        <h5 className="flex-fill">Users with permissions</h5>
+        <h5 className="flex-fill">{t("Permissions:Users with permissions")}</h5>
         {loadingGrantees && (
           <span role="status" aria-live="polite" aria-relevant="additions removals">
             <i className="fa fa-spinner fa-pulse" aria-hidden="true" />
-            <span className="sr-only">Loading...</span>
+            <span className="sr-only">{t("Loading...")}</span>
           </span>
         )}
       </div>
@@ -181,11 +188,11 @@ function PermissionsEditorDialog({ dialog, author, context, aclUrl }) {
             <List.Item>
               <UserPreviewCard key={user.id} user={user}>
                 {user.id === author.id ? (
-                  <Tag className="m-0">Author</Tag>
+                  <Tag className="m-0">{t("Author")}</Tag>
                 ) : (
-                  <Tooltip title="Remove user permissions">
+                  <Tooltip title={t("Permissions:Remove user permissions")}>
                     <PlainButton
-                      aria-label="Remove permissions"
+                      aria-label={t("Permissions:Remove permissions")}
                       onClick={() => removePermission(user.id).then(loadUsersWithPermissions)}>
                       <i className="fa fa-remove clickable" aria-hidden="true" />
                     </PlainButton>

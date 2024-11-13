@@ -2,6 +2,9 @@ import { get, find, toUpper } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from 'i18next';
+import { withTranslation } from "react-i18next";
+
 import Modal from "antd/lib/modal";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -45,9 +48,9 @@ class EditDataSource extends React.Component {
     const { dataSource } = this.state;
     helper.updateTargetWithValues(dataSource, values);
     DataSource.save(dataSource)
-      .then(() => successCallback("Saved."))
+      .then(() => successCallback(i18next.t("Saved.")))
       .catch(error => {
-        const message = get(error, "response.data.message", "Failed saving.");
+        const message = get(error, "response.data.message", i18next.t("Failed saving."));
         errorCallback(message);
       });
   };
@@ -58,7 +61,7 @@ class EditDataSource extends React.Component {
     const doDelete = () => {
       DataSource.delete(dataSource)
         .then(() => {
-          notification.success("Data source deleted successfully.");
+          notification.success(t("Data source deleted successfully."));
           navigateTo("data_sources");
         })
         .catch(() => {
@@ -67,9 +70,9 @@ class EditDataSource extends React.Component {
     };
 
     Modal.confirm({
-      title: "Delete Data Source",
-      content: "Are you sure you want to delete this data source?",
-      okText: "Delete",
+      title: t("Delete Data Source"),
+      content: t("Are you sure you want to delete this data source?"),
+      okText: i18next.t("Delete"),
       okType: "danger",
       onOk: doDelete,
       onCancel: callback,
@@ -83,16 +86,16 @@ class EditDataSource extends React.Component {
     DataSource.test({ id: dataSource.id })
       .then(httpResponse => {
         if (httpResponse.ok) {
-          notification.success("Success");
+          notification.success(t("Success"));
         } else {
-          notification.error("Connection Test Failed:", httpResponse.message, { duration: 10 });
+          notification.error(t("Connection Test Failed"),":", httpResponse.message, { duration: 10 });
         }
         callback();
       })
       .catch(() => {
         notification.error(
-          "Connection Test Failed:",
-          "Unknown error occurred while performing connection test. Please try again later.",
+          t("Connection Test Failed"),":",
+          t("Unknown error occurred while performing connection test. Please try again later."),
           { duration: 10 }
         );
         callback();
@@ -107,8 +110,8 @@ class EditDataSource extends React.Component {
       fields,
       type,
       actions: [
-        { name: "Delete", type: "danger", callback: this.deleteDataSource },
-        { name: "Test Connection", pullRight: true, callback: this.testConnection, disableWhenDirty: true },
+        { name: i18next.t("Delete"), type: "danger", callback: this.deleteDataSource },
+        { name: t("Test Connection"), pullRight: true, callback: this.testConnection, disableWhenDirty: true },
       ],
       onSubmit: this.saveDataSource,
       feedbackIcons: true,
@@ -120,8 +123,8 @@ class EditDataSource extends React.Component {
         <div className="text-right m-r-10">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
-              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
-              <span className="sr-only">(help)</span>
+              {t("Setup Instructions")} <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">{i18next.t("(help)")}</span>
             </HelpTrigger>
           )}
         </div>
@@ -141,13 +144,13 @@ class EditDataSource extends React.Component {
   }
 }
 
-const EditDataSourcePage = wrapSettingsTab("DataSources.Edit", null, EditDataSource);
+const EditDataSourcePage = withTranslation("DataSource")(wrapSettingsTab("DataSources.Edit", null, EditDataSource));
 
 routes.register(
   "DataSources.Edit",
   routeWithUserSession({
     path: "/data_sources/:dataSourceId",
-    title: "Data Sources",
+    title: i18next.t("DataSource:Data Sources"),
     render: pageProps => <EditDataSourcePage {...pageProps} />,
   })
 );

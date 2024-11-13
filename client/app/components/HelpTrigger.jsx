@@ -2,6 +2,9 @@ import { startsWith, get, some, mapValues } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
+
+import i18next from "i18next";
+
 import Tooltip from "@/components/Tooltip";
 import Drawer from "antd/lib/drawer";
 import Link from "@/components/Link";
@@ -19,34 +22,34 @@ const IFRAME_URL_UPDATE_MESSAGE = "iframe_url";
 
 export const TYPES = mapValues(
   {
-    HOME: ["", "Help"],
-    VALUE_SOURCE_OPTIONS: ["/user-guide/querying/query-parameters#Value-Source-Options", "Guide: Value Source Options"],
-    SHARE_DASHBOARD: ["/user-guide/dashboards/sharing-dashboards", "Guide: Sharing and Embedding Dashboards"],
-    AUTHENTICATION_OPTIONS: ["/user-guide/users/authentication-options", "Guide: Authentication Options"],
-    DS_ATHENA: ["/data-sources/amazon-athena-setup", "Guide: Help Setting up Amazon Athena"],
-    DS_BIGQUERY: ["/data-sources/bigquery-setup", "Guide: Help Setting up BigQuery"],
-    DS_URL: ["/data-sources/querying-urls", "Guide: Help Setting up URL"],
-    DS_MONGODB: ["/data-sources/mongodb-setup", "Guide: Help Setting up MongoDB"],
+    HOME: ["", i18next.t("Help:Help")],
+    VALUE_SOURCE_OPTIONS: ["/user-guide/querying/query-parameters#Value-Source-Options", i18next.t("Help:Guide: Value Source Options")],
+    SHARE_DASHBOARD: ["/user-guide/dashboards/sharing-dashboards", i18next.t("Help:Guide: Sharing and Embedding Dashboards")],
+    AUTHENTICATION_OPTIONS: ["/user-guide/users/authentication-options", i18next.t("Help:Guide: Authentication Options")],
+    DS_ATHENA: ["/data-sources/amazon-athena-setup", i18next.t("Help:Guide: Help Setting up Amazon Athena")],
+    DS_BIGQUERY: ["/data-sources/bigquery-setup", i18next.t("Help:Guide: Help Setting up BigQuery")],
+    DS_URL: ["/data-sources/querying-urls", i18next.t("Help:Guide: Help Setting up URL")],
+    DS_MONGODB: ["/data-sources/mongodb-setup", i18next.t("Help:Guide: Help Setting up MongoDB")],
     DS_GOOGLE_SPREADSHEETS: [
       "/data-sources/querying-a-google-spreadsheet",
-      "Guide: Help Setting up Google Spreadsheets",
+      i18next.t("Help:Guide: Help Setting up Google Spreadsheets"),
     ],
-    DS_GOOGLE_ANALYTICS: ["/data-sources/google-analytics-setup", "Guide: Help Setting up Google Analytics"],
-    DS_AXIBASETSD: ["/data-sources/axibase-time-series-database", "Guide: Help Setting up Axibase Time Series"],
-    DS_RESULTS: ["/user-guide/querying/query-results-data-source", "Guide: Help Setting up Query Results"],
-    ALERT_SETUP: ["/user-guide/alerts/setting-up-an-alert", "Guide: Setting Up a New Alert"],
-    MAIL_CONFIG: ["/open-source/setup/#Mail-Configuration", "Guide: Mail Configuration"],
-    ALERT_NOTIF_TEMPLATE_GUIDE: ["/user-guide/alerts/custom-alert-notifications", "Guide: Custom Alerts Notifications"],
-    FAVORITES: ["/user-guide/querying/favorites-tagging/#Favorites", "Guide: Favorites"],
+    DS_GOOGLE_ANALYTICS: ["/data-sources/google-analytics-setup", i18next.t("Help:Guide: Help Setting up Google Analytics")],
+    DS_AXIBASETSD: ["/data-sources/axibase-time-series-database", i18next.t("Help:Guide: Help Setting up Axibase Time Series")],
+    DS_RESULTS: ["/user-guide/querying/query-results-data-source", i18next.t("Help:Guide: Help Setting up Query Results")],
+    ALERT_SETUP: ["/user-guide/alerts/setting-up-an-alert", i18next.t("Help:Guide: Setting Up a New Alert")],
+    MAIL_CONFIG: ["/open-source/setup/#Mail-Configuration", i18next.t("Help:Guide: Mail Configuration")],
+    ALERT_NOTIF_TEMPLATE_GUIDE: ["/user-guide/alerts/custom-alert-notifications", i18next.t("Help:Guide: Custom Alerts Notifications")],
+    FAVORITES: ["/user-guide/querying/favorites-tagging/#Favorites", i18next.t("Help:Guide: Favorites")],
     MANAGE_PERMISSIONS: [
       "/user-guide/querying/writing-queries#Managing-Query-Permissions",
-      "Guide: Managing Query Permissions",
+      i18next.t("Help:Guide: Managing Query Permissions"),
     ],
-    NUMBER_FORMAT_SPECS: ["/user-guide/visualizations/formatting-numbers", "Formatting Numbers"],
-    GETTING_STARTED: ["/user-guide/getting-started", "Guide: Getting Started"],
-    DASHBOARDS: ["/user-guide/dashboards", "Guide: Dashboards"],
-    QUERIES: ["/user-guide/querying", "Guide: Queries"],
-    ALERTS: ["/user-guide/alerts", "Guide: Alerts"],
+    NUMBER_FORMAT_SPECS: ["/user-guide/visualizations/formatting-numbers", i18next.t("Help:Formatting Numbers")],
+    GETTING_STARTED: ["/user-guide/getting-started", i18next.t("Help:Guide: Getting Started")],
+    DASHBOARDS: ["/user-guide/dashboards", i18next.t("Help:Guide: Dashboards")],
+    QUERIES: ["/user-guide/querying", i18next.t("Help:Guide: Queries")],
+    ALERTS: ["/user-guide/alerts", i18next.t("Help:Guide: Alerts")],
   },
   ([url, title]) => [DOMAIN + HELP_PATH + url, title]
 );
@@ -174,7 +177,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
                     <>
                       {" "}
                       <i className="fa fa-external-link" style={{ marginLeft: 5 }} aria-hidden="true" />
-                      <span className="sr-only">(opens in a new tab)</span>
+                      <span className="sr-only"> {i18next.t("(opens in a new tab)")}</span>
                     </>
                   )}
                 </>
@@ -200,15 +203,15 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
             <div className="drawer-wrapper">
               <div className="drawer-menu">
                 {url && (
-                  <Tooltip title="Open page in a new window" placement="left">
+                  <Tooltip title= {i18next.t("Open page in a new window")} placement="left">
                     {/* eslint-disable-next-line react/jsx-no-target-blank */}
                     <Link href={url} target="_blank">
                       <i className="fa fa-external-link" aria-hidden="true" />
-                      <span className="sr-only">(opens in a new tab)</span>
+                      <span className="sr-only"> {i18next.t("(opens in a new tab)")}</span>
                     </Link>
                   </Tooltip>
                 )}
-                <Tooltip title="Close" placement="bottom">
+                <Tooltip title= {i18next.t("Close")} placement="bottom">
                   <PlainButton onClick={this.closeDrawer}>
                     <CloseOutlinedIcon />
                   </PlainButton>
@@ -219,7 +222,7 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
               {!this.state.error && (
                 <iframe
                   ref={this.iframeRef}
-                  title="Usage Help"
+                  title= {i18next.t("Usage Help")}
                   src="about:blank"
                   className={cx({ ready: !this.state.loading })}
                   onLoad={this.onIframeLoaded}
@@ -228,19 +231,19 @@ export function helpTriggerWithTypes(types, allowedDomains = [], drawerClassName
 
               {/* loading indicator */}
               {this.state.loading && (
-                <BigMessage icon="fa-spinner fa-2x fa-pulse" message="Loading..." className="help-message" />
+                <BigMessage icon="fa-spinner fa-2x fa-pulse" message= {i18next.t("Loading...")} className="help-message" />
               )}
 
               {/* error message */}
               {this.state.error && (
                 <BigMessage icon="fa-exclamation-circle" className="help-message">
-                  Something went wrong.
+                   {i18next.t("Something went wrong.")}
                   <br />
                   {/* eslint-disable-next-line react/jsx-no-target-blank */}
                   <Link href={this.state.error} target="_blank" rel="noopener">
-                    Click here
+                     {i18next.t("Click here")}
                   </Link>{" "}
-                  to open the page in a new window.
+                   {i18next.t("to open the page in a new window.")}
                 </BigMessage>
               )}
             </div>

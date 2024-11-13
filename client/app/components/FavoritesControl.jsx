@@ -1,5 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import PlainButton from "@/components/PlainButton";
 
 export default class FavoritesControl extends React.Component {
@@ -28,7 +31,7 @@ export default class FavoritesControl extends React.Component {
   render() {
     const { item, onChange } = this.props;
     const icon = item.is_favorite ? "fa fa-star" : "fa fa-star-o";
-    const title = item.is_favorite ? "Remove from favorites" : "Add to favorites";
+    const title = item.is_favorite ? i18next.t("FavoritesControl:Remove from favorites") : i18next.t("FavoritesControl:Add to favorites");
     return (
       <PlainButton
         title={title}

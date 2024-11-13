@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import i18next from 'i18next';
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmailSettingsWarning from "@/components/EmailSettingsWarning";
@@ -71,7 +72,7 @@ UserProfile.defaultProps = {
 const UserProfilePage = wrapSettingsTab(
   "Users.Account",
   {
-    title: "Account",
+    title: i18next.t("Users:Account"),
     path: "users/me",
     order: 7,
   },
@@ -82,7 +83,7 @@ routes.register(
   "Users.Account",
   routeWithUserSession({
     path: "/users/me",
-    title: "Account",
+    title: i18next.t("Users:Account"),
     render: pageProps => <UserProfilePage {...pageProps} />,
   })
 );
@@ -90,7 +91,7 @@ routes.register(
   "Users.ViewOrEdit",
   routeWithUserSession({
     path: "/users/:userId",
-    title: "Users",
+    title: i18next.t("Users:Users"),
     render: pageProps => <UserProfilePage {...pageProps} />,
   })
 );

@@ -1,6 +1,9 @@
 import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
+
+import i18next from "i18next";
+
 import Tooltip from "@/components/Tooltip";
 import CopyOutlinedIcon from "@ant-design/icons/CopyOutlined";
 import "./CodeBlock.less";
@@ -32,6 +35,8 @@ export default class CodeBlock extends React.Component {
   }
 
   copy = () => {
+    const { t } = useTranslation();
+
     // select text
     window.getSelection().selectAllChildren(this.ref.current);
 
@@ -41,10 +46,10 @@ export default class CodeBlock extends React.Component {
       if (!success) {
         throw new Error();
       }
-      this.setState({ copied: "Copied!" });
+      this.setState({ copied: i18next.t("Copied!") });
     } catch (err) {
       this.setState({
-        copied: "Copy failed",
+        copied: i18next.t("Copy failed"),
       });
     }
 
@@ -59,7 +64,7 @@ export default class CodeBlock extends React.Component {
     const { copyable, children, ...props } = this.props;
 
     const copyButton = (
-      <Tooltip title={this.state.copied || "Copy"}>
+      <Tooltip title={this.state.copied || t("Copy")}>
         <Button icon={<CopyOutlinedIcon />} type="dashed" size="small" onClick={this.copy} />
       </Tooltip>
     );

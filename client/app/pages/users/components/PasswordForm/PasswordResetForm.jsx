@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import Button from "antd/lib/button";
+import i18next from 'i18next';
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import User from "@/services/user";
@@ -25,7 +26,7 @@ export default function PasswordResetForm(props) {
   return (
     <DynamicComponent name="UserProfile.PasswordResetForm" {...props}>
       <Button className="w-100 m-t-10" onClick={sendPasswordReset} loading={loading}>
-        Send Password Reset Email
+        {i18next.t("Users:Send Password Reset Email")}
       </Button>
       <PasswordLinkAlert user={user} passwordLink={passwordLink} afterClose={() => setPasswordLink(null)} />
     </DynamicComponent>

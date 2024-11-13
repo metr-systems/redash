@@ -1,7 +1,9 @@
 import React from "react";
 import { each, includes, isUndefined, isEmpty, isNil, map, get, some } from "lodash";
+import { useTranslation } from "react-i18next";
 
 function orderedInputs(properties, order, targetOptions) {
+  const { t } = useTranslation();
   const inputs = new Array(order.length);
   Object.keys(properties).forEach(key => {
     const position = order.indexOf(key);
@@ -16,7 +18,7 @@ function orderedInputs(properties, order, targetOptions) {
     };
 
     if (input.type === "select") {
-      input.placeholder = "Select an option";
+      input.placeholder = t("DynamicForm:select an option");
       input.options = properties[key].options;
     }
 

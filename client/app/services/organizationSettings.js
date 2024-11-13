@@ -3,7 +3,7 @@ import notification from "@/services/notification";
 
 export default {
   get: () => axios.get("api/settings/organization"),
-  save: (data, message = "Settings changes saved.") =>
+  save: (data, message = i18next.t("Settings:Settings changes saved.")) =>
     axios
       .post("api/settings/organization", data)
       .then(data => {
@@ -11,6 +11,6 @@ export default {
         return data;
       })
       .catch(() => {
-        notification.error("Failed saving changes.");
+        notification.error(i18next.t("Failed saving changes."));
       }),
 };

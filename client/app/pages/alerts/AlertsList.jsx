@@ -1,5 +1,9 @@
 import { toUpper } from "lodash";
 import React from "react";
+
+import i18next from "i18next";
+import { withTranslation } from "react-i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
@@ -39,7 +43,7 @@ class AlertsList extends React.Component {
         title: (
           <>
             <i className="fa fa-bell p-r-0" aria-hidden="true" />
-            <span className="sr-only">Sort by notification status.</span>
+            <span className="sr-only">{t("Sort by notification status.")}</span>
           </>
         ),
         field: "muted",
@@ -89,7 +93,7 @@ class AlertsList extends React.Component {
               currentUser.hasPermission("list_alerts") ? (
                 <Link.Button block type="primary" href="alerts/new">
                   <i className="fa fa-plus m-r-5" aria-hidden="true" />
-                  New Alert
+                  {t("New Alert")}
                 </Link.Button>
               ) : null
             }
@@ -100,7 +104,7 @@ class AlertsList extends React.Component {
                 <EmptyState
                   icon="fa fa-bell-o"
                   illustration="alert"
-                  description="Get notified on certain events"
+                  description={t("Get notified on certain events")}
                   helpMessage={<EmptyStateHelpMessage helpTriggerType="ALERTS" />}
                   showAlertStep
                 />
@@ -133,7 +137,7 @@ class AlertsList extends React.Component {
 }
 
 const AlertsListPage = itemsList(
-  AlertsList,
+  withTranslation("Alert")(AlertsList),
   () =>
     new ResourceItemsSource({
       isPlainList: true,
@@ -151,7 +155,7 @@ routes.register(
   "Alerts.List",
   routeWithUserSession({
     path: "/alerts",
-    title: "Alerts",
+    title: i18next.t("Alerts"),
     render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
   })
 );

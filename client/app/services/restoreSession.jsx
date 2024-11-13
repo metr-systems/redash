@@ -1,6 +1,9 @@
 import { map } from "lodash";
 import React from "react";
 import Modal from "antd/lib/modal";
+
+import i18next from "i18next";
+
 import { Auth } from "@/services/auth";
 
 const SESSION_RESTORED_MESSAGE = "redash_session_restored";
@@ -29,11 +32,11 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
   let popup = null;
 
   Modal.warning({
-    content: "Your session has expired. Please login to continue.",
+    content: i18next.t("Session:Your session has expired. Please login to continue."),
     okText: (
       <React.Fragment>
-        Login <i className="fa fa-external-link m-r-5" aria-hidden="true" />
-        <span className="sr-only">(opens in a new tab)</span>
+        {i18next.t("Session:Login")} <i className="fa fa-external-link m-r-5" aria-hidden="true" />
+        <span className="sr-only">{i18next.t("(opens in a new tab)")}</span>
       </React.Fragment>
     ),
     centered: true,
@@ -56,7 +59,7 @@ function showRestoreSessionPrompt(loginUrl, onSuccess) {
         status: "yes",
       };
 
-      popup = window.open(loginUrl, "Restore Session", map(popupOptions, (value, key) => `${key}=${value}`).join(","));
+      popup = window.open(loginUrl, i18next.t("Session:Restore Session"), map(popupOptions, (value, key) => `${key}=${value}`).join(","));
 
       const handlePostMessage = event => {
         if (event.data.type === SESSION_RESTORED_MESSAGE) {

@@ -3,6 +3,9 @@ import { filter, includes, get, find } from "lodash";
 import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Button from "antd/lib/button";
+
+import { useTranslation } from "react-i18next";
+
 import SyncOutlinedIcon from "@ant-design/icons/SyncOutlined";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
@@ -21,6 +24,7 @@ export default function DatabricksSchemaBrowser({
   onItemSelect,
   ...props
 }) {
+  const { t } = useTranslation();
   const {
     databases,
     loadingDatabases,
@@ -83,8 +87,8 @@ export default function DatabricksSchemaBrowser({
       <div className="schema-control">
         <Input
           className={isDatabaseSelectOpen ? "database-select-open" : ""}
-          placeholder="Filter tables & columns..."
-          aria-label="Search schema"
+          placeholder={t("Queries:Filter tables & columns...")}
+          aria-label={t("Queries:Search schema")}
           disabled={loadingDatabases || loadingSchema}
           onChange={event => handleFilterChange(event.target.value)}
           addonBefore={
@@ -99,7 +103,7 @@ export default function DatabricksSchemaBrowser({
               onDropdownVisibleChange={setIsDatabaseSelectOpen}
               placeholder={
                 <>
-                  <i className="fa fa-database m-r-5" aria-hidden="true" /> Database
+                  <i className="fa fa-database m-r-5" aria-hidden="true" /> {t("Queries:Database")}
                 </>
               }>
               {filteredDatabases.map(database => (
@@ -122,7 +126,7 @@ export default function DatabricksSchemaBrowser({
         />
         {!(loadingSchema || loadingDatabases) && (
           <div className="load-button">
-            <Tooltip title={!refreshing ? "Refresh Databases and Current Schema" : null}>
+            <Tooltip title={!refreshing ? t("Queries:Refresh Databases and Current Schema") : null}>
               <Button type="link" onClick={refreshAll} disabled={refreshing}>
                 <SyncOutlinedIcon spin={refreshing} />
               </Button>

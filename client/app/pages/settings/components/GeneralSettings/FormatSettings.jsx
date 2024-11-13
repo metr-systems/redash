@@ -3,6 +3,7 @@ import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-typ
 import Form from "antd/lib/form";
 import Select from "antd/lib/select";
 import Skeleton from "antd/lib/skeleton";
+import i18next from 'i18next';
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 
@@ -11,7 +12,7 @@ export default function FormatSettings(props) {
 
   return (
     <DynamicComponent name="OrganizationSettings.FormatSettings" {...props}>
-      <Form.Item label="Date Format">
+      <Form.Item label={i18next.t("Settings:Date Format")}>
         {loading ? (
           <Skeleton.Input style={{ width: 300 }} active />
         ) : (
@@ -27,7 +28,7 @@ export default function FormatSettings(props) {
           </Select>
         )}
       </Form.Item>
-      <Form.Item label="Time Format">
+      <Form.Item label={i18next.t("Settings:Time Format")}>
         {loading ? (
           <Skeleton.Input style={{ width: 300 }} active />
         ) : (

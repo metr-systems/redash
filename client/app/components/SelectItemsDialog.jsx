@@ -6,6 +6,9 @@ import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import List from "antd/lib/list";
 import Button from "antd/lib/button";
+
+import { useTranslation } from "react-i18next";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import BigMessage from "@/components/BigMessage";
 import LoadingState from "@/components/items-list/components/LoadingState";
@@ -58,6 +61,7 @@ function SelectItemsDialog({
   showCount,
   extraFooterContent,
 }) {
+  const { t } = useTranslation();
   const [selectedItems, setSelectedItems] = useState([]);
   const [search, items, isLoading] = useSearchResults(searchItems, { initialResults: [] });
   const hasResults = items.length > 0;
@@ -89,7 +93,7 @@ function SelectItemsDialog({
   const save = useCallback(() => {
     dialog.close(selectedItems).catch(error => {
       if (error) {
-        notification.error("Failed to save some of selected items.");
+        notification.error(t("SelectItems:Failed to save some of selected items."));
       }
     });
   }, [dialog, selectedItems]);
@@ -106,14 +110,14 @@ function SelectItemsDialog({
             {extraFooterContent}
           </span>
           <Button {...dialog.props.cancelButtonProps} onClick={dialog.dismiss}>
-            Cancel
+            {t("Cancel")}
           </Button>
           <Button
             {...dialog.props.okButtonProps}
             onClick={save}
             disabled={selectedItems.length === 0 || dialog.props.okButtonProps.disabled}
             type="primary">
-            Save
+            {t("Save")}
             {showCount && !isEmpty(selectedItems) ? ` (${size(selectedItems)})` : null}
           </Button>
         </div>
@@ -138,7 +142,7 @@ function SelectItemsDialog({
         <div className="flex-fill scrollbox">
           {isLoading && <LoadingState className="" />}
           {!isLoading && !hasResults && (
-            <BigMessage icon="fa-search" message="No items match your search." className="" />
+            <BigMessage icon="fa-search" message={t("SelectItems:No items match your search.")} className="" />
           )}
           {!isLoading && hasResults && (
             <ItemsList
@@ -186,9 +190,9 @@ SelectItemsDialog.propTypes = {
 };
 
 SelectItemsDialog.defaultProps = {
-  dialogTitle: "Add Items",
-  inputPlaceholder: "Search...",
-  selectedItemsTitle: "Selected items",
+  dialogTitle: t("SelectItems:Add Items"),
+  inputPlaceholder: t("Search..."),
+  selectedItemsTitle: t("SelectItems:Selected items"),
   itemKey: item => item.id,
   renderItem: () => "",
   renderStagedItem: null, // hidden by default

@@ -1,6 +1,7 @@
 import { find, isArray, get, first, map, intersection, isEqual, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+import i18next from "i18next";
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 
 export default class QueryBasedParameterInput extends React.Component {
@@ -91,7 +92,7 @@ export default class QueryBasedParameterInput extends React.Component {
           options={map(options, ({ value, name }) => ({ label: String(name), value }))}
           showSearch
           showArrow
-          notFoundContent={isEmpty(options) ? "No options available" : null}
+          notFoundContent={isEmpty(options) ? i18next.t("Params:No options available") : null}
           {...otherProps}
         />
       </span>

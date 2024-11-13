@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import PropTypes from "prop-types";
 import moment from "moment";
 import { markdown } from "markdown";
+import i18next from "i18next";
 
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
@@ -75,7 +76,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileOutlinedIcon /> Download as CSV File
+          <FileOutlinedIcon /> {i18next.t("Queries:Download as CSV File")}
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -86,7 +87,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileOutlinedIcon /> Download as TSV File
+          <FileOutlinedIcon /> {i18next.t("Queries:Download as TSV File")}
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -97,7 +98,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileExcelOutlinedIcon /> Download as Excel File
+          <FileExcelOutlinedIcon /> {i18next.t("Queries:Download as Excel File")}
         </QueryResultsLink>
       </Menu.Item>
     </Menu>
@@ -118,16 +119,16 @@ function VisualizationEmbedFooter({
       )}
       {queryUrl && (
         <span className="hidden-print">
-          <Tooltip title="Open in Redash">
+          <Tooltip title={i18next.t("Queries:Open in Redash")}>
             <Link.Button className="icon-button" href={queryUrl} target="_blank">
               <i className="fa fa-external-link" aria-hidden="true" />
-              <span className="sr-only">Open in Redash</span>
+              <span className="sr-only">{i18next.t("Queries:Open in Redash")}</span>
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
-                Download Dataset
+                {i18next.t("Queries:Download Dataset")}
                 <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
               </Button>
             </Dropdown>
@@ -217,7 +218,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   if (!visualization) {
     // call error handler async, otherwise it will destroy the component on render phase
     setTimeout(() => {
-      onError(new Error("Visualization does not exist"));
+      onError(new Error(i18next.t("Queries:Visualization does not exist")));
     }, 10);
     return null;
   }
@@ -245,7 +246,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
           <div className="d-flex justify-content-center">
             <div className="spinner">
               <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" aria-hidden="true" />
-              <span className="sr-only">Refreshing...</span>
+              <span className="sr-only">{i18next.t("Queries:Refreshing...")}</span>
             </div>
           </div>
         )}

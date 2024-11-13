@@ -8,6 +8,8 @@ import Spin from "antd/lib/spin";
 import Table from "antd/lib/table";
 import { Columns } from "@/components/items-list/components/ItemsTable";
 
+// NOTE: not translated
+
 // CounterCard
 
 export function CounterCard({ title, value, loading }) {

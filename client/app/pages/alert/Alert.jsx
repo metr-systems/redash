@@ -2,6 +2,9 @@ import { head, includes, trim, template, values } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from "i18next";
+import { useTranslation, withTranslation } from 'react-i18next';
+
 import LoadingState from "@/components/items-list/components/LoadingState";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -26,8 +29,9 @@ const MODES = {
 const defaultNameBuilder = template("<%= query.name %>: <%= options.column %> <%= options.op %> <%= options.value %>");
 
 export function getDefaultName(alert) {
+  const { t } = useTranslation();
   if (!alert.query) {
-    return "New Alert";
+    return t("Alert:New Alert");
   }
   return defaultNameBuilder(alert);
 }
@@ -83,8 +87,8 @@ class Alert extends React.Component {
             if (!canEdit) {
               this.setState({ mode: MODES.VIEW });
               notification.warn(
-                "You cannot edit this alert",
-                "You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page.",
+                t("You cannot edit this alert"),
+                t("You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page."),
                 { duration: 0 }
               );
             }
@@ -113,12 +117,12 @@ class Alert extends React.Component {
 
     return AlertService.save(alert)
       .then(alert => {
-        notification.success("Saved.");
+        notification.success(i18next.t("Saved."));
         navigateTo(`alerts/${alert.id}`, true);
         this.setState({ alert, mode: MODES.VIEW });
       })
       .catch(() => {
-        notification.error("Failed saving alert.");
+        notification.error(t("Failed saving alert."));
       });
   };
 
@@ -169,11 +173,11 @@ class Alert extends React.Component {
     const { alert } = this.state;
     return AlertService.delete(alert)
       .then(() => {
-        notification.success("Alert deleted successfully.");
+        notification.success(t("Alert deleted successfully."));
         navigateTo("alerts");
       })
       .catch(() => {
-        notification.error("Failed deleting alert.");
+        notification.error(t("Failed deleting alert."));
       });
   };
 
@@ -182,10 +186,10 @@ class Alert extends React.Component {
     return AlertService.mute(alert)
       .then(() => {
         this.setAlertOptions({ muted: true });
-        notification.warn("Notifications have been muted.");
+        notification.warn(t("Notifications have been muted."));
       })
       .catch(() => {
-        notification.error("Failed muting notifications.");
+        notification.error(t("Failed muting notifications."));
       });
   };
 
@@ -194,10 +198,10 @@ class Alert extends React.Component {
     return AlertService.unmute(alert)
       .then(() => {
         this.setAlertOptions({ muted: false });
-        notification.success("Notifications have been restored.");
+        notification.success(t("Notifications have been restored."));
       })
       .catch(() => {
-        notification.error("Failed restoring notifications.");
+        notification.error(t("Failed restoring notifications."));
       });
   };
 
@@ -253,27 +257,29 @@ class Alert extends React.Component {
   }
 }
 
+const TranslatedAlert = withTranslation("Alert")(Alert);
+
 routes.register(
   "Alerts.New",
   routeWithUserSession({
     path: "/alerts/new",
-    title: "New Alert",
-    render: pageProps => <Alert {...pageProps} mode={MODES.NEW} />,
+    title: i18next.t("Alert:New Alert"),
+    render: pageProps => <TranslatedAlert {...pageProps} mode={MODES.NEW} />,
   })
 );
 routes.register(
   "Alerts.View",
   routeWithUserSession({
     path: "/alerts/:alertId",
-    title: "Alert",
-    render: pageProps => <Alert {...pageProps} mode={MODES.VIEW} />,
+    title: i18next.t("Alert:Alert"),
+    render: pageProps => <TranslatedAlert {...pageProps} mode={MODES.VIEW} />,
   })
 );
 routes.register(
   "Alerts.Edit",
   routeWithUserSession({
     path: "/alerts/:alertId/edit",
-    title: "Alert",
-    render: pageProps => <Alert {...pageProps} mode={MODES.EDIT} />,
+    title: i18next.t("Alert:Alert"),
+    render: pageProps => <TranslatedAlert {...pageProps} mode={MODES.EDIT} />,
   })
 );

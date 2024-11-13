@@ -3,9 +3,13 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Select from "antd/lib/select";
 import Modal from "antd/lib/modal";
+
+import { useTranslation } from "react-i18next";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 
 function EditTagsDialog({ dialog, tags, getAvailableTags }) {
+  const { t } = useTranslation();
   const [availableTags, setAvailableTags] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [values, setValues] = useState(() => uniq(map(tags, trim))); // lazy evaluate
@@ -37,14 +41,14 @@ function EditTagsDialog({ dialog, tags, getAvailableTags }) {
     <Modal
       {...dialog.props}
       onOk={() => dialog.close(values)}
-      title="Add/Edit Tags"
+      title={t("Tags:Add/Edit Tags")}
       className="shortModal"
       wrapProps={{ "data-test": "EditTagsDialog" }}>
       <Select
         ref={setSelectRef}
         mode="tags"
         className="w-100"
-        placeholder="Add some tags..."
+        placeholder={t("Tags:Add some tags...")}
         defaultValue={values}
         onChange={v => setValues(compact(map(v, trim)))}
         disabled={isLoading}
