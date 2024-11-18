@@ -956,6 +956,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def evaluate(self):
         data = self.query_rel.latest_query_data.data
+        new_state = self.UNKNOWN_STATE
 
         if data["rows"] and self.options["column"] in data["rows"][0]:
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
@@ -963,9 +964,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             value = data["rows"][0][self.options["column"]]
             threshold = self.options["value"]
 
-            new_state = next_state(op, value, threshold)
-        else:
-            new_state = self.UNKNOWN_STATE
+            if value is not None:
+                new_state = next_state(op, value, threshold)
 
         return new_state
 
