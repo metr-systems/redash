@@ -3,7 +3,6 @@ import React from "react";
 import Button from "antd/lib/button";
 
 import i18next from 'i18next';
-import { withTranslation } from "react-i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
@@ -36,7 +35,7 @@ class GroupsList extends React.Component {
       (text, group) => (
         <div>
           <Link href={"groups/" + group.id}>{group.name}</Link>
-          {group.type === "builtin" && <span className="label label-default m-l-10">{t("built-in")}</span>}
+          {group.type === "builtin" && <span className="label label-default m-l-10">{i18next.t("Groups:built-in")}</span>}
         </div>
       ),
       {
@@ -47,8 +46,8 @@ class GroupsList extends React.Component {
     Columns.custom(
       (text, group) => (
         <Button.Group>
-          <Link.Button href={`groups/${group.id}`}>{t("Members")}</Link.Button>
-          {currentUser.isAdmin && <Link.Button href={`groups/${group.id}/data_sources`}>{t("Data Sources")}</Link.Button>}
+          <Link.Button href={`groups/${group.id}`}>{i18next.t("Groups:Members")}</Link.Button>
+          {currentUser.isAdmin && <Link.Button href={`groups/${group.id}/data_sources`}>{i18next.t("Groups:Data Sources")}</Link.Button>}
         </Button.Group>
       ),
       {
@@ -64,7 +63,7 @@ class GroupsList extends React.Component {
             className="w-100"
             disabled={!canRemove}
             group={group}
-            title={canRemove ? null : t("Cannot delete built-in group")}
+            title={canRemove ? null : i18next.t("Groups:Cannot delete built-in group")}
             onClick={() => this.onGroupDeleted()}>
             {i18next.t("Delete")}
           </DeleteGroupButton>
@@ -98,7 +97,7 @@ class GroupsList extends React.Component {
           <div className="m-b-15">
             <Button type="primary" onClick={this.createGroup}>
               <i className="fa fa-plus m-r-5" aria-hidden="true" />
-              {t("New Group")}
+              {i18next.t("Groups:New Group")}
             </Button>
           </div>
         )}
@@ -131,11 +130,11 @@ class GroupsList extends React.Component {
   }
 }
 
-const GroupsListPage = withTranslation("Groups")(wrapSettingsTab(
+const GroupsListPage = wrapSettingsTab(
   "Groups.List",
   {
     permission: "list_users",
-    title: i18next.t("Groups"),
+    title: i18next.t("Groups:Groups"),
     path: "groups",
     order: 3,
   },
@@ -153,7 +152,7 @@ const GroupsListPage = withTranslation("Groups")(wrapSettingsTab(
       }),
     () => new StateStorage({ orderByField: "name", itemsPerPage: 10 })
   )
-));
+);
 
 routes.register(
   "Groups.List",

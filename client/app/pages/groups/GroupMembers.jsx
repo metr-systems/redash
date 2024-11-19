@@ -3,7 +3,6 @@ import React from "react";
 import Button from "antd/lib/button";
 
 import i18next from 'i18next';
-import { withTranslation } from "react-i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -43,12 +42,12 @@ class GroupMembers extends React.Component {
     {
       key: "users",
       href: `groups/${this.groupId}`,
-      title: t("Members"),
+      title: i18next.t("Groups:Members"),
     },
     {
       key: "datasources",
       href: `groups/${this.groupId}/data_sources`,
-      title: t("Data Sources"),
+      title: i18next.t("Groups:Data Sources"),
       isAvailable: () => currentUser.isAdmin,
     },
   ];
@@ -71,7 +70,7 @@ class GroupMembers extends React.Component {
         }
         return (
           <Button className="w-100" type="danger" onClick={event => this.removeGroupMember(event, user)}>
-            {t("Remove")}
+            {i18next.t("Remove")}
           </Button>
         );
       },
@@ -100,15 +99,15 @@ class GroupMembers extends React.Component {
         this.props.controller.update();
       })
       .catch(() => {
-        notification.error(t("Failed to remove member from group."));
+        notification.error(i18next.t("Groups:Failed to remove member from group."));
       });
 
   addMembers = () => {
     const alreadyAddedUsers = map(this.props.controller.allItems, u => u.id);
     SelectItemsDialog.showModal({
-      dialogTitle: t("Add Members"),
-      inputPlaceholder: t("Search users..."),
-      selectedItemsTitle: t("New Members"),
+      dialogTitle: i18next.t("Groups:Add Members"),
+      inputPlaceholder: i18next.t("Groups:Search users..."),
+      selectedItemsTitle: i18next.t("Groups:New Members"),
       searchItems: searchTerm => User.query({ q: searchTerm }).then(({ results }) => results),
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedUsers, item.id);
@@ -155,11 +154,11 @@ class GroupMembers extends React.Component {
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
-                <p>{t("There are no members in this group yet.")}</p>
+                <p>{i18next.t("Groups:There are no members in this group yet.")}</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addMembers}>
                     <i className="fa fa-plus m-r-5" aria-hidden="true" />
-                    {t("Add Members")}
+                    {i18next.t("Groups:Add Members")}
                   </Button>
                 )}
               </div>
@@ -192,7 +191,7 @@ class GroupMembers extends React.Component {
   }
 }
 
-const GroupMembersPage = withTranslation("Groups")(wrapSettingsTab(
+const GroupMembersPage = wrapSettingsTab(
   "Groups.Members",
   null,
   itemsList(
@@ -209,7 +208,7 @@ const GroupMembersPage = withTranslation("Groups")(wrapSettingsTab(
       }),
     () => new StateStorage({ orderByField: "name" })
   )
-));
+);
 
 routes.register(
   "Groups.Members",

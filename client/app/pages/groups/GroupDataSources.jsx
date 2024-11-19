@@ -5,7 +5,6 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 
 import i18next from 'i18next';
-import { withTranslation } from "react-i18next";
 
 import DownOutlinedIcon from "@ant-design/icons/DownOutlined";
 
@@ -47,19 +46,19 @@ class GroupDataSources extends React.Component {
     {
       key: "users",
       href: `groups/${this.groupId}`,
-      title: t("Members"),
+      title: i18next.t("Groups:Members"),
     },
     {
       key: "datasources",
       href: `groups/${this.groupId}/data_sources`,
-      title: t("Data Sources"),
+      title: i18next.t("Groups:Data Sources"),
       isAvailable: () => currentUser.isAdmin,
     },
   ];
 
   listColumns = [
     Columns.custom((text, datasource) => <DataSourcePreviewCard dataSource={datasource} withLink />, {
-      title: t("Name"),
+      title: i18next.t("Groups:Name"),
       field: "name",
       width: null,
     }),
@@ -69,15 +68,15 @@ class GroupDataSources extends React.Component {
           <Menu
             selectedKeys={[datasource.view_only ? "viewonly" : "full"]}
             onClick={item => this.setDataSourcePermissions(datasource, item.key)}>
-            <Menu.Item key="full">{t("Full Access")}</Menu.Item>
-            <Menu.Item key="viewonly">{t("View Only")}</Menu.Item>
+            <Menu.Item key="full">{i18next.t("Groups:Full Access")}</Menu.Item>
+            <Menu.Item key="viewonly">{i18next.t("Groups:View Only")}</Menu.Item>
           </Menu>
         );
 
         return (
           <Dropdown trigger={["click"]} overlay={menu}>
-            <Button className="w-100" aria-label={t("Permissions")}>
-              {datasource.view_only ? t("View Only") : t("Full Access")}
+            <Button className="w-100" aria-label={i18next.t("Groups:Permissions")}>
+              {datasource.view_only ? i18next.t("Groups:View Only") : i18next.t("Groups:Full Access")}
               <DownOutlinedIcon aria-hidden="true" />
             </Button>
           </Dropdown>
@@ -92,7 +91,7 @@ class GroupDataSources extends React.Component {
     Columns.custom(
       (text, datasource) => (
         <Button className="w-100" type="danger" onClick={() => this.removeGroupDataSource(datasource)}>
-          {t("Remove")}
+          {i18next.t("Remove")}
         </Button>
       ),
       {
@@ -120,7 +119,7 @@ class GroupDataSources extends React.Component {
         this.props.controller.update();
       })
       .catch(() => {
-        notification.error(t("Failed to remove data source from group."));
+        notification.error(i18next.t("Groups:Failed to remove data source from group."));
       });
   };
 
@@ -133,7 +132,7 @@ class GroupDataSources extends React.Component {
         this.forceUpdate();
       })
       .catch(() => {
-        notification.error(t("Failed change data source permissions."));
+        notification.error(i18next.t("Groups:Failed change data source permissions."));
       });
   };
 
@@ -141,9 +140,9 @@ class GroupDataSources extends React.Component {
     const allDataSources = DataSource.query();
     const alreadyAddedDataSources = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
-      dialogTitle: t("Add Data Sources"),
-      inputPlaceholder: t("Search data sources..."),
-      selectedItemsTitle: t("New Data Sources"),
+      dialogTitle: i18next.t("Groups:Add Data Sources"),
+      inputPlaceholder: i18next.t("Groups:Search data sources..."),
+      selectedItemsTitle: i18next.t("Groups:New Data Sources"),
       searchItems: searchTerm => {
         searchTerm = toLower(searchTerm);
         return allDataSources.then(items => filter(items, ds => includes(toLower(ds.name), searchTerm)));
@@ -193,11 +192,11 @@ class GroupDataSources extends React.Component {
             {!controller.isLoaded && <LoadingState className="" />}
             {controller.isLoaded && controller.isEmpty && (
               <div className="text-center">
-                <p>{t("There are no data sources in this group yet.")}</p>
+                <p>{i18next.t("Groups:There are no data sources in this group yet.")}</p>
                 {currentUser.isAdmin && (
                   <Button type="primary" onClick={this.addDataSources}>
                     <i className="fa fa-plus m-r-5" aria-hidden="true" />
-                    {t("Add Data Sources")}
+                    {i18next.t("Groups:Add Data Sources")}
                   </Button>
                 )}
               </div>
@@ -230,7 +229,7 @@ class GroupDataSources extends React.Component {
   }
 }
 
-const GroupDataSourcesPage = withTranslation("Groups")( wrapSettingsTab(
+const GroupDataSourcesPage = wrapSettingsTab(
   "Groups.DataSources",
   null,
   itemsList(
@@ -247,7 +246,7 @@ const GroupDataSourcesPage = withTranslation("Groups")( wrapSettingsTab(
       }),
     () => new StateStorage({ orderByField: "name" })
   )
-));
+);
 
 routes.register(
   "Groups.DataSources",

@@ -2,7 +2,6 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import i18next from "i18next";
-import { withTranslation } from "react-i18next";
 
 import HelpTrigger from "@/components/HelpTrigger";
 import { Alert as AlertType } from "@/components/proptypes";
@@ -17,7 +16,7 @@ import Rearm from "./components/Rearm";
 import Query from "./components/Query";
 import HorizontalFormItem from "./components/HorizontalFormItem";
 
-class AlertNew extends React.Component {
+export default class AlertNew extends React.Component {
   state = {
     saving: false,
   };
@@ -42,16 +41,16 @@ class AlertNew extends React.Component {
           <div className="d-flex">
             <Form className="flex-fill">
               <div className="m-b-30">
-                {t("Start by selecting the query that you would like to monitor using the search bar.")}
+                {i18next.t("Alert:Start by selecting the query that you would like to monitor using the search bar.")}
                 <br />
-                {t("Keep in mind that Alerts do not work with queries that use parameters.")}
+                {i18next.t("Alert:Keep in mind that Alerts do not work with queries that use parameters.")}
               </div>
-              <HorizontalFormItem label={t("Query")}>
+              <HorizontalFormItem label={i18next.t("Alert:Query")}>
                 <Query query={query} queryResult={queryResult} onChange={onQuerySelected} editMode />
               </HorizontalFormItem>
               {queryResult && options && (
                 <>
-                  <HorizontalFormItem label={t("Trigger when")} className="alert-criteria">
+                  <HorizontalFormItem label={i18next.t("Alert:Trigger when")} className="alert-criteria">
                     <Criteria
                       columnNames={queryResult.getColumnNames()}
                       resultValues={queryResult.getData()}
@@ -60,10 +59,10 @@ class AlertNew extends React.Component {
                       editMode
                     />
                   </HorizontalFormItem>
-                  <HorizontalFormItem label={t("When triggered, send notification")}>
+                  <HorizontalFormItem label={i18next.t("Alert:When triggered, send notification")}>
                     <Rearm value={pendingRearm || 0} onChange={onRearmChange} editMode />
                   </HorizontalFormItem>
-                  <HorizontalFormItem label={t("Template")}>
+                  <HorizontalFormItem label={i18next.t("Alert:Template")}>
                     <NotificationTemplate
                       alert={alert}
                       query={query}
@@ -82,15 +81,15 @@ class AlertNew extends React.Component {
                   {saving && (
                     <span role="status" aria-live="polite" aria-relevant="additions removals">
                       <i className="fa fa-spinner fa-pulse m-r-5" aria-hidden="true" />
-                      <span className="sr-only">{t("Saving...")}</span>
+                      <span className="sr-only">{i18next.t("Saving...")}</span>
                     </span>
                   )}
-                  Create Alert
+                  {i18next.t("Alert:Create Alert")}
                 </Button>
               </HorizontalFormItem>
             </Form>
             <HelpTrigger className="f-13" type="ALERT_SETUP">
-              {t("Setup Instructions")} <i className="fa fa-question-circle" aria-hidden="true" />
+              {i18next.t("Alert:Setup Instructions")} <i className="fa fa-question-circle" aria-hidden="true" />
               <span className="sr-only">{i18next.t("(help)")}</span>
             </HelpTrigger>
           </div>
@@ -100,7 +99,6 @@ class AlertNew extends React.Component {
   }
 }
 
-export default withTranslation("Alert")(AlertNew);
 
 AlertNew.propTypes = {
   alert: AlertType.isRequired,

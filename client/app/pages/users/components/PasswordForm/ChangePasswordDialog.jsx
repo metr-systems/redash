@@ -3,7 +3,9 @@ import React from "react";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
-import { withTranslation } from 'react-i18next';
+
+import i18next from "i18next";
+
 import { UserProfile } from "@/components/proptypes";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import User from "@/services/user";
@@ -26,10 +28,9 @@ class ChangePasswordDialog extends React.Component {
   }
 
   fieldError = (name, value) => {
-    const { t } = this.props;
-    if (value.length === 0) return t("This field is required.");
-    if (name !== "currentPassword" && value.length < 6) return t("This field is too short.");
-    if (name === "repeatPassword" && value !== this.state.newPassword.value) return t("Passwords don't match");
+    if (value.length === 0) return i18next.t("Users:This field is required.");
+    if (name !== "currentPassword" && value.length < 6) return i18next.t("Users:This field is too short.");
+    if (name === "repeatPassword" && value !== this.state.newPassword.value) return i18next.t("Users:Passwords don't match");
     return null;
   };
 
@@ -56,7 +57,6 @@ class ChangePasswordDialog extends React.Component {
   };
 
   updatePassword = () => {
-    const { t } = this.props;
     const { currentPassword, newPassword, updatingPassword } = this.state;
 
     if (!updatingPassword) {
@@ -115,27 +115,27 @@ class ChangePasswordDialog extends React.Component {
         {...dialog.props}
         okButtonProps={{ loading: updatingPassword }}
         onOk={this.updatePassword}
-        title={t("Change Password")}>
+        title={i18next.t("Users:Change Password")}>
         <Form layout="vertical">
           <Form.Item
             {...formItemProps}
             validateStatus={currentPassword.touched && currentPassword.error ? "error" : null}
             help={currentPassword.touched ? currentPassword.error : null}
-            label={t("Current Password")}>
+            label={i18next.t("Users:Current Password")}>
             <Input.Password {...inputProps} name="currentPassword" data-test="CurrentPassword" autoFocus />
           </Form.Item>
           <Form.Item
             {...formItemProps}
             validateStatus={newPassword.touched && newPassword.error ? "error" : null}
             help={newPassword.touched ? newPassword.error : null}
-            label={t("New Password")}>
+            label={i18next.t("Users:New Password")}>
             <Input.Password {...inputProps} name="newPassword" data-test="NewPassword" />
           </Form.Item>
           <Form.Item
             {...formItemProps}
             validateStatus={repeatPassword.touched && repeatPassword.error ? "error" : null}
             help={repeatPassword.touched ? repeatPassword.error : null}
-            label={t("Repeat New Password")}>
+            label={i18next.t("Users:Repeat New Password")}>
             <Input.Password {...inputProps} name="repeatPassword" data-test="RepeatPassword" />
           </Form.Item>
         </Form>
@@ -143,6 +143,4 @@ class ChangePasswordDialog extends React.Component {
     );
   }
 }
-const TranslatedChangePasswordDialog = withTranslation("Users")(ChangePasswordDialog);
-
-export default wrapDialog(TranslatedChangePasswordDialog);
+export default wrapDialog(ChangePasswordDialog);

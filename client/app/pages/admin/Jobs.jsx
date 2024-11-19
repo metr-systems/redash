@@ -7,7 +7,6 @@ import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
 
 import i18next from "i18next";
-import { withTranslation } from 'react-i18next';
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
@@ -98,16 +97,16 @@ class Jobs extends React.Component {
     return (
       <Layout activeTab="jobs">
         <div className="p-15">
-          {error && <Alert type="error" message={t("Admin:Failed loading status. Please refresh.")} />}
+          {error && <Alert type="error" message={i18next.t("Admin:Failed loading status. Please refresh.")} />}
 
           {!error && (
             <React.Fragment>
               <Grid.Row gutter={15} className="m-b-15">
                 <Grid.Col span={8}>
-                  <CounterCard title={t("Admin:Started Jobs")} value={overallCounters.started} loading={isLoading} />
+                  <CounterCard title={i18next.t("Admin:Started Jobs")} value={overallCounters.started} loading={isLoading} />
                 </Grid.Col>
                 <Grid.Col span={8}>
-                  <CounterCard title={t("Admin:Queued Jobs")} value={overallCounters.queued} loading={isLoading} />
+                  <CounterCard title={i18next.t("Admin:Queued Jobs")} value={overallCounters.queued} loading={isLoading} />
                 </Grid.Col>
               </Grid.Row>
 
@@ -133,13 +132,12 @@ class Jobs extends React.Component {
   }
 }
 
-const TranslatedJobs = withTranslation()(Jobs);
 
 routes.register(
   "Admin.Jobs",
   routeWithUserSession({
     path: "/admin/queries/jobs",
     title: i18next.t("Admin:RQ Status"),
-    render: pageProps => <TranslatedJobs {...pageProps} />,
+    render: pageProps => <Jobs {...pageProps} />,
   })
 );

@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import i18next from 'i18next';
-import { useTranslation,withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -144,7 +144,7 @@ class DataSourcesList extends React.Component {
         <div className="m-b-15">
           <Button {...newDataSourceProps}>
             <i className="fa fa-plus m-r-5" aria-hidden="true" />
-            {t("New Data Source")}
+            {i18next.t("DataSource:New Data Source")}
           </Button>
           <DynamicComponent name="DataSourcesListExtra" />
         </div>
@@ -162,22 +162,22 @@ class DataSourcesList extends React.Component {
   }
 }
 
-const DataSourcesListPage = withTranslation("DataSource")(wrapSettingsTab(
+const DataSourcesListPage = wrapSettingsTab(
   "DataSources.List",
   {
     permission: "admin",
-    title: i18next.t("Data Sources"),
+    title: i18next.t("DataSource:Data Sources"),
     path: "data_sources",
     order: 1,
   },
   DataSourcesList
-));
+);
 
 routes.register(
   "DataSources.List",
   routeWithUserSession({
     path: "/data_sources",
-    title: i18next.t("Data Sources"),
+    title: i18next.t("DataSource:Data Sources"),
     render: pageProps => <DataSourcesListPage {...pageProps} />,
   })
 );
@@ -185,7 +185,7 @@ routes.register(
   "DataSources.New",
   routeWithUserSession({
     path: "/data_sources/new",
-    title: i18next.t("Data Sources"),
+    title: i18next.t("DataSource:Data Sources"),
     render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
   })
 );

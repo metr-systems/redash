@@ -3,7 +3,6 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import i18next from "i18next";
-import { withTranslation } from 'react-i18next';
 
 import Link from "@/components/Link";
 import Button from "antd/lib/button";
@@ -89,7 +88,6 @@ class AlertDestinations extends React.Component {
 
   showAddAlertSubDialog = () => {
     const { dests, subs } = this.state;
-    const { t } = this.props;
 
     SelectItemsDialog.showModal({
       width: 570,
@@ -97,15 +95,15 @@ class AlertDestinations extends React.Component {
       extraFooterContent: (
         <>
           <i className="fa fa-info-circle" aria-hidden="true" /> {t("Alert:Create new destinations in")}{" "}
-          <Tooltip title={t("Alert:Opens page in a new tab.")}>
+          <Tooltip title={i18next.t("Alert:Opens page in a new tab.")}>
             <Link href="destinations/new" target="_blank">
-              {t("Alert:Alert Destinations.")}
+              {i18next.t("Alert:Alert Destinations.")}
             </Link>
           </Tooltip>
         </>
       ),
-      dialogTitle: t("Alert:Add Existing Alert Destinations"),
-      inputPlaceholder: t("Alert:Search destinations..."),
+      dialogTitle: i18next.t("Alert:Add Existing Alert Destinations"),
+      inputPlaceholder: i18next.t("Alert:Search destinations..."),
       searchItems: searchTerm => {
         searchTerm = toLower(searchTerm);
         return Promise.resolve(dests.filter(d => includes(toLower(d.name), searchTerm)));
@@ -129,10 +127,10 @@ class AlertDestinations extends React.Component {
       const promises = map(items, item => this.subscribe(item));
       return Promise.all(promises)
         .then(() => {
-          notification.success(t("Alert:Subscribed."));
+          notification.success(i18next.t("Alert:Subscribed."));
         })
         .catch(() => {
-          notification.error(t("Alert:Failed saving subscription."));
+          notification.error(i18next.t("Alert:Failed saving subscription."));
           return Promise.reject(null); // keep dialog visible but suppress its default error message
         });
     });
@@ -163,7 +161,6 @@ class AlertDestinations extends React.Component {
   };
 
   unsubscribe = sub => {
-    const { t } = this.props;
     AlertSubscription.delete(sub)
       .then(() => {
         // not showing subscribe notification cause it's redundant here
@@ -173,12 +170,11 @@ class AlertDestinations extends React.Component {
         });
       })
       .catch(() => {
-        notification.error(t("Alert:Failed unsubscribing."));
+        notification.error(i18next.t("Alert:Failed unsubscribing."));
       });
   };
 
   render() {
-    const { t } = this.props;
     if (!this.props.alertId) {
       return null;
     }
@@ -200,7 +196,7 @@ class AlertDestinations extends React.Component {
             size="small"
             className="add-button"
             onClick={this.showAddAlertSubDialog}>
-            <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> {t("Alert:Add")}
+            <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> {i18next.t("Add")}
           </Button>
         </Tooltip>
         <ul>
@@ -228,4 +224,4 @@ class AlertDestinations extends React.Component {
   }
 }
 
-export default withTranslation()(AlertDestinations);
+export default AlertDestinations;

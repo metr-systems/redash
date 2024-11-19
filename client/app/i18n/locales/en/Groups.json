@@ -16,7 +16,6 @@
   "Full Access": "",
   "View Only": "",
   "Permissions": "",
-  "Remove": "",
   "Failed to remove data source from group.": "",
   "Failed change data source permissions.": "",
   "Search data sources...": "",
@@ -30,7 +29,6 @@
   "Group Members": "",
   "built-in": "",
   "Cannot delete built-in group": "",
-  "Delete": "",
   "New Group": "",
   "Groups": ""
 }

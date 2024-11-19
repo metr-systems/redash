@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 
 import i18next from 'i18next';
-import { withTranslation } from "react-i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -62,7 +61,7 @@ class EditDestination extends React.Component {
     const doDelete = () => {
       Destination.delete(destination)
         .then(() => {
-          notification.success(t("Alert destination deleted successfully."));
+          notification.success(i18next.t("Destinations:Alert destination deleted successfully."));
           navigateTo("destinations");
         })
         .catch(() => {
@@ -71,8 +70,8 @@ class EditDestination extends React.Component {
     };
 
     Modal.confirm({
-      title: t("Delete Alert Destination"),
-      content: t("Are you sure you want to delete this alert destination?"),
+      title: i18next.t("Destinations:Delete Alert Destination"),
+      content: i18next.t("Destinations:Are you sure you want to delete this alert destination?"),
       okText: i18next.t("Delete"),
       okType: "danger",
       onOk: doDelete,
@@ -112,13 +111,13 @@ class EditDestination extends React.Component {
   }
 }
 
-const EditDestinationPage = withTranslation("Destinations")(wrapSettingsTab("AlertDestinations.Edit", null, EditDestination));
+const EditDestinationPage = wrapSettingsTab("AlertDestinations.Edit", null, EditDestination);
 
 routes.register(
   "AlertDestinations.Edit",
   routeWithUserSession({
     path: "/destinations/:destinationId",
-    title: i18next.t("Alert Destinations"),
+    title: i18next.t("Destinations:Alert Destinations"),
     render: pageProps => <EditDestinationPage {...pageProps} />,
   })
 );

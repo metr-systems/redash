@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 
 import i18next from "i18next";
-import { useTranslation, withTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 import Link from "@/components/Link";
 import TimeAgo from "@/components/TimeAgo";
@@ -52,7 +52,7 @@ AlertState.defaultProps = {
 };
 
 // eslint-disable-next-line react/prefer-stateless-function
-class AlertView extends React.Component {
+export default class AlertView extends React.Component {
   state = {
     unmuting: false,
   };
@@ -72,10 +72,10 @@ class AlertView extends React.Component {
       <>
         <Title name={name} alert={alert}>
           <DynamicComponent name="AlertView.HeaderExtra" alert={alert} />
-          <Tooltip title={canEdit ? "" : t("You do not have sufficient permissions to edit this alert")}>
+          <Tooltip title={canEdit ? "" : i18next.t("Alert:You do not have sufficient permissions to edit this alert")}>
             <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
               <i className="fa fa-edit m-r-5" aria-hidden="true" />
-              {t("Edit")}
+              {i18next.t("Edit")}
             </Button>
             {menuButton}
           </Tooltip>
@@ -87,22 +87,22 @@ class AlertView extends React.Component {
                 <HorizontalFormItem>
                   <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
                 </HorizontalFormItem>
-                <HorizontalFormItem label={t("Query")}>
+                <HorizontalFormItem label={i18next.t("Alert:Query")}>
                   <Query query={query} queryResult={queryResult} />
                 </HorizontalFormItem>
                 {queryResult && options && (
                   <>
-                    <HorizontalFormItem label={t("Trigger when")} className="alert-criteria">
+                    <HorizontalFormItem label={i18next.t("Alert:Trigger when")} className="alert-criteria">
                       <Criteria
                         columnNames={queryResult.getColumnNames()}
                         resultValues={queryResult.getData()}
                         alertOptions={options}
                       />
                     </HorizontalFormItem>
-                    <HorizontalFormItem label={t("Notifications")} className="form-item-line-height-normal">
+                    <HorizontalFormItem label={i18next.t("Alert:Notifications")} className="form-item-line-height-normal">
                       <Rearm value={rearm || 0} />
                       <br />
-                      <Trans i18nKey="set_notification_template" >Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
+                      <Trans i18nKey="Alert:set_notification_template" >Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
                       template.</Trans>
                     </HorizontalFormItem>
                   </>
@@ -115,23 +115,23 @@ class AlertView extends React.Component {
                   className="m-b-20"
                   message={
                     <>
-                      <i className="fa fa-bell-slash-o" aria-hidden="true" /> {t("Notifications are muted")}
+                      <i className="fa fa-bell-slash-o" aria-hidden="true" /> {i18next.t("Alert:Notifications are muted")}
                     </>
                   }
                   description={
                     <>
-                      {t("Notifications for this alert will not be sent.")}
+                      {i18next.t("Alert:Notifications for this alert will not be sent.")}
                       <br />
                       {canEdit && (
                         <>
-                          {t("To restore notifications click")}
+                          {i18next.t("Alert:To restore notifications click")}
                           <Button
                             size="small"
                             type="primary"
                             onClick={this.unmute}
                             loading={this.state.unmuting}
                             className="m-t-5 m-l-5">
-                            {t("Unmute")}
+                            {i18next.t("Alert:Unmute")}
                           </Button>
                         </>
                       )}
@@ -141,8 +141,8 @@ class AlertView extends React.Component {
                 />
               )}
               <h4>
-                {t("Destinations")}{" "}
-                <Tooltip title="Open Alert Destinations page in a new tab.">
+                {i18next.t("Alert:Destinations")}{" "}
+                <Tooltip title="Alert:Open Alert Destinations page in a new tab.">
                   <Link href="destinations" target="_blank">
                     <i className="fa fa-external-link f-13" aria-hidden="true" />
                     <span className="sr-only">{i18next.t("(opens in a new tab)")}</span>
@@ -158,7 +158,6 @@ class AlertView extends React.Component {
   }
 }
 
-export default withTranslation("Alert")(AlertView)
 
 AlertView.propTypes = {
   alert: AlertType.isRequired,

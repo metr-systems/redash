@@ -3,7 +3,7 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import i18next from "i18next";
-import { useTranslation, withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 
 import LoadingState from "@/components/items-list/components/LoadingState";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
@@ -87,8 +87,8 @@ class Alert extends React.Component {
             if (!canEdit) {
               this.setState({ mode: MODES.VIEW });
               notification.warn(
-                t("You cannot edit this alert"),
-                t("You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page."),
+                i18next.t("Alert:You cannot edit this alert"),
+                i18next.t("Alert:You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page."),
                 { duration: 0 }
               );
             }
@@ -122,7 +122,7 @@ class Alert extends React.Component {
         this.setState({ alert, mode: MODES.VIEW });
       })
       .catch(() => {
-        notification.error(t("Failed saving alert."));
+        notification.error(i18next.t("Alert:Failed saving alert."));
       });
   };
 
@@ -173,11 +173,11 @@ class Alert extends React.Component {
     const { alert } = this.state;
     return AlertService.delete(alert)
       .then(() => {
-        notification.success(t("Alert deleted successfully."));
+        notification.success(i18next.t("Alert:Alert deleted successfully."));
         navigateTo("alerts");
       })
       .catch(() => {
-        notification.error(t("Failed deleting alert."));
+        notification.error(i18next.t("Alert:Failed deleting alert."));
       });
   };
 
@@ -186,10 +186,10 @@ class Alert extends React.Component {
     return AlertService.mute(alert)
       .then(() => {
         this.setAlertOptions({ muted: true });
-        notification.warn(t("Notifications have been muted."));
+        notification.warn(i18next.t("Alert:Notifications have been muted."));
       })
       .catch(() => {
-        notification.error(t("Failed muting notifications."));
+        notification.error(i18next.t("Alert:Failed muting notifications."));
       });
   };
 
@@ -198,10 +198,10 @@ class Alert extends React.Component {
     return AlertService.unmute(alert)
       .then(() => {
         this.setAlertOptions({ muted: false });
-        notification.success(t("Notifications have been restored."));
+        notification.success(i18next.t("Alert:Notifications have been restored."));
       })
       .catch(() => {
-        notification.error(t("Failed restoring notifications."));
+        notification.error(i18next.t("Alert:Failed restoring notifications."));
       });
   };
 
@@ -257,14 +257,13 @@ class Alert extends React.Component {
   }
 }
 
-const TranslatedAlert = withTranslation("Alert")(Alert);
 
 routes.register(
   "Alerts.New",
   routeWithUserSession({
     path: "/alerts/new",
     title: i18next.t("Alert:New Alert"),
-    render: pageProps => <TranslatedAlert {...pageProps} mode={MODES.NEW} />,
+    render: pageProps => <Alert {...pageProps} mode={MODES.NEW} />,
   })
 );
 routes.register(

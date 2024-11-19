@@ -14,7 +14,6 @@ import Radio from "antd/lib/radio";
 import Form from "antd/lib/form";
 
 import i18next from "i18next";
-import { withTranslation } from "react-i18next";
 
 import Tooltip from "@/components/Tooltip";
 import ParameterValueInput from "@/components/ParameterValueInput";
@@ -294,14 +293,13 @@ class MappingEditor extends React.Component {
   };
 
   onChange = mapping => {
-    const { t } = this.props;
     let inputError = null;
 
     if (mapping.type === MappingType.DashboardAddNew) {
       if (isEmpty(mapping.mapTo)) {
-        inputError = t("Keyword must have a value");
+        inputError = i18next.t("Params:Keyword must have a value");
       } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
-        inputError = t("A parameter with this name already exists");
+        inputError = i18next.t("Params:A parameter with this name already exists");
       }
     }
 
@@ -325,13 +323,12 @@ class MappingEditor extends React.Component {
   };
 
   renderContent() {
-    const { t } = this.props;
     const { mapping, inputError } = this.state;
 
     return (
       <div className="parameter-mapping-editor" data-test="EditParamMappingPopover">
         <header>
-          {t("Edit Source and Value")} <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
+          {i18next.t("Params:Edit Source and Value")} <HelpTrigger type="VALUE_SOURCE_OPTIONS" />
         </header>
         <ParameterMappingInput
           mapping={mapping}
@@ -365,7 +362,6 @@ class MappingEditor extends React.Component {
     );
   }
 }
-const TranslatedMappingEditor=withTranslation("Params")(MappingEditor)
 
 class TitleEditor extends React.Component {
   static propTypes = {
@@ -423,7 +419,6 @@ class TitleEditor extends React.Component {
   };
 
   renderPopover() {
-    const { t } = this.props;
     const {
       param: { title: paramTitle },
     } = this.props.mapping;
@@ -434,7 +429,7 @@ class TitleEditor extends React.Component {
           size="small"
           value={this.state.title}
           placeholder={paramTitle}
-          aria-label={t("Edit parameter title")}
+          aria-label={i18next.t("Params:Edit parameter title")}
           onChange={this.onEditingTitleChange}
           onPressEnter={this.save}
           maxLength={100}
@@ -451,11 +446,10 @@ class TitleEditor extends React.Component {
   }
 
   renderEditButton() {
-    const { t } = this.props;
     const { mapping } = this.props;
     if (mapping.type === MappingType.StaticValue) {
       return (
-        <Tooltip placement="right" title={t("Titles for static values don't appear in widgets")}>
+        <Tooltip placement="right" title={i18next.t("Params:Titles for static values don't appear in widgets")}>
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
           <span tabIndex={0}>
             <i className="fa fa-eye-slash" aria-hidden="true" />
@@ -490,7 +484,6 @@ class TitleEditor extends React.Component {
     );
   }
 }
-const TranslatedTitleEditor=withTranslation("Params")(TitleEditor)
 
 export class ParameterMappingListInput extends React.Component {
   static propTypes = {
@@ -590,11 +583,11 @@ export class ParameterMappingListInput extends React.Component {
       <div className="parameters-mapping-list">
         <Table dataSource={dataSource} size="middle" pagination={false} rowKey={(record, idx) => `row${idx}`}>
           <Table.Column
-            title={t("Title")}
+            title={i18next.t("Title")}
             dataIndex="mapping"
             key="title"
             render={mapping => (
-              <TranslatedTitleEditor
+              <TitleEditor
                 existingParams={existingParams}
                 mapping={mapping}
                 onChange={newMapping => this.updateParamMapping(mapping, newMapping)}
@@ -626,7 +619,7 @@ export class ParameterMappingListInput extends React.Component {
               return (
                 <Fragment>
                   {this.constructor.getSourceTypeLabel(mapping)}{" "}
-                  <TranslatedMappingEditor
+                  <MappingEditor
                     mapping={mapping}
                     existingParamNames={existingParamsNames}
                     onChange={(oldMapping, newMapping) => this.updateParamMapping(oldMapping, newMapping)}

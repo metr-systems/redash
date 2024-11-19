@@ -8,15 +8,11 @@
   "to add one.": "",
   "New Data Source": "",
   "Data Sources": "",
-  "Saved.": "",
-  "Failed saving.": "",
   "Data source deleted successfully.": "",
   "Delete Data Source": "",
   "Are you sure you want to delete this data source?": "",
-  "Delete": "",
   "Success": "",
   "Connection Test Failed": "",
   "Unknown error occurred while performing connection test. Please try again later.": "",
-  "Test Connection": "",
-  "(help)": ""
+  "Test Connection": ""
 }

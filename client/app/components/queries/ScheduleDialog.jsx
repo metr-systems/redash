@@ -192,7 +192,7 @@ class ScheduleDialog extends React.Component {
   }
 
   render() {
-    const { dialog, t } = this.props;
+    const { dialog } = this.props;
     const {
       interval,
       minute,

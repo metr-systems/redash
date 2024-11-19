@@ -5,7 +5,6 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 
 import i18next from 'i18next';
-import { withTranslation } from "react-i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -100,13 +99,13 @@ class DestinationsList extends React.Component {
 
     return isEmpty(destinations) ? (
       <div className="text-center">
-        {t("There are no alert destinations yet.")}
+        {i18next.t("Destinations:There are no alert destinations yet.")}
         {policy.isCreateDestinationEnabled() && (
           <div className="m-t-5">
             <PlainButton type="link" onClick={this.showCreateSourceDialog}>
-              {t("Click here")}
+              {i18next.t("Destinations:Click here")}
             </PlainButton>{" "}
-            {t("to add one.")}
+            {i18next.t("Destinations:to add one.")}
           </div>
         )}
       </div>
@@ -128,7 +127,7 @@ class DestinationsList extends React.Component {
         <div className="m-b-15">
           <Button {...newDestinationProps}>
             <i className="fa fa-plus m-r-5" aria-hidden="true" />
-            {t("New Alert Destination")}
+            {i18next.t("Destinations:New Alert Destination")}
           </Button>
         </div>
         {this.state.loading ? <LoadingState className="" /> : this.renderDestinations()}
@@ -137,7 +136,7 @@ class DestinationsList extends React.Component {
   }
 }
 
-const DestinationsListPage = withTranslation("Destinations")(wrapSettingsTab(
+const DestinationsListPage = wrapSettingsTab(
   "AlertDestinations.List",
   {
     permission: "admin",
@@ -146,7 +145,7 @@ const DestinationsListPage = withTranslation("Destinations")(wrapSettingsTab(
     order: 4,
   },
   DestinationsList
-));
+);
 
 routes.register(
   "AlertDestinations.List",

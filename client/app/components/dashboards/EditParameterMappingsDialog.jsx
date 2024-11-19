@@ -100,7 +100,7 @@ export default class EditParameterMappingsDialog extends React.Component {
   }
 
   render() {
-    const { dialog, t } = this.props;
+    const { dialog } = this.props;
     return (
       <Modal
         {...dialog.props}
