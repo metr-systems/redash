@@ -32,7 +32,6 @@ export function General({ info }) {
 }
 
 export function DatabaseMetrics({ info }) {
-  const { t } = useTranslation();
   return (
     <Card title={i18next.t("Admin:Redash Database")} size="small">
       {info.length === 0 && <div className="text-muted text-center">{i18next.t("Admin:No data")}</div>}
@@ -51,7 +50,6 @@ export function DatabaseMetrics({ info }) {
 }
 
 export function Queues({ info }) {
-  const { t } = useTranslation();
   info = toPairs(info);
   return (
     <Card title={i18next.t("Admin:Queues")} size="small">
@@ -71,7 +69,6 @@ export function Queues({ info }) {
 }
 
 export function Manager({ info }) {
-  const { t } = useTranslation();
   const items = info
     ? [
         <List.Item

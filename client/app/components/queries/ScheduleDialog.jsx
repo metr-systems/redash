@@ -202,13 +202,13 @@ class ScheduleDialog extends React.Component {
     } = this.state;
 
     return (
-      <Modal {...dialog.props} title={t("Queries:Refresh Schedule")} className="schedule" onOk={() => this.save()}>
+      <Modal {...dialog.props} title={i18next.t("Queries:Refresh Schedule")} className="schedule" onOk={() => this.save()}>
         <div className="schedule-component">
-          <h5>{t("Queries:Refresh every")}</h5>
+          <h5>{i18next.t("Queries:Refresh every")}</h5>
           <div data-testid="interval">
             <Select className="input" value={seconds} onChange={this.setInterval} dropdownMatchSelectWidth={false}>
               <Option value={null} key="never">
-                {t("Queries:Never")}
+                {"Never"}
               </Option>
               {Object.keys(this.intervals)
                 .filter(int => !isEmpty(this.intervals[int]))
@@ -226,7 +226,7 @@ class ScheduleDialog extends React.Component {
         </div>
         {[IntervalEnum.DAYS, IntervalEnum.WEEKS].indexOf(interval) !== -1 ? (
           <div className="schedule-component">
-            <h5>{t("Queries:On time")}</h5>
+            <h5>{i18next.t("Queries:On time")}</h5>
             <div data-testid="time">
               <TimeEditor
                 defaultValue={
@@ -243,7 +243,7 @@ class ScheduleDialog extends React.Component {
         ) : null}
         {IntervalEnum.WEEKS === interval ? (
           <div className="schedule-component">
-            <h5>{t("Queries:On day")}</h5>
+            <h5>{i18next.t("Queries:On day")}</h5>
             <div data-testid="weekday">
               <Radio.Group size="medium" defaultValue={this.state.dayOfWeek} onChange={this.setWeekday}>
                 {WEEKDAYS_SHORT.map(day => (
@@ -257,11 +257,11 @@ class ScheduleDialog extends React.Component {
         ) : null}
         {interval !== IntervalEnum.NEVER ? (
           <div className="schedule-component">
-            <h5>{t("Queries:Ends")}</h5>
+            <h5>{i18next.t("Queries:Ends")}</h5>
             <div className="ends" data-testid="ends">
               <Radio.Group size="medium" value={!!until} onChange={this.setUntilToggle}>
-                <Radio value={false}>{t("Queries:Never")}</Radio>
-                <Radio value>{t("Queries:On")}</Radio>
+                <Radio value={false}>{i18next.t("Queries:Never")}</Radio>
+                <Radio value>{i18next.t("Queries:On")}</Radio>
               </Radio.Group>
               {until ? (
                 <DatePicker

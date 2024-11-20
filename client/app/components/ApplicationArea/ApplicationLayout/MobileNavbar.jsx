@@ -12,7 +12,6 @@ import Link from "@/components/Link";
 import { Auth, currentUser } from "@/services/auth";
 import settingsMenu from "@/services/settingsMenu";
 import logoUrl from "@/assets/images/redash_icon_small.png";
-import { useTranslation } from "react-i18next";
 
 import "./MobileNavbar.less";
 

@@ -35,8 +35,6 @@ export default class CodeBlock extends React.Component {
   }
 
   copy = () => {
-    const { t } = useTranslation();
-
     // select text
     window.getSelection().selectAllChildren(this.ref.current);
 

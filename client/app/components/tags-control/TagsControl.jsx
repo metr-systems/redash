@@ -36,7 +36,6 @@ export class TagsControl extends React.Component {
   };
 
   renderEditButton() {
-    const { t } = useTranslation();
     const tags = map(this.props.tags, trim);
     return (
       <PlainButton

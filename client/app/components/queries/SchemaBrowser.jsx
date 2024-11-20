@@ -215,7 +215,7 @@ export default function SchemaBrowser({
   onOptionsUpdate,
   ...props
 }) {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const [schema, isLoading, refreshSchema] = useDataSourceSchema(dataSource);
   const [filterString, setFilterString] = useState("");
   const filteredSchema = useMemo(() => applyFilterOnSchema(schema, filterString), [schema, filterString]);

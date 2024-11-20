@@ -22,8 +22,6 @@ function getErrorMessageByStatus(status, defaultMessage) {
 }
 
 function getErrorMessage(error) {
-  const { t } = useTranslation();
-
   const message = i18next.t("ApplicationArea:It seems like we encountered an error. Try refreshing this page or contact your administrator.");
   if (isObject(error)) {
     // HTTP errors

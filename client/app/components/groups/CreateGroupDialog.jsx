@@ -22,7 +22,6 @@ class CreateGroupDialog extends React.Component {
   };
 
   render() {
-    const { t } = useTranslation();
     const { dialog } = this.props;
     return (
       <Modal {...dialog.props} title={i18next.t("Groups:Create a New Group")} okText={i18next.t("Create")} onOk={() => this.save()}>
