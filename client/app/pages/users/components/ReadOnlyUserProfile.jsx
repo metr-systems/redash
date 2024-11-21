@@ -1,5 +1,8 @@
 import React from "react";
+
 import i18next from 'i18next';
+import { Trans } from "react-i18next";
+
 import { UserProfile } from "@/components/proptypes";
 import UserGroups from "@/components/UserGroups";
 
@@ -14,11 +17,11 @@ export default function ReadOnlyUserProfile({ user }) {
       <h3 className="profile__h3">{user.name}</h3>
       <hr />
       <dl className="profile__dl">
-        <dt>{i18next.t("Users:Name")}:</dt>
+        <dt><Trans i18nKey="Users:Name">Name:</Trans></dt>
         <dd>{user.name}</dd>
-        <dt>{i18next.t("Users:Email")}:</dt>
+        <dt><Trans i18nKey="Users:Email">Email:</Trans></dt>
         <dd>{user.email}</dd>
-        <dt className="m-b-5">{i18next.t("Users:Groups")}:</dt>
+        <dt className="m-b-5"><Trans i18nKey="Users:Groups">Groups:</Trans></dt>
         <dd>{isLoadingGroups ? i18next.t("Loading...") : <UserGroups groups={groups} />}</dd>
       </dl>
     </div>
