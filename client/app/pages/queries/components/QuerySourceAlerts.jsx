@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import Card from "antd/lib/card";
 
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
 
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Typography from "antd/lib/typography";

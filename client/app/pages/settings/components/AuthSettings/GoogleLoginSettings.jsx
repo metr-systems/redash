@@ -3,8 +3,10 @@ import React from "react";
 import Form from "antd/lib/form";
 import Select from "antd/lib/select";
 import Alert from "antd/lib/alert";
+
 import i18next from 'i18next';
 import { Trans } from 'react-i18next';
+
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
