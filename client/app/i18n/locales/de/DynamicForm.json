@@ -1,8 +1,8 @@
 {
-  "This field is required.": "",
-  "This field is too short.": "",
-  "This field must be a valid email.": "",
-  "Additional Settings": "",
-  "select an option": "",
-  "Click to upload": ""
+  "This field is required.": "Dieses Feld ist erforderlich.",
+  "This field is too short.": "Dieses Feld ist zu kurz.",
+  "This field must be a valid email.": "Dieses Feld muss eine gültige E-Mail-Adresse sein.",
+  "Additional Settings": "Zusätzliche Einstellungen",
+  "select an option": "Wähle eine Option",
+  "Click to upload": "Klicken, um hochzuladen"
 }

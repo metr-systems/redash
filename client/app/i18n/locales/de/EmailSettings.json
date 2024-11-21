@@ -1,4 +1,4 @@
 {
-  "Your mail server isn&apos;t configured correctly, and is needed for {{featureName}} to work.": "",
-  "Mail alert": ""
+  "Your mail server isn&apos;t configured correctly, and is needed for {{featureName}} to work.": "Ihr Mailserver ist nicht korrekt konfiguriert und wird benötigt, damit {{featureName}} funktioniert.",
+  "Mail alert": "Mail-Warnung"
 }

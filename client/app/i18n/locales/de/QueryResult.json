@@ -1,7 +1,7 @@
 {
-  "cached query result unavailable, please execute again.": "",
-  "Unknown error occurred. Please try again later.": "",
-  "failed communicating with server. Please check your Internet connection and try again.": "",
-  "Can't execute empty query.": "",
-  "New Query": ""
+  "cached query result unavailable, please execute again.": "Zwischengespeichertes Abfrageergebnis nicht verfügbar, bitte erneut ausführen.",
+  "Unknown error occurred. Please try again later.": "Ein unbekannter Fehler ist aufgetreten. Bitte versuchen Sie es später noch einmal.",
+  "failed communicating with server. Please check your Internet connection and try again.": "Kommunikation mit dem Server fehlgeschlagen. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+  "Can't execute empty query.": "Leere Abfrage kann nicht ausgeführt werden.",
+  "New Query": "Neue Abfrage"
 }

@@ -1,11 +1,11 @@
 {
-  "Need more support?": "",
-  "See our Help": "",
-  "Connect a Data Source": "",
-  "Ask an account admin to connect a data source": "",
-  "Create your first Query": "",
-  "Create your first Alert": "",
-  "Create your first Dashboard": "",
-  "Invite your team members": "",
-  "Let&apos;s get started": ""
+  "Need more support?": "Brauchen Sie weitere Unterstützung?",
+  "See our Help": "Siehe unsere Hilfe",
+  "Connect a Data Source": "Eine Datenquelle verbinden",
+  "Ask an account admin to connect a data source": "Bitten Sie einen Kontoadministrator, eine Datenquelle zu verbinden",
+  "Create your first Query": "Erstellen Sie Ihre erste Abfrage",
+  "Create your first Alert": "Erstellen Sie Ihren ersten Alarm",
+  "Create your first Dashboard": "Erstellen Sie Ihr erstes Dashboard",
+  "Invite your team members": "Laden Sie Ihre Teammitglieder ein",
+  "Let&apos;s get started": "Legen wir los"
 }

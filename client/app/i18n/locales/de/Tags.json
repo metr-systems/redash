@@ -1,7 +1,7 @@
 {
-  "No {{objectType}} found tagged with&nbsp;": "",
-  "Add/Edit Tags": "",
-  "Add some tags...": "",
-  "Add tag": "",
-  "clear selection": ""
+  "No {{objectType}} found tagged with&nbsp;": "Keine {{objectType}} mit dem Tag&nbsp;gefunden.",
+  "Add/Edit Tags": "Tags hinzufügen/bearbeiten",
+  "Add some tags...": "Fügen Sie einige Tags hinzu...",
+  "Add tag": "Tag hinzufügen",
+  "clear selection": "Auswahl löschen"
 }
