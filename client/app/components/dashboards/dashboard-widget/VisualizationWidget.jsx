@@ -4,6 +4,10 @@ import { compact, isEmpty, invoke, map } from "lodash";
 import { markdown } from "markdown";
 import cx from "classnames";
 import Menu from "antd/lib/menu";
+
+import i18next from "i18next";
+import { Trans } from "react-i18next";
+
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -34,39 +38,41 @@ function visualizationWidgetMenuOptions({ widget, canEditDashboard, onParameters
     <Menu.Item key="download_csv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
         <Link href={downloadLink("csv")} download={downloadName("csv")} target="_self">
-          Download as CSV File
+          <Trans i18nKey="Dashboards:Download as CSV File">Download as CSV File</Trans>
         </Link>
       ) : (
-        "Download as CSV File"
+        <Trans i18nKey="Dashboards:Download as CSV File">Download as CSV File</Trans>
       )}
     </Menu.Item>,
     <Menu.Item key="download_tsv" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
         <Link href={downloadLink("tsv")} download={downloadName("tsv")} target="_self">
-          Download as TSV File
+          <Trans i18nKey="Dashboards:Download as TSV File">Download as TSV File</Trans>
         </Link>
       ) : (
-        "Download as TSV File"
+        <Trans i18nKey="Dashboards:Download as TSV File">Download as TSV File</Trans>
       )}
     </Menu.Item>,
     <Menu.Item key="download_excel" disabled={isQueryResultEmpty}>
       {!isQueryResultEmpty ? (
         <Link href={downloadLink("xlsx")} download={downloadName("xlsx")} target="_self">
-          Download as Excel File
+          <Trans i18nKey="Dashboards:Download as Excel File">Download as Excel File</Trans>
         </Link>
       ) : (
-        "Download as Excel File"
+        <Trans i18nKey="Dashboards:Download as Excel File">Download as Excel File</Trans>
       )}
     </Menu.Item>,
     (canViewQuery || canEditParameters) && <Menu.Divider key="divider" />,
     canViewQuery && (
       <Menu.Item key="view_query">
-        <Link href={widget.getQuery().getUrl(true, widget.visualization.id)}>View Query</Link>
+        <Link href={widget.getQuery().getUrl(true, widget.visualization.id)}>
+          <Trans i18nKey="Dashboards:View Query">View Query</Trans>
+        </Link>
       </Menu.Item>
     ),
     canEditParameters && (
       <Menu.Item key="edit_parameters" onClick={onParametersEdit}>
-        Edit Parameters
+        <Trans i18nKey="Dashboards:Edit_Parameters">Edit Parameters</Trans>
       </Menu.Item>
     ),
   ]);
@@ -77,7 +83,7 @@ function RefreshIndicator({ refreshStartedAt }) {
     <div className="refresh-indicator">
       <div className="refresh-icon">
         <i className="zmdi zmdi-refresh zmdi-hc-spin" aria-hidden="true" />
-        <span className="sr-only">Refreshing...</span>
+        <span className="sr-only">{i18next.t("Dashboards:Refreshing...")}</span>
       </div>
       <Timer from={refreshStartedAt} />
     </div>
@@ -166,7 +172,9 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
             data-test="RefreshButton">
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} aria-hidden="true" />
             <span className="sr-only">
-              {refreshClickButtonId === 1 ? "Refreshing, please wait. " : "Press to refresh. "}
+              {refreshClickButtonId === 1
+                ? i18next.t("Dashboards:Refreshing, please wait. ")
+                : i18next.t("Dashboards:Press to refresh. ")}
             </span>{" "}
             <TimeAgo date={updatedAt} />
           </PlainButton>
@@ -187,7 +195,9 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
             onClick={() => refreshWidget(2)}>
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 2 })} aria-hidden="true" />
             <span className="sr-only">
-              {refreshClickButtonId === 2 ? "Refreshing, please wait." : "Press to refresh."}
+              {refreshClickButtonId === 2
+                ? i18next.t("Dashboards:Refreshing, please wait.")
+                : i18next.t("Dashboards:Press to refresh.")}
             </span>
           </PlainButton>
         )}
@@ -283,7 +293,7 @@ class VisualizationWidget extends React.Component {
           <div className="body-row-auto scrollbox">
             {widgetQueryResult.getError() && (
               <div className="alert alert-danger m-5">
-                Error running query: <strong>{widgetQueryResult.getError()}</strong>
+                {i18next.t("Dashboards:Error running query")}: <strong>{widgetQueryResult.getError()}</strong>
               </div>
             )}
           </div>
@@ -309,7 +319,7 @@ class VisualizationWidget extends React.Component {
             aria-relevant="additions removals">
             <div className="spinner">
               <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" aria-hidden="true" />
-              <span className="sr-only">Loading...</span>
+              <span className="sr-only">{i18next.t("Loading...")}</span>
             </div>
           </div>
         );

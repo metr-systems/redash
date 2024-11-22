@@ -1,3 +1,18 @@
 {
-  "Close": "Schließen"
+  "Save": "Speichern",
+  "Close": "Schließen",
+  "Edit": "Bearbeiten",
+  "Loading...": "Lädt...",
+  "Delete": "Löschen",
+  "Archive": "Archivieren",
+  "Fork": "Abzweigen",
+  "(opens in a new tab)": "(öffnet in einem neuen Tab)",
+  "Manage Permissions": "Berechtigungen verwalten",
+  "Unpublish": "Veröffentlichung aufheben",
+  "More actions": "Weitere Aktionen",
+  "Unarchive": "Archivierung aufheben",
+  "Publish": "Veröffentlichen",
+  "Name": "Name",
+  "Created At": "Erstellt am",
+  "Powered by": "Betrieben von"
 }

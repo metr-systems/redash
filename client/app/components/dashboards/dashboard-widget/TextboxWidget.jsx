@@ -2,11 +2,15 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { markdown } from "markdown";
 import Menu from "antd/lib/menu";
+
+import { useTranslation } from "react-i18next";
+
 import HtmlContent from "@redash/viz/lib/components/HtmlContent";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import Widget from "./Widget";
 
 function TextboxWidget(props) {
+  const { t } = useTranslation();
   const { widget, canEdit } = props;
   const [text, setText] = useState(widget.text);
 
@@ -22,7 +26,7 @@ function TextboxWidget(props) {
 
   const TextboxMenuOptions = [
     <Menu.Item key="edit" onClick={editTextBox}>
-      Edit
+      {t("Edit")}
     </Menu.Item>,
   ];
 

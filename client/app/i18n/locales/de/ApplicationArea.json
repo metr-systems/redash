@@ -1,0 +1,25 @@
+{
+  "Dashboard navigation button": "Dashboard-Navigationsschaltfläche",
+  "Dashboards": "Dashboards",
+  "Queries navigation button": "Abfragen-Navigationsschaltfläche",
+  "Queries": "Abfragen",
+  "Alerts navigation button": "Benachrichtigungen-Navigationsschaltfläche",
+  "Alerts": "Benachrichtigungen",
+  "Create": "Erstellen",
+  "New Query": "Neue Abfrage",
+  "New Dashboard": "Neues Dashboard",
+  "New Alert": "Neue Benachrichtigung",
+  "Help": "Hilfe",
+  "Settings": "Einstellungen",
+  "Profile": "Profil",
+  "System Status": "Systemstatus",
+  "Log out": "Abmelden",
+  "Edit Profile": "Profil bearbeiten",
+  "Version": "Version",
+  "It seems like the page you're looking for cannot be found.": "Es scheint, als ob die Seite, die Sie suchen, nicht gefunden werden kann.",
+  "It seems like you don’t have permission to see this page.": "Es scheint, als hätten Sie keine Berechtigung, diese Seite zu sehen.",
+  "It seems like we encountered an error. Try refreshing this page or contact your administrator.": "Es scheint, als ob ein Fehler aufgetreten ist. Versuchen Sie, diese Seite zu aktualisieren oder kontaktieren Sie Ihren Administrator.",
+  "[Uncaught SyntaxError": {
+    " Unexpected token '<'] usually means that a fallback HTML file was returned from the server rather than the expected script. Check that the server is properly serving the file {{filename}}.": ""
+  }
+}

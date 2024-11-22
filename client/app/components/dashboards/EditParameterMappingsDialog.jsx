@@ -2,6 +2,9 @@ import { isMatch, map, find, sortBy } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
+
+import i18next from "i18next";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import {
   MappingType,
@@ -32,7 +35,7 @@ export function getParamValuesSnapshot(mappings, dashboardParameters) {
   );
 }
 
-class EditParameterMappingsDialog extends React.Component {
+export default class EditParameterMappingsDialog extends React.Component {
   static propTypes = {
     dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
     widget: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
@@ -63,6 +66,7 @@ class EditParameterMappingsDialog extends React.Component {
 
   saveWidget() {
     const widget = this.props.widget;
+    const t = this.props.t;
 
     this.setState({ saveInProgress: true });
 
@@ -84,7 +88,7 @@ class EditParameterMappingsDialog extends React.Component {
         this.props.dialog.close(valuesChanged);
       })
       .catch(() => {
-        notification.error("Widget cannot be updated");
+        notification.error(i18next.t("Dashboards:Widget cannot be updated"));
       })
       .finally(() => {
         this.setState({ saveInProgress: false });
@@ -100,7 +104,7 @@ class EditParameterMappingsDialog extends React.Component {
     return (
       <Modal
         {...dialog.props}
-        title="Parameters"
+        title={i18next.t("Dashboards:Parameters")}
         onOk={() => this.saveWidget()}
         okButtonProps={{ loading: this.state.saveInProgress }}
         width={700}>
@@ -116,4 +120,3 @@ class EditParameterMappingsDialog extends React.Component {
   }
 }
 
-export default wrapDialog(EditParameterMappingsDialog);
