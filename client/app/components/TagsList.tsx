@@ -2,6 +2,9 @@ import { map, includes, difference } from "lodash";
 import React, { useState, useCallback, useEffect } from "react";
 import Badge from "antd/lib/badge";
 import Menu from "antd/lib/menu";
+
+import i18next from "i18next";
+
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import getTags from "@/services/getTags";
 import PlainButton from "@/components/PlainButton";
@@ -82,7 +85,7 @@ function TagsList({ tagsUrl, showUnselectAll = false, onUpdate }: TagsListProps)
         {showUnselectAll && selectedTags.length > 0 && (
           <PlainButton type="link" onClick={unselectAll}>
             <CloseOutlinedIcon />
-            clear selection
+            {i18next.t("Tags:clear selection")}
           </PlainButton>
         )}
       </div>

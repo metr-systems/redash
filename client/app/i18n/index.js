@@ -16,6 +16,9 @@ import Home_de from "/client/app/i18n/locales/de/Home.json";
 import Dashboards_en from "/client/app/i18n/locales/en/Dashboards.json";
 import Dashboards_de from "/client/app/i18n/locales/de/Dashboards.json";
 
+import Tags_en from "/client/app/i18n/locales/en/Tags.json";
+import Tags_de from "/client/app/i18n/locales/de/Tags.json";
+
 i18n.use(initReactI18next).init({
   debug: true,
   resources: {
@@ -25,6 +28,7 @@ i18n.use(initReactI18next).init({
       ApplicationArea: ApplicationArea_en,
       Home: Home_en,
       Dashboards: Dashboards_en,
+      Tags: Tags_en,
     },
     de: {
       common: common_de,
@@ -32,13 +36,14 @@ i18n.use(initReactI18next).init({
       ApplicationArea: ApplicationArea_de,
       Home: Home_de,
       Dashboards: Dashboards_de,
+      Tags: Tags_de,
     },
   },
   lng: "de",
   fallbackLng: "de",
   preload: ["en", "de"],
   keySeparator: ":",
-  ns: ["common", "EmptyState", "ApplicationArea", "Home", "Dashboards"],
+  ns: ["common", "EmptyState", "ApplicationArea", "Home", "Dashboards", "Tags"],
   defaultNS: "common",
   interpolation: {
     escapeValue: false,
