@@ -42,6 +42,8 @@ function EditTagsDialog({ dialog, tags, getAvailableTags }) {
       {...dialog.props}
       onOk={() => dialog.close(values)}
       title={t("Add/Edit Tags")}
+      cancelText={t("common:Cancel")}
+      okText={t("common:Save")}
       className="shortModal"
       wrapProps={{ "data-test": "EditTagsDialog" }}>
       <Select

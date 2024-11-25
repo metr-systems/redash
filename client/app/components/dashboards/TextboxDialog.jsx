@@ -52,6 +52,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
         title: t("Dashboards:Quit editing?"),
         content: t("Dashboards:Changes you made so far will not be saved. Are you sure?"),
         okText: t("Dashboards:Yes, quit"),
+        cancelText: t("Cancel"),
         okType: "danger",
         onOk: () => dialog.dismiss(),
         maskClosable: true,

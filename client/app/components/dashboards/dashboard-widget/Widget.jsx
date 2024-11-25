@@ -126,7 +126,8 @@ class Widget extends React.Component {
     Modal.confirm({
       title: i18next.t("Dashboards:Delete Widget"),
       content: i18next.t("Dashboards:Are you sure you want to remove this widget from the dashboard?"),
-      okText: i18next.t("common:Delete"), // so that it will be in translation.json
+      okText: i18next.t("common:Delete"),
+      cancelText: i18next.t("common:Cancel"),
       okType: "danger",
       onOk: () => widget.delete().then(onDelete),
       maskClosable: true,
