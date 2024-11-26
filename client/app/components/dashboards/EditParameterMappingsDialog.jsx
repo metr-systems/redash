@@ -66,7 +66,6 @@ class EditParameterMappingsDialog extends React.Component {
 
   saveWidget() {
     const widget = this.props.widget;
-    const t = this.props.t;
 
     this.setState({ saveInProgress: true });
 
