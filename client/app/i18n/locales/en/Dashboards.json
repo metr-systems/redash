@@ -74,5 +74,10 @@
   "Dashboards": "",
   "Favorite Dashboards": "",
   "Use Dashboard Level Filters": "",
-  "Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.": ""
+  "Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.": "",
+  "Dashboard update failed": "",
+  "Permission Denied.": "",
+  "It seems like the dashboard has been modified by another user. ": "",
+  "Please copy/backup your changes and reload this page.": "",
+  "Error saving changes.": ""
 }

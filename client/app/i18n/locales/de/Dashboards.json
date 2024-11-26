@@ -74,5 +74,10 @@
   "Dashboards": "Dashboards",
   "Favorite Dashboards": "",
   "Use Dashboard Level Filters": "Verwenden Sie Dashboard-Filter",
-  "Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.": "Widgets sind einzelne Abfragevisualisierungen oder Textfelder, die Sie in verschiedenen Anordnungen auf Ihrem Dashboard platzieren können."
+  "Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.": "Widgets sind einzelne Abfragevisualisierungen oder Textfelder, die Sie in verschiedenen Anordnungen auf Ihrem Dashboard platzieren können.",
+  "Dashboard update failed": "Dashboard-Aktualisierung fehlgeschlagen",
+  "Permission Denied.": "Zugriff verweigert.",
+  "It seems like the dashboard has been modified by another user. ": "Es scheint, dass das Dashboard von einem anderen Benutzer geändert wurde.",
+  "Please copy/backup your changes and reload this page.": "Bitte kopieren/backupen Sie Ihre Änderungen und laden Sie diese Seite neu.",
+  "Error saving changes.": "Fehler beim Speichern der Änderungen."
 }
