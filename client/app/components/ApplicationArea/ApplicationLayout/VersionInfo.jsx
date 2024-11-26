@@ -1,6 +1,6 @@
 import React from "react";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import { clientConfig } from "@/services/auth";
 import frontendVersion from "@/version.json";

@@ -7,7 +7,7 @@ import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
 import Alert from "antd/lib/alert";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import notification from "@/services/notification";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
@@ -46,7 +46,8 @@ class ShareDashboardDialog extends React.Component {
       <React.Fragment>
         {i18next.t("Dashboards:Share Dashboard")}
         <div className="modal-header-desc">
-          {i18next.t("Dashboards:Allow public access to this dashboard with a secret address.")} <HelpTrigger type="SHARE_DASHBOARD" />
+          {i18next.t("Dashboards:Allow public access to this dashboard with a secret address.")}{" "}
+          <HelpTrigger type="SHARE_DASHBOARD" />
         </div>
       </React.Fragment>
     );
@@ -105,7 +106,9 @@ class ShareDashboardDialog extends React.Component {
           {!hasOnlySafeQueries && (
             <Form.Item>
               <Alert
-                message={i18next.t("Dashboards:For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type.")}
+                message={i18next.t(
+                  "Dashboards:For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
+                )}
                 type="error"
               />
             </Form.Item>
@@ -130,6 +133,5 @@ class ShareDashboardDialog extends React.Component {
     );
   }
 }
-
 
 export default wrapDialog(ShareDashboardDialog);

@@ -54,7 +54,9 @@ function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
       <h2>
         <i className="zmdi zmdi-widgets" aria-hidden="true" />
         <span className="hidden-xs hidden-sm">
-          {t("Dashboards:Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.")}
+          {t(
+            "Dashboards:Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements."
+          )}
         </span>
       </h2>
       <div>
@@ -156,7 +158,7 @@ function DashboardComponent(props) {
           widgets={dashboard.widgets}
           filters={filters}
           editedlayoutsOrder={editedlayoutsOrder}
-          setEditedlayoutsOrder= {setEditedlayoutsOrder}
+          setEditedlayoutsOrder={setEditedlayoutsOrder}
           isEditing={editingLayout}
           onLayoutChange={editingLayout ? saveDashboardLayout : () => {}}
           onBreakpointChange={setGridDisabled}

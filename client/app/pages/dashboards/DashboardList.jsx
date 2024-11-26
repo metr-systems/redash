@@ -3,7 +3,7 @@ import cx from "classnames";
 
 import Button from "antd/lib/button";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
