@@ -113,7 +113,7 @@ class ShareDashboardDialog extends React.Component {
               />
             </Form.Item>
           )}
-          // TODO translate labels here
+
           <Form.Item label={i18next.t("Dashboards:Allow public access")} {...this.formItemProps}>
             <Switch
               checked={dashboard.publicAccessEnabled}
