@@ -51,6 +51,7 @@ from redash.handlers.groups import (
     GroupMemberResource,
     GroupResource,
 )
+from redash.handlers.metr_widgets import MetrWidgetTagsResource
 from redash.handlers.permissions import (
     CheckPermissionResource,
     ObjectPermissionsListResource,
@@ -93,7 +94,6 @@ from redash.handlers.visualizations import (
     VisualizationResource,
 )
 from redash.handlers.widgets import WidgetListResource, WidgetResource
-from redash.handlers.metr_widgets import MetrWidgetTagsResource
 from redash.utils import json_dumps
 
 
