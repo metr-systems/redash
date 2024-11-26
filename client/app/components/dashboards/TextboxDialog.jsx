@@ -71,6 +71,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
       onOk={saveWidget}
       onCancel={confirmDialogDismiss}
       okText={isNew ? t("Dashboards:Add to Dashboard") : t("Save")}
+      cancelText={t("Cancel")}
       width={500}
       wrapProps={{ "data-test": "TextboxDialog" }}>
       <div className="textbox-dialog">
