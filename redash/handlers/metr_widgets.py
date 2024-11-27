@@ -1,13 +1,10 @@
-
 from flask import request
 
 from redash import models
 from redash.handlers.base import BaseResource
-from redash.permissions import (
-    require_object_modify_permission,
-    require_permission
-)
+from redash.permissions import require_object_modify_permission, require_permission
 from redash.serializers import serialize_widget
+
 
 class MetrWidgetTagsResource(BaseResource):
     """
@@ -23,8 +20,8 @@ class MetrWidgetTagsResource(BaseResource):
         widget_properties = request.get_json(force=True)
         tags = widget_properties["tags"]
 
-        metr_widget=widget.metr_widget
-        if not metr_widget :
+        metr_widget = widget.metr_widget
+        if not metr_widget:
             metr_widget = models.metrWidget(widget=widget)
 
         metr_widget.tags = tags
