@@ -40,7 +40,7 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
 }
 
 function useDashboard(dashboardData) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("Dashboards");
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -87,11 +87,11 @@ function useDashboard(dashboardData) {
         .catch(error => {
           const status = get(error, "response.status");
           if (status === 403) {
-            notification.error(t("Dashboards:Dashboard update failed"), t("Dashboards:Permission Denied."));
+            notification.error(t("Dashboard update failed"), t("Permission Denied."));
           } else if (status === 409) {
             notification.error(
-              t("Dashboards:It seems like the dashboard has been modified by another user. "),
-              t("Dashboards:Please copy/backup your changes and reload this page."),
+              t("It seems like the dashboard has been modified by another user. "),
+              t("Please copy/backup your changes and reload this page."),
               { duration: null }
             );
           }

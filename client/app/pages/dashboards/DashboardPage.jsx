@@ -28,7 +28,7 @@ import DashboardHeader from "./components/DashboardHeader";
 import "./DashboardPage.less";
 
 function DashboardSettings({ dashboardConfiguration }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("Dashboards");
   const { dashboard, updateDashboard } = dashboardConfiguration;
   return (
     <div className="m-b-10 p-15 bg-white tiled">
@@ -36,7 +36,7 @@ function DashboardSettings({ dashboardConfiguration }) {
         checked={!!dashboard.dashboard_filters_enabled}
         onChange={({ target }) => updateDashboard({ dashboard_filters_enabled: target.checked })}
         data-test="DashboardFiltersCheckbox">
-        {t("Dashboards:Use Dashboard Level Filters")}
+        {t("Use Dashboard Level Filters")}
       </Checkbox>
     </div>
   );
@@ -47,7 +47,7 @@ DashboardSettings.propTypes = {
 };
 
 function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
-  const { t } = useTranslation();
+  const { t } = useTranslation("Dashboards");
   const { showAddTextboxDialog, showAddWidgetDialog } = dashboardConfiguration;
   return (
     <div className={cx("add-widget-container", className)} {...props}>
@@ -55,16 +55,16 @@ function AddWidgetContainer({ dashboardConfiguration, className, ...props }) {
         <i className="zmdi zmdi-widgets" aria-hidden="true" />
         <span className="hidden-xs hidden-sm">
           {t(
-            "Dashboards:Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements."
+            "Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements."
           )}
         </span>
       </h2>
       <div>
         <Button className="m-r-15" onClick={showAddTextboxDialog} data-test="AddTextboxButton">
-          {t("Dashboards:Add Textbox")}
+          {t("Add Textbox")}
         </Button>
         <Button type="primary" onClick={showAddWidgetDialog} data-test="AddWidgetButton">
-          {t("Dashboards:Add Widget")}
+          {t("Add Widget")}
         </Button>
       </div>
     </div>
