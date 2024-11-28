@@ -59,7 +59,7 @@ function WidgetDeleteButton({ onClick }) {
         title={i18next.t("Dashboards:Remove From Dashboard")}
         onClick={onClick}
         data-test="WidgetDeleteButton"
-        aria-label={i18next.t("Close")}>
+        aria-label={i18next.t("common:Close")}>
         <i className="zmdi zmdi-close" aria-hidden="true" />
       </PlainButton>
     </div>

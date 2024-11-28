@@ -191,7 +191,7 @@ routes.register(
   "Dashboards.Favorites",
   routeWithUserSession({
     path: "/dashboards/favorites",
-    title: i18next.t("Dashboards:Favorite Dashboards"),
+    title: i18next.t("Favorite Dashboards"),
     render: pageProps => <DashboardListPage {...pageProps} currentPage="favorites" />,
   })
 );

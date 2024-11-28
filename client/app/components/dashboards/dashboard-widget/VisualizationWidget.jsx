@@ -173,8 +173,8 @@ function VisualizationWidgetFooter({ widget, isPublic, onRefresh, onExpand }) {
             <i className={cx("zmdi zmdi-refresh", { "zmdi-hc-spin": refreshClickButtonId === 1 })} aria-hidden="true" />
             <span className="sr-only">
               {refreshClickButtonId === 1
-                ? i18next.t("Dashboards:Refreshing, please wait. ")
-                : i18next.t("Dashboards:Press to refresh. ")}
+                ? i18next.t("Dashboards:Refreshing, please wait.")
+                : i18next.t("Dashboards:Press to refresh.")}
             </span>{" "}
             <TimeAgo date={updatedAt} />
           </PlainButton>
