@@ -9,6 +9,13 @@
   "Searching...": "",
   "Unpublished": "",
   "Archived": "",
+  "Never": "",
+  "second": "",
+  "minute": "",
+  "hour": "",
+  "day": "",
+  "week": "",
+  "millisecond": "",
   "Archive": "",
   "Fork": "",
   "(opens in a new tab)": "",
@@ -20,5 +27,11 @@
   "Name": "",
   "Created At": "",
   "Favorite Dashboards": "",
-  "Powered by": ""
+  "Powered by": "",
+  "second_plural": "Seconds",
+  "minute_plural": "Minutes",
+  "hour_plural": "Hours",
+  "day_plural": "Days",
+  "week_plural": "Weeks",
+  "millisecond_plural": "Milliseconds"
 }
