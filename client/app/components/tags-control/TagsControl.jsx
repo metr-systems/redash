@@ -53,7 +53,7 @@ export class TagsControl extends React.Component {
           <>
             <i className="zmdi zmdi-edit" aria-hidden="true" />
             <span className="sr-only">
-              <Trans i18nKey="Add tag">Edit</Trans>
+              <Trans i18nKey="Edit">Edit</Trans>
             </span>
           </>
         )}
