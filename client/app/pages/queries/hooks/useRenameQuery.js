@@ -1,9 +1,13 @@
 import { useCallback } from "react";
 import useUpdateQuery from "./useUpdateQuery";
+
+import { useTranslation } from "react-i18next";
+
 import recordEvent from "@/services/recordEvent";
 import { clientConfig } from "@/services/auth";
 
 export default function useRenameQuery(query, onChange) {
+  const { t } = useTranslation("Queries");
   const updateQuery = useUpdateQuery(query, onChange);
 
   return useCallback(
@@ -14,7 +18,7 @@ export default function useRenameQuery(query, onChange) {
 
       if (query.is_draft && clientConfig.autoPublishNamedQueries && name !== "New Query") {
         changes.is_draft = false;
-        options.successMessage = "Query saved and published";
+        options.successMessage = t("Query saved and published");
       }
 
       updateQuery(changes, options);

@@ -5,6 +5,9 @@ import cx from "classnames";
 import { useDebouncedCallback } from "use-debounce";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
+
+import { useTranslation } from "i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
 import Parameters from "@/components/Parameters";
@@ -191,6 +194,7 @@ function QuerySource(props) {
   const editVisualization = useEditVisualizationDialog(query, queryResult, newQuery => setQuery(newQuery));
   const deleteVisualization = useDeleteVisualization(query, setQuery);
 
+  const { t } = useTranslation("Queries");
   return (
     <div className={cx("query-page-wrapper", { "query-fixed-layout": !isMobile })}>
       <QuerySourceAlerts query={query} dataSourcesAvailable={!dataSourcesLoaded || dataSources.length > 0} />
@@ -237,7 +241,7 @@ function QuerySource(props) {
                   isEditable={queryFlags.canEdit}
                   markdown
                   ignoreBlanks={false}
-                  placeholder="Add description"
+                  placeholder={t("Add description")}
                   value={query.description}
                   onDone={updateQueryDescription}
                   multiline
@@ -270,14 +274,14 @@ function QuerySource(props) {
 
                     <QueryEditor.Controls
                       addParameterButtonProps={{
-                        title: "Add New Parameter",
+                        title: t("Add New Parameter"),
                         shortcut: "mod+p",
                         onClick: openAddNewParameterDialog,
                       }}
                       formatButtonProps={{
                         title: isFormatQueryAvailable
-                          ? "Format Query"
-                          : "Query formatting is not supported for your Data Source syntax",
+                          ? t("Format Query")
+                          : t("Query formatting is not supported for your Data Source syntax"),
                         disabled: !dataSource || !isFormatQueryAvailable,
                         shortcut: isFormatQueryAvailable ? "mod+shift+f" : null,
                         onClick: formatQuery,
@@ -286,7 +290,7 @@ function QuerySource(props) {
                         queryFlags.canEdit && {
                           text: (
                             <React.Fragment>
-                              <span className="hidden-xs">Save</span>
+                              <span className="hidden-xs">{t("Save")}</span>
                               {isDirty && !isQuerySaving ? "*" : null}
                             </React.Fragment>
                           ),
@@ -300,7 +304,9 @@ function QuerySource(props) {
                         shortcut: "mod+enter, alt+enter, ctrl+enter, shift+enter",
                         onClick: doExecuteQuery,
                         text: (
-                          <span className="hidden-xs">{selectedText === null ? "Execute" : "Execute Selected"}</span>
+                          <span className="hidden-xs">
+                            {selectedText === null ? i18next.t("Execute") : i18next.t("Execute Selected")}
+                          </span>
                         ),
                       }}
                       autocompleteToggleProps={{
@@ -368,7 +374,7 @@ function QuerySource(props) {
                 <React.Fragment>
                   {queryResultData.log.length > 0 && (
                     <div className="query-results-log">
-                      <p>Log Information:</p>
+                      <p>{t("Log Information")}:</p>
                       {map(queryResultData.log, (line, index) => (
                         <p key={`log-line-${index}`} className="query-log-line">
                           {line}
@@ -393,7 +399,7 @@ function QuerySource(props) {
                           loading={isQueryExecuting}
                           onClick={doExecuteQuery}>
                           {!isQueryExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
-                          Refresh Now
+                          {t("Refresh Now")}
                         </Button>
                       }
                     />

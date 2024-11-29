@@ -4,6 +4,8 @@ import cx from "classnames";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
 
+import { useTranslation } from "react-i18next";
+
 import FullscreenOutlinedIcon from "@ant-design/icons/FullscreenOutlined";
 import FullscreenExitOutlinedIcon from "@ant-design/icons/FullscreenExitOutlined";
 
@@ -41,6 +43,7 @@ import useFullscreenHandler from "../../lib/hooks/useFullscreenHandler";
 import "./QueryView.less";
 
 function QueryView(props) {
+  const { t } = useTranslation("Queries");
   const [query, setQuery] = useState(props.query);
   const [dataSource, setDataSource] = useState();
   const queryFlags = useQueryFlags(query, dataSource);
@@ -125,7 +128,7 @@ function QueryView(props) {
             !fullscreen && (
               <PlainButton className="label label-tag hidden-xs" role="none" onClick={() => setAddingDescription(true)}>
                 <i className="zmdi zmdi-plus m-r-5" aria-hidden="true" />
-                Add description
+                {t("Add description")}
               </PlainButton>
             )
           }
@@ -138,7 +141,7 @@ function QueryView(props) {
               isEditable={queryFlags.canEdit}
               onDone={updateQueryDescription}
               onStopEditing={() => setAddingDescription(false)}
-              placeholder="Add description"
+              placeholder={t("Add description")}
               ignoreBlanks={false}
               editorProps={{ autoSize: { minRows: 2, maxRows: 4 } }}
               defaultEditing={addingDescription}
@@ -179,7 +182,7 @@ function QueryView(props) {
                     loading={isExecuting}
                     onClick={doExecuteQuery}>
                     {!isExecuting && <i className="zmdi zmdi-refresh m-r-5" aria-hidden="true" />}
-                    Refresh Now
+                    {t("Refresh Now")}
                   </Button>
                 )
               }
@@ -198,7 +201,7 @@ function QueryView(props) {
                 extraActions={
                   <QueryViewButton
                     className="icon-button m-r-5 hidden-xs"
-                    title="Toggle Fullscreen"
+                    title={t("Toggle Fullscreen")}
                     type="default"
                     shortcut="alt+f"
                     onClick={toggleFullscreen}>

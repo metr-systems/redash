@@ -3,32 +3,36 @@ import React from "react";
 import PropTypes from "prop-types";
 import Alert from "antd/lib/alert";
 import Button from "antd/lib/button";
+
+import { useTranslation } from "react-i18next";
+
 import Timer from "@/components/Timer";
 
 export default function QueryExecutionStatus({ status, updatedAt, error, isCancelling, onCancel }) {
+  const { t } = useTranslation("Queries");
   const alertType = status === "failed" ? "error" : "info";
   const showTimer = status !== "failed" && updatedAt;
   const isCancelButtonAvailable = includes(["waiting", "processing"], status);
-  let message = isCancelling ? <React.Fragment>Cancelling&hellip;</React.Fragment> : null;
+  let message = isCancelling ? <React.Fragment>{t("Cancelling")}&hellip;</React.Fragment> : null;
 
   switch (status) {
     case "waiting":
       if (!isCancelling) {
-        message = <React.Fragment>Query in queue&hellip;</React.Fragment>;
+        message = <React.Fragment>{t("Query in queue")}&hellip;</React.Fragment>;
       }
       break;
     case "processing":
       if (!isCancelling) {
-        message = <React.Fragment>Executing query&hellip;</React.Fragment>;
+        message = <React.Fragment>{t("Executing query")}&hellip;</React.Fragment>;
       }
       break;
     case "loading-result":
-      message = <React.Fragment>Loading results&hellip;</React.Fragment>;
+      message = <React.Fragment>{t("Loading results")}&hellip;</React.Fragment>;
       break;
     case "failed":
       message = (
         <React.Fragment>
-          Error running query: <strong>{error}</strong>
+          {t("Error running query")}: <strong>{error}</strong>
         </React.Fragment>
       );
       break;
@@ -47,7 +51,7 @@ export default function QueryExecutionStatus({ status, updatedAt, error, isCance
           <div>
             {isCancelButtonAvailable && (
               <Button className="m-l-10" type="primary" size="small" disabled={isCancelling} onClick={onCancel}>
-                Cancel
+                {t("Cancel")}
               </Button>
             )}
           </div>

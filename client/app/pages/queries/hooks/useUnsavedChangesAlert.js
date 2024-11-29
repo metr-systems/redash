@@ -1,13 +1,19 @@
 import { useRef, useEffect } from "react";
+
+import { useTranslation } from "react-i18next";
+
 import location from "@/services/location";
 
 export default function useUnsavedChangesAlert(shouldShowAlert = false) {
+  const { t } = useTranslation("Queries");
   const shouldShowAlertRef = useRef();
   shouldShowAlertRef.current = shouldShowAlert;
 
   useEffect(() => {
-    const unloadMessage = "You will lose your changes if you leave";
-    const confirmMessage = `${unloadMessage}\n\nAre you sure you want to leave this page?`;
+    const unloadMessage = i18next.t("You will lose your changes if you leave");
+    const confirmMessage = t("{{unloadMessage}}\n\nAre you sure you want to leave this page?", {
+      unloadMessage: unloadMessage,
+    });
     // store original handler (if any)
     const savedOnBeforeUnload = window.onbeforeunload;
 
