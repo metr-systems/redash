@@ -28,10 +28,10 @@
   "Created At": "",
   "Favorite Dashboards": "",
   "Powered by": "",
-  "second_plural": "Seconds",
-  "minute_plural": "Minutes",
-  "hour_plural": "Hours",
-  "day_plural": "Days",
-  "week_plural": "Weeks",
-  "millisecond_plural": "Milliseconds"
+  "second_plural": "seconds",
+  "minute_plural": "minutes",
+  "hour_plural": "hours",
+  "day_plural": "days",
+  "week_plural": "weeks",
+  "millisecond_plural": "milliseconds"
 }
