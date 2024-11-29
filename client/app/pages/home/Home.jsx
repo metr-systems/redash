@@ -2,6 +2,9 @@ import { includes } from "lodash";
 import React, { useEffect } from "react";
 
 import Alert from "antd/lib/alert";
+
+import { Trans, useTranslation } from "react-i18next";
+
 import Link from "@/components/Link";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
@@ -19,19 +22,22 @@ import { DashboardAndQueryFavoritesList } from "./components/FavoritesList";
 import "./Home.less";
 
 function DeprecatedEmbedFeatureAlert() {
+  const { t } = useTranslation("Home");
   return (
     <Alert
       className="m-b-15"
       type="warning"
       message={
         <>
-          You have enabled <code>ALLOW_PARAMETERS_IN_EMBEDS</code>. This setting is now deprecated and should be turned
-          off. Parameters in embeds are supported by default.{" "}
+          <Trans i18nKey="deprecated_embed_feature_alert">
+            You have enabled <code>ALLOW_PARAMETERS_IN_EMBEDS</code>. This setting is now deprecated and should be
+            turned off. Parameters in embeds are supported by default.
+          </Trans>{" "}
           <Link
             href="https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337"
             target="_blank"
             rel="noopener noreferrer">
-            Read more
+            {t("Read more")}
           </Link>
           .
         </>
@@ -41,6 +47,7 @@ function DeprecatedEmbedFeatureAlert() {
 }
 
 function EmailNotVerifiedAlert() {
+  const { t } = useTranslation("Home");
   const verifyEmail = () => {
     axios.post("verification_email/").then(data => {
       notification.success(data.message);
@@ -53,10 +60,12 @@ function EmailNotVerifiedAlert() {
       type="warning"
       message={
         <>
-          We have sent an email with a confirmation link to your email address. Please follow the link to verify your
-          email address.{" "}
+          <Trans i18nKey="email_not_verified_alert">
+            We have sent an email with a confirmation link to your email address. Please follow the link to verify your
+            email address.
+          </Trans>{" "}
           <PlainButton type="link" onClick={verifyEmail}>
-            Resend email
+            {t("Resend email")}
           </PlainButton>
           .
         </>
@@ -66,6 +75,7 @@ function EmailNotVerifiedAlert() {
 }
 
 export default function Home() {
+  const { t } = useTranslation("Home");
   useEffect(() => {
     recordEvent("view", "page", "personal_homepage");
   }, []);
@@ -77,8 +87,8 @@ export default function Home() {
         {includes(messages, "email-not-verified") && <EmailNotVerifiedAlert />}
         <DynamicComponent name="Home.EmptyState">
           <EmptyState
-            header="Welcome to Redash 👋"
-            description="Connect to any data source, easily visualize and share your data"
+            header={t("Welcome to Redash 👋")}
+            description={t("Connect to any data source, easily visualize and share your data")}
             illustration="dashboard"
             helpMessage={<EmptyStateHelpMessage helpTriggerType="GETTING_STARTED" />}
             showDashboardStep

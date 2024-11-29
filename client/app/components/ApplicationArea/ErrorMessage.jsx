@@ -3,23 +3,28 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import "./ErrorMessage.less";
+
+import i18next from "i18next";
+
 import DynamicComponent from "@/components/DynamicComponent";
 import { ErrorMessageDetails } from "@/components/ApplicationArea/ErrorMessageDetails";
 
 function getErrorMessageByStatus(status, defaultMessage) {
   switch (status) {
     case 404:
-      return "It seems like the page you're looking for cannot be found.";
+      return i18next.t("ApplicationArea:It seems like the page you're looking for cannot be found.");
     case 401:
     case 403:
-      return "It seems like you don’t have permission to see this page.";
+      return i18next.t("ApplicationArea:It seems like you don’t have permission to see this page.");
     default:
       return defaultMessage;
   }
 }
 
 function getErrorMessage(error) {
-  const message = "It seems like we encountered an error. Try refreshing this page or contact your administrator.";
+  const message = i18next.t(
+    "ApplicationArea:It seems like we encountered an error. Try refreshing this page or contact your administrator."
+  );
   if (isObject(error)) {
     // HTTP errors
     if (error.isAxiosError && isObject(error.response)) {

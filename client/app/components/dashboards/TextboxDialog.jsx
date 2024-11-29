@@ -5,6 +5,9 @@ import PropTypes from "prop-types";
 import { useDebouncedCallback } from "use-debounce";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+
+import { useTranslation } from "react-i18next";
+
 import Tooltip from "@/components/Tooltip";
 import Divider from "antd/lib/divider";
 import Link from "@/components/Link";
@@ -15,6 +18,7 @@ import notification from "@/services/notification";
 import "./TextboxDialog.less";
 
 function TextboxDialog({ dialog, isNew, ...props }) {
+  const { t } = useTranslation();
   const [text, setText] = useState(toString(props.text));
   const [preview, setPreview] = useState(null);
 
@@ -37,7 +41,7 @@ function TextboxDialog({ dialog, isNew, ...props }) {
 
   const saveWidget = useCallback(() => {
     dialog.close(text).catch(() => {
-      notification.error(isNew ? "Widget could not be added" : "Widget could not be saved");
+      notification.error(isNew ? t("Dashboards:Widget could not be added") : t("Dashboards:Widget could not be saved"));
     });
   }, [dialog, isNew, text]);
 
@@ -45,9 +49,10 @@ function TextboxDialog({ dialog, isNew, ...props }) {
     const originalText = props.text;
     if (text !== originalText) {
       Modal.confirm({
-        title: "Quit editing?",
-        content: "Changes you made so far will not be saved. Are you sure?",
-        okText: "Yes, quit",
+        title: t("Dashboards:Quit editing?"),
+        content: t("Dashboards:Changes you made so far will not be saved. Are you sure?"),
+        okText: t("Dashboards:Yes, quit"),
+        cancelText: t("Cancel"),
         okType: "danger",
         onOk: () => dialog.dismiss(),
         maskClosable: true,
@@ -62,10 +67,11 @@ function TextboxDialog({ dialog, isNew, ...props }) {
   return (
     <Modal
       {...dialog.props}
-      title={isNew ? "Add Textbox" : "Edit Textbox"}
+      title={isNew ? t("Dashboards:Add Textbox") : t("Dashboards:Edit Textbox")}
       onOk={saveWidget}
       onCancel={confirmDialogDismiss}
-      okText={isNew ? "Add to Dashboard" : "Save"}
+      okText={isNew ? t("Dashboards:Add to Dashboard") : t("Save")}
+      cancelText={t("Cancel")}
       width={500}
       wrapProps={{ "data-test": "TextboxDialog" }}>
       <div className="textbox-dialog">
@@ -73,25 +79,25 @@ function TextboxDialog({ dialog, isNew, ...props }) {
           className="resize-vertical"
           rows="5"
           value={text}
-          aria-label="Textbox widget content"
+          aria-label={t("Dashboards:Textbox widget content")}
           onChange={handleInputChange}
           autoFocus
-          placeholder="This is where you write some text"
+          placeholder={t("Dashboards:This is where you write some text")}
         />
         <small>
-          Supports basic{" "}
+          {t("Dashboards:Supports basic")}{" "}
           <Link
             target="_blank"
             rel="noopener noreferrer"
             href="https://www.markdownguide.org/cheat-sheet/#basic-syntax">
-            <Tooltip title="Markdown guide opens in new window">Markdown</Tooltip>
+            <Tooltip title={t("Dashboards:Markdown guide opens in new window")}>{t("Dashboards:Markdown")}</Tooltip>
           </Link>
           .
         </small>
         {text && (
           <React.Fragment>
             <Divider dashed />
-            <strong className="preview-title">Preview:</strong>
+            <strong className="preview-title">{t("Dashboards:Preview")}:</strong>
             <HtmlContent className="preview markdown">{preview}</HtmlContent>
           </React.Fragment>
         )}

@@ -5,6 +5,9 @@ import { map, includes } from "lodash";
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
+
+import { useTranslation } from "react-i18next";
+
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import Modal from "antd/lib/modal";
 import Tooltip from "@/components/Tooltip";
@@ -64,6 +67,7 @@ DashboardPageTitle.propTypes = {
 };
 
 function RefreshButton({ dashboardConfiguration }) {
+  const { t } = useTranslation();
   const { refreshRate, setRefreshRate, disableRefreshRate, refreshing, refreshDashboard } = dashboardConfiguration;
   const allowedIntervals = policy.getDashboardRefreshIntervals();
   const refreshRateOptions = clientConfig.dashboardRefreshIntervals;
@@ -78,10 +82,15 @@ function RefreshButton({ dashboardConfiguration }) {
   };
   return (
     <Button.Group>
-      <Tooltip title={refreshRate ? `Auto Refreshing every ${durationHumanize(refreshRate)}` : null}>
+      <Tooltip
+        title={
+          refreshRate
+            ? t("Dashboards:Auto Refreshing every {{duration}}", { duration: durationHumanize(refreshRate) })
+            : null
+        }>
         <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
           <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} aria-hidden="true" />
-          {refreshRate ? durationHumanize(refreshRate) : "Refresh"}
+          {refreshRate ? durationHumanize(refreshRate) : t("Dashboards:Refresh")}
         </Button>
       </Tooltip>
       <Dropdown
@@ -94,12 +103,12 @@ function RefreshButton({ dashboardConfiguration }) {
                 {durationHumanize(option)}
               </Menu.Item>
             ))}
-            {refreshRate && <Menu.Item key={null}>Disable auto refresh</Menu.Item>}
+            {refreshRate && <Menu.Item key={null}>{t("Dashboards:Disable auto refresh")}</Menu.Item>}
           </Menu>
         }>
         <Button className="icon-button hidden-xs" type={buttonType(refreshRate)}>
           <i className="fa fa-angle-down" aria-hidden="true" />
-          <span className="sr-only">Split button!</span>
+          <span className="sr-only">{t("Dashboards:Split button!")}</span>
         </Button>
       </Dropdown>
     </Button.Group>
@@ -122,12 +131,14 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
     isDuplicating,
     duplicateDashboard,
   } = dashboardConfiguration;
-
+  const { t } = useTranslation();
   const archive = () => {
     Modal.confirm({
-      title: "Archive Dashboard",
-      content: `Are you sure you want to archive the "${dashboard.name}" dashboard?`,
-      okText: "Archive",
+      title: t("Dashboards:Archive Dashboard"),
+      content: t("Dashboards:Are you sure you want to archive the {{dashboardName}} dashboard?", {
+        dashboardName: dashboard.name,
+      }),
+      okText: t("Archive"),
       okType: "danger",
       onOk: archiveDashboard,
       maskClosable: true,
@@ -142,32 +153,32 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
       overlay={
         <Menu data-test="DashboardMoreButtonMenu">
           <Menu.Item className={cx({ hidden: gridDisabled })}>
-            <PlainButton onClick={() => setEditingLayout(true)}>Edit</PlainButton>
+            <PlainButton onClick={() => setEditingLayout(true)}>{t("Edit")}</PlainButton>
           </Menu.Item>
           {!isDuplicating && dashboard.canEdit() && (
             <Menu.Item>
               <PlainButton onClick={duplicateDashboard}>
-                Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-                <span className="sr-only">(opens in a new tab)</span>
+                {t("Fork")} <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+                <span className="sr-only">{t("(opens in a new tab)")}</span>
               </PlainButton>
             </Menu.Item>
           )}
           {clientConfig.showPermissionsControl && isDashboardOwnerOrAdmin && (
             <Menu.Item>
-              <PlainButton onClick={managePermissions}>Manage Permissions</PlainButton>
+              <PlainButton onClick={managePermissions}>{t("Manage Permissions")}</PlainButton>
             </Menu.Item>
           )}
           {!clientConfig.disablePublish && !dashboard.is_draft && (
             <Menu.Item>
-              <PlainButton onClick={togglePublished}>Unpublish</PlainButton>
+              <PlainButton onClick={togglePublished}>{t("Unpublish")}</PlainButton>
             </Menu.Item>
           )}
           <Menu.Item>
-            <PlainButton onClick={archive}>Archive</PlainButton>
+            <PlainButton onClick={archive}>{t("Archive")}</PlainButton>
           </Menu.Item>
         </Menu>
       }>
-      <Button className="icon-button m-l-5" data-test="DashboardMoreButton" aria-label="More actions">
+      <Button className="icon-button m-l-5" data-test="DashboardMoreButton" aria-label={t("More actions")}>
         <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
       </Button>
     </Dropdown>
@@ -188,6 +199,7 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
     showShareDashboardDialog,
     updateDashboard,
   } = dashboardConfiguration;
+  const { t } = useTranslation();
   const showPublishButton = dashboard.is_draft;
   const showRefreshButton = true;
   const showFullscreenButton = !dashboard.is_draft;
@@ -201,35 +213,35 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
   };
   return (
     <div className="dashboard-control">
-      {dashboard.can_edit && dashboard.is_archived && <Button onClick={unarchiveDashboard}>Unarchive</Button>}
+      {dashboard.can_edit && dashboard.is_archived && <Button onClick={unarchiveDashboard}>{t("Unarchive")}</Button>}
       {!dashboard.is_archived && (
         <span className="hidden-print">
           {showPublishButton && (
             <Button className="m-r-5 hidden-xs" onClick={togglePublished}>
-              <span className="fa fa-paper-plane m-r-5" /> Publish
+              <span className="fa fa-paper-plane m-r-5" /> {t("Publish")}
             </Button>
           )}
           {showRefreshButton && <RefreshButton dashboardConfiguration={dashboardConfiguration} />}
           {showFullscreenButton && (
-            <Tooltip className="hidden-xs" title="Enable/Disable Fullscreen display">
+            <Tooltip className="hidden-xs" title={t("Dashboards:Enable/Disable Fullscreen display")}>
               <Button
                 type={buttonType(fullscreen)}
                 className="icon-button m-l-5"
                 onClick={toggleFullscreen}
-                aria-label="Toggle fullscreen display">
+                aria-label={t("Dashboards:Toggle fullscreen display")}>
                 <i className="zmdi zmdi-fullscreen" aria-hidden="true" />
               </Button>
             </Tooltip>
           )}
           {headerExtra}
           {showShareButton && (
-            <Tooltip title="Dashboard Sharing Options">
+            <Tooltip title={t("Dashboards:Dashboard Sharing Options")}>
               <Button
                 className="icon-button m-l-5"
                 type={buttonType(dashboard.publicAccessEnabled)}
                 onClick={showShareDashboardDialog}
                 data-test="OpenShareForm"
-                aria-label="Share">
+                aria-label={t("Dashboards:Share")}>
                 <i className="zmdi zmdi-share" aria-hidden="true" />
               </Button>
             </Tooltip>
@@ -247,6 +259,7 @@ DashboardControl.propTypes = {
 };
 
 function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
+  const { t } = useTranslation();
   const {
     setEditingLayout,
     doneBtnClickedWhileSaving,
@@ -255,17 +268,17 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
   } = dashboardConfiguration;
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {
-    status = <span className="save-status">Saved</span>;
+    status = <span className="save-status">{t("Dashboards:Saved")}</span>;
   } else if (dashboardStatus === DashboardStatusEnum.SAVING) {
     status = (
       <span className="save-status" data-saving>
-        Saving
+        {t("Dashboards:Saving")}
       </span>
     );
   } else {
     status = (
       <span className="save-status" data-error>
-        Saving Failed
+        {t("Dashboards:Saving Failed")}
       </span>
     );
   }
@@ -274,11 +287,12 @@ function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
       {status}
       {dashboardStatus === DashboardStatusEnum.SAVING_FAILED ? (
         <Button type="primary" onClick={retrySaveDashboardLayout}>
-          Retry
+          {t("Dashboards:Retry")}
         </Button>
       ) : (
         <Button loading={doneBtnClickedWhileSaving} type="primary" onClick={() => setEditingLayout(false)}>
-          {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" aria-hidden="true" />} Done Editing
+          {!doneBtnClickedWhileSaving && <i className="fa fa-check m-r-5" aria-hidden="true" />}{" "}
+          {t("Dashboards:Done Editing")}
         </Button>
       )}
       {headerExtra}
