@@ -2,6 +2,9 @@ import React, { useEffect, useMemo, useState, useCallback, useImperativeHandle }
 import PropTypes from "prop-types";
 import cx from "classnames";
 import { AceEditor, snippetsModule, updateSchemaCompleter } from "./ace";
+
+import i18next from "i18next";
+
 import { srNotify } from "@/lib/accessibility";
 import { SchemaItemType } from "@/components/queries/SchemaBrowser";
 import resizeObserver from "@/services/resizeObserver";
@@ -98,7 +101,7 @@ const QueryEditor = React.forwardRef(function(
     let notificationCleanup = null;
     editor.on("focus", () => {
       notificationCleanup = srNotify({
-        text: "You've entered the SQL editor. To exit press the ESC key.",
+        text: i18next.t("Queries:You've entered the SQL editor. To exit press the ESC key."),
         politeness: "assertive",
       });
     });

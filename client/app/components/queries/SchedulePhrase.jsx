@@ -1,5 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import Tooltip from "@/components/Tooltip";
 import PlainButton from "@/components/PlainButton";
 import { localizeTime, durationHumanize } from "@/lib/utils";
@@ -24,20 +27,20 @@ export default class SchedulePhrase extends React.Component {
   get content() {
     const { interval: seconds } = this.props.schedule || SchedulePhrase.defaultProps.schedule;
     if (!seconds) {
-      return ["Never"];
+      return [i18next.t("Queries:Never")];
     }
     const humanized = durationHumanize(seconds, {
       omitSingleValueNumber: true,
     });
-    const short = `Every ${humanized}`;
-    let full = `Refreshes every ${humanized}`;
+    const short = i18next.t("Queries:Every {{humanized}}", { humanized: humanized });
+    let full = i18next.t("Queries:RefreshesEvery {{humanized}}", { humanized: humanized });
 
     const { time, day_of_week: dayOfWeek } = this.props.schedule;
     if (time) {
-      full += ` at ${localizeTime(time)}`;
+      full += i18next.t("Queries:at {{time}}", {time: ` ${localizeTime(time)}`});
     }
     if (dayOfWeek) {
-      full += ` on ${dayOfWeek}`;
+      full += i18next.t("Queries:on {{day}}", { day: ` ${dayOfWeek}`});
     }
 
     return [short, full];
@@ -45,7 +48,7 @@ export default class SchedulePhrase extends React.Component {
 
   render() {
     if (this.props.isNew) {
-      return "Never";
+      return i18next.t("Queries:Never");
     }
 
     const [short, full] = this.content;

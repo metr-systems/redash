@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
 import List from "antd/lib/list";
+
+import { useTranslation } from "react-i18next";
+
 import Link from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
@@ -16,6 +19,7 @@ import useSearchResults from "@/lib/hooks/useSearchResults";
 import "./add-to-dashboard-dialog.less";
 
 function AddToDashboardDialog({ dialog, visualization }) {
+  const { t } = useTranslation("Queries");
   const [searchTerm, setSearchTerm] = useState("");
 
   const [doSearch, dashboards, isLoading] = useSearchResults(
@@ -51,7 +55,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           .toString(36)
           .substr(2, 10)}`;
         notification.success(
-          "Widget added to dashboard",
+          t("Widget added to dashboard"),
           <React.Fragment>
             <Link href={`${dashboard.url}`} onClick={() => notification.close(key)}>
               {dashboard.name}
@@ -62,7 +66,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
         );
       })
       .catch(() => {
-        notification.error("Widget not added.");
+        notification.error(t("Widget not added."));
       })
       .finally(() => {
         setSaveInProgress(false);
@@ -74,11 +78,11 @@ function AddToDashboardDialog({ dialog, visualization }) {
   return (
     <Modal
       {...dialog.props}
-      title="Add to Dashboard"
+      title={t("Add to Dashboard")}
       okButtonProps={{ disabled: !selectedDashboard || saveInProgress, loading: saveInProgress }}
       cancelButtonProps={{ disabled: saveInProgress }}
       onOk={addWidgetToDashboard}>
-      <label htmlFor="add-to-dashboard-dialog-dashboard">Choose the dashboard to add this query to:</label>
+      <label htmlFor="add-to-dashboard-dialog-dashboard">{t("Choose the dashboard to add this query to")}:</label>
 
       {!selectedDashboard && (
         <Input
@@ -86,7 +90,7 @@ function AddToDashboardDialog({ dialog, visualization }) {
           className="w-100"
           autoComplete="off"
           autoFocus
-          placeholder="Search a dashboard by name"
+          placeholder={t("Search a dashboard by name")}
           value={searchTerm}
           onChange={event => setSearchTerm(event.target.value)}
           suffix={
