@@ -83,8 +83,7 @@ export function secondsToInterval(count) {
 }
 
 export function pluralize(text, count) {
-  const textLowercase = text.toLowerCase();
-  return i18next.t(count === 1 ? textLowercase : `${textLowercase}_plural`, { count });
+  return i18next.t(count === 1 ? text : `${text}_plural`, { count });
 }
 
 export function durationHumanize(durationInSeconds, options = {}) {
