@@ -7,12 +7,12 @@ MockDate.set(date);
 jest.mock("i18next", () => ({
   t: key => {
     const translations = {
-      second_plural: "seconds",
-      minute_plural: "minutes",
-      hour_plural: "hours",
-      day_plural: "days",
-      week_plural: "weeks",
-      millisecond_plural: "milliseconds",
+      "reserved:second_plural": "seconds",
+      "reserved:minute_plural": "minutes",
+      "reserved:hour_plural": "hours",
+      "reserved:day_plural": "days",
+      "reserved:week_plural": "weeks",
+      "reserved:millisecond_plural": "milliseconds",
     };
     return (
       translations[key] ||

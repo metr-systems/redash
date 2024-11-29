@@ -5,5 +5,6 @@ module.exports = {
   defaultNamespace: "common", // Default namespace
   keySeparator: ":", // Set to false if keys in code are dot-separated
   nsSeparator: false, // Set to false if namespaces in code are dot-separated
-  useKeysAsDefaultValue: true // Set to true if keys should be default values
+  useKeysAsDefaultValue: true, // Set to true if keys should be default values
+  keepRemoved: ["reserved"]
 };

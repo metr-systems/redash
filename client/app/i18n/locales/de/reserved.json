@@ -1,0 +1,15 @@
+{
+  "Never": "Niemals",
+  "second": "sekunde",
+  "minute": "minute",
+  "hour": "stunde",
+  "day": "tag",
+  "week": "woche",
+  "millisecond": "millisekunde",
+  "second_plural": "sekunden",
+  "minute_plural": "minuten",
+  "hour_plural": "stunden",
+  "day_plural": "tage",
+  "week_plural": "wochen",
+  "millisecond_plural": "millisekunden"
+}

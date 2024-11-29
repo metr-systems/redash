@@ -83,7 +83,7 @@ export function secondsToInterval(count) {
 }
 
 export function pluralize(text, count) {
-  return i18next.t(count === 1 ? text : `${text}_plural`, { count });
+  return i18next.t(count === 1 ? `reserved:${text}` : `reserved:${text}_plural`, { count });
 }
 
 export function durationHumanize(durationInSeconds, options = {}) {
