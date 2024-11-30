@@ -71,7 +71,7 @@ const listColumns = [
       width: null,
     }
   ),
-  Columns.custom((text, item) => item.user.name, { title: i18next.t("Dashboards:Created By"), width: "1%" }),
+  Columns.custom((text, item) => item.user.name, { title: i18next.t("Created By"), width: "1%" }),
   Columns.dateTime.sortable({
     title: i18next.t("Created At"),
     field: "created_at",
