@@ -6,7 +6,7 @@ import { useDebouncedCallback } from "use-debounce";
 import useMedia from "use-media";
 import Button from "antd/lib/button";
 
-import { useTranslation } from "i18next";
+import { useTranslation } from "react-i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Resizable from "@/components/Resizable";
@@ -305,7 +305,7 @@ function QuerySource(props) {
                         onClick: doExecuteQuery,
                         text: (
                           <span className="hidden-xs">
-                            {selectedText === null ? i18next.t("Execute") : i18next.t("Execute Selected")}
+                            {selectedText === null ? t("Execute") : t("Execute Selected")}
                           </span>
                         ),
                       }}

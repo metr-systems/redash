@@ -49,6 +49,11 @@
   "Refresh Schema": "",
   "Loading, please wait.": "",
   "Press to refresh.": "",
+  "Failed saving snippet.": "",
+  "Trigger": "",
+  "Description": "",
+  "Snippet": "",
+  "Create Query Snippet": "",
   "Search a query by name": "",
   "Something went wrong...": "",
   "Couldn't select query": "",
@@ -138,5 +143,14 @@
   "Open in Redash": "",
   "Download Dataset": "",
   "Visualization does not exist": "",
-  "Refreshing...": ""
+  "Refreshing...": "",
+  "Delete Query Snippet": "",
+  "Are you sure you want to delete this query snippet?": "",
+  "Query snippet deleted successfully.": "",
+  "Failed deleting query snippet.": "",
+  "New Query Snippet": "",
+  "There are no query snippets yet.": "",
+  "Click here": "",
+  "to add one.": "",
+  "Query Snippets": ""
 }

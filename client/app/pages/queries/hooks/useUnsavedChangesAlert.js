@@ -10,7 +10,7 @@ export default function useUnsavedChangesAlert(shouldShowAlert = false) {
   shouldShowAlertRef.current = shouldShowAlert;
 
   useEffect(() => {
-    const unloadMessage = i18next.t("You will lose your changes if you leave");
+    const unloadMessage = t("You will lose your changes if you leave");
     const confirmMessage = t("{{unloadMessage}}\n\nAre you sure you want to leave this page?", {
       unloadMessage: unloadMessage,
     });

@@ -5,6 +5,8 @@
   "Edit": "",
   "Loading...": "",
   "Delete": "",
+  "Saved.": "",
+  "Create": "",
   "Clear": "",
   "Searching...": "",
   "Unpublished": "",
@@ -21,5 +23,7 @@
   "Created By": "",
   "Created At": "",
   "Favorite Dashboards": "",
-  "Powered by": ""
+  "Powered by": "",
+  "Yes": "",
+  "No": ""
 }

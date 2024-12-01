@@ -5,6 +5,8 @@
   "Edit": "Bearbeiten",
   "Loading...": "Lädt...",
   "Delete": "Löschen",
+  "Saved.": "Gespeichert.",
+  "Create": "Erstellen",
   "Clear": "Löschen",
   "Searching...": "Suchen...",
   "Unpublished": "Unveröffentlicht",
@@ -21,5 +23,7 @@
   "Created By": "Erstellt von",
   "Created At": "Erstellt am",
   "Favorite Dashboards": "Favorisierte Dashboards",
-  "Powered by": "Betrieben von"
+  "Powered by": "Betrieben von",
+  "Yes": "Ja",
+  "No": "Nein"
 }
