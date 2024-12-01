@@ -34,5 +34,18 @@
   "Last Active At": "Zuletzt aktiv am",
   "Failed saving.": "Speichern fehlgeschlagen.",
   "New User": "Neuer Benutzer",
-  "Search users": "Benutzer suchen"
+  "Search users": "Benutzer suchen",
+  "User {{userName}} is now enabled.": "Benutzer {{userName}} ist jetzt aktiviert.",
+  "Cannot enable user": "Benutzer kann nicht aktiviert werden",
+  "User {{userName}} is now disabled.": "Benutzer {{userName}} ist jetzt deaktiviert.",
+  "Cannot disable user": "Benutzer kann nicht deaktiviert werden",
+  "User {{userName}} has been deleted.": "Benutzer {{userName}} wurde gelöscht.",
+  "Cannot delete user": "Benutzer kann nicht gelöscht werden",
+  "The API Key has been updated.": "Der API-Schlüssel wurde aktualisiert.",
+  "Failed regenerating API Key": "Fehler beim Neu generieren des API-Schlüssels",
+  "The mail server is not configured.": "Der Mail-Server ist nicht konfiguriert.",
+  "Password reset email sent.": "E-Mail zum Zurücksetzen des Passworts gesendet.",
+  "Failed to send password reset email": "E-Mail zum Zurücksetzen des Passworts konnte nicht gesendet werden",
+  "Invitation sent.": "Einladung gesendet.",
+  "Failed to resend invitation": "Einladung konnte nicht erneut gesendet werden"
 }

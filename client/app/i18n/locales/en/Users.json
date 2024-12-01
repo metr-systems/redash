@@ -34,5 +34,18 @@
   "Last Active At": "",
   "Failed saving.": "",
   "New User": "",
-  "Search users": ""
+  "Search users": "",
+  "User {{userName}} is now enabled.": "",
+  "Cannot enable user": "",
+  "User {{userName}} is now disabled.": "",
+  "Cannot disable user": "",
+  "User {{userName}} has been deleted.": "",
+  "Cannot delete user": "",
+  "The API Key has been updated.": "",
+  "Failed regenerating API Key": "",
+  "The mail server is not configured.": "",
+  "Password reset email sent.": "",
+  "Failed to send password reset email": "",
+  "Invitation sent.": "",
+  "Failed to resend invitation": ""
 }
