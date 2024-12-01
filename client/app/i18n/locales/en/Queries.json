@@ -152,5 +152,9 @@
   "There are no query snippets yet.": "",
   "Click here": "",
   "to add one.": "",
-  "Query Snippets": ""
+  "Query Snippets": "",
+  "cached query result unavailable, please execute again.": "",
+  "Unknown error occurred. Please try again later.": "",
+  "failed communicating with server. Please check your Internet connection and try again.": "",
+  "Can't execute empty query.": ""
 }

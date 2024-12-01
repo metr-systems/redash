@@ -1,6 +1,9 @@
 import moment from "moment";
 import debug from "debug";
 import Mustache from "mustache";
+
+import i18next from "i18next";
+
 import { axios } from "@/services/axios";
 import {
   zipObject,
@@ -140,7 +143,7 @@ export class Query {
   getQueryResultByText(maxAge, selectedQueryText) {
     const queryText = selectedQueryText || this.query;
     if (!queryText) {
-      return new QueryResultError("Can't execute empty query.");
+      return new QueryResultError(i18next.t("Queries:Can't execute empty query."));
     }
 
     const parameters = this.getParameters().getExecutionValues({ joinListValues: true });
@@ -399,7 +402,7 @@ const QueryService = {
 QueryService.newQuery = function newQuery() {
   return new Query({
     query: "",
-    name: "New Query",
+    name: i18next.t("Queries:New Query"),
     schedule: null,
     user: currentUser,
     options: { apply_auto_limit: localOptions.get("applyAutoLimit", true) },
