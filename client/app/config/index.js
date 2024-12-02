@@ -32,8 +32,8 @@ moment.updateLocale("en", {
 
 moment.updateLocale("de", {
   relativeTime: {
-    future: "in %s",
-    past: "vor %s",
+    future: "%s",
+    past: "%s",
     s: "gerade eben",
     m: "vor einer Minute",
     mm: "vor %d Minuten",
