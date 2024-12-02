@@ -55,7 +55,7 @@ i18n.use(initReactI18next).init({
       Tags: Tags_de,
       Queries: Queries_de,
       Users: Users_de,
-      ItemsList: ItemsList_en,
+      ItemsList: ItemsList_de,
       reserved: reserved_de,
     },
   },
