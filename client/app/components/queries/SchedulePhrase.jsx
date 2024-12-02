@@ -33,8 +33,13 @@ export default class SchedulePhrase extends React.Component {
       omitSingleValueNumber: true,
     });
 
+    const SECOND = 1,
+      MINUTE = 60,
+      HOUR = 3600,
+      DAY = 86400,
+      WEEK = 604800;
     let short, full;
-    if (seconds == 1 || seconds == 60 || seconds == 3600 || seconds == 86400 || seconds == 604800) {
+    if ([SECOND, MINUTE, HOUR, DAY, WEEK].includes(seconds)) {
       short = i18next.t("Queries:Every", { humanized: humanized });
       full = i18next.t("Queries:Refreshes_Every", { humanized: humanized });
     } else {
