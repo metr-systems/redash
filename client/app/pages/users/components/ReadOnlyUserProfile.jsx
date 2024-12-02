@@ -18,15 +18,15 @@ export default function ReadOnlyUserProfile({ user }) {
       <hr />
       <dl className="profile__dl">
         <dt>
-          <Trans i18nKey="Name">Name</Trans>:
+          <Trans i18nKey="Users:Name_">Name:</Trans>
         </dt>
         <dd>{user.name}</dd>
         <dt>
-          <Trans i18nKey="Users:Email">Email</Trans>:
+          <Trans i18nKey="Users:Email_">Email:</Trans>
         </dt>
         <dd>{user.email}</dd>
         <dt className="m-b-5">
-          <Trans i18nKey="Users:Groups">Groups:</Trans>
+          <Trans i18nKey="Users:Groups_">Groups:</Trans>
         </dt>
         <dd>{isLoadingGroups ? t("Loading...") : <UserGroups groups={groups} />}</dd>
       </dl>
