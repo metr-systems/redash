@@ -25,6 +25,9 @@ import Queries_de from "/client/app/i18n/locales/de/Queries.json";
 import Users_en from "/client/app/i18n/locales/en/Users.json";
 import Users_de from "/client/app/i18n/locales/de/Users.json";
 
+import ItemsList_en from "/client/app/i18n/locales/en/ItemsList.json";
+import ItemsList_de from "/client/app/i18n/locales/de/ItemsList.json";
+
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
 
@@ -40,6 +43,7 @@ i18n.use(initReactI18next).init({
       Tags: Tags_en,
       Queries: Queries_en,
       Users: Users_en,
+      ItemsList: ItemsList_en,
       reserved: reserved_en,
     },
     de: {
@@ -51,6 +55,7 @@ i18n.use(initReactI18next).init({
       Tags: Tags_de,
       Queries: Queries_de,
       Users: Users_de,
+      ItemsList: ItemsList_en,
       reserved: reserved_de,
     },
   },
@@ -58,7 +63,18 @@ i18n.use(initReactI18next).init({
   fallbackLng: "de",
   preload: ["en", "de"],
   keySeparator: ":",
-  ns: ["common", "EmptyState", "ApplicationArea", "Home", "Dashboards", "Tags", "Queries", "Users", "reserved"],
+  ns: [
+    "common",
+    "EmptyState",
+    "ApplicationArea",
+    "Home",
+    "Dashboards",
+    "Tags",
+    "Queries",
+    "Users",
+    "ItemsList",
+    "reserved",
+  ],
   defaultNS: "common",
   interpolation: {
     escapeValue: false,

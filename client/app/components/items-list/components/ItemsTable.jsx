@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import Table from "antd/lib/table";
 import Skeleton from "antd/lib/skeleton";
+
+import i18next from "i18next";
+
 import FavoritesControl from "@/components/FavoritesControl";
 import TimeAgo from "@/components/TimeAgo";
 import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";
@@ -201,6 +204,10 @@ export default class ItemsTable extends React.Component {
         pagination={false}
         onRow={onTableRow}
         data-test={this.props["data-test"]}
+        locale={{
+          triggerAsc: i18next.t("ItemsList:Click sort by ascend"),
+          triggerDesc: i18next.t("ItemsList:Click sort by descend"),
+        }}
         {...tableDataProps}
       />
     );
