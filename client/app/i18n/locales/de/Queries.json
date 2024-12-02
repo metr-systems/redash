@@ -30,7 +30,7 @@
   "Enable live autocomplete": "Live-Autovervollständigung aktivieren",
   "Auto limiting is not available for this Data Source type.": "Automatische Begrenzung ist für diesen Datentyp nicht verfügbar.",
   "Auto limit results to first 1000 rows.": "Ergebnisse automatisch auf die ersten 1000 Zeilen begrenzen.",
-  "LIMIT 1000": "",
+  "LIMIT 1000": "begrenzt auf 1000",
   "You've entered the SQL editor. To exit press the ESC key.": "Sie haben den SQL-Editor betreten. Drücken Sie die ESC-Taste, um ihn zu verlassen.",
   "Refresh Schedule": "Aktualisierungszeitplan",
   "Refresh every": "Alle aktualisieren",
