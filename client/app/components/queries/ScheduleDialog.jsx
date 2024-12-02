@@ -206,7 +206,9 @@ class ScheduleDialog extends React.Component {
         {...dialog.props}
         title={i18next.t("Queries:Refresh Schedule")}
         className="schedule"
-        onOk={() => this.save()}>
+        onOk={() => this.save()}
+        okText={i18next.t("Ok")}
+        cancelText={i18next.t("Cancel")}>
         <div className="schedule-component">
           <h5>{i18next.t("Queries:Refresh every")}</h5>
           <div data-testid="interval">
