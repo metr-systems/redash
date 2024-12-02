@@ -116,7 +116,7 @@ function QueryView(props) {
                   shortcut="mod+enter, alt+enter, ctrl+enter"
                   disabled={!queryFlags.canExecute || isExecuting || areParametersDirty}
                   onClick={doExecuteQuery}>
-                  Refresh
+                  {t("Refresh")}
                 </QueryViewButton>
               )}
             </DynamicComponent>
