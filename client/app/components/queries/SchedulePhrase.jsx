@@ -32,15 +32,22 @@ export default class SchedulePhrase extends React.Component {
     const humanized = durationHumanize(seconds, {
       omitSingleValueNumber: true,
     });
-    const short = i18next.t("Queries:Every {{humanized}}", { humanized: humanized });
-    let full = i18next.t("Queries:RefreshesEvery {{humanized}}", { humanized: humanized });
+
+    let short, full;
+    if (seconds == 1 || seconds == 60 || seconds == 3600 || seconds == 86400 || seconds == 604800) {
+      short = i18next.t("Queries:Every", { humanized: humanized });
+      full = i18next.t("Queries:Refreshes_Every", { humanized: humanized });
+    } else {
+      short = i18next.t("Queries:Every_plural", { humanized: humanized });
+      full = i18next.t("Queries:Refreshes_Every_plural", { humanized: humanized });
+    }
 
     const { time, day_of_week: dayOfWeek } = this.props.schedule;
     if (time) {
-      full += i18next.t("Queries:at {{time}}", {time: ` ${localizeTime(time)}`});
+      full += i18next.t("Queries:at {{time}}", { time: ` ${localizeTime(time)}` });
     }
     if (dayOfWeek) {
-      full += i18next.t("Queries:on {{day}}", { day: ` ${dayOfWeek}`});
+      full += i18next.t("Queries:on {{day}}", { day: ` ${dayOfWeek}` });
     }
 
     return [short, full];
