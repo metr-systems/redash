@@ -1,4 +1,6 @@
 import moment from "moment";
+import i18next from "i18next";
+
 import { clientConfig } from "@/services/auth";
 
 export const IntervalEnum = {
@@ -81,8 +83,7 @@ export function secondsToInterval(count) {
 }
 
 export function pluralize(text, count) {
-  const should = count !== 1;
-  return text + (should ? "s" : "");
+  return i18next.t(count === 1 ? `reserved:${text}` : `reserved:${text}_plural`, { count });
 }
 
 export function durationHumanize(durationInSeconds, options = {}) {
