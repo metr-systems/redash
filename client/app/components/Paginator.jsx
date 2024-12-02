@@ -2,9 +2,12 @@ import React from "react";
 import PropTypes from "prop-types";
 import Pagination from "antd/lib/pagination";
 
+import { useTranslation } from "react-i18next";
+
 const MIN_ITEMS_PER_PAGE = 5;
 
 export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSizeChange, totalCount, onChange }) {
+  const { t } = useTranslation();
   if (totalCount <= (showPageSizeSelect ? MIN_ITEMS_PER_PAGE : pageSize)) {
     return null;
   }
@@ -18,6 +21,9 @@ export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSi
         pageSize={pageSize}
         total={totalCount}
         onChange={onChange}
+        locale={{
+          items_per_page: t("/ page"),
+        }}
       />
     </div>
   );
