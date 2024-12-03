@@ -39,6 +39,8 @@
   "On day": "",
   "Ends": "",
   "On": "",
+  "Every_Day": "",
+  "Refreshes_Every_Day": "Refreshes every {{humanized}}",
   "Every": "Every {{humanized}}",
   "Refreshes_Every": "Refreshes every {{humanized}}",
   "Every_plural": "Every {{humanized}}",

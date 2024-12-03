@@ -38,13 +38,23 @@ export default class SchedulePhrase extends React.Component {
       HOUR = 3600,
       DAY = 86400,
       WEEK = 604800;
+
     let short, full;
-    if ([SECOND, MINUTE, HOUR, DAY, WEEK].includes(seconds)) {
-      short = i18next.t("Queries:Every", { humanized: humanized });
-      full = i18next.t("Queries:Refreshes_Every", { humanized: humanized });
-    } else {
-      short = i18next.t("Queries:Every_plural", { humanized: humanized });
-      full = i18next.t("Queries:Refreshes_Every_plural", { humanized: humanized });
+    switch (seconds) {
+      case DAY:
+        short = i18next.t("Queries:Every_Day", { humanized });
+        full = i18next.t("Queries:Refreshes_Every_Day", { humanized });
+        break;
+      case SECOND:
+      case MINUTE:
+      case HOUR:
+      case WEEK:
+        short = i18next.t("Queries:Every", { humanized });
+        full = i18next.t("Queries:Refreshes_Every", { humanized });
+        break;
+      default:
+        short = i18next.t("Queries:Every_plural", { humanized });
+        full = i18next.t("Queries:Refreshes_Every_plural", { humanized });
     }
 
     const { time, day_of_week: dayOfWeek } = this.props.schedule;
