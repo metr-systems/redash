@@ -21,9 +21,6 @@ export default function Paginator({ page, showPageSizeSelect, pageSize, onPageSi
         pageSize={pageSize}
         total={totalCount}
         onChange={onChange}
-        locale={{
-          items_per_page: t("/ page"),
-        }}
       />
     </div>
   );

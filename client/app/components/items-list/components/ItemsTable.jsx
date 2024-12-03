@@ -204,10 +204,6 @@ export default class ItemsTable extends React.Component {
         pagination={false}
         onRow={onTableRow}
         data-test={this.props["data-test"]}
-        locale={{
-          triggerAsc: i18next.t("ItemsList:Click sort by ascend"),
-          triggerDesc: i18next.t("ItemsList:Click sort by descend"),
-        }}
         {...tableDataProps}
       />
     );
