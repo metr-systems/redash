@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-04 15:08+0100\n"
+"POT-Creation-Date: 2024-12-04 16:18+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -21,5 +21,13 @@ msgstr ""
 
 #: redash/authentication/account.py:77
 msgid "Your Redash account is disabled"
+msgstr ""
+
+#: redash/templates/login.html:3
+msgid "Login to Redash"
+msgstr "Anmelden bei Redash"
+
+#: redash/templates/login.html:19
+msgid "Login with Google"
 msgstr ""
 
