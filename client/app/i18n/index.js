@@ -31,6 +31,9 @@ import ItemsList_de from "/client/app/i18n/locales/de/ItemsList.json";
 import Visualizations_en from "/client/app/i18n/locales/en/Visualizations.json";
 import Visualizations_de from "/client/app/i18n/locales/de/Visualizations.json";
 
+import DynamicForm_en from "/client/app/i18n/locales/en/DynamicForm.json";
+import DynamicForm_de from "/client/app/i18n/locales/de/DynamicForm.json";
+
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
 
@@ -49,6 +52,7 @@ i18n.use(initReactI18next).init({
       ItemsList: ItemsList_en,
       Visualizations: Visualizations_en,
       reserved: reserved_en,
+      DynamicForm: DynamicForm_en,
     },
     de: {
       common: common_de,
@@ -62,6 +66,7 @@ i18n.use(initReactI18next).init({
       ItemsList: ItemsList_de,
       Visualizations: Visualizations_de,
       reserved: reserved_de,
+      DynamicForm: DynamicForm_de,
     },
   },
   lng: "de",
@@ -79,6 +84,7 @@ i18n.use(initReactI18next).init({
     "Users",
     "ItemsList",
     "Visualizations",
+    "DynamicForm",
     "reserved",
   ],
   defaultNS: "common",
