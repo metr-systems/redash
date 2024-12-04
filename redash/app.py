@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_babel import Babel
 from werkzeug.middleware.proxy_fix import ProxyFix
 
@@ -23,7 +23,9 @@ class Redash(Flask):
         self.config.from_object("redash.settings")
 
 
-babel = Babel()
+def get_locale():
+    # Todo UPDATE LATER TO RETUN SELECTED LOCALE FROM FLAG FEATURE
+    return request.accept_languages.best_match([settings.BABEL_DEFAULT_LOCALE])
 
 
 def create_app():
@@ -44,12 +46,9 @@ def create_app():
     sentry.init()
     app = Redash()
 
-    babel.init_app(app)
-
-    def get_locale():
-        return app.accept_languages.best_match(app.config["BABEL_SUPPORTED_LOCALES"])
-
-    babel.localeselector(get_locale)
+    # Initialize the Flask-Babel extension
+    babel = Babel(app)
+    babel.locale_selector_func = get_locale
 
     security.init_app(app)
     request_metrics.init_app(app)
