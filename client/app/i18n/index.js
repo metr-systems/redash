@@ -28,8 +28,8 @@ import Users_de from "/client/app/i18n/locales/de/Users.json";
 import ItemsList_en from "/client/app/i18n/locales/en/ItemsList.json";
 import ItemsList_de from "/client/app/i18n/locales/de/ItemsList.json";
 
-import Visualization_en from "/client/app/i18n/locales/en/Visualization.json";
-import Visualization_de from "/client/app/i18n/locales/de/Visualization.json";
+import Visualizations_en from "/client/app/i18n/locales/en/Visualizations.json";
+import Visualizations_de from "/client/app/i18n/locales/de/Visualizations.json";
 
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
@@ -47,7 +47,7 @@ i18n.use(initReactI18next).init({
       Queries: Queries_en,
       Users: Users_en,
       ItemsList: ItemsList_en,
-      Visualization: Visualization_en,
+      Visualizations: Visualizations_en,
       reserved: reserved_en,
     },
     de: {
@@ -60,7 +60,7 @@ i18n.use(initReactI18next).init({
       Queries: Queries_de,
       Users: Users_de,
       ItemsList: ItemsList_de,
-      Visualization: Visualization_de,
+      Visualizations: Visualizations_de,
       reserved: reserved_de,
     },
   },
@@ -78,7 +78,7 @@ i18n.use(initReactI18next).init({
     "Queries",
     "Users",
     "ItemsList",
-    "Visualization",
+    "Visualizations",
     "reserved",
   ],
   defaultNS: "common",
