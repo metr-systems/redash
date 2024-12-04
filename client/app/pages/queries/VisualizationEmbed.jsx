@@ -4,6 +4,8 @@ import PropTypes from "prop-types";
 import moment from "moment";
 import { markdown } from "markdown";
 
+import { useTranslation } from "react-i18next";
+
 import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
@@ -65,6 +67,7 @@ function VisualizationEmbedFooter({
   hideTimestamp,
   apiKey,
 }) {
+  const { t } = useTranslation("Queries");
   const downloadMenu = (
     <Menu>
       <Menu.Item>
@@ -75,7 +78,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileOutlinedIcon /> Download as CSV File
+          <FileOutlinedIcon /> {t("Download as CSV File")}
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -86,7 +89,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileOutlinedIcon /> Download as TSV File
+          <FileOutlinedIcon /> {t("Queries:Download as TSV File")}
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -97,7 +100,7 @@ function VisualizationEmbedFooter({
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
           embed>
-          <FileExcelOutlinedIcon /> Download as Excel File
+          <FileExcelOutlinedIcon /> {t("Queries:Download as Excel File")}
         </QueryResultsLink>
       </Menu.Item>
     </Menu>
@@ -118,16 +121,16 @@ function VisualizationEmbedFooter({
       )}
       {queryUrl && (
         <span className="hidden-print">
-          <Tooltip title="Open in Redash">
+          <Tooltip title={t("Open in Redash")}>
             <Link.Button className="icon-button" href={queryUrl} target="_blank">
               <i className="fa fa-external-link" aria-hidden="true" />
-              <span className="sr-only">Open in Redash</span>
+              <span className="sr-only">{t("Open in Redash")}</span>
             </Link.Button>
           </Tooltip>
           {!query.hasParameters() && (
             <Dropdown overlay={downloadMenu} disabled={!queryResults} trigger={["click"]} placement="topLeft">
               <Button loading={!queryResults && !!refreshStartedAt} className="m-l-5">
-                Download Dataset
+                {t("Download Dataset")}
                 <i className="fa fa-caret-up m-l-5" aria-hidden="true" />
               </Button>
             </Dropdown>
@@ -158,6 +161,7 @@ VisualizationEmbedFooter.defaultProps = {
 };
 
 function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
+  const { t } = useTranslation("Queries");
   const [query, setQuery] = useState(null);
   const [error, setError] = useState(null);
   const [refreshStartedAt, setRefreshStartedAt] = useState(null);
@@ -217,7 +221,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   if (!visualization) {
     // call error handler async, otherwise it will destroy the component on render phase
     setTimeout(() => {
-      onError(new Error("Visualization does not exist"));
+      onError(new Error(t("Visualization does not exist")));
     }, 10);
     return null;
   }
@@ -245,7 +249,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
           <div className="d-flex justify-content-center">
             <div className="spinner">
               <i className="zmdi zmdi-refresh zmdi-hc-spin zmdi-hc-5x" aria-hidden="true" />
-              <span className="sr-only">Refreshing...</span>
+              <span className="sr-only">{t("Refreshing...")}</span>
             </div>
           </div>
         )}

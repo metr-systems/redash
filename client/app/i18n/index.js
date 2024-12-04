@@ -22,6 +22,15 @@ import Tags_de from "/client/app/i18n/locales/de/Tags.json";
 import Queries_en from "/client/app/i18n/locales/en/Queries.json";
 import Queries_de from "/client/app/i18n/locales/de/Queries.json";
 
+import Users_en from "/client/app/i18n/locales/en/Users.json";
+import Users_de from "/client/app/i18n/locales/de/Users.json";
+
+import ItemsList_en from "/client/app/i18n/locales/en/ItemsList.json";
+import ItemsList_de from "/client/app/i18n/locales/de/ItemsList.json";
+
+import Visualization_en from "/client/app/i18n/locales/en/Visualization.json";
+import Visualization_de from "/client/app/i18n/locales/de/Visualization.json";
+
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
 
@@ -36,6 +45,9 @@ i18n.use(initReactI18next).init({
       Dashboards: Dashboards_en,
       Tags: Tags_en,
       Queries: Queries_en,
+      Users: Users_en,
+      ItemsList: ItemsList_en,
+      Visualization: Visualization_en,
       reserved: reserved_en,
     },
     de: {
@@ -46,6 +58,9 @@ i18n.use(initReactI18next).init({
       Dashboards: Dashboards_de,
       Tags: Tags_de,
       Queries: Queries_de,
+      Users: Users_de,
+      ItemsList: ItemsList_de,
+      Visualization: Visualization_de,
       reserved: reserved_de,
     },
   },
@@ -53,7 +68,19 @@ i18n.use(initReactI18next).init({
   fallbackLng: "de",
   preload: ["en", "de"],
   keySeparator: ":",
-  ns: ["common", "EmptyState", "ApplicationArea", "Home", "Dashboards", "Tags", "Queries", "reserved"],
+  ns: [
+    "common",
+    "EmptyState",
+    "ApplicationArea",
+    "Home",
+    "Dashboards",
+    "Tags",
+    "Queries",
+    "Users",
+    "ItemsList",
+    "Visualization",
+    "reserved",
+  ],
   defaultNS: "common",
   interpolation: {
     escapeValue: false,

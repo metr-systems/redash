@@ -5,6 +5,14 @@
   "Edit": "",
   "Loading...": "",
   "Delete": "",
+  "Copied!": "",
+  "Copy failed": "",
+  "Copy": "",
+  "Search...": "",
+  "Search": "",
+  "Ok": "",
+  "Saved.": "",
+  "Create": "",
   "Clear": "",
   "Searching...": "",
   "Unpublished": "",
@@ -18,7 +26,11 @@
   "Unarchive": "",
   "Publish": "",
   "Name": "",
+  "Created By": "",
   "Created At": "",
   "Favorite Dashboards": "",
-  "Powered by": ""
+  "Powered by": "",
+  "Yes": "",
+  "No": "",
+  "Failed saving.": ""
 }

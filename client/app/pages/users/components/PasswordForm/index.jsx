@@ -1,5 +1,8 @@
 import React, { useCallback } from "react";
 import Button from "antd/lib/button";
+
+import i18next from "i18next";
+
 import DynamicComponent from "@/components/DynamicComponent";
 import { UserProfile } from "@/components/proptypes";
 import { currentUser } from "@/services/auth";
@@ -17,10 +20,10 @@ export default function PasswordForm(props) {
 
   return (
     <DynamicComponent name="UserProfile.PasswordForm" {...props}>
-      <h5>Password</h5>
+      <h5>{i18next.t("Users:Password")}</h5>
       {user.id === currentUser.id && (
         <Button className="w-100 m-t-10" onClick={changePassword} data-test="ChangePassword">
-          Change Password
+          {i18next.t("Users:Change Password")}
         </Button>
       )}
       {user.id !== currentUser.id && currentUser.isAdmin && (

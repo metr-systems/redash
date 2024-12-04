@@ -1,4 +1,7 @@
 import { isString, get, find } from "lodash";
+
+import i18next from "i18next";
+
 import sanitize from "@/services/sanitize";
 import { axios } from "@/services/axios";
 import notification from "@/services/notification";
@@ -18,13 +21,13 @@ function enableUser(user) {
   return axios
     .delete(disableResource(user))
     .then(data => {
-      notification.success(`User ${userName} is now enabled.`);
+      notification.success(i18next.t("Users:User {{userName}} is now enabled.", { userName }));
       user.is_disabled = false;
       user.profile_image_url = data.profile_image_url;
       return data;
     })
     .catch(error => {
-      notification.error("Cannot enable user", getErrorMessage(error));
+      notification.error(i18next.t("Users:Cannot enable user"), getErrorMessage(error));
     });
 }
 
@@ -33,13 +36,13 @@ function disableUser(user) {
   return axios
     .post(disableResource(user))
     .then(data => {
-      notification.warning(`User ${userName} is now disabled.`);
+      notification.warning(i18next.t("Users:User {{userName}} is now disabled.", { userName }));
       user.is_disabled = true;
       user.profile_image_url = data.profile_image_url;
       return data;
     })
     .catch(error => {
-      notification.error("Cannot disable user", getErrorMessage(error));
+      notification.error(i18next.t("Users:Cannot disable user"), getErrorMessage(error));
     });
 }
 
@@ -48,11 +51,11 @@ function deleteUser(user) {
   return axios
     .delete(`api/users/${user.id}`)
     .then(data => {
-      notification.warning(`User ${userName} has been deleted.`);
+      notification.warning(i18next.t("Users:User {{userName}} has been deleted.", { userName }));
       return data;
     })
     .catch(error => {
-      notification.error("Cannot delete user", getErrorMessage(error));
+      notification.error(i18next.t("Users:Cannot delete user"), getErrorMessage(error));
     });
 }
 
@@ -73,11 +76,11 @@ function regenerateApiKey(user) {
   return axios
     .post(`api/users/${user.id}/regenerate_api_key`)
     .then(data => {
-      notification.success("The API Key has been updated.");
+      notification.success(i18next.t("Users:The API Key has been updated."));
       return data.api_key;
     })
     .catch(error => {
-      notification.error("Failed regenerating API Key", getErrorMessage(error));
+      notification.error(i18next.t("Users:Failed regenerating API Key"), getErrorMessage(error));
     });
 }
 
@@ -86,13 +89,13 @@ function sendPasswordReset(user) {
     .post(`api/users/${user.id}/reset_password`)
     .then(data => {
       if (clientConfig.mailSettingsMissing) {
-        notification.warning("The mail server is not configured.");
+        notification.warning(i18next.t("Users:The mail server is not configured."));
         return data.reset_link;
       }
-      notification.success("Password reset email sent.");
+      notification.success(i18next.t("Users:Password reset email sent."));
     })
     .catch(error => {
-      notification.error("Failed to send password reset email", getErrorMessage(error));
+      notification.error(i18next.t("Users:Failed to send password reset email"), getErrorMessage(error));
     });
 }
 
@@ -101,13 +104,13 @@ function resendInvitation(user) {
     .post(`api/users/${user.id}/invite`)
     .then(data => {
       if (clientConfig.mailSettingsMissing) {
-        notification.warning("The mail server is not configured.");
+        notification.warning(i18next.t("Users:The mail server is not configured."));
         return data.invite_link;
       }
-      notification.success("Invitation sent.");
+      notification.success(i18next.t("Users:Invitation sent."));
     })
     .catch(error => {
-      notification.error("Failed to resend invitation", getErrorMessage(error));
+      notification.error(i18next.t("Users:Failed to resend invitation"), getErrorMessage(error));
     });
 }
 

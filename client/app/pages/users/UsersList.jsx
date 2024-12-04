@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+
+import i18next from 'i18next';
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import Paginator from "@/components/Paginator";
@@ -40,17 +43,17 @@ function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   if (user.is_invitation_pending) {
     return (
       <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>
-        Delete
+        {i18next.t("Delete")}
       </Button>
     );
   }
   return user.is_disabled ? (
     <Button type="primary" className="w-100" onClick={event => enableUser(event, user)}>
-      Enable
+      {i18next.t("Users:Enable")}
     </Button>
   ) : (
     <Button className="w-100" onClick={event => disableUser(event, user)}>
-      Disable
+      {i18next.t("Users:Disable")}
     </Button>
   );
 }
@@ -75,24 +78,24 @@ class UsersList extends React.Component {
     {
       key: "active",
       href: "users",
-      title: "Active Users",
+      title: i18next.t("Users:Active Users"),
     },
     {
       key: "pending",
       href: "users/pending",
-      title: "Pending Invitations",
+      title: i18next.t("Users:Pending Invitations"),
     },
     {
       key: "disabled",
       href: "users/disabled",
-      title: "Disabled Users",
+      title: i18next.t("Users:Disabled Users"),
       isAvailable: () => policy.canCreateUser(),
     },
   ];
 
   listColumns = [
     Columns.custom.sortable((text, user) => <UserPreviewCard user={user} withLink />, {
-      title: "Name",
+      title: i18next.t("Users:Name"),
       field: "name",
       width: null,
     }),
@@ -104,18 +107,18 @@ class UsersList extends React.Component {
           </Link>
         )),
       {
-        title: "Groups",
+        title: i18next.t("Users:Groups"),
         field: "groups",
       }
     ),
     Columns.timeAgo.sortable({
-      title: "Joined",
+      title: i18next.t("Users:Joined"),
       field: "created_at",
       className: "text-nowrap",
       width: "1%",
     }),
     Columns.timeAgo.sortable({
-      title: "Last Active At",
+      title: i18next.t("Users:Last Active At"),
       field: "active_at",
       className: "text-nowrap",
       width: "1%",
@@ -145,14 +148,14 @@ class UsersList extends React.Component {
   createUser = values =>
     User.create(values)
       .then(user => {
-        notification.success("Saved.");
+        notification.success(i18next.t("Saved."));
         if (user.invite_link) {
           Modal.warning({
-            title: "Email not sent!",
+            title: i18next.t("Users:Email not sent!"),
             content: (
               <React.Fragment>
                 <p>
-                  The mail server is not configured, please send the following link to <b>{user.name}</b>:
+                  {i18next.t("Users:The mail server is not configured, please send the following link to")} <b>{user.name}</b>:
                 </p>
                 <InputWithCopy value={absoluteUrl(user.invite_link)} aria-label="Invite link" readOnly />
               </React.Fragment>
@@ -161,7 +164,7 @@ class UsersList extends React.Component {
         }
       })
       .catch(error => {
-        const message = find([get(error, "response.data.message"), get(error, "message"), "Failed saving."], isString);
+        const message = find([get(error, "response.data.message"), get(error, "message"), i18next.t("Users:Failed saving.")], isString);
         return Promise.reject(new Error(message));
       });
 
@@ -198,7 +201,7 @@ class UsersList extends React.Component {
       <div className="m-b-15">
         <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
           <i className="fa fa-plus m-r-5" aria-hidden="true" />
-          New User
+         {i18next.t("Users:New User")}
         </Button>
         <DynamicComponent name="UsersListExtra" />
       </div>
@@ -215,7 +218,7 @@ class UsersList extends React.Component {
             <Sidebar.SearchInput
               value={controller.searchTerm}
               onChange={controller.updateSearch}
-              label="Search users"
+              label={i18next.t("Users:Search users")}
             />
             <Sidebar.Menu items={this.sidebarMenu} selected={controller.params.currentPage} />
           </Layout.Sidebar>
@@ -253,7 +256,7 @@ const UsersListPage = wrapSettingsTab(
   "Users.List",
   {
     permission: "list_users",
-    title: "Users",
+    title: i18next.t("Users:Users"),
     path: "users",
     isActive: path => path.startsWith("/users") && path !== "/users/me",
     order: 2,
@@ -289,7 +292,7 @@ routes.register(
   "Users.New",
   routeWithUserSession({
     path: "/users/new",
-    title: "Users",
+    title: i18next.t("Users:Users"),
     render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
   })
 );
@@ -297,7 +300,7 @@ routes.register(
   "Users.List",
   routeWithUserSession({
     path: "/users",
-    title: "Users",
+    title: i18next.t("Users:Users"),
     render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
   })
 );
@@ -305,7 +308,7 @@ routes.register(
   "Users.Pending",
   routeWithUserSession({
     path: "/users/pending",
-    title: "Pending Invitations",
+    title: i18next.t("Users:Pending Invitations"),
     render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
   })
 );
@@ -313,7 +316,7 @@ routes.register(
   "Users.Disabled",
   routeWithUserSession({
     path: "/users/disabled",
-    title: "Disabled Users",
+    title: i18next.t("Users:Disabled Users"),
     render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
   })
 );

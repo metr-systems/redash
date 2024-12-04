@@ -5,6 +5,14 @@
   "Edit": "Bearbeiten",
   "Loading...": "Lädt...",
   "Delete": "Löschen",
+  "Copied!": "Kopiert!",
+  "Copy failed": "Kopieren fehlgeschlagen",
+  "Copy": "Kopieren",
+  "Search...": "Suchen...",
+  "Search": "Suchen",
+  "Ok": "Ok",
+  "Saved.": "Gespeichert.",
+  "Create": "Erstellen",
   "Clear": "Löschen",
   "Searching...": "Suchen...",
   "Unpublished": "Unveröffentlicht",
@@ -18,7 +26,11 @@
   "Unarchive": "Archivierung aufheben",
   "Publish": "Veröffentlichen",
   "Name": "Name",
+  "Created By": "Erstellt von",
   "Created At": "Erstellt am",
   "Favorite Dashboards": "Favorisierte Dashboards",
-  "Powered by": "Betrieben von"
+  "Powered by": "Betrieben von",
+  "Yes": "Ja",
+  "No": "Nein",
+  "Failed saving.": "Speichern fehlgeschlagen."
 }

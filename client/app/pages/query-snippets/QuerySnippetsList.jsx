@@ -3,6 +3,9 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+
+import i18next from 'i18next';
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
@@ -40,23 +43,23 @@ class QuerySnippetsList extends React.Component {
         </PlainButton>
       ),
       {
-        title: "Trigger",
+        title: i18next.t("Queries:Trigger"),
         field: "trigger",
         className: "text-nowrap",
       }
     ),
     Columns.custom.sortable(text => text, {
-      title: "Description",
+      title: i18next.t("Queries:Description"),
       field: "description",
       className: "text-nowrap",
     }),
     Columns.custom(snippet => <code className="snippet-content">{snippet}</code>, {
-      title: "Snippet",
+      title: i18next.t("Queries:Snippet"),
       field: "snippet",
     }),
     Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
     Columns.date.sortable({
-      title: "Created At",
+      title: i18next.t("Created At"),
       field: "created_at",
       className: "text-nowrap",
       width: "1%",
@@ -101,19 +104,19 @@ class QuerySnippetsList extends React.Component {
 
   deleteQuerySnippet = (event, querySnippet) => {
     Modal.confirm({
-      title: "Delete Query Snippet",
-      content: "Are you sure you want to delete this query snippet?",
-      okText: "Yes",
+      title: i18next.t("Queries:Delete Query Snippet"),
+      content: i18next.t("Queries:Are you sure you want to delete this query snippet?"),
+      okText: i18next.t("Yes"),
       okType: "danger",
-      cancelText: "No",
+      cancelText: i18next.t("No"),
       onOk: () => {
         QuerySnippet.delete(querySnippet)
           .then(() => {
-            notification.success("Query snippet deleted successfully.");
+            notification.success(i18next.t("Queries:Query snippet deleted successfully."));
             this.props.controller.update();
           })
           .catch(() => {
-            notification.error("Failed deleting query snippet.");
+            notification.error(i18next.t("Queries:Failed deleting query snippet."));
           });
       },
     });
@@ -147,20 +150,20 @@ class QuerySnippetsList extends React.Component {
             onClick={() => this.showSnippetDialog()}
             disabled={!policy.isCreateQuerySnippetEnabled()}>
             <i className="fa fa-plus m-r-5" aria-hidden="true" />
-            New Query Snippet
+            {i18next.t("Queries:New Query Snippet")}
           </Button>
         </div>
 
         {!controller.isLoaded && <LoadingState className="" />}
         {controller.isLoaded && controller.isEmpty && (
           <div className="text-center">
-            There are no query snippets yet.
+            {i18next.t("Queries:There are no query snippets yet.")}
             {policy.isCreateQuerySnippetEnabled() && (
               <div className="m-t-5">
                 <PlainButton type="link" onClick={() => this.showSnippetDialog()}>
-                  Click here
+                  {i18next.t("Queries:Click here")}
                 </PlainButton>{" "}
-                to add one.
+                {i18next.t("Queries:to add one.")}
               </div>
             )}
           </div>
@@ -218,7 +221,7 @@ routes.register(
   "QuerySnippets.List",
   routeWithUserSession({
     path: "/query_snippets",
-    title: "Query Snippets",
+    title: i18next.t("Queries:Query Snippets"),
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" />,
   })
 );
@@ -226,7 +229,7 @@ routes.register(
   "QuerySnippets.NewOrEdit",
   routeWithUserSession({
     path: "/query_snippets/:querySnippetId",
-    title: "Query Snippets",
+    title: i18next.t("Queries:Query Snippets"),
     render: pageProps => <QuerySnippetsListPage {...pageProps} currentPage="query_snippets" isNewOrEditPage />,
   })
 );

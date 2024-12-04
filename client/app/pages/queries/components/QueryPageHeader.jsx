@@ -6,6 +6,9 @@ import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import useMedia from "use-media";
+
+import { useTranslation } from "react-i18next";
+
 import Link from "@/components/Link";
 import EditInPlace from "@/components/EditInPlace";
 import FavoritesControl from "@/components/FavoritesControl";
@@ -71,6 +74,7 @@ export default function QueryPageHeader({
   tagsExtra,
   onChange,
 }) {
+  const { t } = useTranslation();
   const isDesktop = useMedia({ minWidth: 768 });
   const queryFlags = useQueryFlags(query, dataSource);
   const updateName = useRenameQuery(query, onChange);
@@ -90,8 +94,8 @@ export default function QueryPageHeader({
             isEnabled: !queryFlags.isNew && queryFlags.canFork && !isDuplicating,
             title: (
               <React.Fragment>
-                Fork <i className="fa fa-external-link m-l-5" aria-hidden="true" />
-                <span className="sr-only">(opens in a new tab)</span>
+                {t("Fork")} <i className="fa fa-external-link m-l-5" aria-hidden="true" />
+                <span className="sr-only">{t("(opens in a new tab)")}</span>
               </React.Fragment>
             ),
             onClick: duplicateQuery,
@@ -100,31 +104,31 @@ export default function QueryPageHeader({
         {
           archive: {
             isAvailable: !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived,
-            title: "Archive",
+            title: t("Archive"),
             onClick: archiveQuery,
           },
           managePermissions: {
             isAvailable:
               !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isArchived && clientConfig.showPermissionsControl,
-            title: "Manage Permissions",
+            title: t("Manage Permissions"),
             onClick: openPermissionsEditorDialog,
           },
           publish: {
             isAvailable:
               !isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit,
-            title: "Publish",
+            title: t("Publish"),
             onClick: publishQuery,
           },
           unpublish: {
             isAvailable: !clientConfig.disablePublish && !queryFlags.isNew && queryFlags.canEdit && !queryFlags.isDraft,
-            title: "Unpublish",
+            title: t("Unpublish"),
             onClick: unpublishQuery,
           },
         },
         {
           showAPIKey: {
             isAvailable: !clientConfig.disablePublicUrls && !queryFlags.isNew,
-            title: "Show API Key",
+            title: t("Queries:Show API Key"),
             onClick: openApiKeyDialog,
           },
         },
@@ -173,7 +177,7 @@ export default function QueryPageHeader({
         {headerExtra}
         {isDesktop && queryFlags.isDraft && !queryFlags.isArchived && !queryFlags.isNew && queryFlags.canEdit && (
           <Button className="m-r-5" onClick={publishQuery}>
-            <i className="fa fa-paper-plane m-r-5" aria-hidden="true" /> Publish
+            <i className="fa fa-paper-plane m-r-5" aria-hidden="true" /> {t("Publish")}
           </Button>
         )}
 
@@ -182,7 +186,7 @@ export default function QueryPageHeader({
             {!sourceMode && (
               <Link.Button className="m-r-5" href={query.getUrl(true, selectedVisualization)}>
                 <i className="fa fa-pencil-square-o" aria-hidden="true" />
-                <span className="m-l-5">Edit Source</span>
+                <span className="m-l-5">{t("Queries:Edit Source")}</span>
               </Link.Button>
             )}
             {sourceMode && (
@@ -191,7 +195,7 @@ export default function QueryPageHeader({
                 href={query.getUrl(false, selectedVisualization)}
                 data-test="QueryPageShowResultOnly">
                 <i className="fa fa-table" aria-hidden="true" />
-                <span className="m-l-5">Show Results Only</span>
+                <span className="m-l-5">{t("Queries:Show Results Only")}</span>
               </Link.Button>
             )}
           </span>
@@ -199,7 +203,7 @@ export default function QueryPageHeader({
 
         {!queryFlags.isNew && (
           <Dropdown overlay={moreActionsMenu} trigger={["click"]}>
-            <Button data-test="QueryPageHeaderMoreButton" aria-label="More actions">
+            <Button data-test="QueryPageHeaderMoreButton" aria-label={t("More actions")}>
               <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
             </Button>
           </Dropdown>

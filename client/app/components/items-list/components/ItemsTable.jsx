@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import classNames from "classnames";
 import Table from "antd/lib/table";
 import Skeleton from "antd/lib/skeleton";
+
+import i18next from "i18next";
+
 import FavoritesControl from "@/components/FavoritesControl";
 import TimeAgo from "@/components/TimeAgo";
 import { durationHumanize, formatDate, formatDateTime } from "@/lib/utils";

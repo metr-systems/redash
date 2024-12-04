@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useMemo } from "react";
+import i18next from "i18next";
+
 import DataSource from "@/services/data-source";
 import notification from "@/services/notification";
 
@@ -8,7 +10,7 @@ function getSchema(dataSource, refresh = undefined) {
   }
 
   return DataSource.fetchSchema(dataSource, refresh).catch(() => {
-    notification.error("Schema refresh failed.", "Please try again later.");
+    notification.error(i18next.t("Queries:Schema refresh failed."), i18next.t("Queries:Please try again later."));
     return Promise.resolve([]);
   });
 }
