@@ -1,6 +1,7 @@
 import logging
 
 from flask import render_template
+from flask_babel import _
 from itsdangerous import URLSafeTimedSerializer
 
 from redash import settings
@@ -73,6 +74,6 @@ def send_password_reset_email(user):
 def send_user_disabled_email(user):
     html_content = render_template("emails/reset_disabled.html", user=user)
     text_content = render_template("emails/reset_disabled.txt", user=user)
-    subject = "Your Redash account is disabled"
+    subject = _("Your Redash account is disabled")
 
     send_mail.delay([user.email], subject, html_content, text_content)
