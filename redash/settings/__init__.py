@@ -463,5 +463,5 @@ BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.c
 
 
 # Translation related configuration
-BABEL_DEFAULT_LOCALE = "en"
+BABEL_DEFAULT_LOCALE = "de"  # Note this is only temporary
 BABEL_SUPPORTED_LOCALES = ["en", "de"]
