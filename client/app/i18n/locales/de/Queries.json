@@ -115,7 +115,7 @@
   "You do not have a permission to execute/refresh this query.": "Sie haben keine Berechtigung, diese Abfrage auszuführen/zu aktualisieren.",
   "Archive Query": "Abfrage archivieren",
   "Are you sure you want to archive this query?": "Sind Sie sicher, dass Sie diese Abfrage archivieren möchten?",
-  "All alerts and dashboard widgets created with its visualizations will be deleted.": "Alle Benachrichtigungen und Dashboard-Widgets, die mit ihren Visualisierungen erstellt wurden, werden gelöscht.",
+  "All alerts and dashboard widgets created with its visualizations will be deleted.": "Alle Alarme und Dashboard-Widgets, die mit ihren Visualisierungen erstellt wurden, werden gelöscht.",
   "Query could not be archived.": "Abfrage konnte nicht archiviert werden.",
   "Schema refresh failed.": "Schema-Aktualisierung fehlgeschlagen.",
   "Error deleting visualization.": "Fehler beim Löschen der Visualisierung.",

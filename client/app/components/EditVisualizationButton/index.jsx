@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import FormOutlinedIcon from "@ant-design/icons/FormOutlined";
 
 export default function EditVisualizationButton(props) {
-  const { t } = useTranslation("Visualization");
+  const { t } = useTranslation("Visualizations");
   return (
     <Button
       data-test="EditVisualization"

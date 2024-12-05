@@ -1,5 +1,8 @@
 import React from "react";
 import { pick } from "lodash";
+
+import i18next from "i18next";
+
 import HelpTrigger from "@/components/HelpTrigger";
 import Link from "@/components/Link";
 import { Renderer as VisRenderer, Editor as VisEditor, updateVisualizationsSettings } from "@redash/viz/lib";
@@ -16,7 +19,7 @@ function wrapComponentWithSettings(WrappedComponent) {
       LinkComponent: Link,
       choroplethAvailableMaps: {
         countries: {
-          name: "Countries",
+          name: i18next.t("Visualizations:Countries"),
           url: countriesDataUrl,
           fieldNames: {
             name: "Short name",
@@ -28,7 +31,7 @@ function wrapComponentWithSettings(WrappedComponent) {
           },
         },
         usa: {
-          name: "USA",
+          name: i18next.t("Visualizations:USA"),
           url: usaDataUrl,
           fieldNames: {
             name: "Name",
@@ -39,7 +42,7 @@ function wrapComponentWithSettings(WrappedComponent) {
           },
         },
         subdiv_japan: {
-          name: "Japan/Prefectures",
+          name: i18next.t("Visualizations:Japan/Prefectures"),
           url: subdivJapanDataUrl,
           fieldNames: {
             name: "Name",
