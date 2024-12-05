@@ -135,14 +135,14 @@ class MyDashboardsResource(BaseResource):
         return paginate(ordered_results, page, page_size, DashboardSerializer)
 
 
-def get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name):
-    """ This function adds allowed_widgets info to the data to return to frontend 
-    if we have a query named as follow f"allowed_widgets_{dashboard_id}". 
-    It returns an empty dictionary if the query does not exist """
+def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name):
+    """This function adds allowed_widgets info to the data to return to frontend
+    if we have a query named as follow f"allowed_widgets_{dashboard_id}".
+    It returns an empty dictionary if the query does not exist"""
     # get the query having the allowed widgets information for the current dashboard
     query_name = f"allowed_widgets_{dashboard_id}"
     query = models.Query.query.filter(models.Query.name == query_name).first()
-    
+
     # construct the allowed_widgets dictionary from the query data
     allowed_widgets = {}
     if query:
@@ -153,18 +153,21 @@ def get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name):
 
     return allowed_widgets
 
+
 def add_allowed_widgets_info(method):
     def wrapper(self, dashboard_id):
-        result=method(self, dashboard_id)
+        result = method(self, dashboard_id)
 
         # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
-        parameter_col_name="main_parameter"
-        widgets_col_name="widgets"
-        allowed_widgets = get_allowed_widgets_info(dashboard_id,parameter_col_name,widgets_col_name)
+        parameter_col_name = "main_parameter"
+        widgets_col_name = "widgets"
+        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name)
         if allowed_widgets:
             result["allowed_widgets"] = allowed_widgets
         return result
+
     return wrapper
+
 
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")

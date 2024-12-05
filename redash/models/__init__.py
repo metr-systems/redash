@@ -956,6 +956,7 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
 
     def evaluate(self):
         data = self.query_rel.latest_query_data.data
+        new_state = self.UNKNOWN_STATE
 
         if data["rows"] and self.options["column"] in data["rows"][0]:
             op = OPERATORS.get(self.options["op"], lambda v, t: False)
@@ -963,9 +964,8 @@ class Alert(TimestampMixin, BelongsToOrgMixin, db.Model):
             value = data["rows"][0][self.options["column"]]
             threshold = self.options["value"]
 
-            new_state = next_state(op, value, threshold)
-        else:
-            new_state = self.UNKNOWN_STATE
+            if value is not None:
+                new_state = next_state(op, value, threshold)
 
         return new_state
 
@@ -1210,7 +1210,8 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
             "visualization_id": self.visualization_id,
             "dashboard_id": dashboard_id,
         }
-    
+
+
 @generic_repr("id", "widget_id")
 class metrWidget(TimestampMixin, BelongsToOrgMixin, db.Model):
     id = primary_key("metrWidget")
@@ -1219,6 +1220,7 @@ class metrWidget(TimestampMixin, BelongsToOrgMixin, db.Model):
     tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
 
     __tablename__ = "metrwidgets"
+
 
 @generic_repr("id", "object_type", "object_id", "action", "user_id", "org_id", "created_at")
 class Event(db.Model):

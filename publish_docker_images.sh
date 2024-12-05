@@ -72,7 +72,7 @@ docker build $DOCKER_CACHE_FLAG --platform linux/amd64 -t redash-metr .
 function tag_and_push_image() {
     NAME="$1"
     docker tag ${NAME} swr.eu-de.otc.t-systems.com/metr/${NAME}:${TAG}
-    docker push swr.eu-de.otc.t-systems.com/metr/${NAME}:${TAG}
+    docker push --platform linux/amd64 swr.eu-de.otc.t-systems.com/metr/${NAME}:${TAG}
 }
 
 
