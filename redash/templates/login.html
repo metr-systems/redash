@@ -1,6 +1,6 @@
 {% extends "layouts/signed_out.html" %}
 
-{% block title %}Login to Redash{% endblock %}
+{% block title %}{{ _('Login to Redash') }}{% endblock %}
 
 {% block content %}
 <div class="fixed-width-page">
@@ -16,7 +16,7 @@
     {% if show_google_openid %}
       <a href="{{ google_auth_url }}" class="login-button btn btn-default btn-block">
         <img src="/static/images/google_logo.svg">
-        Login with Google
+       {{ _("Login with Google") }}
       </a>
     {% endif %}
 
