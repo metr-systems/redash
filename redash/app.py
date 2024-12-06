@@ -47,8 +47,7 @@ def create_app():
     app = Redash()
 
     # Initialize the Flask-Babel extension
-    babel = Babel(app)
-    babel.locale_selector_func = get_locale
+    Babel(app, locale_selector=get_locale)
 
     security.init_app(app)
     request_metrics.init_app(app)
