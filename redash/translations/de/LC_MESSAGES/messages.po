@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-04 16:18+0100\n"
+"POT-Creation-Date: 2024-12-06 14:01+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -18,6 +18,11 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
+
+#: redash/authentication/account.py:58
+#, python-format
+msgid "%(name)s invited you to join Redash"
+msgstr "Erhalten Sie Zugriff auf Ihr metr-Dashboard"
 
 #: redash/authentication/account.py:77
 msgid "Your Redash account is disabled"
@@ -31,3 +36,49 @@ msgstr "Anmelden bei Redash"
 msgid "Login with Google"
 msgstr ""
 
+#: redash/templates/emails/invite.html:5 redash/templates/emails/reset.html:5
+msgid "Hi"
+msgstr "Hallo"
+
+#: redash/templates/emails/invite.html:7
+msgid "inviter_intro"
+msgstr "Sie wurden von "
+
+#: redash/templates/emails/invite.html:8
+#, python-format
+msgid "invited you to join the Redash account of %(org_name)s"
+msgstr "zu Ihrem metr-Dashboard eingeladen. Klicken Sie auf den Button, um Ihr Konto zu vervollständigen und Zugriff auf Dashboard zu erhalten:"
+
+#: redash/templates/emails/invite.html:10
+msgid "Setup Account"
+msgstr "Konto vervollständigen"
+
+#: redash/templates/emails/invite.html:12
+msgid "You may copy/paste this link into your browser:"
+msgstr "Der Button funktioniert nicht? Dann kopieren Sie bitte diesen Link in Ihren Browser:"
+
+#: redash/templates/emails/invite.html:15
+msgid "Your sign-in email is:"
+msgstr "Ihr Benutzername / Ihre E-Mail-Adresse:"
+
+#: redash/templates/emails/invite.html:16
+msgid "Your Redash account is:"
+msgstr "Der Zugangslink zu Ihrem metr-Dashboard:"
+
+#: redash/templates/emails/reset.html:7
+msgid ""
+"You told us you forgot your password. If you really did, click here to "
+"choose a new one: "
+msgstr ""
+"Sie möchten Ihr Passwort zurücksetzen? Klicken Sie dazu einfach auf diesen Button:"
+
+#: redash/templates/emails/reset.html:11
+msgid "Need the raw link? "
+msgstr ""
+
+#: redash/templates/emails/reset.html:14
+msgid ""
+"If you didn't mean to reset your password, then you can just ignore this "
+"email; your password will not change."
+msgstr ""
+"Falls Sie Ihr Passwort nicht zurücksetzen möchten, dann ignorieren Sie diese E-Mail ganz einfach. Ihr bisheriges Passwort bleibt bestehen. "

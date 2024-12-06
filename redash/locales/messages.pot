@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-04 16:18+0100\n"
+"POT-Creation-Date: 2024-12-06 14:01+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,11 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
+
+#: redash/authentication/account.py:58
+#, python-format
+msgid "%(name)s invited you to join Redash"
+msgstr ""
 
 #: redash/authentication/account.py:77
 msgid "Your Redash account is disabled"
@@ -27,5 +32,50 @@ msgstr ""
 
 #: redash/templates/login.html:19
 msgid "Login with Google"
+msgstr ""
+
+#: redash/templates/emails/invite.html:5 redash/templates/emails/reset.html:5
+msgid "Hi"
+msgstr ""
+
+#: redash/templates/emails/invite.html:7
+msgid "inviter_intro"
+msgstr ""
+
+#: redash/templates/emails/invite.html:8
+#, python-format
+msgid "invited you to join the Redash account of %(org_name)s"
+msgstr ""
+
+#: redash/templates/emails/invite.html:10
+msgid "Setup Account"
+msgstr ""
+
+#: redash/templates/emails/invite.html:12
+msgid "You may copy/paste this link into your browser:"
+msgstr ""
+
+#: redash/templates/emails/invite.html:15
+msgid "Your sign-in email is:"
+msgstr ""
+
+#: redash/templates/emails/invite.html:16
+msgid "Your Redash account is:"
+msgstr ""
+
+#: redash/templates/emails/reset.html:7
+msgid ""
+"You told us you forgot your password. If you really did, click here to "
+"choose a new one: "
+msgstr ""
+
+#: redash/templates/emails/reset.html:11
+msgid "Need the raw link? "
+msgstr ""
+
+#: redash/templates/emails/reset.html:14
+msgid ""
+"If you didn't mean to reset your password, then you can just ignore this "
+"email; your password will not change."
 msgstr ""
 
