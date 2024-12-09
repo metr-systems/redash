@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-04 16:18+0100\n"
+"POT-Creation-Date: 2024-12-09 11:11+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,8 +17,221 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
 
+#: redash/authentication/__init__.py:221
+msgid "Couldn't find resource. Please login and try again."
+msgstr ""
+
+#: redash/authentication/account.py:49
+msgid "{user_name}, please verify your email address"
+msgstr ""
+
+#: redash/authentication/account.py:58
+msgid "{inviter_name} invited you to join Redash"
+msgstr ""
+
+#: redash/authentication/account.py:68
+msgid "Reset your password"
+msgstr ""
+
 #: redash/authentication/account.py:77
 msgid "Your Redash account is disabled"
+msgstr ""
+
+#: redash/authentication/google_oauth.py:87
+#: redash/authentication/google_oauth.py:92
+msgid "Validation error. Please retry."
+msgstr ""
+
+#: redash/authentication/google_oauth.py:108
+msgid "Your Google Apps account ({profile_email}) isn't allowed."
+msgstr ""
+
+#: redash/authentication/ldap_auth.py:60
+msgid "Incorrect credentials."
+msgstr ""
+
+#: redash/authentication/saml_auth.py:123
+msgid "SAML login failed. Please try again later."
+msgstr ""
+
+#: redash/handlers/authentication.py:46
+msgid "Invalid invite link. Please ask for a new one."
+msgstr ""
+
+#: redash/handlers/authentication.py:55
+msgid "Your invite link has expired. Please ask for a new one."
+msgstr ""
+
+#: redash/handlers/authentication.py:65
+msgid ""
+"This invitation has already been accepted. Please try resetting your "
+"password instead."
+msgstr ""
+
+#: redash/handlers/authentication.py:74
+msgid "Bad Request"
+msgstr ""
+
+#: redash/handlers/authentication.py:77
+msgid "Cannot use empty password."
+msgstr ""
+
+#: redash/handlers/authentication.py:80
+msgid "Password length is too short (<6)."
+msgstr ""
+
+#: redash/handlers/authentication.py:129
+msgid "Your verification link is invalid. Please ask for a new one."
+msgstr ""
+
+#: redash/handlers/authentication.py:172
+msgid "Please check your email inbox in order to verify your email address."
+msgstr ""
+
+#: redash/handlers/authentication.py:200 redash/handlers/authentication.py:202
+msgid "Wrong email or password."
+msgstr ""
+
+#: redash/handlers/authentication.py:204
+msgid "Password login is not enabled for your organization."
+msgstr ""
+
+#: redash/handlers/base.py:86
+msgid "Page must be positive integer."
+msgstr ""
+
+#: redash/handlers/base.py:89
+msgid "Page is out of range."
+msgstr ""
+
+#: redash/handlers/base.py:92
+msgid "Page size is out of range (1-250)."
+msgstr ""
+
+#: redash/handlers/dashboards.py:319
+msgid "Public URLs are disabled."
+msgstr ""
+
+#: redash/handlers/data_sources.py:77 redash/handlers/data_sources.py:155
+msgid "Data source with the name {} already exists."
+msgstr ""
+
+#: redash/handlers/databricks.py:23
+msgid "Resource only available for the Databricks query runner."
+msgstr ""
+
+#: redash/handlers/destinations.py:58 redash/handlers/destinations.py:131
+msgid "Alert Destination with the name {} already exists."
+msgstr ""
+
+#: redash/handlers/groups.py:62
+msgid "Can't delete built-in groups."
+msgstr ""
+
+#: redash/handlers/permissions.py:48
+msgid "Unknown access type."
+msgstr ""
+
+#: redash/handlers/permissions.py:53 redash/handlers/permissions.py:82
+msgid "User not found."
+msgstr ""
+
+#: redash/handlers/queries.py:178
+msgid ""
+"You are trying to associate a dropdown query that does not have a "
+"matching group. Please verify the dropdown query id you are trying to "
+"associate with this query."
+msgstr ""
+
+#: redash/handlers/queries.py:458
+msgid "Please use a user API key."
+msgstr ""
+
+#: redash/handlers/query_results.py:47
+msgid ""
+"This query contains potentially unsafe parameters and cannot be executed "
+"on a shared dashboard or an embedded visualization."
+msgstr ""
+
+#: redash/handlers/query_results.py:53
+msgid ""
+"This query contains potentially unsafe parameters and cannot be executed "
+"with read-only access to this data source."
+msgstr ""
+
+#: redash/handlers/query_results.py:58
+msgid "You do not have permission to run queries with this data source."
+msgstr ""
+
+#: redash/handlers/query_results.py:59
+msgid "Please select data source to run this query."
+msgstr ""
+
+#: redash/handlers/query_results.py:60
+msgid "Target data source not available."
+msgstr ""
+
+#: redash/handlers/query_results.py:70
+#, python-format
+msgid "%(name)s is paused (%(reason)s). Please try later."
+msgstr ""
+
+#: redash/handlers/query_results.py:75
+#, python-format
+msgid "%(name)s is paused. Please try later."
+msgstr ""
+
+#: redash/handlers/query_results.py:88
+#, python-format
+msgid "Missing parameter value for: %(missing_params)smissing_params, "
+msgstr ""
+
+#: redash/handlers/query_results.py:338 redash/handlers/query_results.py:385
+msgid "No cached result found for this query."
+msgstr ""
+
+#: redash/handlers/users.py:65 redash/handlers/users.py:137
+msgid "Bad email address."
+msgstr ""
+
+#: redash/handlers/users.py:153 redash/handlers/users.py:260
+msgid "Email already taken."
+msgstr ""
+
+#: redash/handlers/users.py:184
+msgid "Not found"
+msgstr ""
+
+#: redash/handlers/users.py:216
+msgid "Must provide current password to update password."
+msgstr ""
+
+#: redash/handlers/users.py:219
+msgid "Incorrect current password."
+msgstr ""
+
+#: redash/handlers/users.py:227
+msgid "Must be admin to change groups membership."
+msgstr ""
+
+#: redash/handlers/users.py:262
+msgid "Error updating record"
+msgstr ""
+
+#: redash/handlers/users.py:285
+msgid ""
+"You cannot delete your own account. Please ask another admin to do this "
+"for you."
+msgstr ""
+
+#: redash/handlers/users.py:291
+msgid "You cannot delete activated users. Please disable the user instead."
+msgstr ""
+
+#: redash/handlers/users.py:309
+msgid ""
+"You cannot disable your own account. Please ask another admin to do this "
+"for you."
 msgstr ""
 
 #: redash/templates/login.html:3
