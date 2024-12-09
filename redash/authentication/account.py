@@ -65,7 +65,7 @@ def send_password_reset_email(user):
     context = dict(user=user, reset_link=reset_link)
     html_content = render_template("emails/reset.html", **context)
     text_content = render_template("emails/reset.txt", **context)
-    subject = "Reset your password"
+    subject = _("Reset your password")
 
     send_mail.delay([user.email], subject, html_content, text_content)
     return reset_link

@@ -37,6 +37,14 @@ msgstr ""
 msgid "Reset your password"
 msgstr ""
 
+#: redash/authentication/account.py:58
+msgid "{inviter_name} invited you to join Redash"
+msgstr ""
+
+#: redash/authentication/account.py:68
+msgid "Reset your password"
+msgstr ""
+
 #: redash/authentication/account.py:77
 msgid "Your Redash account is disabled"
 msgstr ""
