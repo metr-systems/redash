@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-10 09:24+0100\n"
+"POT-Creation-Date: 2024-12-10 09:56+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -31,14 +31,6 @@ msgstr ""
 
 #: redash/authentication/account.py:58
 msgid "{} invited you to join Redash"
-msgstr ""
-
-#: redash/authentication/account.py:68
-msgid "Reset your password"
-msgstr ""
-
-#: redash/authentication/account.py:58
-msgid "{inviter_name} invited you to join Redash"
 msgstr ""
 
 #: redash/authentication/account.py:68

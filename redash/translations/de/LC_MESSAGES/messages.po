@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-10 09:24+0100\n"
+"POT-Creation-Date: 2024-12-10 09:56+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -30,24 +30,16 @@ msgstr ""
 "erneut."
 
 #: redash/authentication/account.py:49
-#, fuzzy
 msgid "{}, please verify your email address"
-msgstr "{user_name}, bitte bestätigen Sie Ihre E-Mail-Adresse"
+msgstr "{}, bitte bestätigen Sie Ihre E-Mail-Adresse"
 
 #: redash/authentication/account.py:58
-#, fuzzy
 msgid "{} invited you to join Redash"
-msgstr "{inviter_name} hat Sie eingeladen, Redash beizutreten"
+msgstr "{} hat Sie eingeladen, Redash beizutreten"
 
 #: redash/authentication/account.py:68
 msgid "Reset your password"
 msgstr "Setzen Sie Ihr Passwort zurück"
-msgid "{inviter_name} invited you to join Redash"
-msgstr "hat Sie eingeladen, dem Redash-Konto von beizutreten"
-
-#: redash/authentication/account.py:68
-msgid "Reset your password"
-msgstr "Mein Passwort zurücksetzen"
 
 #: redash/authentication/account.py:77
 msgid "Your Redash account is disabled"
@@ -59,9 +51,8 @@ msgid "Validation error. Please retry."
 msgstr "Validierungsfehler. Bitte versuchen Sie es erneut."
 
 #: redash/authentication/google_oauth.py:107
-#, fuzzy
 msgid "Your Google Apps account ({}) isn't allowed."
-msgstr "Ihr Google Apps-Konto ({profile_email}) ist nicht erlaubt."
+msgstr "Ihr Google Apps-Konto ({}) ist nicht erlaubt."
 
 #: redash/authentication/ldap_auth.py:60
 msgid "Incorrect credentials."
@@ -201,19 +192,16 @@ msgid "Target data source not available."
 msgstr "Zieldatenquelle nicht verfügbar."
 
 #: redash/handlers/query_results.py:70
-#, fuzzy, python-format
 msgid "{} is paused ({}). Please try later."
-msgstr "%(name)s ist pausiert. Bitte versuchen Sie es später erneut."
+msgstr "{} ist pausiert ({}). Bitte versuchen Sie es später erneut."
 
 #: redash/handlers/query_results.py:72
-#, fuzzy, python-format
 msgid "{} is paused. Please try later."
-msgstr "%(name)s ist pausiert. Bitte versuchen Sie es später erneut."
+msgstr "{} ist pausiert. Bitte versuchen Sie es später erneut."
 
 #: redash/handlers/query_results.py:84
-#, fuzzy, python-format
 msgid "Missing parameter value for: {}"
-msgstr "Fehlender Parameterwert für: %(missing_params)smissing_params,"
+msgstr "Fehlender Parameterwert für: {},"
 
 #: redash/handlers/query_results.py:333 redash/handlers/query_results.py:380
 msgid "No cached result found for this query."
@@ -298,7 +286,6 @@ msgid "Reset my password"
 msgstr "Mein Passwort zurücksetzen"
 
 #: redash/templates/invite.html:3 redash/templates/setup.html:27
-#, fuzzy
 msgid "Welcome to Redash!"
 msgstr "Willkommen bei Redash!"
 
@@ -316,7 +303,7 @@ msgstr "Um Ihr Konto zu erstellen, wählen Sie bitte ein Passwort."
 
 #: redash/templates/invite.html:27 redash/templates/login.html:19
 msgid "Login with Google"
-msgstr "Mit Google anmelden"
+msgstr "Einloggen mit Google"
 
 #: redash/templates/invite.html:32 redash/templates/login.html:24
 msgid "SAML Login"
@@ -473,11 +460,6 @@ msgstr "Bitte bestätigen Sie, dass"
 msgid "is your correct email address by visiting the following link:"
 msgstr "Ihre korrekte E-Mail-Adresse ist, indem Sie den folgenden Link besuchen:"
 
-#~ msgid "%(name)s is paused (%(reason)s). Please try later."
-#~ msgstr ""
-#~ "%(name)s ist pausiert (%(reason)s). Bitte "
-#~ "versuchen Sie es später erneut."
-
 #: redash/templates/emails/verify.html:10
 msgid "Verify Address"
 msgstr "Adresse verifizieren"
@@ -498,9 +480,4 @@ msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
 msgid "Could not get mapper for table '{}'."
 msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
 
-#~ msgid "{inviter_name} invited you to join Redash"
-#~ msgstr "{inviter_name} hat Sie eingeladen, Redash beizutreten"
-
-#~ msgid "Reset your password"
-#~ msgstr "Setzen Sie Ihr Passwort zurück"
 
