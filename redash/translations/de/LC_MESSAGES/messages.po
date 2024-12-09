@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-09 14:39+0100\n"
+"POT-Creation-Date: 2024-12-09 15:36+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -18,6 +18,10 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.16.0\n"
+
+#: redash/permissions.py:110
+msgid "You don't have permission to edit this resource."
+msgstr "Sie haben keine Berechtigung, Abfragen mit dieser Datenquelle auszuführen."
 
 #: redash/authentication/__init__.py:221
 msgid "Couldn't find resource. Please login and try again."
@@ -281,5 +285,4 @@ msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
 #: redash/utils/query_order.py:158
 msgid "Could not get mapper for table '{}'."
 msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
-
 

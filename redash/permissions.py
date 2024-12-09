@@ -1,5 +1,6 @@
 import functools
 
+from flask_babel import _
 from flask_login import current_user
 from flask_restful import abort
 from funcy import flatten
@@ -106,7 +107,7 @@ def require_permission_or_owner(permission, object_owner_id):
 
 def require_admin_or_owner(object_owner_id):
     if not is_admin_or_owner(object_owner_id):
-        abort(403, message="You don't have permission to edit this resource.")
+        abort(403, message=_("You don't have permission to edit this resource."))
 
 
 def can_modify(obj, user):
