@@ -264,6 +264,69 @@ msgid ""
 msgstr ""
 "Sie können Ihr eigenes Konto nicht deaktivieren. Bitte bitten Sie einen "
 "anderen Administrator, dies für Sie zu tun."
+#: redash/templates/error.html:5
+msgid "Error"
+msgstr "Fehler"
+
+#: redash/templates/forgot.html:2 redash/templates/reset.html:3
+msgid "Password Reset"
+msgstr "Passwort zurücksetzen"
+
+#: redash/templates/forgot.html:8
+msgid ""
+"If we found an account associated with that email address, you will find "
+"an email from us in your inbox shortly."
+msgstr ""
+"Falls wir ein Konto mit dieser E-Mail-Adresse gefunden haben, finden Sie "
+"bald eine E-Mail von uns in Ihrem Posteingang."
+
+#: redash/templates/forgot.html:14
+msgid "Enter the email address you used for this account:"
+msgstr "Geben Sie die E-Mail-Adresse ein, die Sie für dieses Konto verwendet haben:"
+
+#: redash/templates/forgot.html:17
+msgid "Reset my password"
+msgstr "Mein Passwort zurücksetzen"
+
+#: redash/templates/invite.html:3 redash/templates/setup.html:27
+#, fuzzy
+msgid "Welcome to Redash!"
+msgstr "Willkommen bei Redash!"
+
+#: redash/templates/invite.html:10
+msgid ""
+"To create your account, please choose a password or login with your SSO "
+"provider."
+msgstr ""
+"Um Ihr Konto zu erstellen, wählen Sie bitte ein Passwort oder melden Sie sich mit Ihrem SSO-Anbieter an."
+
+#: redash/templates/invite.html:12
+msgid "To create your account, please choose a password."
+msgstr "Um Ihr Konto zu erstellen, wählen Sie bitte ein Passwort."
+
+#: redash/templates/invite.html:27 redash/templates/login.html:19
+msgid "Login with Google"
+msgstr "Mit Google anmelden"
+
+#: redash/templates/invite.html:32 redash/templates/login.html:24
+msgid "SAML Login"
+msgstr "SAML-Anmeldung"
+
+#: redash/templates/invite.html:36 redash/templates/login.html:28
+msgid "Remote User Login"
+msgstr "Remote-Benutzeranmeldung"
+
+#: redash/templates/invite.html:40 redash/templates/login.html:32
+msgid "LDAP/SSO Login"
+msgstr "LDAP/SSO-Anmeldung"
+
+#: redash/templates/invite.html:50 redash/templates/login.html:47
+msgid "Password"
+msgstr "Passwort"
+
+#: redash/templates/invite.html:53
+msgid "Set Password"
+msgstr "Passwort festlegen"
 
 #: redash/templates/login.html:3
 msgid "Login to Redash"
@@ -288,9 +351,137 @@ msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
 #: redash/utils/query_order.py:158
 msgid "Could not get mapper for table '{}'."
 msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
+#: redash/templates/login.html:52
+msgid "Remember me"
+msgstr "Angemeldet bleiben"
+
+#: redash/templates/login.html:55
+msgid "Log In"
+msgstr "Anmelden"
+
+#: redash/templates/login.html:59
+msgid "I forgot my password"
+msgstr "Ich habe mein Passwort vergessen"
+
+#: redash/templates/reset.html:18
+msgid "Enter your new password:"
+msgstr "Geben Sie Ihr neues Passwort ein:"
+
+#: redash/templates/reset.html:21
+msgid "Change my password"
+msgstr "Mein Passwort ändern"
+
+#: redash/templates/setup.html:3
+msgid "Redash Initial Setup"
+msgstr "Redash Ersteinrichtung"
+
+#: redash/templates/setup.html:28
+msgid "Before you can use your instance, you need to do a quick setup."
+msgstr "Bevor Sie Ihre Instanz verwenden können, müssen Sie eine kurze Einrichtung durchführen."
+
+#: redash/templates/setup.html:40
+msgid "Admin User"
+msgstr "Admin-Benutzer"
+
+#: redash/templates/setup.html:45
+msgid "General"
+msgstr "Allgemein"
+
+#: redash/templates/setup.html:49
+msgid "Setup"
+msgstr "Einrichtung"
+
+#: redash/templates/verify.html:2
+msgid "E-mail Verified"
+msgstr "E-Mail verifiziert"
+
+#: redash/templates/verify.html:10
+msgid ""
+"Thanks for verifying your email address. You will be redirected back to "
+"the app within a few seconds."
+msgstr ""
+"Vielen Dank, dass Sie Ihre E-Mail-Adresse verifiziert haben. Sie werden in wenigen Sekunden zurück zur App weitergeleitet."
+
+#: redash/templates/verify.html:10
+msgid "Click here"
+msgstr "Hier klicken"
+
+#: redash/templates/verify.html:10
+msgid "if you are not redirected."
+msgstr "wenn Sie nicht weitergeleitet werden."
+
+#: redash/templates/emails/failures.html:14
+msgid "Redash failed to run the following queries:"
+msgstr "Redash konnte die folgenden Abfragen nicht ausführen:"
+
+#: redash/templates/emails/failures.html:18
+msgid "Go to Query"
+msgstr "Zur Abfrage gehen"
+
+#: redash/templates/emails/failures.html:21
+msgid "Last failed:"
+msgstr "Zuletzt fehlgeschlagen:"
+
+#: redash/templates/emails/failures.html:24
+msgid "more failures since last report"
+msgstr "weitere Fehler seit dem letzten Bericht"
+
+#: redash/templates/emails/failures.html:27
+msgid "Exception"
+msgstr "Ausnahme"
+
+#: redash/templates/emails/invite.html:8
+msgid "invited you to join the Redash account of"
+msgstr "hat Sie eingeladen, dem Redash-Konto von beizutreten"
+
+#: redash/templates/emails/invite.html:10
+msgid "Setup Account"
+msgstr "Konto einrichten"
+
+#: redash/templates/emails/invite.html:12
+#: redash/templates/emails/verify.html:12
+msgid "You may copy/paste this link into your browser:"
+msgstr "Sie können diesen Link in Ihren Browser kopieren/einfügen:"
+
+#: redash/templates/emails/invite.html:15
+msgid "Your sign-in email is:"
+msgstr "Ihre Anmelde-E-Mail ist:"
+
+#: redash/templates/emails/invite.html:16
+msgid "Your Redash account is:"
+msgstr "Ihr Redash-Konto ist:"
+
+#: redash/templates/emails/reset.html:7
+msgid ""
+"You told us you forgot your password. If you really did, click here to "
+"choose a new one:"
+msgstr ""
+"Sie haben uns mitgeteilt, dass Sie Ihr Passwort vergessen haben. Wenn das wirklich der Fall ist, klicken Sie hier, um ein neues auszuwählen:"
+
+#: redash/templates/emails/reset.html:11
+msgid "Need the raw link?"
+msgstr "Benötigen Sie den Rohlink?"
+
+#: redash/templates/emails/reset.html:14
+msgid ""
+"If you didn't mean to reset your password, then you can just ignore this "
+"email; your password will not change."
+msgstr ""
+"Wenn Sie Ihr Passwort nicht zurücksetzen wollten, können Sie diese E-Mail einfach ignorieren; Ihr Passwort wird nicht geändert."
+
+#: redash/templates/emails/verify.html:7
+msgid "Please verify that"
+msgstr "Bitte bestätigen Sie, dass"
+
+#: redash/templates/emails/verify.html:7
+msgid "is your correct email address by visiting the following link:"
+msgstr "Ihre korrekte E-Mail-Adresse ist, indem Sie den folgenden Link besuchen:"
 
 #~ msgid "%(name)s is paused (%(reason)s). Please try later."
 #~ msgstr ""
 #~ "%(name)s ist pausiert (%(reason)s). Bitte "
 #~ "versuchen Sie es später erneut."
 
+#: redash/templates/emails/verify.html:10
+msgid "Verify Address"
+msgstr "Adresse verifizieren"

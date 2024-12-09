@@ -52,18 +52,18 @@ footer {
 
 <body>
 <p>
-  <span class="status {{{ALERT_STATUS}}}">STATUS: {{ALERT_STATUS}}</span>
+  <span class="status {{{ALERT_STATUS}}}">{{ _('STATUS:') }} {{ALERT_STATUS}}</span>
 </p>
 
 <p>
-  CONDITION:
+  {{ _('CONDITION:') }}
   <code>
   {{QUERY_RESULT_VALUE}} {{ALERT_CONDITION}} {{ALERT_THRESHOLD}}
   </code>
 </p>
 
 <p>
-  QUERY:
+  {{ _('QUERY:') }}
   <a href="{{QUERY_URL}}">{{QUERY_NAME}}</a>
 </p>
 

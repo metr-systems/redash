@@ -1,10 +1,10 @@
-Redash failed to run the following queries:
+{{ _('Redash failed to run the following queries:') }}
 
 {% for failure in failures %}
 
 {{failure.name}} ({{base_url}}/queries/{{failure.id}})
-Last failed: {{failure.failed_at}}{% if failure.failure_count > 1 %} + {{failure.failure_count - 1}} more failures since last report{% endif %}
-Exception:
+{{ _('Last failed:') }} {{failure.failed_at}}{% if failure.failure_count > 1 %} + {{failure.failure_count - 1}} {{ _('more failures since last report') }}{% endif %}
+{{ _('Exception:') }}
 
 {{failure.failure_reason}}
 
