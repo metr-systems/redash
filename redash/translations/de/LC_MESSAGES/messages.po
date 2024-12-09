@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-09 12:24+0100\n"
+"POT-Creation-Date: 2024-12-09 14:39+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -21,7 +21,9 @@ msgstr ""
 
 #: redash/authentication/__init__.py:221
 msgid "Couldn't find resource. Please login and try again."
-msgstr "Ressource nicht gefunden. Bitte melden Sie sich an und versuchen Sie es erneut."
+msgstr ""
+"Ressource nicht gefunden. Bitte melden Sie sich an und versuchen Sie es "
+"erneut."
 
 #: redash/authentication/account.py:49
 msgid "{user_name}, please verify your email address"
@@ -263,4 +265,21 @@ msgstr "Anmelden bei Redash"
 #: redash/templates/login.html:19
 msgid "Login with Google"
 msgstr "Mit Google anmelden"
+
+#: redash/utils/__init__.py:105
+msgid "JSON can't represent timezone-aware times."
+msgstr "JSON kann keine zeitzonenbewussten Zeiten darstellen."
+
+#: redash/utils/configuration.py:41
+msgid "Schema missing."
+msgstr "Schema fehlt."
+
+#: redash/utils/query_order.py:156
+msgid "Multiple mappers found for table '{}'."
+msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
+
+#: redash/utils/query_order.py:158
+msgid "Could not get mapper for table '{}'."
+msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
+
 

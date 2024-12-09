@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-09 12:24+0100\n"
+"POT-Creation-Date: 2024-12-09 14:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -240,5 +240,21 @@ msgstr ""
 
 #: redash/templates/login.html:19
 msgid "Login with Google"
+msgstr ""
+
+#: redash/utils/__init__.py:105
+msgid "JSON can't represent timezone-aware times."
+msgstr ""
+
+#: redash/utils/configuration.py:41
+msgid "Schema missing."
+msgstr ""
+
+#: redash/utils/query_order.py:156
+msgid "Multiple mappers found for table '{}'."
+msgstr ""
+
+#: redash/utils/query_order.py:158
+msgid "Could not get mapper for table '{}'."
 msgstr ""
 
