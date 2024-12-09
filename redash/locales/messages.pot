@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-09 11:11+0100\n"
+"POT-Creation-Date: 2024-12-09 12:24+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -96,15 +96,15 @@ msgstr ""
 msgid "Password login is not enabled for your organization."
 msgstr ""
 
-#: redash/handlers/base.py:86
+#: redash/handlers/base.py:85
 msgid "Page must be positive integer."
 msgstr ""
 
-#: redash/handlers/base.py:89
+#: redash/handlers/base.py:88
 msgid "Page is out of range."
 msgstr ""
 
-#: redash/handlers/base.py:92
+#: redash/handlers/base.py:91
 msgid "Page size is out of range (1-250)."
 msgstr ""
 

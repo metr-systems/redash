@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-09 11:11+0100\n"
+"POT-Creation-Date: 2024-12-09 12:24+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -68,7 +68,9 @@ msgstr "Ihr Einladungslink ist abgelaufen. Bitte fragen Sie nach einem neuen."
 msgid ""
 "This invitation has already been accepted. Please try resetting your "
 "password instead."
-msgstr "Diese Einladung wurde bereits angenommen. Bitte versuchen Sie stattdessen, Ihr Passwort zurückzusetzen."
+msgstr ""
+"Diese Einladung wurde bereits angenommen. Bitte versuchen Sie "
+"stattdessen, Ihr Passwort zurückzusetzen."
 
 #: redash/handlers/authentication.py:74
 msgid "Bad Request"
@@ -88,7 +90,9 @@ msgstr "Ihr Bestätigungslink ist ungültig. Bitte fragen Sie nach einem neuen."
 
 #: redash/handlers/authentication.py:172
 msgid "Please check your email inbox in order to verify your email address."
-msgstr "Bitte überprüfen Sie Ihren E-Mail-Posteingang, um Ihre E-Mail-Adresse zu bestätigen."
+msgstr ""
+"Bitte überprüfen Sie Ihren E-Mail-Posteingang, um Ihre E-Mail-Adresse zu "
+"bestätigen."
 
 #: redash/handlers/authentication.py:200 redash/handlers/authentication.py:202
 msgid "Wrong email or password."
@@ -98,15 +102,15 @@ msgstr "Falsche E-Mail oder falsches Passwort."
 msgid "Password login is not enabled for your organization."
 msgstr "Passwortanmeldung ist für Ihre Organisation nicht aktiviert."
 
-#: redash/handlers/base.py:86
+#: redash/handlers/base.py:85
 msgid "Page must be positive integer."
 msgstr "Seite muss eine positive ganze Zahl sein."
 
-#: redash/handlers/base.py:89
+#: redash/handlers/base.py:88
 msgid "Page is out of range."
 msgstr "Seite ist außerhalb des Bereichs."
 
-#: redash/handlers/base.py:92
+#: redash/handlers/base.py:91
 msgid "Page size is out of range (1-250)."
 msgstr "Seitengröße ist außerhalb des Bereichs (1-250)."
 
@@ -143,7 +147,10 @@ msgid ""
 "You are trying to associate a dropdown query that does not have a "
 "matching group. Please verify the dropdown query id you are trying to "
 "associate with this query."
-msgstr "Sie versuchen, eine Dropdown-Abfrage zu verknüpfen, die keine übereinstimmende Gruppe hat. Bitte überprüfen Sie die Dropdown-Abfrage-ID, die Sie mit dieser Abfrage verknüpfen möchten."
+msgstr ""
+"Sie versuchen, eine Dropdown-Abfrage zu verknüpfen, die keine "
+"übereinstimmende Gruppe hat. Bitte überprüfen Sie die Dropdown-Abfrage-"
+"ID, die Sie mit dieser Abfrage verknüpfen möchten."
 
 #: redash/handlers/queries.py:458
 msgid "Please use a user API key."
@@ -153,13 +160,18 @@ msgstr "Bitte verwenden Sie einen Benutzer-API-Schlüssel."
 msgid ""
 "This query contains potentially unsafe parameters and cannot be executed "
 "on a shared dashboard or an embedded visualization."
-msgstr "Diese Abfrage enthält potenziell unsichere Parameter und kann nicht auf einem freigegebenen Dashboard oder einer eingebetteten Visualisierung ausgeführt werden."
+msgstr ""
+"Diese Abfrage enthält potenziell unsichere Parameter und kann nicht auf "
+"einem freigegebenen Dashboard oder einer eingebetteten Visualisierung "
+"ausgeführt werden."
 
 #: redash/handlers/query_results.py:53
 msgid ""
 "This query contains potentially unsafe parameters and cannot be executed "
 "with read-only access to this data source."
-msgstr "Diese Abfrage enthält potenziell unsichere Parameter und kann nicht mit schreibgeschütztem Zugriff auf diese Datenquelle ausgeführt werden."
+msgstr ""
+"Diese Abfrage enthält potenziell unsichere Parameter und kann nicht mit "
+"schreibgeschütztem Zugriff auf diese Datenquelle ausgeführt werden."
 
 #: redash/handlers/query_results.py:58
 msgid "You do not have permission to run queries with this data source."
@@ -206,7 +218,9 @@ msgstr "Nicht gefunden"
 
 #: redash/handlers/users.py:216
 msgid "Must provide current password to update password."
-msgstr "Aktuelles Passwort muss angegeben werden, um das Passwort zu aktualisieren."
+msgstr ""
+"Aktuelles Passwort muss angegeben werden, um das Passwort zu "
+"aktualisieren."
 
 #: redash/handlers/users.py:219
 msgid "Incorrect current password."
@@ -224,17 +238,23 @@ msgstr "Fehler beim Aktualisieren des Datensatzes"
 msgid ""
 "You cannot delete your own account. Please ask another admin to do this "
 "for you."
-msgstr "Sie können Ihr eigenes Konto nicht löschen. Bitte bitten Sie einen anderen Administrator, dies für Sie zu tun."
+msgstr ""
+"Sie können Ihr eigenes Konto nicht löschen. Bitte bitten Sie einen "
+"anderen Administrator, dies für Sie zu tun."
 
 #: redash/handlers/users.py:291
 msgid "You cannot delete activated users. Please disable the user instead."
-msgstr "Sie können aktivierte Benutzer nicht löschen. Bitte deaktivieren Sie stattdessen den Benutzer."
+msgstr ""
+"Sie können aktivierte Benutzer nicht löschen. Bitte deaktivieren Sie "
+"stattdessen den Benutzer."
 
 #: redash/handlers/users.py:309
 msgid ""
 "You cannot disable your own account. Please ask another admin to do this "
 "for you."
-msgstr "Sie können Ihr eigenes Konto nicht deaktivieren. Bitte bitten Sie einen anderen Administrator, dies für Sie zu tun."
+msgstr ""
+"Sie können Ihr eigenes Konto nicht deaktivieren. Bitte bitten Sie einen "
+"anderen Administrator, dies für Sie zu tun."
 
 #: redash/templates/login.html:3
 msgid "Login to Redash"
@@ -243,3 +263,4 @@ msgstr "Anmelden bei Redash"
 #: redash/templates/login.html:19
 msgid "Login with Google"
 msgstr "Mit Google anmelden"
+
