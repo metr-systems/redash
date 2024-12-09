@@ -43,7 +43,7 @@ msgstr "Setzen Sie Ihr Passwort zurück"
 
 #: redash/authentication/account.py:77
 msgid "Your Redash account is disabled"
-msgstr "Ihr Redash-Konto ist deaktiviert"
+msgstr "Ihr Redash Account ist abgeschaltet"
 
 #: redash/authentication/google_oauth.py:87
 #: redash/authentication/google_oauth.py:92
@@ -268,7 +268,7 @@ msgstr "Anmelden bei Redash"
 
 #: redash/templates/login.html:19
 msgid "Login with Google"
-msgstr "Mit Google anmelden"
+msgstr "Einloggen mit Google"
 
 #: redash/utils/__init__.py:105
 msgid "JSON can't represent timezone-aware times."
