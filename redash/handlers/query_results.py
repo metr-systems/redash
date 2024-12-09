@@ -3,6 +3,7 @@ from urllib.parse import quote
 
 import regex
 from flask import make_response, request
+from flask_babel import _
 from flask_login import current_user
 from flask_restful import abort
 
@@ -43,16 +44,20 @@ def error_response(message, http_status=400):
 
 error_messages = {
     "unsafe_when_shared": error_response(
-        "This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization.",
+        _(
+            "This query contains potentially unsafe parameters and cannot be executed on a shared dashboard or an embedded visualization."
+        ),
         403,
     ),
     "unsafe_on_view_only": error_response(
-        "This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source.",
+        _(
+            "This query contains potentially unsafe parameters and cannot be executed with read-only access to this data source."
+        ),
         403,
     ),
-    "no_permission": error_response("You do not have permission to run queries with this data source.", 403),
-    "select_data_source": error_response("Please select data source to run this query.", 401),
-    "no_data_source": error_response("Target data source not available.", 401),
+    "no_permission": error_response(_("You do not have permission to run queries with this data source."), 403),
+    "select_data_source": error_response(_("Please select data source to run this query."), 401),
+    "no_data_source": error_response(_("Target data source not available."), 401),
 }
 
 
@@ -62,9 +67,12 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
 
     if data_source.paused:
         if data_source.pause_reason:
-            message = "{} is paused ({}). Please try later.".format(data_source.name, data_source.pause_reason)
+            message = _("%(name)s is paused (%(reason)s). Please try later.") % {
+                "name": data_source.name,
+                "pause_reason": data_source.pause_reason,
+            }
         else:
-            message = "{} is paused. Please try later.".format(data_source.name)
+            message = _("%(name)s is paused. Please try later.") % {"name": data_source.name}
 
         return error_response(message)
 
@@ -76,7 +84,9 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
     query_text = data_source.query_runner.apply_auto_limit(query.text, should_apply_auto_limit)
 
     if query.missing_params:
-        return error_response("Missing parameter value for: {}".format(", ".join(query.missing_params)))
+        return error_response(
+            _("Missing parameter value for: %(missing_params)s" % {"missing_params": ", ".join(query.missing_params)})
+        )
 
     if max_age == 0:
         query_result = None
@@ -325,7 +335,7 @@ class QueryResultResource(BaseResource):
 
             if query is not None and query_result is not None and self.current_user.is_api_user():
                 if query.query_hash != query_result.query_hash:
-                    abort(404, message="No cached result found for this query.")
+                    abort(404, message=_("No cached result found for this query."))
 
         if query_result:
             require_access(query_result.data_source, self.current_user, view_only)
@@ -372,7 +382,7 @@ class QueryResultResource(BaseResource):
             return response
 
         else:
-            abort(404, message="No cached result found for this query.")
+            abort(404, message=_("No cached result found for this query."))
 
     @staticmethod
     def make_json_response(query_result):

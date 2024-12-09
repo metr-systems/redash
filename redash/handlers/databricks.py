@@ -1,4 +1,5 @@
 from flask import request
+from flask_babel import _
 from flask_restful import abort
 
 from redash import models, redis_connection
@@ -19,7 +20,7 @@ def _get_databricks_data_source(data_source_id, user, org):
     require_access(data_source, user, view_only)
 
     if not data_source.type == "databricks":
-        abort(400, message="Resource only available for the Databricks query runner.")
+        abort(400, message=_("Resource only available for the Databricks query runner."))
 
     return data_source
 
