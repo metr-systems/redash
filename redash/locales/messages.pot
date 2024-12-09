@@ -233,6 +233,8 @@ msgstr ""
 msgid ""
 "You cannot disable your own account. Please ask another admin to do this "
 "for you."
+msgstr ""
+
 #: redash/templates/error.html:5
 msgid "Error"
 msgstr ""

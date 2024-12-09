@@ -264,6 +264,7 @@ msgid ""
 msgstr ""
 "Sie können Ihr eigenes Konto nicht deaktivieren. Bitte bitten Sie einen "
 "anderen Administrator, dies für Sie zu tun."
+
 #: redash/templates/error.html:5
 msgid "Error"
 msgstr "Fehler"
@@ -282,7 +283,9 @@ msgstr ""
 
 #: redash/templates/forgot.html:14
 msgid "Enter the email address you used for this account:"
-msgstr "Geben Sie die E-Mail-Adresse ein, die Sie für dieses Konto verwendet haben:"
+msgstr ""
+"Geben Sie die E-Mail-Adresse ein, die Sie für dieses Konto verwendet "
+"haben:"
 
 #: redash/templates/forgot.html:17
 msgid "Reset my password"
@@ -298,7 +301,8 @@ msgid ""
 "To create your account, please choose a password or login with your SSO "
 "provider."
 msgstr ""
-"Um Ihr Konto zu erstellen, wählen Sie bitte ein Passwort oder melden Sie sich mit Ihrem SSO-Anbieter an."
+"Um Ihr Konto zu erstellen, wählen Sie bitte ein Passwort oder melden Sie "
+"sich mit Ihrem SSO-Anbieter an."
 
 #: redash/templates/invite.html:12
 msgid "To create your account, please choose a password."
@@ -332,25 +336,6 @@ msgstr "Passwort festlegen"
 msgid "Login to Redash"
 msgstr "Anmelden bei Redash"
 
-#: redash/templates/login.html:19
-msgid "Login with Google"
-msgstr "Einloggen mit Google"
-
-#: redash/utils/__init__.py:105
-msgid "JSON can't represent timezone-aware times."
-msgstr "JSON kann keine zeitzonenbewussten Zeiten darstellen."
-
-#: redash/utils/configuration.py:41
-msgid "Schema missing."
-msgstr "Schema fehlt."
-
-#: redash/utils/query_order.py:156
-msgid "Multiple mappers found for table '{}'."
-msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
-
-#: redash/utils/query_order.py:158
-msgid "Could not get mapper for table '{}'."
-msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
 #: redash/templates/login.html:52
 msgid "Remember me"
 msgstr "Angemeldet bleiben"
@@ -377,7 +362,9 @@ msgstr "Redash Ersteinrichtung"
 
 #: redash/templates/setup.html:28
 msgid "Before you can use your instance, you need to do a quick setup."
-msgstr "Bevor Sie Ihre Instanz verwenden können, müssen Sie eine kurze Einrichtung durchführen."
+msgstr ""
+"Bevor Sie Ihre Instanz verwenden können, müssen Sie eine kurze "
+"Einrichtung durchführen."
 
 #: redash/templates/setup.html:40
 msgid "Admin User"
@@ -400,7 +387,8 @@ msgid ""
 "Thanks for verifying your email address. You will be redirected back to "
 "the app within a few seconds."
 msgstr ""
-"Vielen Dank, dass Sie Ihre E-Mail-Adresse verifiziert haben. Sie werden in wenigen Sekunden zurück zur App weitergeleitet."
+"Vielen Dank, dass Sie Ihre E-Mail-Adresse verifiziert haben. Sie werden "
+"in wenigen Sekunden zurück zur App weitergeleitet."
 
 #: redash/templates/verify.html:10
 msgid "Click here"
@@ -456,7 +444,8 @@ msgid ""
 "You told us you forgot your password. If you really did, click here to "
 "choose a new one:"
 msgstr ""
-"Sie haben uns mitgeteilt, dass Sie Ihr Passwort vergessen haben. Wenn das wirklich der Fall ist, klicken Sie hier, um ein neues auszuwählen:"
+"Sie haben uns mitgeteilt, dass Sie Ihr Passwort vergessen haben. Wenn das"
+" wirklich der Fall ist, klicken Sie hier, um ein neues auszuwählen:"
 
 #: redash/templates/emails/reset.html:11
 msgid "Need the raw link?"
@@ -467,7 +456,8 @@ msgid ""
 "If you didn't mean to reset your password, then you can just ignore this "
 "email; your password will not change."
 msgstr ""
-"Wenn Sie Ihr Passwort nicht zurücksetzen wollten, können Sie diese E-Mail einfach ignorieren; Ihr Passwort wird nicht geändert."
+"Wenn Sie Ihr Passwort nicht zurücksetzen wollten, können Sie diese E-Mail"
+" einfach ignorieren; Ihr Passwort wird nicht geändert."
 
 #: redash/templates/emails/verify.html:7
 msgid "Please verify that"
@@ -485,3 +475,26 @@ msgstr "Ihre korrekte E-Mail-Adresse ist, indem Sie den folgenden Link besuchen:
 #: redash/templates/emails/verify.html:10
 msgid "Verify Address"
 msgstr "Adresse verifizieren"
+
+#: redash/utils/__init__.py:105
+msgid "JSON can't represent timezone-aware times."
+msgstr "JSON kann keine zeitzonenbewussten Zeiten darstellen."
+
+#: redash/utils/configuration.py:41
+msgid "Schema missing."
+msgstr "Schema fehlt."
+
+#: redash/utils/query_order.py:156
+msgid "Multiple mappers found for table '{}'."
+msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
+
+#: redash/utils/query_order.py:158
+msgid "Could not get mapper for table '{}'."
+msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
+
+#~ msgid "{inviter_name} invited you to join Redash"
+#~ msgstr "{inviter_name} hat Sie eingeladen, Redash beizutreten"
+
+#~ msgid "Reset your password"
+#~ msgstr "Setzen Sie Ihr Passwort zurück"
+
