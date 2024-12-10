@@ -67,12 +67,9 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
 
     if data_source.paused:
         if data_source.pause_reason:
-            message = _("%(name)s is paused (%(reason)s). Please try later.") % {
-                "name": data_source.name,
-                "pause_reason": data_source.pause_reason,
-            }
+            message = _("{} is paused ({}). Please try later.").format(data_source.name, data_source.pause_reason)
         else:
-            message = _("%(name)s is paused. Please try later.") % {"name": data_source.name}
+            message = _("{} is paused. Please try later.").format(data_source.name)
 
         return error_response(message)
 
@@ -84,9 +81,7 @@ def run_query(query, parameters, data_source, query_id, should_apply_auto_limit,
     query_text = data_source.query_runner.apply_auto_limit(query.text, should_apply_auto_limit)
 
     if query.missing_params:
-        return error_response(
-            _("Missing parameter value for: %(missing_params)s" % {"missing_params": ", ".join(query.missing_params)})
-        )
+        return error_response(_("Missing parameter value for: {}").format(", ".join(query.missing_params)))
 
     if max_age == 0:
         query_result = None

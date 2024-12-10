@@ -104,9 +104,7 @@ def create_google_oauth_blueprint(app):
                 org,
             )
 
-            flash(
-                _("Your Google Apps account ({profile_email}) isn't allowed.").format(profile_email=profile["email"])
-            )
+            flash(_("Your Google Apps account ({}) isn't allowed.").format(profile["email"]))
             return redirect(url_for("redash.login", org_slug=org.slug))
 
         picture_url = "%s?sz=40" % profile["picture"]

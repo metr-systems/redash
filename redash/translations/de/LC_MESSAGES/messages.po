@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-09 15:36+0100\n"
+"POT-Creation-Date: 2024-12-10 09:24+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -30,11 +30,13 @@ msgstr ""
 "erneut."
 
 #: redash/authentication/account.py:49
-msgid "{user_name}, please verify your email address"
+#, fuzzy
+msgid "{}, please verify your email address"
 msgstr "{user_name}, bitte bestätigen Sie Ihre E-Mail-Adresse"
 
 #: redash/authentication/account.py:58
-msgid "{inviter_name} invited you to join Redash"
+#, fuzzy
+msgid "{} invited you to join Redash"
 msgstr "{inviter_name} hat Sie eingeladen, Redash beizutreten"
 
 #: redash/authentication/account.py:68
@@ -50,8 +52,9 @@ msgstr "Ihr Redash Account ist abgeschaltet"
 msgid "Validation error. Please retry."
 msgstr "Validierungsfehler. Bitte versuchen Sie es erneut."
 
-#: redash/authentication/google_oauth.py:108
-msgid "Your Google Apps account ({profile_email}) isn't allowed."
+#: redash/authentication/google_oauth.py:107
+#, fuzzy
+msgid "Your Google Apps account ({}) isn't allowed."
 msgstr "Ihr Google Apps-Konto ({profile_email}) ist nicht erlaubt."
 
 #: redash/authentication/ldap_auth.py:60
@@ -192,21 +195,21 @@ msgid "Target data source not available."
 msgstr "Zieldatenquelle nicht verfügbar."
 
 #: redash/handlers/query_results.py:70
-#, python-format
-msgid "%(name)s is paused (%(reason)s). Please try later."
-msgstr "%(name)s ist pausiert (%(reason)s). Bitte versuchen Sie es später erneut."
-
-#: redash/handlers/query_results.py:75
-#, python-format
-msgid "%(name)s is paused. Please try later."
+#, fuzzy, python-format
+msgid "{} is paused ({}). Please try later."
 msgstr "%(name)s ist pausiert. Bitte versuchen Sie es später erneut."
 
-#: redash/handlers/query_results.py:88
-#, python-format
-msgid "Missing parameter value for: %(missing_params)smissing_params, "
+#: redash/handlers/query_results.py:72
+#, fuzzy, python-format
+msgid "{} is paused. Please try later."
+msgstr "%(name)s ist pausiert. Bitte versuchen Sie es später erneut."
+
+#: redash/handlers/query_results.py:84
+#, fuzzy, python-format
+msgid "Missing parameter value for: {}"
 msgstr "Fehlender Parameterwert für: %(missing_params)smissing_params,"
 
-#: redash/handlers/query_results.py:338 redash/handlers/query_results.py:385
+#: redash/handlers/query_results.py:333 redash/handlers/query_results.py:380
 msgid "No cached result found for this query."
 msgstr "Kein zwischengespeichertes Ergebnis für diese Abfrage gefunden."
 
@@ -285,4 +288,9 @@ msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
 #: redash/utils/query_order.py:158
 msgid "Could not get mapper for table '{}'."
 msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
+
+#~ msgid "%(name)s is paused (%(reason)s). Please try later."
+#~ msgstr ""
+#~ "%(name)s ist pausiert (%(reason)s). Bitte "
+#~ "versuchen Sie es später erneut."
 
