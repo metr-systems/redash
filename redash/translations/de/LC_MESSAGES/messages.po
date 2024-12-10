@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-10 09:56+0100\n"
+"POT-Creation-Date: 2024-12-10 13:06+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -411,6 +411,12 @@ msgstr "weitere Fehler seit dem letzten Bericht"
 msgid "Exception"
 msgstr "Ausnahme"
 
+#: redash/templates/emails/invite.html:5 redash/templates/emails/reset.html:5
+#: redash/templates/emails/reset_disabled.html:5
+#: redash/templates/emails/verify.html:5
+msgid "Hi"
+msgstr "Hallo"
+
 #: redash/templates/emails/invite.html:8
 msgid "invited you to join the Redash account of"
 msgstr "hat Sie eingeladen, dem Redash-Konto von beizutreten"
@@ -452,6 +458,16 @@ msgstr ""
 "Wenn Sie Ihr Passwort nicht zurücksetzen wollten, können Sie diese E-Mail"
 " einfach ignorieren; Ihr Passwort wird nicht geändert."
 
+#: redash/templates/emails/reset_disabled.html:7
+msgid ""
+"You asked for a password reset email, but your Redash account is disabled"
+" and therefore can't reset the password. Please contact your Redash admin"
+" for enabling again your account."
+msgstr ""
+"Sie haben eine E-Mail zum Zurücksetzen des Passworts angefordert, aber Ihr"
+" Redash-Konto ist deaktiviert und kann daher das Passwort nicht zurücksetzen."
+" Bitte wenden Sie sich an Ihren Redash-Administrator, um Ihr Konto wieder zu aktivieren."
+
 #: redash/templates/emails/verify.html:7
 msgid "Please verify that"
 msgstr "Bitte bestätigen Sie, dass"
@@ -479,5 +495,4 @@ msgstr "Mehrere Mapper für Tabelle '{}' gefunden."
 #: redash/utils/query_order.py:158
 msgid "Could not get mapper for table '{}'."
 msgstr "Konnte keinen Mapper für Tabelle '{}' finden."
-
 

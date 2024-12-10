@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-10 09:56+0100\n"
+"POT-Creation-Date: 2024-12-10 13:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -377,6 +377,12 @@ msgstr ""
 msgid "Exception"
 msgstr ""
 
+#: redash/templates/emails/invite.html:5 redash/templates/emails/reset.html:5
+#: redash/templates/emails/reset_disabled.html:5
+#: redash/templates/emails/verify.html:5
+msgid "Hi"
+msgstr ""
+
 #: redash/templates/emails/invite.html:8
 msgid "invited you to join the Redash account of"
 msgstr ""
@@ -412,6 +418,13 @@ msgstr ""
 msgid ""
 "If you didn't mean to reset your password, then you can just ignore this "
 "email; your password will not change."
+msgstr ""
+
+#: redash/templates/emails/reset_disabled.html:7
+msgid ""
+"You asked for a password reset email, but your Redash account is disabled"
+" and therefore can't reset the password. Please contact your Redash admin"
+" for enabling again your account."
 msgstr ""
 
 #: redash/templates/emails/verify.html:7

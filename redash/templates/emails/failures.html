@@ -21,15 +21,15 @@
                         {{_('Last failed:')}} {{ failure.failed_at }}
                         {% if failure.failure_count > 1 %}
                             <br />
-                            <small style="color: #8c8c8c;font-size: 13px;">&nbsp; + {{ failure.failure_count - 1 }} {{_('more failures since last report')}}</small>
+                            <small style="color: #8c8c8c;font-size: 13px;">&nbsp; + {{failure.failure_count - 1}} {{_('more failures since last report')}}</small>
                         {% endif %}
                     </p>
                     <h3 style="font-size: 14px; font-weight:normal; margin-bottom: 6px">{{_('Exception')}}</h3>
-                    <div style="background: #ececec;padding: 8px;border-radius: 3px;font-family: monospace; word-break: break-all;">{{ failure.failure_reason }}</div>
+                    <div style="background: #ececec;padding: 8px;border-radius: 3px;font-family: monospace; word-break: break-all;">{{failure.failure_reason}}</div>
                 </div>
 
                 {% if failure.comment %}
-                    <div style="margin-top: 25px;font-size: 13px;border-top: 1px solid #ececec;padding-top: 19px;">{{ failure.comment }}</div>
+                    <div style="margin-top: 25px;font-size: 13px;border-top: 1px solid #ececec;padding-top: 19px;">{{failure.comment}}</div>
                 {% endif %}
             </div>
         {% endfor %}
