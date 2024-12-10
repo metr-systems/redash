@@ -1,4 +1,5 @@
 from flask import request
+from flask_babel import _
 from flask_restful import abort
 
 from redash import models
@@ -58,7 +59,7 @@ class GroupResource(BaseResource):
     def delete(self, group_id):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
         if group.type == models.Group.BUILTIN_GROUP:
-            abort(400, message="Can't delete built-in groups.")
+            abort(400, message=_("Can't delete built-in groups."))
 
         members = models.Group.members(group_id)
         for member in members:

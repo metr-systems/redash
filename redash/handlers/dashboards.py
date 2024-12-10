@@ -1,4 +1,5 @@
 from flask import request, url_for
+from flask_babel import _
 from flask_restful import abort
 from funcy import partial, project
 from sqlalchemy.orm.exc import StaleDataError
@@ -315,7 +316,7 @@ class PublicDashboardResource(BaseResource):
         :>json array widgets: An array of arrays of :ref:`public widgets <public-widget-label>`, corresponding to the rows and columns the widgets are displayed in
         """
         if self.current_org.get_setting("disable_public_urls"):
-            abort(400, message="Public URLs are disabled.")
+            abort(400, message=_("Public URLs are disabled."))
 
         if not isinstance(self.current_user, models.ApiUser):
             api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)

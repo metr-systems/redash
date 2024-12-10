@@ -1,5 +1,6 @@
 from disposable_email_domains import blacklist
 from flask import request
+from flask_babel import _
 from flask_login import current_user, login_user
 from flask_restful import abort
 from funcy import partial, project
@@ -58,10 +59,10 @@ def invite_user(org, inviter, user, send_email=True):
 
 def require_allowed_email(email):
     # `example.com` and `example.com.` are equal - last dot stands for DNS root but usually is omitted
-    _, domain = email.lower().rstrip(".").split("@", 1)
+    __, domain = email.lower().rstrip(".").split("@", 1)
 
     if domain in blacklist or domain in settings.BLOCKED_DOMAINS:
-        abort(400, message="Bad email address.")
+        abort(400, message=_("Bad email address."))
 
 
 class UserListResource(BaseResource):
@@ -133,7 +134,7 @@ class UserListResource(BaseResource):
         require_fields(req, ("name", "email"))
 
         if "@" not in req["email"]:
-            abort(400, message="Bad email address.")
+            abort(400, message=_("Bad email address."))
         require_allowed_email(req["email"])
 
         user = models.User(
@@ -149,7 +150,7 @@ class UserListResource(BaseResource):
             models.db.session.commit()
         except IntegrityError as e:
             if "email" in str(e):
-                abort(400, message="Email already taken.")
+                abort(400, message=_("Email already taken."))
             abort(500)
 
         self.record_event({"action": "create", "object_id": user.id, "object_type": "user"})
@@ -180,7 +181,7 @@ class UserRegenerateApiKeyResource(BaseResource):
     def post(self, user_id):
         user = models.User.get_by_id_and_org(user_id, self.current_org)
         if user.is_disabled:
-            abort(404, message="Not found")
+            abort(404, message=_("Not found"))
         if not is_admin_or_owner(user_id):
             abort(403)
 
@@ -212,10 +213,10 @@ class UserResource(BaseResource):
         params = project(req, ("email", "name", "password", "old_password", "group_ids"))
 
         if "password" in params and "old_password" not in params:
-            abort(403, message="Must provide current password to update password.")
+            abort(403, message=_("Must provide current password to update password."))
 
         if "old_password" in params and not user.verify_password(params["old_password"]):
-            abort(403, message="Incorrect current password.")
+            abort(403, message=_("Incorrect current password."))
 
         if "password" in params:
             user.hash_password(params.pop("password"))
@@ -223,7 +224,7 @@ class UserResource(BaseResource):
 
         if "group_ids" in params:
             if not self.current_user.has_permission("admin"):
-                abort(403, message="Must be admin to change groups membership.")
+                abort(403, message=_("Must be admin to change groups membership."))
 
             for group_id in params["group_ids"]:
                 try:
@@ -256,9 +257,9 @@ class UserResource(BaseResource):
                 login_user(user, remember=True)
         except IntegrityError as e:
             if "email" in str(e):
-                message = "Email already taken."
+                message = _("Email already taken.")
             else:
-                message = "Error updating record"
+                message = _("Error updating record")
 
             abort(400, message=message)
 
@@ -281,14 +282,14 @@ class UserResource(BaseResource):
         if user.id == current_user.id:
             abort(
                 403,
-                message="You cannot delete your own account. "
-                "Please ask another admin to do this for you.",  # fmt: skip
+                message=_("You cannot delete your own account. "
+                "Please ask another admin to do this for you."),  # fmt: skip
             )
         elif not user.is_invitation_pending:
             abort(
                 403,
-                message="You cannot delete activated users. "
-                "Please disable the user instead.",  # fmt: skip
+                message=_("You cannot delete activated users. "
+                "Please disable the user instead."),  # fmt: skip
             )
         models.db.session.delete(user)
         models.db.session.commit()
@@ -305,8 +306,8 @@ class UserDisableResource(BaseResource):
         if user.id == current_user.id:
             abort(
                 403,
-                message="You cannot disable your own account. "
-                "Please ask another admin to do this for you.",  # fmt: skip
+                message=_("You cannot disable your own account. "
+                "Please ask another admin to do this for you."),  # fmt: skip
             )
         user.disable()
         models.db.session.commit()

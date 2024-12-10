@@ -2,6 +2,7 @@ import time
 from inspect import isclass
 
 from flask import Blueprint, current_app, request
+from flask_babel import _
 from flask_login import current_user, login_required
 from flask_restful import Resource, abort
 from sqlalchemy import cast
@@ -81,13 +82,13 @@ def paginate(query_set, page, page_size, serializer, **kwargs):
     count = query_set.count()
 
     if page < 1:
-        abort(400, message="Page must be positive integer.")
+        abort(400, message=_("Page must be positive integer."))
 
     if (page - 1) * page_size + 1 > count > 0:
-        abort(400, message="Page is out of range.")
+        abort(400, message=_("Page is out of range."))
 
     if page_size > 250 or page_size < 1:
-        abort(400, message="Page size is out of range (1-250).")
+        abort(400, message=_("Page size is out of range (1-250)."))
 
     results = query_set.paginate(page, page_size)
 

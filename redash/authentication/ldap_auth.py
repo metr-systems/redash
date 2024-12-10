@@ -2,6 +2,7 @@ import logging
 import sys
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
+from flask_babel import _
 from flask_login import current_user
 
 from redash import settings
@@ -56,7 +57,7 @@ def login(org_slug=None):
 
             return redirect(next_path or url_for("redash.index"))
         else:
-            flash("Incorrect credentials.")
+            flash(_("Incorrect credentials."))
 
     return render_template(
         "login.html",
