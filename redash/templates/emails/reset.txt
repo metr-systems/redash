@@ -1,6 +1,6 @@
-{{ _('Hi') }} {{ user.name }},
+{{_('Hi')}} {{ user.name }},
 
-{{ _('You told us you forgot your password. If you really did, click here to choose a new one:') }}
+{{_('You told us you forgot your password. If you really did, click here to choose a new one:')}}
 
 {{ reset_link }}
 

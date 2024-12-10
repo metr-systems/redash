@@ -1,10 +1,10 @@
-{{ _('Hi') }} {{ invited.name }},
+{{_('Hi')}} {{ invited.name }},
 
-{{ inviter.name }} ({{inviter.email}}) {{ _('invited you to join the Redash account of') }} {{org.name}}.
+{{ inviter.name }} ({{inviter.email}}) {{_('invited you to join the Redash account of')}} {{org.name}}.
 
-{{ _('Use the following link to setup your account:') }}
+{{_('Use the following link to setup your account:')}}
 
 {{ invite_url }}
 
-{{ _('Your sign-in email:') }} {{invited.email}}
-{{ _('Your Redash account:') }} {{ url_for('redash.index', org_slug=org.slug, _external=True) }}
+{{_('Your sign-in email:')}} {{invited.email}}
+{{_('Your Redash account:')}} {{ url_for('redash.index', org_slug=org.slug, _external=True) }}

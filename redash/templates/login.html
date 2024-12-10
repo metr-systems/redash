@@ -1,6 +1,6 @@
 {% extends "layouts/signed_out.html" %}
 
-{% block title %}{{ _('Login to Redash') }}{% endblock %}
+{% block title %}{{_('Login to Redash')}}{% endblock %}
 
 {% block content %}
 <div class="fixed-width-page">
@@ -21,15 +21,15 @@
     {% endif %}
 
     {% if show_saml_login %}
-      <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{ _('SAML Login') }}</a>
+      <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{_('SAML Login')}}</a>
     {% endif %}
 
     {% if show_remote_user_login %}
-      <a href="{{ url_for('remote_user_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{ _('Remote User Login') }}</a>
+      <a href="{{ url_for('remote_user_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{_('Remote User Login')}}</a>
     {% endif %}
 
     {% if show_ldap_login %}
-      <a href="{{ url_for('ldap_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{ _('LDAP/SSO Login') }}</a>
+      <a href="{{ url_for('ldap_auth.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{_('LDAP/SSO Login')}}</a>
     {% endif %}
 
     {% if show_password_login %}
@@ -44,19 +44,19 @@
         <input type="text" class="form-control" id="inputEmail" name="email" value="{{email}}" data-test="Email">
       </div>
       <div class="form-group">
-        <label for="inputPassword">{{ _('Password') }}</label>
+        <label for="inputPassword">{{_('Password')}}</label>
         <input type="password" class="form-control" id="inputPassword" name="password" data-test="Password">
       </div>
       <div class="form-group">
         <input type="checkbox" id="inputRemember" name="remember" checked>
-        <label for="inputRemember">{{ _('Remember me') }}</label>
+        <label for="inputRemember">{{_('Remember me')}}</label>
       </div>
 
-      <button type="submit" class="btn btn-primary btn-block m-t-25">{{ _('Log In') }}</button>
+      <button type="submit" class="btn btn-primary btn-block m-t-25">{{_('Log In')}}</button>
     </form>
     {% if not hide_forgot_password %}
       <div class="m-t-25">
-        <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">{{ _('I forgot my password') }}</a>
+        <a href="{{ url_for("redash.forgot_password", org_slug=org_slug) }}">{{_('I forgot my password')}}</a>
       </div>
     {% endif %}
     {% endif %}
