@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-10 09:24+0100\n"
+"POT-Creation-Date: 2024-12-10 13:06+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -235,12 +235,208 @@ msgid ""
 "for you."
 msgstr ""
 
+#: redash/templates/error.html:5
+msgid "Error"
+msgstr ""
+
+#: redash/templates/forgot.html:2 redash/templates/reset.html:3
+msgid "Password Reset"
+msgstr ""
+
+#: redash/templates/forgot.html:8
+msgid ""
+"If we found an account associated with that email address, you will find "
+"an email from us in your inbox shortly."
+msgstr ""
+
+#: redash/templates/forgot.html:14
+msgid "Enter the email address you used for this account:"
+msgstr ""
+
+#: redash/templates/forgot.html:17
+msgid "Reset my password"
+msgstr ""
+
+#: redash/templates/invite.html:3 redash/templates/setup.html:27
+msgid "Welcome to Redash!"
+msgstr ""
+
+#: redash/templates/invite.html:10
+msgid ""
+"To create your account, please choose a password or login with your SSO "
+"provider."
+msgstr ""
+
+#: redash/templates/invite.html:12
+msgid "To create your account, please choose a password."
+msgstr ""
+
+#: redash/templates/invite.html:27 redash/templates/login.html:19
+msgid "Login with Google"
+msgstr ""
+
+#: redash/templates/invite.html:32 redash/templates/login.html:24
+msgid "SAML Login"
+msgstr ""
+
+#: redash/templates/invite.html:36 redash/templates/login.html:28
+msgid "Remote User Login"
+msgstr ""
+
+#: redash/templates/invite.html:40 redash/templates/login.html:32
+msgid "LDAP/SSO Login"
+msgstr ""
+
+#: redash/templates/invite.html:50 redash/templates/login.html:47
+msgid "Password"
+msgstr ""
+
+#: redash/templates/invite.html:53
+msgid "Set Password"
+msgstr ""
+
 #: redash/templates/login.html:3
 msgid "Login to Redash"
 msgstr ""
 
-#: redash/templates/login.html:19
-msgid "Login with Google"
+#: redash/templates/login.html:52
+msgid "Remember me"
+msgstr ""
+
+#: redash/templates/login.html:55
+msgid "Log In"
+msgstr ""
+
+#: redash/templates/login.html:59
+msgid "I forgot my password"
+msgstr ""
+
+#: redash/templates/reset.html:18
+msgid "Enter your new password:"
+msgstr ""
+
+#: redash/templates/reset.html:21
+msgid "Change my password"
+msgstr ""
+
+#: redash/templates/setup.html:3
+msgid "Redash Initial Setup"
+msgstr ""
+
+#: redash/templates/setup.html:28
+msgid "Before you can use your instance, you need to do a quick setup."
+msgstr ""
+
+#: redash/templates/setup.html:40
+msgid "Admin User"
+msgstr ""
+
+#: redash/templates/setup.html:45
+msgid "General"
+msgstr ""
+
+#: redash/templates/setup.html:49
+msgid "Setup"
+msgstr ""
+
+#: redash/templates/verify.html:2
+msgid "E-mail Verified"
+msgstr ""
+
+#: redash/templates/verify.html:10
+msgid ""
+"Thanks for verifying your email address. You will be redirected back to "
+"the app within a few seconds."
+msgstr ""
+
+#: redash/templates/verify.html:10
+msgid "Click here"
+msgstr ""
+
+#: redash/templates/verify.html:10
+msgid "if you are not redirected."
+msgstr ""
+
+#: redash/templates/emails/failures.html:14
+msgid "Redash failed to run the following queries:"
+msgstr ""
+
+#: redash/templates/emails/failures.html:18
+msgid "Go to Query"
+msgstr ""
+
+#: redash/templates/emails/failures.html:21
+msgid "Last failed:"
+msgstr ""
+
+#: redash/templates/emails/failures.html:24
+msgid "more failures since last report"
+msgstr ""
+
+#: redash/templates/emails/failures.html:27
+msgid "Exception"
+msgstr ""
+
+#: redash/templates/emails/invite.html:5 redash/templates/emails/reset.html:5
+#: redash/templates/emails/reset_disabled.html:5
+#: redash/templates/emails/verify.html:5
+msgid "Hi"
+msgstr ""
+
+#: redash/templates/emails/invite.html:8
+msgid "invited you to join the Redash account of"
+msgstr ""
+
+#: redash/templates/emails/invite.html:10
+msgid "Setup Account"
+msgstr ""
+
+#: redash/templates/emails/invite.html:12
+#: redash/templates/emails/verify.html:12
+msgid "You may copy/paste this link into your browser:"
+msgstr ""
+
+#: redash/templates/emails/invite.html:15
+msgid "Your sign-in email is:"
+msgstr ""
+
+#: redash/templates/emails/invite.html:16
+msgid "Your Redash account is:"
+msgstr ""
+
+#: redash/templates/emails/reset.html:7
+msgid ""
+"You told us you forgot your password. If you really did, click here to "
+"choose a new one:"
+msgstr ""
+
+#: redash/templates/emails/reset.html:11
+msgid "Need the raw link?"
+msgstr ""
+
+#: redash/templates/emails/reset.html:14
+msgid ""
+"If you didn't mean to reset your password, then you can just ignore this "
+"email; your password will not change."
+msgstr ""
+
+#: redash/templates/emails/reset_disabled.html:7
+msgid ""
+"You asked for a password reset email, but your Redash account is disabled"
+" and therefore can't reset the password. Please contact your Redash admin"
+" for enabling again your account."
+msgstr ""
+
+#: redash/templates/emails/verify.html:7
+msgid "Please verify that"
+msgstr ""
+
+#: redash/templates/emails/verify.html:7
+msgid "is your correct email address by visiting the following link:"
+msgstr ""
+
+#: redash/templates/emails/verify.html:10
+msgid "Verify Address"
 msgstr ""
 
 #: redash/utils/__init__.py:105
