@@ -2,6 +2,8 @@ import { without, find, includes, map, toLower } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from "i18next";
+
 import Link from "@/components/Link";
 import Button from "antd/lib/button";
 import SelectItemsDialog from "@/components/SelectItemsDialog";
@@ -46,7 +48,7 @@ function ListItem({ destination: { name, type }, user, unsubscribe }) {
         <EmailSettingsWarning className="destination-warning" featureName="alert emails" mode="icon" />
       )}
       {canUnsubscribe && (
-        <Tooltip title="Remove" mouseEnterDelay={0.5}>
+        <Tooltip title={i18next.t("Remove")} mouseEnterDelay={0.5}>
           <PlainButton className="remove-button" onClick={unsubscribe}>
             {/* TODO: lacks visual feedback */}
             <CloseOutlinedIcon />
@@ -92,16 +94,16 @@ export default class AlertDestinations extends React.Component {
       showCount: true,
       extraFooterContent: (
         <>
-          <i className="fa fa-info-circle" aria-hidden="true" /> Create new destinations in{" "}
-          <Tooltip title="Opens page in a new tab.">
+          <i className="fa fa-info-circle" aria-hidden="true" /> {i18next.t("Alerts:Create new destinations in")}{" "}
+          <Tooltip title={i18next.t("Alerts:Opens page in a new tab.")}>
             <Link href="destinations/new" target="_blank">
-              Alert Destinations
+              {i18next.t("Alerts:Alert Destinations.")}
             </Link>
           </Tooltip>
         </>
       ),
-      dialogTitle: "Add Existing Alert Destinations",
-      inputPlaceholder: "Search destinations...",
+      dialogTitle: i18next.t("Alerts:Add Existing Alert Destinations"),
+      inputPlaceholder: i18next.t("Alerts:Search destinations..."),
       searchItems: searchTerm => {
         searchTerm = toLower(searchTerm);
         return Promise.resolve(dests.filter(d => includes(toLower(d.name), searchTerm)));
@@ -125,10 +127,10 @@ export default class AlertDestinations extends React.Component {
       const promises = map(items, item => this.subscribe(item));
       return Promise.all(promises)
         .then(() => {
-          notification.success("Subscribed.");
+          notification.success(i18next.t("Alerts:Subscribed."));
         })
         .catch(() => {
-          notification.error("Failed saving subscription.");
+          notification.error(i18next.t("Alerts:Failed saving subscription."));
           return Promise.reject(null); // keep dialog visible but suppress its default error message
         });
     });
@@ -168,7 +170,7 @@ export default class AlertDestinations extends React.Component {
         });
       })
       .catch(() => {
-        notification.error("Failed unsubscribing.");
+        notification.error(i18next.t("Alerts:Failed unsubscribing."));
       });
   };
 
@@ -187,14 +189,14 @@ export default class AlertDestinations extends React.Component {
 
     return (
       <div className="alert-destinations" data-test="AlertDestinations">
-        <Tooltip title='Click to add an existing "Alert Destination"' mouseEnterDelay={0.5}>
+        <Tooltip title={i18next.t('Alerts:Click to add an existing "Alert Destination"')} mouseEnterDelay={0.5}>
           <Button
             data-test="ShowAddAlertSubDialog"
             type="primary"
             size="small"
             className="add-button"
             onClick={this.showAddAlertSubDialog}>
-            <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> Add
+            <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> {i18next.t("Add")}
           </Button>
         </Tooltip>
         <ul>
