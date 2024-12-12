@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-10 13:06+0100\n"
+"POT-Creation-Date: 2024-12-11 16:26+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -32,10 +32,6 @@ msgstr ""
 #: redash/authentication/account.py:49
 msgid "{}, please verify your email address"
 msgstr "{}, bitte bestätigen Sie Ihre E-Mail-Adresse"
-
-#: redash/authentication/account.py:58
-msgid "{} invited you to join Redash"
-msgstr "{} hat Sie eingeladen, Redash beizutreten"
 
 #: redash/authentication/account.py:68
 msgid "Reset your password"
@@ -411,52 +407,10 @@ msgstr "weitere Fehler seit dem letzten Bericht"
 msgid "Exception"
 msgstr "Ausnahme"
 
-#: redash/templates/emails/invite.html:5 redash/templates/emails/reset.html:5
 #: redash/templates/emails/reset_disabled.html:5
 #: redash/templates/emails/verify.html:5
 msgid "Hi"
 msgstr "Hallo"
-
-#: redash/templates/emails/invite.html:8
-msgid "invited you to join the Redash account of"
-msgstr "hat Sie eingeladen, dem Redash-Konto von beizutreten"
-
-#: redash/templates/emails/invite.html:10
-msgid "Setup Account"
-msgstr "Konto einrichten"
-
-#: redash/templates/emails/invite.html:12
-#: redash/templates/emails/verify.html:12
-msgid "You may copy/paste this link into your browser:"
-msgstr "Sie können diesen Link in Ihren Browser kopieren/einfügen:"
-
-#: redash/templates/emails/invite.html:15
-msgid "Your sign-in email is:"
-msgstr "Ihre Anmelde-E-Mail ist:"
-
-#: redash/templates/emails/invite.html:16
-msgid "Your Redash account is:"
-msgstr "Ihr Redash-Konto ist:"
-
-#: redash/templates/emails/reset.html:7
-msgid ""
-"You told us you forgot your password. If you really did, click here to "
-"choose a new one:"
-msgstr ""
-"Sie haben uns mitgeteilt, dass Sie Ihr Passwort vergessen haben. Wenn das"
-" wirklich der Fall ist, klicken Sie hier, um ein neues auszuwählen:"
-
-#: redash/templates/emails/reset.html:11
-msgid "Need the raw link?"
-msgstr "Benötigen Sie den Rohlink?"
-
-#: redash/templates/emails/reset.html:14
-msgid ""
-"If you didn't mean to reset your password, then you can just ignore this "
-"email; your password will not change."
-msgstr ""
-"Wenn Sie Ihr Passwort nicht zurücksetzen wollten, können Sie diese E-Mail"
-" einfach ignorieren; Ihr Passwort wird nicht geändert."
 
 #: redash/templates/emails/reset_disabled.html:7
 msgid ""
@@ -464,9 +418,10 @@ msgid ""
 " and therefore can't reset the password. Please contact your Redash admin"
 " for enabling again your account."
 msgstr ""
-"Sie haben eine E-Mail zum Zurücksetzen des Passworts angefordert, aber Ihr"
-" Redash-Konto ist deaktiviert und kann daher das Passwort nicht zurücksetzen."
-" Bitte wenden Sie sich an Ihren Redash-Administrator, um Ihr Konto wieder zu aktivieren."
+"Sie haben eine E-Mail zum Zurücksetzen des Passworts angefordert, aber "
+"Ihr Redash-Konto ist deaktiviert und kann daher das Passwort nicht "
+"zurücksetzen. Bitte wenden Sie sich an Ihren Redash-Administrator, um Ihr"
+" Konto wieder zu aktivieren."
 
 #: redash/templates/emails/verify.html:7
 msgid "Please verify that"
@@ -479,6 +434,10 @@ msgstr "Ihre korrekte E-Mail-Adresse ist, indem Sie den folgenden Link besuchen:
 #: redash/templates/emails/verify.html:10
 msgid "Verify Address"
 msgstr "Adresse verifizieren"
+
+#: redash/templates/emails/verify.html:12
+msgid "You may copy/paste this link into your browser:"
+msgstr "Sie können diesen Link in Ihren Browser kopieren/einfügen:"
 
 #: redash/utils/__init__.py:105
 msgid "JSON can't represent timezone-aware times."

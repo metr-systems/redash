@@ -1,10 +1,10 @@
-{{_('Hi')}} {{ invited.name }},
+Hallo {{ invited.name }},
 
-{{ inviter.name }} ({{inviter.email}}) {{_('invited you to join the Redash account of')}} {{org.name}}.
-
-{{_('Use the following link to setup your account:')}}
+Sie wurden von {{ inviter.name }} ({{inviter.email}}) zu Ihrem metr-Dashboard eingeladen. 
+zu Ihrem metr-Dashboard eingeladen. Klicken Sie auf den Link, um Ihr Konto zu vervollständigen und Zugriff auf Dashboard zu erhalten:
 
 {{ invite_url }}
 
-{{_('Your sign-in email:')}} {{invited.email}}
-{{_('Your Redash account:')}} {{ url_for('redash.index', org_slug=org.slug, _external=True) }}
+Ihr Benutzername / Ihre E-Mail-Adresse: {{ invited.name }} / {{invited.email}}
+Der Zugangslink zu Ihrem metr-Dashboard: {{ url_for('redash.index', org_slug=org.slug, _external=True) }}
+

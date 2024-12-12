@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-10 13:06+0100\n"
+"POT-Creation-Date: 2024-12-11 16:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,10 +27,6 @@ msgstr ""
 
 #: redash/authentication/account.py:49
 msgid "{}, please verify your email address"
-msgstr ""
-
-#: redash/authentication/account.py:58
-msgid "{} invited you to join Redash"
 msgstr ""
 
 #: redash/authentication/account.py:68
@@ -377,47 +373,9 @@ msgstr ""
 msgid "Exception"
 msgstr ""
 
-#: redash/templates/emails/invite.html:5 redash/templates/emails/reset.html:5
 #: redash/templates/emails/reset_disabled.html:5
 #: redash/templates/emails/verify.html:5
 msgid "Hi"
-msgstr ""
-
-#: redash/templates/emails/invite.html:8
-msgid "invited you to join the Redash account of"
-msgstr ""
-
-#: redash/templates/emails/invite.html:10
-msgid "Setup Account"
-msgstr ""
-
-#: redash/templates/emails/invite.html:12
-#: redash/templates/emails/verify.html:12
-msgid "You may copy/paste this link into your browser:"
-msgstr ""
-
-#: redash/templates/emails/invite.html:15
-msgid "Your sign-in email is:"
-msgstr ""
-
-#: redash/templates/emails/invite.html:16
-msgid "Your Redash account is:"
-msgstr ""
-
-#: redash/templates/emails/reset.html:7
-msgid ""
-"You told us you forgot your password. If you really did, click here to "
-"choose a new one:"
-msgstr ""
-
-#: redash/templates/emails/reset.html:11
-msgid "Need the raw link?"
-msgstr ""
-
-#: redash/templates/emails/reset.html:14
-msgid ""
-"If you didn't mean to reset your password, then you can just ignore this "
-"email; your password will not change."
 msgstr ""
 
 #: redash/templates/emails/reset_disabled.html:7
@@ -437,6 +395,10 @@ msgstr ""
 
 #: redash/templates/emails/verify.html:10
 msgid "Verify Address"
+msgstr ""
+
+#: redash/templates/emails/verify.html:12
+msgid "You may copy/paste this link into your browser:"
 msgstr ""
 
 #: redash/utils/__init__.py:105
