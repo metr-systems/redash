@@ -1,5 +1,8 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
+
+import { useTranslation } from "react-i18next";
+
 import notification from "@/services/notification";
 import location from "@/services/location";
 import url from "@/services/url";
@@ -37,6 +40,7 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
 }
 
 function useDashboard(dashboardData) {
+  const { t } = useTranslation("Dashboards");
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -83,11 +87,11 @@ function useDashboard(dashboardData) {
         .catch(error => {
           const status = get(error, "response.status");
           if (status === 403) {
-            notification.error("Dashboard update failed", "Permission Denied.");
+            notification.error(t("Dashboard update failed"), t("Permission Denied."));
           } else if (status === 409) {
             notification.error(
-              "It seems like the dashboard has been modified by another user. ",
-              "Please copy/backup your changes and reload this page.",
+              t("It seems like the dashboard has been modified by another user. "),
+              t("Please copy/backup your changes and reload this page."),
               { duration: null }
             );
           }

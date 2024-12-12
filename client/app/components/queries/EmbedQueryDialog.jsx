@@ -7,6 +7,9 @@ import Checkbox from "antd/lib/checkbox";
 import Form from "antd/lib/form";
 import InputNumber from "antd/lib/input-number";
 import Modal from "antd/lib/modal";
+
+import i18next from "i18next";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import { clientConfig } from "@/services/auth";
 import CodeBlock from "@/components/CodeBlock";
@@ -49,12 +52,12 @@ class EmbedQueryDialog extends React.Component {
       <Modal
         {...dialog.props}
         className="embed-query-dialog"
-        title="Embed Query"
-        footer={<Button onClick={dialog.dismiss}>Close</Button>}>
+        title={i18next.t("Queries:Embed Query")}
+        footer={<Button onClick={dialog.dismiss}>{i18next.t("Close")}</Button>}>
         {query.is_safe ? (
           <React.Fragment>
             <h5 id={this.urlEmbedLabelId} className="m-t-0">
-              Public URL
+              {i18next.t("Queries:Public URL")}
             </h5>
             <div className="m-b-30">
               <CodeBlock aria-labelledby={this.urlEmbedLabelId} data-test="EmbedIframe" copyable>
@@ -62,7 +65,7 @@ class EmbedQueryDialog extends React.Component {
               </CodeBlock>
             </div>
             <h5 id={this.iframeEmbedLabelId} className="m-t-0">
-              IFrame Embed
+              {i18next.t("Queries:IFrame Embed")}
             </h5>
             <div>
               <CodeBlock aria-labelledby={this.iframeEmbedLabelId} copyable>
@@ -97,14 +100,14 @@ class EmbedQueryDialog extends React.Component {
             </div>
             {this.snapshotUrl && (
               <React.Fragment>
-                <h5>Image Embed</h5>
+                <h5>{i18next.t("Queries:Image Embed")}</h5>
                 <CodeBlock copyable>{this.snapshotUrl}</CodeBlock>
               </React.Fragment>
             )}
           </React.Fragment>
         ) : (
           <Alert
-            message="Currently it is not possible to embed queries that contain text parameters."
+            message={i18next.t("Queries:Currently it is not possible to embed queries that contain text parameters.")}
             type="error"
             data-test="EmbedErrorAlert"
           />

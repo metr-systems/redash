@@ -71,7 +71,15 @@ const DashboardWidget = React.memo(
       );
     }
     if (type === WidgetTypeEnum.TEXTBOX) {
-      return <TextboxWidget widget={widget} canEdit={canEdit} isEditing={isEditing} isPublic={isPublic} onDelete={onDelete} />;
+      return (
+        <TextboxWidget
+          widget={widget}
+          canEdit={canEdit}
+          isEditing={isEditing}
+          isPublic={isPublic}
+          onDelete={onDelete}
+        />
+      );
     }
     return <RestrictedWidget widget={widget} />;
   },
@@ -83,7 +91,6 @@ const DashboardWidget = React.memo(
     prevProps.filters === nextProps.filters &&
     prevProps.isEditing === nextProps.isEditing
 );
-
 
 class DashboardGrid extends React.Component {
   static propTypes = {
@@ -99,7 +106,7 @@ class DashboardGrid extends React.Component {
     onLayoutChange: PropTypes.func,
     onParameterMappingsChange: PropTypes.func,
     editedlayoutsOrder: PropTypes.array,
-    setEditedlayoutsOrder: PropTypes.func.isRequired, 
+    setEditedlayoutsOrder: PropTypes.func.isRequired,
   };
 
   static defaultProps = {
@@ -137,7 +144,7 @@ class DashboardGrid extends React.Component {
 
   autoHeightCtrl = null;
 
-  setLayoutsOrder = (newOrder) => {
+  setLayoutsOrder = newOrder => {
     this.setState({ layoutsOrder: newOrder });
   };
 
@@ -146,7 +153,9 @@ class DashboardGrid extends React.Component {
 
     this.state = {
       layouts: {},
-      layoutsOrder: (this.props.dashboard.saved_all_widgets ? this.props.dashboard.saved_all_widgets.map(widget => widget.id) : []),
+      layoutsOrder: this.props.dashboard.saved_all_widgets
+        ? this.props.dashboard.saved_all_widgets.map(widget => widget.id)
+        : [],
       disableAnimations: true,
     };
 
@@ -174,7 +183,7 @@ class DashboardGrid extends React.Component {
   }
 
   onLayoutChange = (_, layouts) => {
-    let newLayouts=layouts
+    let newLayouts = layouts;
     // workaround for when dashboard starts at single mode and then multi is empty or carries single col data
     // fixes test dashboard_spec['shows widgets with full width']
     // TODO: open react-grid-layout issue
@@ -230,7 +239,6 @@ class DashboardGrid extends React.Component {
 
     this.autoHeightCtrl.resume();
   };
-
 
   applyLayoutsOrder(layouts) {
     const { editedlayoutsOrder, widgets, setEditedlayoutsOrder } = this.props;

@@ -1,3 +1,5 @@
+from flask_babel import force_locale
+
 from redash import models
 from tests import BaseTestCase
 
@@ -26,16 +28,17 @@ class TestMetrWidgetTagsResource(BaseTestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_post_not_possible_if_admin_from_another_org(self):
-        widget = self.factory.create_widget()
-        user = self.factory.create_admin(
-            org=self.factory.create_org(), group_ids=[self.factory.admin_group.id, self.factory.default_group.id]
-        )
+        with force_locale("en"):
+            widget = self.factory.create_widget()
+            user = self.factory.create_admin(
+                org=self.factory.create_org(), group_ids=[self.factory.admin_group.id, self.factory.default_group.id]
+            )
 
-        response = self.make_request(
-            "post", f"/api/metrwidgets/{widget.id}/tags", data={"tags": ["tag1", "tag2"]}, user=user
-        )
-        self.assertIn("Please login and try again", response.text)
-        self.assertEqual(response.status_code, 404)
+            response = self.make_request(
+                "post", f"/api/metrwidgets/{widget.id}/tags", data={"tags": ["tag1", "tag2"]}, user=user
+            )
+            self.assertIn("Please login and try again", response.text)
+            self.assertEqual(response.status_code, 404)
 
     def test_post_updates_tags_of_metr_widget(self):
         widget = self.factory.create_widget()

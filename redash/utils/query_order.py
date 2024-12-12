@@ -29,6 +29,7 @@
 from inspect import isclass
 
 import sqlalchemy as sa
+from flask_babel import _
 from sqlalchemy.orm import mapperlib
 from sqlalchemy.orm.properties import ColumnProperty
 from sqlalchemy.orm.query import _ColumnEntity
@@ -152,9 +153,9 @@ def get_mapper(mixed):
     if isinstance(mixed, sa.Table):
         mappers = [mapper for mapper in mapperlib._mapper_registry if mixed in mapper.tables]
         if len(mappers) > 1:
-            raise ValueError("Multiple mappers found for table '%s'." % mixed.name)
+            raise ValueError(_("Multiple mappers found for table '{}'.").format(mixed.name))
         elif not mappers:
-            raise ValueError("Could not get mapper for table '%s'." % mixed.name)
+            raise ValueError(_("Could not get mapper for table '{}'.").format(mixed.name))
         else:
             return mappers[0]
     if not isclass(mixed):

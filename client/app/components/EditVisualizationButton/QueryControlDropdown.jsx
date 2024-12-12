@@ -3,6 +3,9 @@ import PropTypes from "prop-types";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Button from "antd/lib/button";
+
+import { useTranslation } from "react-i18next";
+
 import PlainButton from "@/components/PlainButton";
 import { clientConfig } from "@/services/auth";
 
@@ -15,12 +18,13 @@ import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import QueryResultsLink from "./QueryResultsLink";
 
 export default function QueryControlDropdown(props) {
+  const { t } = useTranslation("Visualizations");
   const menu = (
     <Menu>
       {!props.query.isNew() && (!props.query.is_draft || !props.query.is_archived) && (
         <Menu.Item>
           <PlainButton onClick={() => props.openAddToDashboardForm(props.selectedTab)}>
-            <PlusCircleFilledIcon /> Add to Dashboard
+            <PlusCircleFilledIcon /> {t("Add to Dashboard")}
           </PlainButton>
         </Menu.Item>
       )}
@@ -29,7 +33,7 @@ export default function QueryControlDropdown(props) {
           <PlainButton
             onClick={() => props.showEmbedDialog(props.query, props.selectedTab)}
             data-test="ShowEmbedDialogButton">
-            <ShareAltOutlinedIcon /> Embed Elsewhere
+            <ShareAltOutlinedIcon /> {t("Embed Elsewhere")}
           </PlainButton>
         </Menu.Item>
       )}
@@ -41,7 +45,7 @@ export default function QueryControlDropdown(props) {
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
-          <FileOutlinedIcon /> Download as CSV File
+          <FileOutlinedIcon /> {t("Download as CSV File")}
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -52,7 +56,7 @@ export default function QueryControlDropdown(props) {
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
-          <FileOutlinedIcon /> Download as TSV File
+          <FileOutlinedIcon /> {t("Download as TSV File")}
         </QueryResultsLink>
       </Menu.Item>
       <Menu.Item>
@@ -63,7 +67,7 @@ export default function QueryControlDropdown(props) {
           queryResult={props.queryResult}
           embed={props.embed}
           apiKey={props.apiKey}>
-          <FileExcelOutlinedIcon /> Download as Excel File
+          <FileExcelOutlinedIcon /> {t("Download as Excel File")}
         </QueryResultsLink>
       </Menu.Item>
     </Menu>

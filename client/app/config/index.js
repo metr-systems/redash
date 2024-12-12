@@ -30,6 +30,24 @@ moment.updateLocale("en", {
   },
 });
 
+moment.updateLocale("de", {
+  relativeTime: {
+    future: "%s",
+    past: "%s",
+    s: "gerade eben",
+    m: "vor einer Minute",
+    mm: "vor %d Minuten",
+    h: "vor einer Stunde",
+    hh: "vor %d Stunden",
+    d: "vor einem Tag",
+    dd: "vor %d Tagen",
+    M: "vor einem Monat",
+    MM: "vor %d Monaten",
+    y: "vor einem Jahr",
+    yy: "vor %d Jahren",
+  },
+});
+
 function requireImages() {
   // client/app/assets/images/<path> => /images/<path>
   const ctx = require.context("@/assets/images/", true, /\.(png|jpe?g|gif|svg)$/);

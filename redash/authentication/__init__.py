@@ -6,6 +6,7 @@ from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
 from flask import jsonify, redirect, request, session, url_for
+from flask_babel import _
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
 from sqlalchemy.orm.exc import NoResultFound
 from werkzeug.exceptions import Unauthorized
@@ -217,7 +218,7 @@ def log_user_logged_in(app, user):
 def redirect_to_login():
     is_xhr = request.headers.get("X-Requested-With") == "XMLHttpRequest"
     if is_xhr or "/api/" in request.path:
-        return {"message": "Couldn't find resource. Please login and try again."}, 404
+        return {"message": _("Couldn't find resource. Please login and try again.")}, 404
 
     login_url = get_login_url(next=request.url, external=False)
 

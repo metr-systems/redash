@@ -2,6 +2,9 @@ import { isFunction, has } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
+
+import { useTranslation } from "react-i18next";
+
 import { Moment } from "@/components/proptypes";
 import TimeAgo from "@/components/TimeAgo";
 import SchedulePhrase from "@/components/queries/SchedulePhrase";
@@ -10,6 +13,7 @@ import { IMG_ROOT } from "@/services/data-source";
 import "./QueryMetadata.less";
 
 export default function QueryMetadata({ query, dataSource, layout, onEditSchedule }) {
+  const { t } = useTranslation("Queries");
   return (
     <div className={`query-metadata query-metadata-${layout}`}>
       <div className="query-metadata-item">
@@ -19,7 +23,7 @@ export default function QueryMetadata({ query, dataSource, layout, onEditSchedul
             {query.user.name}
           </strong>
           <span className="query-metadata-value">
-            created{" "}
+            {t("created")}{" "}
             <strong>
               <TimeAgo date={query.created_at} />
             </strong>
@@ -33,7 +37,7 @@ export default function QueryMetadata({ query, dataSource, layout, onEditSchedul
             {query.last_modified_by.name}
           </strong>
           <span className="query-metadata-value">
-            updated{" "}
+            {t("updated")}{" "}
             <strong>
               <TimeAgo date={query.updated_at} />
             </strong>
@@ -43,7 +47,7 @@ export default function QueryMetadata({ query, dataSource, layout, onEditSchedul
       <div className="query-metadata-space" />
       {has(dataSource, "name") && has(dataSource, "type") && (
         <div className="query-metadata-item">
-          Data Source:
+          {t("Data Source")}:
           <img src={`${IMG_ROOT}/${dataSource.type}.png`} width="20" alt={dataSource.type} />
           <div className="query-metadata-property">
             <div className="query-metadata-label">{dataSource.name}</div>
@@ -54,7 +58,7 @@ export default function QueryMetadata({ query, dataSource, layout, onEditSchedul
         <div className="query-metadata-property">
           <span className="query-metadata-label">
             <span className="zmdi zmdi-refresh m-r-5" />
-            Refresh Schedule
+            {t("Refresh Schedule")}
           </span>
           <span className="query-metadata-value">
             <SchedulePhrase

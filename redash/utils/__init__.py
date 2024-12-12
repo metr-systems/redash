@@ -16,6 +16,7 @@ import pystache
 import pytz
 import sqlparse
 from flask import current_app
+from flask_babel import _
 from funcy import select_values
 from sqlalchemy.orm.query import Query
 
@@ -101,7 +102,7 @@ class JSONEncoder(json.JSONEncoder):
             result = o.isoformat()
         elif isinstance(o, datetime.time):
             if o.utcoffset() is not None:
-                raise ValueError("JSON can't represent timezone-aware times.")
+                raise ValueError(_("JSON can't represent timezone-aware times."))
             result = o.isoformat()
             if o.microsecond:
                 result = result[:12]

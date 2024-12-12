@@ -3,6 +3,7 @@ import logging
 import requests
 from authlib.integrations.flask_client import OAuth
 from flask import Blueprint, flash, redirect, request, session, url_for
+from flask_babel import _
 
 from redash import models
 from redash.authentication import (
@@ -83,12 +84,12 @@ def create_google_oauth_blueprint(app):
 
         if access_token is None:
             logger.warning("Access token missing in call back request.")
-            flash("Validation error. Please retry.")
+            flash(_("Validation error. Please retry."))
             return redirect(url_for("redash.login"))
 
         profile = get_user_profile(access_token)
         if profile is None:
-            flash("Validation error. Please retry.")
+            flash(_("Validation error. Please retry."))
             return redirect(url_for("redash.login"))
 
         if "org_slug" in session:
@@ -102,7 +103,8 @@ def create_google_oauth_blueprint(app):
                 profile["email"],
                 org,
             )
-            flash("Your Google Apps account ({}) isn't allowed.".format(profile["email"]))
+
+            flash(_("Your Google Apps account ({}) isn't allowed.").format(profile["email"]))
             return redirect(url_for("redash.login", org_slug=org.slug))
 
         picture_url = "%s?sz=40" % profile["picture"]

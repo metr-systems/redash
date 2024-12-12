@@ -1,4 +1,5 @@
 from flask import make_response, request
+from flask_babel import _
 from flask_restful import abort
 from sqlalchemy.exc import IntegrityError
 
@@ -54,7 +55,7 @@ class DestinationResource(BaseResource):
             if "name" in str(e):
                 abort(
                     400,
-                    message="Alert Destination with the name {} already exists.".format(req["name"]),
+                    message=_("Alert Destination with the name {} already exists.").format(req["name"]),
                 )
             abort(500)
 
@@ -127,7 +128,7 @@ class DestinationListResource(BaseResource):
             if "name" in str(e):
                 abort(
                     400,
-                    message="Alert Destination with the name {} already exists.".format(req["name"]),
+                    message=_("Alert Destination with the name {} already exists.").format(req["name"]),
                 )
             abort(500)
 

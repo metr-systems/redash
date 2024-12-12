@@ -1,6 +1,9 @@
 import * as React from "react";
 import * as PropTypes from "prop-types";
 import Button from "antd/lib/button";
+
+import { useTranslation } from "react-i18next";
+
 import BigMessage from "@/components/BigMessage";
 import NoTaggedObjectsFound from "@/components/NoTaggedObjectsFound";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
@@ -16,27 +19,28 @@ export interface DashboardListEmptyStateProps {
 }
 
 export default function DashboardListEmptyState({ page, searchTerm, selectedTags }: DashboardListEmptyStateProps) {
+  const { t } = useTranslation("Dashboards");
   if (searchTerm !== "") {
-    return <BigMessage message="Sorry, we couldn't find anything." icon="fa-search" />;
+    return <BigMessage message={t("Sorry, we couldn't find anything.")} icon="fa-search" />;
   }
   if (selectedTags.length > 0) {
     return <NoTaggedObjectsFound objectType="dashboards" tags={selectedTags} />;
   }
   switch (page) {
     case "favorites":
-      return <BigMessage message="Mark dashboards as Favorite to list them here." icon="fa-star" />;
+      return <BigMessage message={t("Mark dashboards as Favorite to list them here.")} icon="fa-star" />;
     case "my":
       const my_msg = currentUser.hasPermission("create_dashboard") ? (
         <span>
           <Button type="primary" size="small" onClick={() => CreateDashboardDialog.showModal()}>
-            Create your first dashboard!
+            {t("Create your first dashboard!")}
           </Button>{" "}
           <HelpTrigger className="f-14" type="DASHBOARDS" showTooltip={false}>
-            Need help?
+            {t("Need help?")}
           </HelpTrigger>
         </span>
       ) : (
-        <span>Sorry, we couldn't find anything.</span>
+        <span>{t("Sorry, we couldn't find anything.")}</span>
       );
       return <BigMessage icon="fa-search">{my_msg}</BigMessage>;
     default:
@@ -44,7 +48,7 @@ export default function DashboardListEmptyState({ page, searchTerm, selectedTags
         <DynamicComponent name="DashboardList.EmptyState">
           <EmptyState
             icon="zmdi zmdi-view-quilt"
-            description="See the big picture"
+            description={t("See the big picture")}
             illustration="dashboard"
             helpMessage={<EmptyStateHelpMessage helpTriggerType="DASHBOARDS" />}
             showDashboardStep

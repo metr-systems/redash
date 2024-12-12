@@ -1,7 +1,7 @@
-Hi {{ user.name }},
+{{_('Hi')}} {{ user.name }},
 
-Please verify that {{ user.email }} is your correct email address by visiting the following link:
+{{_('Please verify that')}} {{ user.email }} {{_('is your correct email address by visiting the following link:')}}
 
 {{ verify_url }}
 
-Thank you.
+{{_('Thank you')}}

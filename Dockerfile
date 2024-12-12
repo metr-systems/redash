@@ -96,6 +96,9 @@ RUN /etc/poetry/bin/poetry install --only $install_groups $POETRY_OPTIONS
 
 COPY --chown=redash . /app
 COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/dist
+
+RUN pybabel compile -d redash/translations
+
 RUN chown redash /app
 USER redash
 

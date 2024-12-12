@@ -4,6 +4,10 @@ import cx from "classnames";
 import Form from "antd/lib/form";
 import Button from "antd/lib/button";
 import { includes, isFunction, filter, find, difference, isEmpty, mapValues } from "lodash";
+
+import i18next from "i18next";
+import { useTranslation } from "react-i18next";
+
 import notification from "@/services/notification";
 import Collapse from "@/components/Collapse";
 import DynamicFormField, { FieldType } from "./DynamicFormField";
@@ -30,9 +34,9 @@ const fieldRules = ({ type, required, minLength }) => {
   const emailTypeRule = type === "email";
 
   return [
-    requiredRule && { required, message: "This field is required." },
-    minLengthRule && { min: minLength, message: "This field is too short." },
-    emailTypeRule && { type: "email", message: "This field must be a valid email." },
+    requiredRule && { required, message: i18next.t("DynamicForm:This field is required.") },
+    minLengthRule && { min: minLength, message: i18next.t("DynamicForm:This field is too short.") },
+    emailTypeRule && { type: "email", message: i18next.t("DynamicForm:This field must be a valid email.") },
   ].filter(rule => rule);
 };
 
@@ -150,6 +154,7 @@ export default function DynamicForm({
   saveText,
   onSubmit,
 }) {
+  const { t } = useTranslation("DynamicForm");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTouched, setIsTouched] = useState(false);
   const [showExtraFields, setShowExtraFields] = useState(defaultShowExtraFields);
@@ -203,7 +208,7 @@ export default function DynamicForm({
             block
             className="extra-options-button"
             onClick={() => setShowExtraFields(currentShowExtraFields => !currentShowExtraFields)}>
-            Additional Settings
+            {t("Additional Settings")}
             <i
               className={cx("fa m-l-5", { "fa-caret-up": showExtraFields, "fa-caret-down": !showExtraFields })}
               aria-hidden="true"
@@ -242,6 +247,6 @@ DynamicForm.defaultProps = {
   feedbackIcons: false,
   hideSubmitButton: false,
   defaultShowExtraFields: false,
-  saveText: "Save",
+  saveText: i18next.t("common:Save"),
   onSubmit: () => {},
 };

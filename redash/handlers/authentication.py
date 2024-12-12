@@ -1,6 +1,7 @@
 import logging
 
 from flask import abort, flash, redirect, render_template, request, url_for
+from flask_babel import _
 from flask_login import current_user, login_required, login_user, logout_user
 from itsdangerous import BadSignature, SignatureExpired
 from sqlalchemy.orm.exc import NoResultFound
@@ -42,7 +43,7 @@ def render_token_login_page(template, org_slug, token, invite):
         return (
             render_template(
                 "error.html",
-                error_message="Invalid invite link. Please ask for a new one.",
+                error_message=_("Invalid invite link. Please ask for a new one."),
             ),
             400,
         )
@@ -51,7 +52,7 @@ def render_token_login_page(template, org_slug, token, invite):
         return (
             render_template(
                 "error.html",
-                error_message="Your invite link has expired. Please ask for a new one.",
+                error_message=_("Your invite link has expired. Please ask for a new one."),
             ),
             400,
         )
@@ -61,7 +62,7 @@ def render_token_login_page(template, org_slug, token, invite):
             render_template(
                 "error.html",
                 error_message=(
-                    "This invitation has already been accepted. Please try resetting your password instead."
+                    _("This invitation has already been accepted. Please try resetting your password instead.")
                 ),
             ),
             400,
@@ -70,13 +71,13 @@ def render_token_login_page(template, org_slug, token, invite):
     status_code = 200
     if request.method == "POST":
         if "password" not in request.form:
-            flash("Bad Request")
+            flash(_("Bad Request"))
             status_code = 400
         elif not request.form["password"]:
-            flash("Cannot use empty password.")
+            flash(_("Cannot use empty password."))
             status_code = 400
         elif len(request.form["password"]) < 6:
-            flash("Password length is too short (<6).")
+            flash(_("Password length is too short (<6)."))
             status_code = 400
         else:
             if invite or user.is_invitation_pending:
@@ -125,7 +126,7 @@ def verify(token, org_slug=None):
         return (
             render_template(
                 "error.html",
-                error_message="Your verification link is invalid. Please ask for a new one.",
+                error_message=_("Your verification link is invalid. Please ask for a new one."),
             ),
             400,
         )
@@ -168,7 +169,7 @@ def verification_email(org_slug=None):
     if not current_user.is_email_verified:
         send_verify_email(current_user, current_org)
 
-    return json_response({"message": "Please check your email inbox in order to verify your email address."})
+    return json_response({"message": _("Please check your email inbox in order to verify your email address.")})
 
 
 @routes.route(org_scoped_rule("/login"), methods=["GET", "POST"])
@@ -196,11 +197,11 @@ def login(org_slug=None):
                 login_user(user, remember=remember)
                 return redirect(next_path)
             else:
-                flash("Wrong email or password.")
+                flash(_("Wrong email or password."))
         except NoResultFound:
-            flash("Wrong email or password.")
+            flash(_("Wrong email or password."))
     elif request.method == "POST" and not current_org.get_setting("auth_password_login_enabled"):
-        flash("Password login is not enabled for your organization.")
+        flash(_("Password login is not enabled for your organization."))
 
     google_auth_url = get_google_auth_url(next_path)
 

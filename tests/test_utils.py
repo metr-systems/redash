@@ -2,6 +2,7 @@ from collections import namedtuple
 from unittest import TestCase
 
 import pytest
+from flask_babel import force_locale
 
 from redash import create_app
 from redash.query_runner import (
@@ -104,21 +105,22 @@ class TestRenderTemplate(TestCase):
     def test_render(self):
         app = create_app()
         with app.app_context():
-            d = {
-                "failures": [
-                    {
-                        "id": 1,
-                        "name": "Failure Unit Test",
-                        "failed_at": "May 04, 2021 02:07PM UTC",
-                        "failure_reason": "",
-                        "failure_count": 1,
-                        "comment": None,
-                    }
-                ]
-            }
-            html, text = [render_template("emails/failures.{}".format(f), d) for f in ["html", "txt"]]
-            self.assertIn("Failure Unit Test", html)
-            self.assertIn("Failure Unit Test", text)
+            with force_locale("en"):
+                d = {
+                    "failures": [
+                        {
+                            "id": 1,
+                            "name": "Failure Unit Test",
+                            "failed_at": "May 04, 2021 02:07PM UTC",
+                            "failure_reason": "",
+                            "failure_count": 1,
+                            "comment": None,
+                        }
+                    ]
+                }
+                html, text = [render_template("emails/failures.{}".format(f), d) for f in ["html", "txt"]]
+                self.assertIn("Failure Unit Test", html)
+                self.assertIn("Failure Unit Test", text)
 
 
 @pytest.fixture

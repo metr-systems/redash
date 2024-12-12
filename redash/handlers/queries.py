@@ -1,5 +1,6 @@
 import sqlparse
 from flask import jsonify, request, url_for
+from flask_babel import _
 from flask_login import login_required
 from flask_restful import abort
 from funcy import partial
@@ -174,8 +175,10 @@ def require_access_to_dropdown_queries(user, query_def):
         if len(groups) < len(dropdown_query_ids):
             abort(
                 400,
-                message="You are trying to associate a dropdown query that does not have a matching group. "
-                "Please verify the dropdown query id you are trying to associate with this query.",
+                message=_(
+                    "You are trying to associate a dropdown query that does not have a matching group. "
+                    "Please verify the dropdown query id you are trying to associate with this query."
+                ),
             )
 
         require_access(dict(groups), user, view_only)
@@ -452,7 +455,7 @@ class QueryRefreshResource(BaseResource):
         # get here either with a user API key or a query one, we can just check whether it's
         # an api key (meaning this is a query API key, which only grants read access).
         if self.current_user.is_api_user():
-            abort(403, message="Please use a user API key.")
+            abort(403, message=_("Please use a user API key."))
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
         require_access(query, self.current_user, not_view_only)

@@ -1,5 +1,8 @@
 import { debounce, find, has, isMatch, map, pickBy } from "lodash";
 import { useCallback, useEffect, useState } from "react";
+
+import { useTranslation } from "react-i18next";
+
 import location from "@/services/location";
 import notification from "@/services/notification";
 import { calculateLayoutsOrder } from "./utils";
@@ -19,6 +22,7 @@ function getChangedPositions(widgets, nextPositions = {}) {
 }
 
 export default function useEditModeHandler(canEditDashboard, widgets) {
+  const { t } = useTranslation("Dashboards");
   const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, "edit"));
   const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
   const [recentPositions, setRecentPositions] = useState([]);
@@ -64,7 +68,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
         .then(() => setDashboardStatus(DashboardStatusEnum.SAVED))
         .catch(() => {
           setDashboardStatus(DashboardStatusEnum.SAVING_FAILED);
-          notification.error("Error saving changes.");
+          notification.error(t("Error saving changes."));
         });
     },
     [canEditDashboard, widgets]
