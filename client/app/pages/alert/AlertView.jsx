@@ -71,6 +71,7 @@ export default class AlertView extends React.Component {
   render() {
     const { alert, queryResult, canEdit, onEdit, menuButton } = this.props;
     const { query, name, options, rearm } = alert;
+    const template = options.custom_subject || options.custom_body ? "custom" : "default";
 
     return (
       <>
@@ -108,10 +109,7 @@ export default class AlertView extends React.Component {
                       className="form-item-line-height-normal">
                       <Rearm value={rearm || 0} />
                       <br />
-                      <Trans i18nKey="Alerts:set_notification_template">
-                        Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
-                        template.
-                      </Trans>
+                      {i18next.t("Alerts:set_notification_template", { template: template })}
                     </HorizontalFormItem>
                   </>
                 )}
