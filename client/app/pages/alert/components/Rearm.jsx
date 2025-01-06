@@ -79,6 +79,7 @@ RearmByDuration.defaultProps = {
 };
 
 function RearmEditor({ value, onChange }) {
+  const { t } = useTranslation("Alerts");
   const [selected, setSelected] = useState(value < 2 ? value : 2);
 
   const _onChange = newSelected => {
@@ -93,7 +94,7 @@ function RearmEditor({ value, onChange }) {
         defaultValue={selected || 0}
         dropdownMatchSelectWidth={false}
         onChange={_onChange}>
-        <Select.Option value={0} label="Just once">
+        <Select.Option value={0} label={t("Just once")}>
           <Trans i18nKey="Alerts:just_once">
             Just once <em>until back to normal</em>
           </Trans>
