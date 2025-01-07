@@ -99,12 +99,12 @@ function RearmEditor({ value, onChange }) {
             Just once <em>until back to normal</em>
           </Trans>
         </Select.Option>
-        <Select.Option value={1} label="Each time alert is evaluated">
+        <Select.Option value={1} label={t("Each time alert is evaluated")}>
           <Trans i18nKey="Alerts:each_time_alert_is_evaluated">
             Each time alert is evaluated <em>until back to normal</em>
           </Trans>
         </Select.Option>
-        <Select.Option value={2} label="At most every">
+        <Select.Option value={2} label={t("At most every")}>
           <Trans i18nKey="Alerts:at_most_every">
             At most every ... <em>when alert is evaluated</em>
           </Trans>
