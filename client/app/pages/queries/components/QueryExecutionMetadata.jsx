@@ -59,7 +59,7 @@ export default function QueryExecutionMetadata({
               </Tooltip>
             </span>
           )}
-          <strong>{queryResultData.rows.length}</strong> {pluralize("row", queryResultData.rows.length)}
+          <strong>{queryResultData.rows.length}</strong> {t("row", { count: queryResultData.rows.length })}
         </span>
         <span className="m-l-5">
           {!isQueryExecuting && (
