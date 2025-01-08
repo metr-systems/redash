@@ -5,6 +5,7 @@ import { toLower, isNumber } from "lodash";
 import InputNumber from "antd/lib/input-number";
 import Select from "antd/lib/select";
 
+import i18next from "i18next";
 import { Trans, useTranslation } from "react-i18next";
 
 import "./Rearm.less";
@@ -55,8 +56,7 @@ function RearmByDuration({ value, onChange, editMode }) {
         <Select value={durationIdx} onChange={onChangeIdx}>
           {DURATIONS.map(([name], idx) => (
             <Select.Option value={idx} key={name}>
-              {name}
-              {plural}
+              {i18next.t(`reserved:${name.toLowerCase()}${plural ? "_plural" : ""}`, { name, plural })}
             </Select.Option>
           ))}
         </Select>
