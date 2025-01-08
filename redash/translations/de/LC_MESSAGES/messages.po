@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-11 16:26+0100\n"
+"POT-Creation-Date: 2025-01-08 14:52+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -254,6 +254,10 @@ msgid ""
 msgstr ""
 "Sie können Ihr eigenes Konto nicht deaktivieren. Bitte bitten Sie einen "
 "anderen Administrator, dies für Sie zu tun."
+
+#: redash/tasks/failure_report.py:59
+msgid "Redash failed to execute {count} of your scheduled queries"
+msgstr "Redash konnte {count} Ihrer geplanten Abfragen nicht ausführen."
 
 #: redash/templates/error.html:5
 msgid "Error"
