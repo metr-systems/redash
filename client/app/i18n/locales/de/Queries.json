@@ -82,6 +82,8 @@
   "Getting the data from your datasources.": "Abrufen der Daten aus Ihren Datenquellen.",
   "Result truncated to {{count}} rows. Databricks may truncate query results that are unstably large._one": "Das Ergebnis wurde auf {{count}} Zeilen gekürzt. Databricks kann Abfrageergebnisse kürzen, wenn diese zu groß sind.",
   "Result truncated to {{count}} rows. Databricks may truncate query results that are unstably large._other": "Das Ergebnis wurde auf {{count}} Zeilen gekürzt. Databricks kann Abfrageergebnisse kürzen, wenn diese zu groß sind.",
+  "row_one": "Zeile",
+  "row_other": "Zeilen",
   " runtime": " Laufzeit",
   "Running": "Läuft",
   "Data Scanned": "Daten gescannt",
