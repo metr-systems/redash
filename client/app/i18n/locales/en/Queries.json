@@ -82,6 +82,8 @@
   "Getting the data from your datasources.": "",
   "Result truncated to {{count}} rows. Databricks may truncate query results that are unstably large._one": "",
   "Result truncated to {{count}} rows. Databricks may truncate query results that are unstably large._other": "",
+  "row_one": "row",
+  "row_other": "rows",
   " runtime": "",
   "Running": "",
   "Data Scanned": "",
