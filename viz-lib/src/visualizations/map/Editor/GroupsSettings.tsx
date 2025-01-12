@@ -5,6 +5,8 @@ import ColorPicker from "@/components/ColorPicker";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
 
+import i18next from "i18next";
+
 import prepareData from "../prepareData";
 
 export default function GroupsSettings({ options, data, onOptionsChange }: any) {
@@ -36,11 +38,11 @@ export default function GroupsSettings({ options, data, onOptionsChange }: any) 
 
   const columns = [
     {
-      title: "Group",
+      title: i18next.t("viz-lib:Group"),
       dataIndex: "name",
     },
     {
-      title: "Color",
+      title: i18next.t("viz-lib:Color"),
       dataIndex: "color",
       width: "1%",
       render: (unused: any, item: any) => (

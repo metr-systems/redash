@@ -3,7 +3,9 @@ import createTabbedEditor from "@/components/visualizations/editor/createTabbedE
 import GeneralSettings from "./GeneralSettings";
 import AppearanceSettings from "./AppearanceSettings";
 
+import i18next from "i18next";
+
 export default createTabbedEditor([
-  { key: "General", title: "General", component: GeneralSettings },
-  { key: "Appearance", title: "Appearance", component: AppearanceSettings },
+  { key: "General", title: i18next.t("viz-lib:General"), component: GeneralSettings },
+  { key: "Appearance", title: i18next.t("viz-lib:Appearance"), component: AppearanceSettings },
 ]);
