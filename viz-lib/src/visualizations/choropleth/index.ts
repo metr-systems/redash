@@ -2,9 +2,11 @@ import getOptions from "./getOptions";
 import Renderer from "./Renderer";
 import Editor from "./Editor";
 
+import i18next from "i18next";
+
 export default {
   type: "CHOROPLETH",
-  name: "Map (Choropleth)",
+  name: i18next.t("Map (Choropleth)"),
   getOptions,
   Renderer,
   Editor,

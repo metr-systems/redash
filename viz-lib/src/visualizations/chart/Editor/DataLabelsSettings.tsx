@@ -3,8 +3,10 @@ import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
+import { Trans, useTranslation } from "react-i18next";
 
 export default function DataLabelsSettings({ options, onOptionsChange }: any) {
+  const { t } = useTranslation("viz-lib");
   const isShowDataLabelsAvailable = includes(
     ["line", "area", "column", "scatter", "pie", "heatmap"],
     options.globalSeriesType
@@ -17,12 +19,12 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
       {isShowDataLabelsAvailable && (
         // @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message
         <Section>
-          <Checkbox
+            <Checkbox
             data-test="Chart.DataLabels.ShowDataLabels"
             defaultChecked={options.showDataLabels}
             onChange={event => onOptionsChange({ showDataLabels: event.target.checked })}>
-            Show Data Labels
-          </Checkbox>
+            {t("Show Data Labels")}
+            </Checkbox>
         </Section>
       )}
 
@@ -31,7 +33,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         <Input
           label={
             <React.Fragment>
-              Number Values Format
+              {t("Number Values Format")}
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -46,7 +48,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         <Input
           label={
             <React.Fragment>
-              Percent Values Format
+              {t("Percent Values Format")}
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -61,7 +63,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         <Input
           label={
             <React.Fragment>
-              Date/Time Values Format
+              {t("Date/Time Values Format")}
               <ContextHelp.DateTimeFormatSpecs />
             </React.Fragment>
           }
@@ -76,33 +78,36 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         <Input
           label={
             <React.Fragment>
-              Data Labels
+              <Trans ns="viz-lib">Data Labels</Trans>
               {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
               <ContextHelp placement="topRight" arrowPointAtCenter>
-                <div style={{ paddingBottom: 5 }}>Use special names to access additional properties:</div>
-                <div>
-                  <code>{"{{ @@name }}"}</code> series name;
+                <div style={{ paddingBottom: 5 }}>
+                  {t("Use special names to access additional properties") + ":"}
                 </div>
                 <div>
-                  <code>{"{{ @@x }}"}</code> x-value;
+                  <code>{"{{ @@name }}"}</code> {t("series name") + ";"}
                 </div>
                 <div>
-                  <code>{"{{ @@y }}"}</code> y-value;
+                  <code>{"{{ @@x }}"}</code> {t("x-value") + ";"}
                 </div>
                 <div>
-                  <code>{"{{ @@yPercent }}"}</code> relative y-value;
+                  <code>{"{{ @@y }}"}</code> {t("y-value") + ";"}
                 </div>
                 <div>
-                  <code>{"{{ @@yError }}"}</code> y deviation;
+                  <code>{"{{ @@yPercent }}"}</code> {t("relative y-value") + ";"}
                 </div>
                 <div>
-                  <code>{"{{ @@size }}"}</code> bubble size;
+                  <code>{"{{ @@yError }}"}</code> {t("y deviation") + ";"}
+                </div>
+                <div>
+                  <code>{"{{ @@size }}"}</code> {t("bubble size") + ";"}
                 </div>
                 <div style={{ paddingTop: 5 }}>
-                  Also, all query result columns can be referenced
+                  <Trans ns="viz-lib" key="QUERY_RESULT_REFERENCE">Also, all query result columns can be referenced
                   <br />
                   using
                   <code style={{ whiteSpace: "nowrap" }}>{"{{ column_name }}"}</code> syntax.
+                  </Trans>
                 </div>
               </ContextHelp>
             </React.Fragment>

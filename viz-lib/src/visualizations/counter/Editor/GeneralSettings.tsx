@@ -1,16 +1,19 @@
 import { map } from "lodash";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Section, Select, Input, InputNumber, Switch } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }: any) {
+  const { t } = useTranslation("viz-lib");
+
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
           layout="horizontal"
-          label="Counter Label"
+          label={t("Counter Label")}
           data-test="Counter.General.Label"
           defaultValue={options.counterLabel}
           placeholder={visualizationName}
@@ -22,7 +25,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
       <Section>
         <Select
           layout="horizontal"
-          label="Counter Value Column Name"
+          label={t("Counter Value Column Name")}
           data-test="Counter.General.ValueColumn"
           defaultValue={options.counterColName}
           disabled={options.countRow}
@@ -41,7 +44,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Counter Value Row Number"
+          label={t("Counter Value Row Number")}
           data-test="Counter.General.ValueRowNumber"
           defaultValue={options.rowNumber}
           disabled={options.countRow}
@@ -53,12 +56,12 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
       <Section>
         <Select
           layout="horizontal"
-          label="Target Value Column Name"
+          label={t("Target Value Column Name")}
           data-test="Counter.General.TargetValueColumn"
           defaultValue={options.targetColName}
           onChange={(targetColName: any) => onOptionsChange({ targetColName })}>
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
-          <Select.Option value="">No target value</Select.Option>
+          <Select.Option value="">{t("No target value")}</Select.Option>
           {map(data.columns, col => (
             // @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message
             <Select.Option key={col.name} data-test={"Counter.General.TargetValueColumn." + col.name}>
@@ -73,7 +76,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Target Value Row Number"
+          label={t("Target Value Row Number")}
           data-test="Counter.General.TargetValueRowNumber"
           defaultValue={options.targetRowNumber}
           onChange={(targetRowNumber: any) => onOptionsChange({ targetRowNumber })}
@@ -90,7 +93,7 @@ export default function GeneralSettings({ options, data, visualizationName, onOp
           defaultChecked={options.countRow}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(countRow: any) => any' is not assignable to... Remove this comment to see the full error message
           onChange={(countRow: any) => onOptionsChange({ countRow })}>
-          Count Rows
+          {t("Count Rows")}
         </Switch>
       </Section>
     </React.Fragment>

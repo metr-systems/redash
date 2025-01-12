@@ -3,6 +3,8 @@ import React, { useMemo } from "react";
 import { Select } from "@/components/visualizations/editor";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
+import { useTranslation } from "react-i18next";
+
 const allChartTypes = [
   { type: "line", name: "Line", icon: "line-chart" },
   { type: "column", name: "Bar", icon: "bar-chart" },
@@ -21,11 +23,13 @@ type OwnProps = {
 type Props = OwnProps & typeof ChartTypeSelect.defaultProps;
 
 export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
+  const { t } = useTranslation("viz-lib")
+
   const chartTypes = useMemo(() => {
     const result = [...allChartTypes];
 
     if (visualizationsSettings.allowCustomJSVisualizations) {
-      result.push({ type: "custom", name: "Custom", icon: "code" });
+      result.push({ type: "custom", name: t("Custom"), icon: "code" });
     }
 
     if (hiddenChartTypes.length > 0) {

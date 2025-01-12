@@ -1,9 +1,11 @@
 import Renderer from "./Renderer";
 import Editor from "./Editor";
 
+import i18next from "i18next";
+
 export default {
   type: "BOXPLOT",
-  name: "Boxplot (Deprecated)",
+  name: i18next.t("viz-lib:Boxplot (Deprecated)"),
   isDeprecated: true,
   getOptions: (options: any) => ({
     ...options,

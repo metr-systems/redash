@@ -2,9 +2,11 @@ import getOptions from "./getOptions";
 import Renderer from "./Renderer";
 import Editor from "./Editor";
 
+import i18next from "i18next";
+
 export default {
   type: "COHORT",
-  name: "Cohort",
+  name: i18next.t("viz-lib:Cohort"),
   getOptions,
   Renderer,
   Editor,

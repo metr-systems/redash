@@ -1,5 +1,6 @@
 import Renderer from "./Renderer";
 import Editor from "./Editor";
+import i18next from "i18next";
 
 const DEFAULT_OPTIONS = {
   counterLabel: "",
@@ -14,7 +15,7 @@ const DEFAULT_OPTIONS = {
 
 export default {
   type: "COUNTER",
-  name: "Counter",
+  name: i18next.t("viz-lib:Counter"),
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
     ...options,

@@ -4,6 +4,8 @@ import { Section, ColorPicker, InputNumber } from "@/components/visualizations/e
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import DefaultColorPalette from "@/visualizations/ColorPalette";
 
+import { useTranslation } from "react-i18next";
+
 const ColorPalette = {
   White: "#FFFFFF",
   ...DefaultColorPalette,
@@ -19,13 +21,14 @@ function validateSteps(value: any) {
 }
 
 export default function ColorsSettings({ options, onOptionsChange }: any) {
+  const {t} =useTranslation("viz-lib");
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <ColorPicker
           layout="horizontal"
-          label="Min Color"
+          label={t("Min Color")}
           presetColors={ColorPalette}
           interactive
           color={options.colors.min}
@@ -38,7 +41,7 @@ export default function ColorsSettings({ options, onOptionsChange }: any) {
       <Section>
         <ColorPicker
           layout="horizontal"
-          label="Max Color"
+          label={t("Max Color")}
           presetColors={ColorPalette}
           interactive
           color={options.colors.max}
@@ -51,7 +54,7 @@ export default function ColorsSettings({ options, onOptionsChange }: any) {
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Steps"
+          label={t("Steps")}
           min={minSteps}
           max={maxSteps}
           value={options.colors.steps}

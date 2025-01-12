@@ -1,10 +1,12 @@
 import React from "react";
 import { Section, Input, InputNumber, Switch } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
+import { useTranslation } from "react-i18next";
 
 import { isValueNumber } from "../utils";
 
 export default function FormatSettings({ options, data, onOptionsChange }: any) {
+  const { t } = useTranslation("viz-lib");
   const inputsEnabled = isValueNumber(data.rows, options);
   return (
     <React.Fragment>
@@ -12,7 +14,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Formatting Decimal Place"
+          label={t('Formatting Decimal Place')}
           data-test="Counter.Formatting.DecimalPlace"
           defaultValue={options.stringDecimal}
           disabled={!inputsEnabled}
@@ -24,7 +26,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
       <Section>
         <Input
           layout="horizontal"
-          label="Formatting Decimal Character"
+          label={t('Formatting Decimal Character')}
           data-test="Counter.Formatting.DecimalCharacter"
           defaultValue={options.stringDecChar}
           disabled={!inputsEnabled}
@@ -36,7 +38,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
       <Section>
         <Input
           layout="horizontal"
-          label="Formatting Thousands Separator"
+          label={t('Formatting Thousands Separator')}
           data-test="Counter.Formatting.ThousandsSeparator"
           defaultValue={options.stringThouSep}
           disabled={!inputsEnabled}
@@ -48,7 +50,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
       <Section>
         <Input
           layout="horizontal"
-          label="Formatting String Prefix"
+          label={t('Formatting String Prefix')}
           data-test="Counter.Formatting.StringPrefix"
           defaultValue={options.stringPrefix}
           disabled={!inputsEnabled}
@@ -60,7 +62,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
       <Section>
         <Input
           layout="horizontal"
-          label="Formatting String Suffix"
+          label={t('Formatting String Suffix')}
           data-test="Counter.Formatting.StringSuffix"
           defaultValue={options.stringSuffix}
           disabled={!inputsEnabled}
@@ -78,7 +80,7 @@ export default function FormatSettings({ options, data, onOptionsChange }: any) 
           defaultChecked={options.formatTargetValue}
           // @ts-expect-error ts-migrate(2322) FIXME: Type '(formatTargetValue: any) => any' is not assi... Remove this comment to see the full error message
           onChange={(formatTargetValue: any) => onOptionsChange({ formatTargetValue })}>
-          Format Target Value
+          {t('Format Target Value')}
         </Switch>
       </Section>
     </React.Fragment>

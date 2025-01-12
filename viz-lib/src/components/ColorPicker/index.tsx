@@ -14,6 +14,8 @@ import Swatch from "./Swatch";
 import Label from "./Label";
 import { validateColor } from "./utils";
 
+import { useTranslation } from "react-i18next";
+
 import "./index.less";
 
 type OwnProps = {
@@ -59,6 +61,7 @@ export default function ColorPicker({
   addonBefore,
   addonAfter,
 }: Props) {
+  const { t }=useTranslation("viz-lib");
   const [visible, setVisible] = useState(false);
   const validatedColor = useMemo(() => validateColor(color), [color]);
   const [currentColor, setCurrentColor] = useState("");
@@ -78,12 +81,12 @@ export default function ColorPicker({
   const actions = [];
   if (!interactive) {
     actions.push(
-      <Tooltip key="cancel" title="Cancel">
+      <Tooltip key="cancel" title={t("Cancel")}>
         <CloseOutlinedIcon onClick={handleCancel} />
       </Tooltip>
     );
     actions.push(
-      <Tooltip key="apply" title="Apply">
+      <Tooltip key="apply" title={t("Apply")}>
         <CheckOutlinedIcon onClick={handleApply} />
       </Tooltip>
     );

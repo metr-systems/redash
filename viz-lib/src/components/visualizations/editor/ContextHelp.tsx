@@ -3,6 +3,8 @@ import Popover from "antd/lib/popover";
 import QuestionCircleFilledIcon from "@ant-design/icons/QuestionCircleFilled";
 import { visualizationsSettings } from "@/visualizations/visualizationsSettings";
 
+import { useTranslation } from "react-i18next";
+
 import "./context-help.less";
 
 type OwnContextHelpProps = {
@@ -28,12 +30,13 @@ ContextHelp.defaultProps = {
 ContextHelp.defaultIcon = <QuestionCircleFilledIcon className="context-help-default-icon" />;
 
 function NumberFormatSpecs() {
+  const { t }=useTranslation("viz-lib");
   const { HelpTriggerComponent } = visualizationsSettings;
   return (
     <HelpTriggerComponent
       // @ts-expect-error ts-migrate(2322) FIXME: Type '{ children: Element; type: string; title: st... Remove this comment to see the full error message
       type="NUMBER_FORMAT_SPECS"
-      title="Formatting Numbers"
+      title={t("Formatting Numbers")}
       href="https://redash.io/help/user-guide/visualizations/formatting-numbers"
       className="visualization-editor-context-help">
       {ContextHelp.defaultIcon}
@@ -42,10 +45,11 @@ function NumberFormatSpecs() {
 }
 
 function DateTimeFormatSpecs() {
+  const { t }=useTranslation("viz-lib");
   const { HelpTriggerComponent } = visualizationsSettings;
   return (
     <HelpTriggerComponent
-      title="Formatting Dates and Times"
+      title={t("Formatting Dates and Times")}
       href="https://momentjs.com/docs/#/displaying/format/"
       className="visualization-editor-context-help">
       {ContextHelp.defaultIcon}
@@ -54,10 +58,11 @@ function DateTimeFormatSpecs() {
 }
 
 function TickFormatSpecs() {
+  const { t }=useTranslation("viz-lib");
   const { HelpTriggerComponent } = visualizationsSettings;
   return (
     <HelpTriggerComponent
-      title="Tick Formatting"
+      title={t("Tick Formatting")}
       href="https://redash.io/help/user-guide/visualizations/formatting-axis"
       className="visualization-editor-context-help">
       {ContextHelp.defaultIcon}
