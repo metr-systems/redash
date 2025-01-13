@@ -148,7 +148,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
               onChange={(iconShape: any) => onOptionsChange({ iconShape })}>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">
-                {t("Marker + Icon")}
+                {t("Marker")+" + "+t("Icon")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
@@ -163,7 +163,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="circle" data-test="Map.Editor.MarkerShape.circle">
-                {t("Circle + Icon")}
+                {t("Circle")+" + "+t("Icon")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
@@ -173,7 +173,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="rectangle" data-test="Map.Editor.MarkerShape.rectangle">
-                {t("Square + Icon")}
+                {t("Square")+" + "+t("Icon")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
             </Select>

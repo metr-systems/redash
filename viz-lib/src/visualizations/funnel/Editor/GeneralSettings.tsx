@@ -19,7 +19,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
           layout="horizontal"
           label={t("Step Column")}
           data-test="Funnel.StepColumn"
-          placeholder={t("Choose column...")}
+          placeholder={t("Choose column")+"..."}
           defaultValue={options.stepCol.colName || undefined}
           onChange={(colName: any) => onOptionsChange({ stepCol: { colName: colName || null } })}>
           {map(columnNames, col => (
@@ -92,7 +92,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
               label={t("Sort Column")}
               data-test="Funnel.SortColumn"
               allowClear
-              placeholder={t("Choose column...")}
+              placeholder={t("Choose column")+"..."}
               defaultValue={options.sortKeyCol.colName || undefined}
               onChange={(colName: any) => onOptionsChange({ sortKeyCol: { colName: colName || null } })}>
               {map(columnNames, col => (

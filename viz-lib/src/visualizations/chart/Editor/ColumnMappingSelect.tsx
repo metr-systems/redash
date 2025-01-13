@@ -46,7 +46,7 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         mode={multiple ? "multiple" : "default"}
         allowClear
         showSearch
-        placeholder={multiple ? t("Choose columns...") : t("Choose column...")}
+        placeholder={multiple ? t("Choose columns")+"..." : t("Choose column")+"..."}
         value={value || undefined}
         // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
         onChange={(column: any) => onChange(column || null, type)}>
