@@ -2,10 +2,11 @@ import createTabbedEditor from "@/components/visualizations/editor/createTabbedE
 
 import ColumnsSettings from "./ColumnsSettings";
 import GridSettings from "./GridSettings";
+import i18next from "i18next";
 
 import "./editor.less";
 
 export default createTabbedEditor([
-  { key: "Columns", title: "Columns", component: ColumnsSettings },
-  { key: "Grid", title: "Grid", component: GridSettings },
+  { key: "Columns", title: i18next.t("viz-lib:Columns"), component: ColumnsSettings },
+  { key: "Grid", title: i18next.t("viz-lib:Grid"), component: GridSettings },
 ]);

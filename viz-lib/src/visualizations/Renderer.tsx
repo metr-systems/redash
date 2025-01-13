@@ -4,6 +4,7 @@ import ErrorBoundary, { ErrorMessage } from "@/components/ErrorBoundary";
 import { RendererPropTypes } from "@/visualizations/prop-types";
 import registeredVisualizations from "@/visualizations/registeredVisualizations";
 
+import {useTranslation} from "react-i18next";
 /*
 (ts-migrate) TODO: Migrate the remaining prop types
 ...RendererPropTypes
@@ -23,6 +24,7 @@ export default function Renderer({
   addonAfter,
   ...otherProps
 }: Props) {
+  const {t}=useTranslation("viz-lib");
   const lastOptions = useRef();
   const errorHandlerRef = useRef();
 
@@ -52,7 +54,7 @@ export default function Renderer({
       {/* @ts-expect-error ts-migrate(2769) FIXME: No overload matches this call. */}
       <ErrorBoundary
         ref={errorHandlerRef}
-        renderError={() => <ErrorMessage>Error while rendering visualization.</ErrorMessage>}>
+        renderError={() => <ErrorMessage>{t("Error while rendering visualization")+"."}</ErrorMessage>}>
         <div className="visualization-renderer-wrapper">
           <Renderer options={options} data={data} visualizationName={visualizationName} {...otherProps} />
         </div>

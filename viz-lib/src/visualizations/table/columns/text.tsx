@@ -3,6 +3,8 @@ import HtmlContent from "@/components/HtmlContent";
 import { Section, Checkbox } from "@/components/visualizations/editor";
 import { createTextFormatter } from "@/lib/value-format";
 
+import {useTranslation } from "react-i18next";
+
 type Props = {
   column: {
     name: string;
@@ -13,6 +15,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
+  const {t}=useTranslation("viz-lib");
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
@@ -21,7 +24,7 @@ function Editor({ column, onChange }: Props) {
           data-test="Table.ColumnEditor.Text.AllowHTML"
           checked={column.allowHTML}
           onChange={event => onChange({ allowHTML: event.target.checked })}>
-          Allow HTML content
+          {t("Allow HTML content")}
         </Checkbox>
       </Section>
 
@@ -32,7 +35,7 @@ function Editor({ column, onChange }: Props) {
             data-test="Table.ColumnEditor.Text.HighlightLinks"
             checked={column.highlightLinks}
             onChange={event => onChange({ highlightLinks: event.target.checked })}>
-            Highlight links
+            {t("Highlight links")}
           </Checkbox>
         </Section>
       )}

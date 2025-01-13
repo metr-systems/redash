@@ -3,6 +3,7 @@ import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import * as Grid from "antd/lib/grid";
 import { Section, Select, Input, Checkbox, TextAlignmentSelect } from "@/components/visualizations/editor";
+import { useTranslation } from "react-i18next";
 
 import ColumnTypes from "../columns";
 
@@ -20,6 +21,7 @@ type OwnProps = {
 type Props = OwnProps & typeof ColumnEditor.defaultProps;
 
 export default function ColumnEditor({ column, onChange }: Props) {
+  const {t}=useTranslation("viz-lib");
   function handleChange(changes: any) {
     onChange({ ...column, ...changes });
   }
@@ -59,14 +61,14 @@ export default function ColumnEditor({ column, onChange }: Props) {
           // @ts-expect-error ts-migrate(2339) FIXME: Property 'allowSearch' does not exist on type '{ n... Remove this comment to see the full error message
           defaultChecked={column.allowSearch}
           onChange={event => handleChange({ allowSearch: event.target.checked })}>
-          Use for search
+          {t("Use for search")}
         </Checkbox>
       </Section>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
-          label="Description"
+          label={t("Description")}
           // @ts-expect-error ts-migrate(2339) FIXME: Property 'description' does not exist on type '{ n... Remove this comment to see the full error message
           defaultValue={column.description}
           onChange={(event: any) => handleChangeDebounced({ description: event.target.value })}
@@ -76,7 +78,7 @@ export default function ColumnEditor({ column, onChange }: Props) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
-          label="Display as:"
+          label={t("Display as")+":"}
           data-test={`Table.Column.${column.name}.DisplayAs`}
           defaultValue={column.displayAs}
           onChange={(displayAs: any) => handleChange({ displayAs })}>

@@ -3,6 +3,8 @@ import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, ContextHelp } from "@/components/visualizations/editor";
 import { createDateTimeFormatter } from "@/lib/value-format";
 
+import { useTranslation } from "react-i18next";
+
 type Props = {
   column: {
     name: string;
@@ -12,6 +14,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
+  const { t } = useTranslation("viz-lib");
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
@@ -20,7 +23,7 @@ function Editor({ column, onChange }: Props) {
       <Input
         label={
           <React.Fragment>
-            Date/Time format
+            {t("Date/Time format")}
             <ContextHelp.DateTimeFormatSpecs />
           </React.Fragment>
         }

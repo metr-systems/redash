@@ -10,6 +10,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 
 import EyeOutlinedIcon from "@ant-design/icons/EyeOutlined";
 import EyeInvisibleOutlinedIcon from "@ant-design/icons/EyeInvisibleOutlined";
+import { useTranslation } from "react-i18next";
 
 import ColumnEditor from "./ColumnEditor";
 
@@ -18,6 +19,7 @@ const { Text } = Typography;
 const SortableItem = sortableElement(Collapse.Panel);
 
 export default function ColumnsSettings({ options, onOptionsChange }: any) {
+  const { t } = useTranslation("viz-lib");
   function handleColumnChange(newColumn: any, event: any) {
     if (event) {
       event.stopPropagation();
@@ -63,7 +65,7 @@ export default function ColumnsSettings({ options, onOptionsChange }: any) {
               </React.Fragment>
             }
             extra={
-              <Tooltip title="Toggle visibility" mouseEnterDelay={0} mouseLeaveDelay={0}>
+              <Tooltip title={t("Toggle visibility")} mouseEnterDelay={0} mouseLeaveDelay={0}>
                 {column.visible ? (
                   <EyeOutlinedIcon
                     data-test={`Table.Column.${column.name}.Visibility`}

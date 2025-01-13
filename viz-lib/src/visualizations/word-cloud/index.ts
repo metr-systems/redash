@@ -3,6 +3,8 @@ import { merge } from "lodash";
 import Renderer from "./Renderer";
 import Editor from "./Editor";
 
+import i18next from "i18next";
+
 const DEFAULT_OPTIONS = {
   column: "",
   frequenciesColumn: "",
@@ -12,7 +14,7 @@ const DEFAULT_OPTIONS = {
 
 export default {
   type: "WORD_CLOUD",
-  name: "Word Cloud",
+  name: i18next.t("viz-lib:Word Cloud"),
   getOptions: (options: any) => merge({}, DEFAULT_OPTIONS, options),
   Renderer,
   Editor,

@@ -3,6 +3,7 @@ import React from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, Checkbox, ContextHelp } from "@/components/visualizations/editor";
 import { formatSimpleTemplate } from "@/lib/value-format";
+import { Trans, useTranslation } from "react-i18next";
 
 type Props = {
   column: {
@@ -16,6 +17,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
+  const {t}= useTranslation("viz-lib");
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
@@ -23,7 +25,7 @@ function Editor({ column, onChange }: Props) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
-          label="URL template"
+          label={t("URL template")}
           data-test="Table.ColumnEditor.Link.UrlTemplate"
           defaultValue={column.linkUrlTemplate}
           onChange={(event: any) => onChangeDebounced({ linkUrlTemplate: event.target.value })}
@@ -33,7 +35,7 @@ function Editor({ column, onChange }: Props) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
-          label="Text template"
+          label={t("Text template")}
           data-test="Table.ColumnEditor.Link.TextTemplate"
           defaultValue={column.linkTextTemplate}
           onChange={(event: any) => onChangeDebounced({ linkTextTemplate: event.target.value })}
@@ -43,7 +45,7 @@ function Editor({ column, onChange }: Props) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
-          label="Title template"
+          label={t("Title template")}
           data-test="Table.ColumnEditor.Link.TitleTemplate"
           defaultValue={column.linkTitleTemplate}
           onChange={(event: any) => onChangeDebounced({ linkTitleTemplate: event.target.value })}
@@ -56,7 +58,7 @@ function Editor({ column, onChange }: Props) {
           data-test="Table.ColumnEditor.Link.OpenInNewTab"
           checked={column.linkOpenInNewTab}
           onChange={event => onChange({ linkOpenInNewTab: event.target.checked })}>
-          Open in new tab
+          {t("Open in new tab")}
         </Checkbox>
       </Section>
 
@@ -67,14 +69,18 @@ function Editor({ column, onChange }: Props) {
           placement="topLeft"
           arrowPointAtCenter
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
-          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}>
+          icon={<span style={{ cursor: "default" }}>{t("Format specs")} {ContextHelp.defaultIcon}</span>}>
           <div>
-            All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+            <Trans>
+              All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+            </Trans>
           </div>
           <div>
-            Use <code>{"{{ @ }}"}</code> to reference current (this) column.
+            <Trans>
+              Use <code>{"{{ @ }}"}</code> to reference current (this) column.
+            </Trans>
           </div>
-          <div>This syntax is applicable to URL, Text and Title options.</div>
+          <div>{t("This syntax is applicable to URL, Text and Title options")}.</div>
         </ContextHelp>
       </Section>
     </React.Fragment>
