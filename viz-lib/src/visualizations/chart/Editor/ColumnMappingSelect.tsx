@@ -6,18 +6,18 @@ import { useTranslation } from "react-i18next";
 import i18next from "i18next";
 
 const MappingTypes = {
-  x: { label: i18next.t("viz-lib:X Column") },
-  y: { label: i18next.t("viz-lib:Y Columns"), multiple: true },
-  series: { label: i18next.t("viz-lib:Group by") },
-  yError: { label: i18next.t("viz-lib:Errors column") },
-  size: { label: i18next.t("viz-lib:Bubble Size Column") },
-  zVal: { label: i18next.t("viz-lib:Color Column") },
+  x: { label: i18next.t("vizlib:X Column") },
+  y: { label: i18next.t("vizlib:Y Columns"), multiple: true },
+  series: { label: i18next.t("vizlib:Group by") },
+  yError: { label: i18next.t("vizlib:Errors column") },
+  size: { label: i18next.t("vizlib:Bubble Size Column") },
+  zVal: { label: i18next.t("vizlib:Color Column") },
 };
 
 const SwappedMappingTypes = {
   ...MappingTypes,
-  x: { label: i18next.t("viz-lib:Y Column") },
-  y: { label: i18next.t("viz-lib:X Columns"), multiple: true },
+  x: { label: i18next.t("vizlib:Y Column") },
+  y: { label: i18next.t("vizlib:X Columns"), multiple: true },
 };
 
 type OwnProps = {
@@ -30,7 +30,7 @@ type OwnProps = {
 type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
-  const { t } = useTranslation("viz-lib")
+  const { t } = useTranslation("vizlib")
 
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
 

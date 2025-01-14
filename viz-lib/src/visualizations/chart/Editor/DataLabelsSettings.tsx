@@ -6,7 +6,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { Trans, useTranslation } from "react-i18next";
 
 export default function DataLabelsSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const isShowDataLabelsAvailable = includes(
     ["line", "area", "column", "scatter", "pie", "heatmap"],
     options.globalSeriesType
@@ -78,7 +78,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
         <Input
           label={
             <React.Fragment>
-              <Trans ns="viz-lib">Data Labels</Trans>
+              <Trans ns="vizlib">Data Labels</Trans>
               {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
               <ContextHelp placement="topRight" arrowPointAtCenter>
                 <div style={{ paddingBottom: 5 }}>
@@ -103,7 +103,7 @@ export default function DataLabelsSettings({ options, onOptionsChange }: any) {
                   <code>{"{{ @@size }}"}</code> {t("bubble size") + ";"}
                 </div>
                 <div style={{ paddingTop: 5 }}>
-                  <Trans ns="viz-lib" key="QUERY_RESULT_REFERENCE">Also, all query result columns can be referenced
+                  <Trans ns="vizlib" key="QUERY_RESULT_REFERENCE">Also, all query result columns can be referenced
                   <br />
                   using
                   <code style={{ whiteSpace: "nowrap" }}>{"{{ column_name }}"}</code> syntax.

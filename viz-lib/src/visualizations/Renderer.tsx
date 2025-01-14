@@ -24,7 +24,7 @@ export default function Renderer({
   addonAfter,
   ...otherProps
 }: Props) {
-  const {t}=useTranslation("viz-lib");
+  const {t}=useTranslation("vizlib");
   const lastOptions = useRef();
   const errorHandlerRef = useRef();
 

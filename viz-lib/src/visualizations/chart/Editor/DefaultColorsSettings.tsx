@@ -9,7 +9,7 @@ import getChartData from "../getChartData";
 import { useTranslation } from "react-i18next";
 
 export default function DefaultColorsSettings({ options, data, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib")
+  const { t } = useTranslation("vizlib")
 
   const colors = useMemo(
     () => ({

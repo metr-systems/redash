@@ -5,7 +5,7 @@ import { Section, Select, Input, InputNumber, Switch } from "@/components/visual
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function GeneralSettings({ options, data, visualizationName, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
 
   return (
     <React.Fragment>

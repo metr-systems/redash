@@ -19,7 +19,7 @@ const DEFAULT_OPTIONS = {
 
 export default {
   type: "PIVOT",
-  name: i18next.t("viz-lib:Pivot Table"),
+  name: i18next.t("vizlib:Pivot Table"),
   getOptions: (options: any) => merge({}, DEFAULT_OPTIONS, options),
   Renderer,
   Editor,

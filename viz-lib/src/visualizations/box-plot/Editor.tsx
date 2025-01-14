@@ -5,7 +5,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { useTranslation } from "react-i18next";
 
 export default function Editor({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const onXAxisLabelChanged = (xAxisLabel: any) => {
     const newOptions = { ...options, xAxisLabel };
     onOptionsChange(newOptions);

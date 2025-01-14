@@ -7,7 +7,7 @@ import {useTranslation} from "react-i18next";
 
 export default function Editor({ options, onOptionsChange }: any) {
   
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
 
   const updateOptions = (updates: any) => {
     onOptionsChange(merge({}, options, updates));

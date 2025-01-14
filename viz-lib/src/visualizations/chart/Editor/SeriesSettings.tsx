@@ -18,7 +18,7 @@ const SortableBodyRow = sortableElement((props: any) => <tr {...props} />);
 function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateSeriesOption: any) {
   const result = [
     {
-      title: i18next.t("viz-lib:Order"),
+      title: i18next.t("vizlib:Order"),
       dataIndex: "zIndex",
       render: (unused: any, item: any) => (
         <span className="series-settings-order">
@@ -28,7 +28,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
       ),
     },
     {
-      title: i18next.t("viz-lib:Label"),
+      title: i18next.t("vizlib:Label"),
       dataIndex: "name",
       render: (unused: any, item: any) => (
         <Input
@@ -44,7 +44,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
   if (!includes(["pie", "heatmap"], options.globalSeriesType)) {
     if (!options.swappedAxes) {
       result.push({
-        title: i18next.t("viz-lib:Y Axis"),
+        title: i18next.t("vizlib:Y Axis"),
         dataIndex: "yAxis",
         render: (unused, item) => (
           <Radio.Group
@@ -63,7 +63,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
     }
 
     result.push({
-      title: i18next.t("viz-lib:Type"),
+      title: i18next.t("vizlib:Type"),
       dataIndex: "type",
       render: (unused, item) => (
         <ChartTypeSelect

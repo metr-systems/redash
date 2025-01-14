@@ -23,7 +23,7 @@ type OwnProps = {
 type Props = OwnProps & typeof ChartTypeSelect.defaultProps;
 
 export default function ChartTypeSelect({ hiddenChartTypes, ...props }: Props) {
-  const { t } = useTranslation("viz-lib")
+  const { t } = useTranslation("vizlib")
 
   const chartTypes = useMemo(() => {
     const result = [...allChartTypes];

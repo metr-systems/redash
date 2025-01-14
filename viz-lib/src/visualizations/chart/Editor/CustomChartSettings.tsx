@@ -13,7 +13,7 @@ const defaultCustomCode = trimStart(`
 `);
 
 export default function CustomChartSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib")
+  const { t } = useTranslation("vizlib")
 
   return (
     <React.Fragment>

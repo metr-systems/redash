@@ -14,7 +14,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (

@@ -38,11 +38,11 @@ export default function GroupsSettings({ options, data, onOptionsChange }: any) 
 
   const columns = [
     {
-      title: i18next.t("viz-lib:Group"),
+      title: i18next.t("vizlib:Group"),
       dataIndex: "name",
     },
     {
-      title: i18next.t("viz-lib:Color"),
+      title: i18next.t("vizlib:Color"),
       dataIndex: "color",
       width: "1%",
       render: (unused: any, item: any) => (

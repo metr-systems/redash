@@ -6,7 +6,7 @@ import i18next from "i18next";
 
 export default {
   type: "COHORT",
-  name: i18next.t("viz-lib:Cohort"),
+  name: i18next.t("vizlib:Cohort"),
   getOptions,
   Renderer,
   Editor,

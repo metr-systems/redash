@@ -19,7 +19,7 @@ function getUniqueValues(chartData: any) {
 }
 
 export default function PieColorsSettings({ options, data, onOptionsChange }: any) {
-  const { t }=useTranslation("viz-lib")
+  const { t }=useTranslation("vizlib")
   const colors = useMemo(
     () => ({
       Automatic: null,

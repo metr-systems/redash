@@ -6,7 +6,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { useTranslation } from "react-i18next";
 
 export default function ColumnsSettings({ options, data, onOptionsChange }: any) {
-  const {t} =useTranslation("viz-lib");
+  const {t} =useTranslation("vizlib");
 
   return (
     <React.Fragment>

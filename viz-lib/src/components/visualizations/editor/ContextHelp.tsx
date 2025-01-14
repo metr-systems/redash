@@ -30,7 +30,7 @@ ContextHelp.defaultProps = {
 ContextHelp.defaultIcon = <QuestionCircleFilledIcon className="context-help-default-icon" />;
 
 function NumberFormatSpecs() {
-  const { t }=useTranslation("viz-lib");
+  const { t }=useTranslation("vizlib");
   const { HelpTriggerComponent } = visualizationsSettings;
   return (
     <HelpTriggerComponent
@@ -45,7 +45,7 @@ function NumberFormatSpecs() {
 }
 
 function DateTimeFormatSpecs() {
-  const { t }=useTranslation("viz-lib");
+  const { t }=useTranslation("vizlib");
   const { HelpTriggerComponent } = visualizationsSettings;
   return (
     <HelpTriggerComponent
@@ -58,7 +58,7 @@ function DateTimeFormatSpecs() {
 }
 
 function TickFormatSpecs() {
-  const { t }=useTranslation("viz-lib");
+  const { t }=useTranslation("vizlib");
   const { HelpTriggerComponent } = visualizationsSettings;
   return (
     <HelpTriggerComponent

@@ -6,7 +6,7 @@ import i18next from "i18next";
 
 export default {
   type: "FUNNEL",
-  name: i18next.t("viz-lib:Funnel"),
+  name: i18next.t("vizlib:Funnel"),
   getOptions,
   Renderer,
   Editor,

@@ -6,7 +6,7 @@ import ColorPalette from "../ColorPalette";
 import { useTranslation } from "react-i18next";
 
 export default function ColorsSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
   return (

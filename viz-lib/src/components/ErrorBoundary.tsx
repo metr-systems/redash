@@ -28,7 +28,7 @@ export function ErrorMessage({ children }: ErrorMessageProps) {
 }
 
 ErrorMessage.defaultProps = {
-  children: `${i18next.t("viz-lib:Something went wrong")}.`,
+  children: `${i18next.t("vizlib:Something went wrong")}.`,
 };
 
 type OwnErrorBoundaryProps = {

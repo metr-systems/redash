@@ -29,12 +29,12 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
     <ContextHelp placement="topLeft" arrowPointAtCenter>
       <div style={{ paddingBottom: 5 }}>
         <div>
-          <Trans ns="viz-lib">
+          <Trans ns="vizlib">
             All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
           </Trans>
         </div>
         <div>
-          <Trans ns="viz-lib">
+          <Trans ns="vizlib">
             Use <code>{"{{ @@value }}"}</code> to access formatted value.
           </Trans>
         </div>
@@ -42,7 +42,7 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
       {geoJsonProperties.length > 0 && (
         <React.Fragment>
           <div className="p-b-5">
-            <Trans ns="viz-lib">GeoJSON properties could be accessed by these names:</Trans>
+            <Trans ns="vizlib">GeoJSON properties could be accessed by these names:</Trans>
           </div>
           <div style={{ maxHeight: 300, overflow: "auto" }}>
             {map(geoJsonProperties, property => (
@@ -62,7 +62,7 @@ TemplateFormatHint.defaultProps = {
 };
 
 export default function GeneralSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
   const [geoJson] = useLoadGeoJson(options.mapType);
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);

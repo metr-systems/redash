@@ -5,7 +5,7 @@ const DEFAULT_OPTIONS = {};
 
 export default {
   type: "DETAILS",
-  name: i18next.t("viz-lib:Details View"),
+  name: i18next.t("vizlib:Details View"),
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
     ...options,

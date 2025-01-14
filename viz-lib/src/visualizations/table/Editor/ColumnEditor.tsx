@@ -21,7 +21,7 @@ type OwnProps = {
 type Props = OwnProps & typeof ColumnEditor.defaultProps;
 
 export default function ColumnEditor({ column, onChange }: Props) {
-  const {t}=useTranslation("viz-lib");
+  const {t}=useTranslation("vizlib");
   function handleChange(changes: any) {
     onChange({ ...column, ...changes });
   }

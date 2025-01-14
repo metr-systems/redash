@@ -15,7 +15,7 @@ const DEFAULT_OPTIONS = {
 
 export default {
   type: "COUNTER",
-  name: i18next.t("viz-lib:Counter"),
+  name: i18next.t("vizlib:Counter"),
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
     ...options,

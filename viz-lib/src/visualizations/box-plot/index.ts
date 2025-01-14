@@ -5,7 +5,7 @@ import i18next from "i18next";
 
 export default {
   type: "BOXPLOT",
-  name: i18next.t("viz-lib:Boxplot (Deprecated)"),
+  name: i18next.t("vizlib:Boxplot (Deprecated)"),
   isDeprecated: true,
   getOptions: (options: any) => ({
     ...options,

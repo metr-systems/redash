@@ -6,7 +6,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { useTranslation } from "react-i18next";
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const columnNames = useMemo(() => map(data.columns, c => c.name), [data]);
 
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);

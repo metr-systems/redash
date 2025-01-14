@@ -31,7 +31,7 @@ type OwnProps = {
 type Props = OwnProps & typeof AxisSettings.defaultProps;
 
 export default function AxisSettings({ id, options, features, onChange }: Props) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
 
   function optionsChanged(newOptions: any) {
     onChange(merge({}, options, newOptions));

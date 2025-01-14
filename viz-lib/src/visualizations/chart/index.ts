@@ -6,7 +6,7 @@ import i18next from "i18next";
 
 export default {
   type: "CHART",
-  name: i18next.t("viz-lib:Chart"),
+  name: i18next.t("vizlib:Chart"),
   isDefault: true,
   getOptions,
   Renderer,

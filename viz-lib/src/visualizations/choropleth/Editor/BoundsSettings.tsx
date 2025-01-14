@@ -11,7 +11,7 @@ import { getGeoJsonBounds } from "./utils";
 import { useTranslation } from "react-i18next";
 
 export default function BoundsSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   // Bounds may be changed in editor or on preview (by drag/zoom map).
   // Changes from preview does not come frequently (only when user release mouse button),
   // but changes from editor should be debounced.

@@ -5,7 +5,7 @@ import i18next from "i18next";
 
 export default {
   type: "SUNBURST_SEQUENCE",
-  name: i18next.t("viz-lib:Sunburst Sequence"),
+  name: i18next.t("vizlib:Sunburst Sequence"),
   getOptions: (options: any) => ({
     ...options,
   }),

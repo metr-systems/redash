@@ -6,7 +6,7 @@ import i18next from "i18next";
 
 export default {
   type: "CHOROPLETH",
-  name: i18next.t("viz-lib:Map (Choropleth)"),
+  name: i18next.t("vizlib:Map (Choropleth)"),
   getOptions,
   Renderer,
   Editor,

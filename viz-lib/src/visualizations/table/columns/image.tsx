@@ -18,7 +18,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
@@ -85,12 +85,12 @@ function Editor({ column, onChange }: Props) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
           icon={<span style={{ cursor: "default" }}>{t("Format specs")} {ContextHelp.defaultIcon}</span>}>
           <div>
-            <Trans key="viz-lib:columns_reference">
+            <Trans key="vizlib:columns_reference">
               All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
             </Trans>
           </div>
           <div>
-            <Trans key="viz-lib:current_column_reference">
+            <Trans key="vizlib:current_column_reference">
               Use <code>{"{{ @ }}"}</code> to reference current (this) column.
             </Trans>
           </div>

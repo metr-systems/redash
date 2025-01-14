@@ -19,7 +19,7 @@ const { Text } = Typography;
 const SortableItem = sortableElement(Collapse.Panel);
 
 export default function ColumnsSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   function handleColumnChange(newColumn: any, event: any) {
     if (event) {
       event.stopPropagation();

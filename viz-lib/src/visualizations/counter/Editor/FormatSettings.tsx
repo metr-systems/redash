@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { isValueNumber } from "../utils";
 
 export default function FormatSettings({ options, data, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const inputsEnabled = isValueNumber(data.rows, options);
   return (
     <React.Fragment>

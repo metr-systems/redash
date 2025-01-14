@@ -61,7 +61,7 @@ export default function ColorPicker({
   addonBefore,
   addonAfter,
 }: Props) {
-  const { t }=useTranslation("viz-lib");
+  const { t }=useTranslation("vizlib");
   const [visible, setVisible] = useState(false);
   const validatedColor = useMemo(() => validateColor(color), [color]);
   const [currentColor, setCurrentColor] = useState("");

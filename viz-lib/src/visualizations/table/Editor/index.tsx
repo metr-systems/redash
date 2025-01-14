@@ -7,6 +7,6 @@ import i18next from "i18next";
 import "./editor.less";
 
 export default createTabbedEditor([
-  { key: "Columns", title: i18next.t("viz-lib:Columns"), component: ColumnsSettings },
-  { key: "Grid", title: i18next.t("viz-lib:Grid"), component: GridSettings },
+  { key: "Columns", title: i18next.t("vizlib:Columns"), component: ColumnsSettings },
+  { key: "Grid", title: i18next.t("vizlib:Grid"), component: GridSettings },
 ]);

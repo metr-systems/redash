@@ -6,7 +6,7 @@ import i18next from "i18next";
 
 export default {
   type: "MAP",
-  name: i18next.t("viz-lib:Map (Markers)"),
+  name: i18next.t("vizlib:Map (Markers)"),
   getOptions,
   Renderer,
   Editor,

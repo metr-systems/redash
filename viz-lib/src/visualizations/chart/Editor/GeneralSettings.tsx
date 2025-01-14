@@ -82,7 +82,7 @@ function mappedColumnsToColumnMappings(mappedColumns: any) {
 }
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
-  const {t}= useTranslation("viz-lib");
+  const {t}= useTranslation("vizlib");
 
   const { mappedColumns, unusedColumns } = useMemo(() => getMappedColumns(options, data.columns), [
     options,
@@ -381,13 +381,13 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
                 // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
                 icon={ContextHelp.defaultIcon}>
                 <div>
-                  <Trans  ns="viz-lib">
+                  <Trans  ns="vizlib">
                     Every curve can be referenced using <code>{"{{ @@x1 }} {{ @@y1 }} {{ @@x2 }} {{ @@y2 }} ..."}</code> syntax:<br/>
                     axis with any curve number according to the Series config.
                   </Trans>
                 </div>
                 <div>
-                  <Trans  ns="viz-lib">
+                  <Trans  ns="vizlib">
                     The first met curve X and Y values can be referenced by just<code>{"{{ @@x }} {{ @@y }}"}</code> syntax.
                   </Trans>
                 </div>

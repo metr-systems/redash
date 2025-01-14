@@ -20,7 +20,7 @@ type Props = OwnProps & typeof TextAlignmentSelect.defaultProps;
 
 // @ts-expect-error ts-migrate(2700) FIXME: Rest types may only be created from object types.
 export default function TextAlignmentSelect({ className, ...props }: Props) {
-  const { t }=useTranslation("viz-lib");
+  const { t }=useTranslation("vizlib");
 
   return (
     // Antd RadioGroup does not use any custom attributes

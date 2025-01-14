@@ -14,7 +14,7 @@ const DEFAULT_OPTIONS = {
 
 export default {
   type: "WORD_CLOUD",
-  name: i18next.t("viz-lib:Word Cloud"),
+  name: i18next.t("vizlib:Word Cloud"),
   getOptions: (options: any) => merge({}, DEFAULT_OPTIONS, options),
   Renderer,
   Editor,

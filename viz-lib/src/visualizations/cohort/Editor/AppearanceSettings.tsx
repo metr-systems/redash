@@ -5,7 +5,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { Trans, useTranslation } from "react-i18next";
 
 export default function AppearanceSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
 
   return (
@@ -38,7 +38,7 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
               <ContextHelp placement="topRight" arrowPointAtCenter>
                 {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
                 <div>
-                  <Trans ns="viz-lib">
+                  <Trans ns="vizlib">
                     Use <code>{"{{ @ }}"}</code> to insert a stage number
                   </Trans>
                 </div>

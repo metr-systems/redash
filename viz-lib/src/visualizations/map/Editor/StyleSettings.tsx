@@ -75,7 +75,7 @@ function getCustomIconOptionFields(iconShape: any) {
 }
 
 export default function StyleSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
 
   const { showIcon, showBackgroundColor, showBorderColor } = useMemo(

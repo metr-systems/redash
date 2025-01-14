@@ -10,7 +10,7 @@ function getColumns(column: any, unusedColumns: any) {
 }
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const unusedColumns = useMemo(
     () =>
       difference(

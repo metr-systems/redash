@@ -5,7 +5,7 @@ import i18next from "i18next";
 
 export default {
   type: "TABLE",
-  name: i18next.t("viz-lib:Table"),
+  name: i18next.t("vizlib:Table"),
   getOptions,
   Renderer,
   Editor,

@@ -10,20 +10,20 @@ function TemplateFormatHint() {
     // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
     <ContextHelp placement="topLeft" arrowPointAtCenter>
       <div style={{ paddingBottom: 5 }}>
-        <Trans ns="viz-lib">
+        <Trans ns="vizlib">
           All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
         </Trans>
       </div>
       <div style={{ paddingBottom: 5 }}>
-        <Trans ns="viz-lib">Leave this field empty to use default template.</Trans>
+        <Trans ns="vizlib">Leave this field empty to use default template.</Trans>
       </div>
-      <div style={{ paddingBottom: 5 }}> <Trans ns="viz-lib">Leave this field empty to use default template.</Trans></div>
+      <div style={{ paddingBottom: 5 }}> <Trans ns="vizlib">Leave this field empty to use default template.</Trans></div>
     </ContextHelp>
   );
 }
 
 export default function FormatSettings({ options, onOptionsChange }: any) {
-  const { t } = useTranslation("viz-lib");
+  const { t } = useTranslation("vizlib");
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
   const templateFormatHint = <TemplateFormatHint />;

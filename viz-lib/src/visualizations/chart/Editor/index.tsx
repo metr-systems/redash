@@ -19,7 +19,7 @@ const isPieChart = (options: any) => options.globalSeriesType === "pie";
 export default createTabbedEditor([
   {
     key: "General",
-    title: i18next.t("viz-lib:General"),
+    title: i18next.t("vizlib:General"),
     component: (props: any) => (
       <React.Fragment>
         <GeneralSettings {...props} />
@@ -29,31 +29,31 @@ export default createTabbedEditor([
   },
   {
     key: "XAxis",
-    title: ({ swappedAxes }: any) => (!swappedAxes ? i18next.t("viz-lib:X Axis") : i18next.t("viz-lib:Y Axis")),
+    title: ({ swappedAxes }: any) => (!swappedAxes ? i18next.t("vizlib:X Axis") : i18next.t("vizlib:Y Axis")),
     component: XAxisSettings,
     isAvailable: (options: any) => !isCustomChart(options) && !isPieChart(options),
   },
   {
     key: "YAxis",
-    title: ({ swappedAxes }: any) => (!swappedAxes ? i18next.t("viz-lib:Y Axis") : i18next.t("viz-lib:X Axis")),
+    title: ({ swappedAxes }: any) => (!swappedAxes ? i18next.t("vizlib:Y Axis") : i18next.t("vizlib:X Axis")),
     component: YAxisSettings,
     isAvailable: (options: any) => !isCustomChart(options) && !isPieChart(options),
   },
   {
     key: "Series",
-    title: i18next.t("viz-lib:Series"),
+    title: i18next.t("vizlib:Series"),
     component: SeriesSettings,
     isAvailable: (options: any) => !isCustomChart(options),
   },
   {
     key: "Colors",
-    title: i18next.t("viz-lib:Colors"),
+    title: i18next.t("vizlib:Colors"),
     component: ColorsSettings,
     isAvailable: (options: any) => !isCustomChart(options),
   },
   {
     key: "DataLabels",
-    title: i18next.t("viz-lib:Data Labels"),
+    title: i18next.t("vizlib:Data Labels"),
     component: DataLabelsSettings,
     isAvailable: (options: any) => !isCustomChart(options),
   },

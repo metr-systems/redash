@@ -7,7 +7,7 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import { useTranslation } from "react-i18next";
 
 export default function Editor({ options, data, onOptionsChange }: any) {
-  const {t}=useTranslation("viz-lib");
+  const {t}=useTranslation("vizlib");
   const optionsChanged = (newOptions: any) => {
     onOptionsChange(merge({}, options, newOptions));
   };

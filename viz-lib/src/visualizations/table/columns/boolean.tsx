@@ -30,7 +30,7 @@ function Editor({ column, onChange }: Props) {
         <Input
           label={
             <React.Fragment>
-               <Trans key="viz-lib:value_for_false">Value for <code>false</code></Trans>
+               <Trans key="vizlib:value_for_false">Value for <code>false</code></Trans>
             </React.Fragment>
           }
           data-test="Table.ColumnEditor.Boolean.False"
@@ -45,7 +45,7 @@ function Editor({ column, onChange }: Props) {
         <Input
           label={
             <React.Fragment>
-              <Trans key="viz-lib:value_for_false">Value for <code>true</code></Trans>
+              <Trans key="vizlib:value_for_false">Value for <code>true</code></Trans>
             </React.Fragment>
           }
           data-test="Table.ColumnEditor.Boolean.True"
