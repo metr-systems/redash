@@ -2,6 +2,8 @@ import { head, includes, trim, template, values } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from "i18next";
+
 import LoadingState from "@/components/items-list/components/LoadingState";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -27,7 +29,7 @@ const defaultNameBuilder = template("<%= query.name %>: <%= options.column %> <%
 
 export function getDefaultName(alert) {
   if (!alert.query) {
-    return "New Alert";
+    return i18next.t("Alerts:New Alert");
   }
   return defaultNameBuilder(alert);
 }
@@ -83,8 +85,10 @@ class Alert extends React.Component {
             if (!canEdit) {
               this.setState({ mode: MODES.VIEW });
               notification.warn(
-                "You cannot edit this alert",
-                "You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page.",
+                i18next.t("Alerts:You cannot edit this alert"),
+                i18next.t(
+                  "Alerts:You do not have sufficient permissions to edit this alert, and have been redirected to the view-only page."
+                ),
                 { duration: 0 }
               );
             }
@@ -113,12 +117,12 @@ class Alert extends React.Component {
 
     return AlertService.save(alert)
       .then(alert => {
-        notification.success("Saved.");
+        notification.success(i18next.t("Saved."));
         navigateTo(`alerts/${alert.id}`, true);
         this.setState({ alert, mode: MODES.VIEW });
       })
       .catch(() => {
-        notification.error("Failed saving alert.");
+        notification.error(i18next.t("Alerts:Failed saving alert."));
       });
   };
 
@@ -169,11 +173,11 @@ class Alert extends React.Component {
     const { alert } = this.state;
     return AlertService.delete(alert)
       .then(() => {
-        notification.success("Alert deleted successfully.");
+        notification.success(i18next.t("Alerts:Alert deleted successfully."));
         navigateTo("alerts");
       })
       .catch(() => {
-        notification.error("Failed deleting alert.");
+        notification.error(i18next.t("Alerts:Failed deleting alert."));
       });
   };
 
@@ -182,10 +186,10 @@ class Alert extends React.Component {
     return AlertService.mute(alert)
       .then(() => {
         this.setAlertOptions({ muted: true });
-        notification.warn("Notifications have been muted.");
+        notification.warn(i18next.t("Alerts:Notifications have been muted."));
       })
       .catch(() => {
-        notification.error("Failed muting notifications.");
+        notification.error(i18next.t("Alerts:Failed muting notifications."));
       });
   };
 
@@ -194,10 +198,10 @@ class Alert extends React.Component {
     return AlertService.unmute(alert)
       .then(() => {
         this.setAlertOptions({ muted: false });
-        notification.success("Notifications have been restored.");
+        notification.success(i18next.t("Alerts:Notifications have been restored."));
       })
       .catch(() => {
-        notification.error("Failed restoring notifications.");
+        notification.error(i18next.t("Alerts:Failed restoring notifications."));
       });
   };
 
@@ -257,7 +261,7 @@ routes.register(
   "Alerts.New",
   routeWithUserSession({
     path: "/alerts/new",
-    title: "New Alert",
+    title: i18next.t("Alerts:New Alert"),
     render: pageProps => <Alert {...pageProps} mode={MODES.NEW} />,
   })
 );
@@ -265,7 +269,7 @@ routes.register(
   "Alerts.View",
   routeWithUserSession({
     path: "/alerts/:alertId",
-    title: "Alert",
+    title: i18next.t("Alerts:Alert"),
     render: pageProps => <Alert {...pageProps} mode={MODES.VIEW} />,
   })
 );
@@ -273,7 +277,7 @@ routes.register(
   "Alerts.Edit",
   routeWithUserSession({
     path: "/alerts/:alertId/edit",
-    title: "Alert",
+    title: i18next.t("Alerts:Alert"),
     render: pageProps => <Alert {...pageProps} mode={MODES.EDIT} />,
   })
 );
