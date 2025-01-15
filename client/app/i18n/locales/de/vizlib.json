@@ -214,7 +214,7 @@
   "sankeyEditor_stage3": "<0>phase3</0> - Phase 3 Wert (oder null)",
   "sankeyEditor_stage4": "<0>phase4</0> - Phase 4 Wert (oder null)",
   "sankeyEditor_stage5": "<0>phase5</0> - Phase 5 Wert (oder null)",
-  "sankeyEditor_value": "<0>wert</0> - Anzahl der Vorkommen dieser Sequenz",
+  "sankeyEditor_value": "<0>wert</0> - Häufigkeit dieser Sequenz",
   "sunburst_editor_description": "Diese Visualisierung erwartet, dass das Abfrageergebnis Zeilen in einem der folgenden Formate enthält:",
   "sunburst_editor_option1": "Option 1:",
   "sunburst_editor_option1_sequence": "<0>sequenz</0> - Sequenz-ID",
