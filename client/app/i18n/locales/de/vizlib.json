@@ -47,7 +47,7 @@
   "y deviation": "y-Abweichung",
   "bubble size": "Blasengröße",
   "QUERY_RESULT_REFERENCE": "Alle Abfrageergebnisspalten können mit der Syntax <3>{{ column_name }}</3> referenziert werden.",
-  "Series": "Serie",
+  "Series": "Reihe",
   "Color": "Farbe",
   "Chart Type": "Diagrammtyp",
   "Horizontal Chart": "Horizontales Diagramm",
