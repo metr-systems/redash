@@ -1,12 +1,15 @@
 import React from "react";
 import PropTypes from "prop-types";
 import { includes } from "lodash";
+
+import i18next from "i18next";
+
 import { getDynamicDateRangeFromString } from "@/services/parameters/DateRangeParameter";
 import DynamicDateRangePicker from "@/components/dynamic-parameters/DynamicDateRangePicker";
 
 const DYNAMIC_DATE_OPTIONS = [
   {
-    name: "This week",
+    name: i18next.t("DynamicParams:This week"),
     value: getDynamicDateRangeFromString("d_this_week"),
     label: () =>
       getDynamicDateRangeFromString("d_this_week")
@@ -18,7 +21,7 @@ const DYNAMIC_DATE_OPTIONS = [
         .format("MMM D"),
   },
   {
-    name: "This month",
+    name: i18next.t("DynamicParams:This month"),
     value: getDynamicDateRangeFromString("d_this_month"),
     label: () =>
       getDynamicDateRangeFromString("d_this_month")
@@ -26,7 +29,7 @@ const DYNAMIC_DATE_OPTIONS = [
         .format("MMMM"),
   },
   {
-    name: "This year",
+    name: i18next.t("DynamicParams:This year"),
     value: getDynamicDateRangeFromString("d_this_year"),
     label: () =>
       getDynamicDateRangeFromString("d_this_year")
@@ -34,7 +37,7 @@ const DYNAMIC_DATE_OPTIONS = [
         .format("YYYY"),
   },
   {
-    name: "Last week",
+    name: i18next.t("DynamicParams:Last week"),
     value: getDynamicDateRangeFromString("d_last_week"),
     label: () =>
       getDynamicDateRangeFromString("d_last_week")
@@ -46,7 +49,7 @@ const DYNAMIC_DATE_OPTIONS = [
         .format("MMM D"),
   },
   {
-    name: "Last month",
+    name: i18next.t("DynamicParams:Last month"),
     value: getDynamicDateRangeFromString("d_last_month"),
     label: () =>
       getDynamicDateRangeFromString("d_last_month")
@@ -54,7 +57,7 @@ const DYNAMIC_DATE_OPTIONS = [
         .format("MMMM"),
   },
   {
-    name: "Last year",
+    name: i18next.t("DynamicParams:Last year"),
     value: getDynamicDateRangeFromString("d_last_year"),
     label: () =>
       getDynamicDateRangeFromString("d_last_year")
@@ -62,47 +65,57 @@ const DYNAMIC_DATE_OPTIONS = [
         .format("YYYY"),
   },
   {
-    name: "Last 7 days",
+    name: i18next.t("DynamicParams:Last 7 days"),
     value: getDynamicDateRangeFromString("d_last_7_days"),
     label: () =>
       getDynamicDateRangeFromString("d_last_7_days")
         .value()[0]
-        .format("MMM D") + " - Today",
+        .format("MMM D") +
+      " - " +
+      i18next.t("DynamicParams:Today"),
   },
   {
-    name: "Last 14 days",
+    name: i18next.t("DynamicParams:Last 14 days"),
     value: getDynamicDateRangeFromString("d_last_14_days"),
     label: () =>
       getDynamicDateRangeFromString("d_last_14_days")
         .value()[0]
-        .format("MMM D") + " - Today",
+        .format("MMM D") +
+      " - " +
+      i18next.t("DynamicParams:Today"),
   },
   {
-    name: "Last 30 days",
+    name: i18next.t("DynamicParams:Last 30 days"),
     value: getDynamicDateRangeFromString("d_last_30_days"),
     label: () =>
       getDynamicDateRangeFromString("d_last_30_days")
         .value()[0]
-        .format("MMM D") + " - Today",
+        .format("MMM D") +
+      " - " +
+      i18next.t("DynamicParams:Today"),
   },
   {
-    name: "Last 60 days",
+    name: i18next.t("DynamicParams:Last 60 days"),
     value: getDynamicDateRangeFromString("d_last_60_days"),
     label: () =>
       getDynamicDateRangeFromString("d_last_60_days")
         .value()[0]
-        .format("MMM D") + " - Today",
+        .format("MMM D") +
+      " - " +
+      i18next.t("DynamicParams:Today"),
   },
   {
-    name: "Last 90 days",
+    name: i18next.t("DynamicParams:Last 90 days"),
     value: getDynamicDateRangeFromString("d_last_90_days"),
     label: () =>
       getDynamicDateRangeFromString("d_last_90_days")
         .value()[0]
-        .format("MMM D") + " - Today",
+        .format("MMM D") +
+      " - " +
+      i18next.t("DynamicParams:Today"),
   },
   {
-    name: "Last 12 months",
+    name: i18next.t("DynamicParams:Last 12 months"),
     value: getDynamicDateRangeFromString("d_last_12_months"),
     label: null,
   },
@@ -110,7 +123,7 @@ const DYNAMIC_DATE_OPTIONS = [
 
 const DYNAMIC_DATETIME_OPTIONS = [
   {
-    name: "Today",
+    name: i18next.t("DynamicParams:Today"),
     value: getDynamicDateRangeFromString("d_today"),
     label: () =>
       getDynamicDateRangeFromString("d_today")
@@ -118,7 +131,7 @@ const DYNAMIC_DATETIME_OPTIONS = [
         .format("MMM D"),
   },
   {
-    name: "Yesterday",
+    name: i18next.t("DynamicParams:Yesterday"),
     value: getDynamicDateRangeFromString("d_yesterday"),
     label: () =>
       getDynamicDateRangeFromString("d_yesterday")

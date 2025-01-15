@@ -1,11 +1,14 @@
 import React from "react";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import { getDynamicDateFromString } from "@/services/parameters/DateParameter";
 import DynamicDatePicker from "@/components/dynamic-parameters/DynamicDatePicker";
 
 const DYNAMIC_DATE_OPTIONS = [
   {
-    name: "Today/Now",
+    name: i18next.t("DynamicParams:Today/Now"),
     value: getDynamicDateFromString("d_now"),
     label: () =>
       getDynamicDateFromString("d_now")
@@ -13,7 +16,7 @@ const DYNAMIC_DATE_OPTIONS = [
         .format("MMM D"),
   },
   {
-    name: "Yesterday",
+    name: i18next.t("DynamicParams:Yesterday"),
     value: getDynamicDateFromString("d_yesterday"),
     label: () =>
       getDynamicDateFromString("d_yesterday")
@@ -27,7 +30,7 @@ function DateParameter(props) {
     <DynamicDatePicker
       dynamicButtonOptions={{ options: DYNAMIC_DATE_OPTIONS }}
       {...props}
-      dateOptions={{ "aria-label": "Parameter date value" }}
+      dateOptions={{ "aria-label": i18next.t("DynamicParams:Parameter date value") }}
     />
   );
 }
