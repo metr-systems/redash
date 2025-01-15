@@ -5,6 +5,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 
 import i18next from "i18next";
+import { Trans } from "react-i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
