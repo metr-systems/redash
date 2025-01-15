@@ -1,7 +1,7 @@
 {
   "Search": "Suchen",
-  "Saved": "Gespeichert",
-  "Failed saving": "Speichern fehlgeschlagen",
+  "Saved.": "Gespeichert.",
+  "Failed saving.": "Speichern fehlgeschlagen.",
   "help": "Hilfe",
   "Cancel": "Abbrechen",
   "Create": "Erstellen",
@@ -23,7 +23,6 @@
   "OK": "OK",
   "Title": "Titel",
   "Ok": "Ok",
-  "Saved.": "Gespeichert.",
   "Clear": "Löschen",
   "Searching...": "Suchen...",
   "Failed to save some of selected items.": "Einige der ausgewählten Elemente konnten nicht gespeichert werden.",
@@ -49,6 +48,5 @@
   "Unarchive": "Archivierung aufheben",
   "Publish": "Veröffentlichen",
   "Favorite Dashboards": "Favorisierte Dashboards",
-  "Powered by": "Betrieben von",
-  "Failed saving.": "Speichern fehlgeschlagen."
+  "Powered by": "Betrieben von"
 }

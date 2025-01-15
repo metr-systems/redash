@@ -66,12 +66,12 @@ class CreateSourceDialog extends React.Component {
       this.props
         .onCreate(selectedType, values)
         .then(data => {
-          successCallback(i18next.t("Saved") + ".");
+          successCallback(i18next.t("Saved."));
           this.props.dialog.close({ success: true, data });
         })
         .catch(error => {
           this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
-          errorCallback(get(error, "response.data.message", i18next.t("Failed saving") + "."));
+          errorCallback(get(error, "response.data.message", i18next.t("Failed saving.")));
         });
     }
   };

@@ -1,7 +1,7 @@
 {
   "Search": "",
-  "Saved": "",
-  "Failed saving": "",
+  "Saved.": "",
+  "Failed saving.": "",
   "help": "",
   "Cancel": "",
   "Create": "",
@@ -23,7 +23,6 @@
   "OK": "",
   "Title": "",
   "Ok": "",
-  "Saved.": "",
   "Clear": "",
   "Searching...": "",
   "Failed to save some of selected items.": "",
@@ -49,6 +48,5 @@
   "Unarchive": "",
   "Publish": "",
   "Favorite Dashboards": "",
-  "Powered by": "",
-  "Failed saving.": ""
+  "Powered by": ""
 }
