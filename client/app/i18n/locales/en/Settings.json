@@ -1,4 +1,5 @@
 {
+  "Settings": "",
   "Google Login": "",
   "Allowed Google Apps Domains": "",
   "google_login": "Any user registered with a <1>{join(values.auth_google_apps_domains, \", \")}</1> Google Apps account will be able to login. If they don't have an existing user, a new user will be created and join the <3>Default</3> group.",

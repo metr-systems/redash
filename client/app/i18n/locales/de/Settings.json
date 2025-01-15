@@ -1,4 +1,5 @@
 {
+  "Settings": "Einstellungen",
   "Google Login": "Google-Anmeldung",
   "Allowed Google Apps Domains": "Erlaubte Google Apps-Domains",
   "google_login": "Jeder Benutzer, der bei einer <1>{join(values.auth_google_apps_domains, \", \")}</1> Google Apps-Domain registriert ist, kann sich anmelden. Wenn sie keinen bestehenden Benutzer haben, wird ein neuer Benutzer erstellt und der <3>Standard</3>-Gruppe beitreten.",
