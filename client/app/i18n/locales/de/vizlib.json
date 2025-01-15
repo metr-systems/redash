@@ -236,7 +236,7 @@
   "Leave empty to use default value": "Leer lassen, um den Standardwert zu verwenden",
   "Format specs": "Formatspezifikationen",
   "columns_reference": "Alle Spalten können mit der Syntax <1>{{ column_name }}</1> referenziert werden.",
-  "current_column_reference": "Verwenden Sie <1>{{ @ }}</1>, um die aktuelle (diese) Spalte zu referenzieren.",
+  "current_column_reference": "Verwenden Sie <1>{{ @ }}</1>, um die aktuelle Spalte zu referenzieren.",
   "This syntax is applicable to URL, Title and Size options": "Diese Syntax gilt für URL-, Titel- und Größenoptionen",
   "Text template": "Textvorlage",
   "Title template": "Titelvorlage",
