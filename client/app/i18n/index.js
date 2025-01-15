@@ -43,6 +43,9 @@ import Alerts_de from "/client/app/i18n/locales/de/Alerts.json";
 import Admin_en from "/client/app/i18n/locales/en/Admin.json";
 import Admin_de from "/client/app/i18n/locales/de/Admin.json";
 
+import Cards_en from "/client/app/i18n/locales/en/Cards.json";
+import Cards_de from "/client/app/i18n/locales/de/Cards.json";
+
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
 
@@ -64,6 +67,7 @@ i18n.use(initReactI18next).init({
       DynamicForm: DynamicForm_en,
       vizlib: viz_lib_en,
       Alerts: Alerts_en,
+      Cards: Cards_en,
       Admin: Admin_en,
     },
     de: {
@@ -81,6 +85,7 @@ i18n.use(initReactI18next).init({
       DynamicForm: DynamicForm_de,
       vizlib: viz_lib_de,
       Alerts: Alerts_de,
+      Cards: Cards_de,
       Admin: Admin_de,
     },
   },

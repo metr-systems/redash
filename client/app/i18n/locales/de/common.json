@@ -1,4 +1,5 @@
 {
+  "Search": "Suchen",
   "Cancel": "Abbrechen",
   "Save": "Speichern",
   "Close": "Schließen",
@@ -9,7 +10,6 @@
   "Copy failed": "Kopieren fehlgeschlagen",
   "Copy": "Kopieren",
   "Search...": "Suchen...",
-  "Search": "Suchen",
   "Ok": "Ok",
   "Saved.": "Gespeichert.",
   "Create": "Erstellen",
