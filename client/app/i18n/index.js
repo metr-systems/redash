@@ -58,6 +58,9 @@ import Settings_de from "/client/app/i18n/locales/de/Settings.json";
 import DataSources_en from "/client/app/i18n/locales/en/DataSources.json";
 import DataSources_de from "/client/app/i18n/locales/de/DataSources.json";
 
+import Groups_en from "/client/app/i18n/locales/en/Groups.json";
+import Groups_de from "/client/app/i18n/locales/de/Groups.json";
+
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
 
@@ -84,6 +87,7 @@ i18n.use(initReactI18next).init({
       Params: Params_en,
       Settings: Settings_en,
       DataSources: DataSources_en,
+      Groups: Groups_en,
       Admin: Admin_en,
     },
     de: {
@@ -106,6 +110,7 @@ i18n.use(initReactI18next).init({
       Params: Params_de,
       Settings: Settings_de,
       DataSources: DataSources_de,
+      Groups: Groups_de,
       Admin: Admin_de,
     },
   },
@@ -132,6 +137,7 @@ i18n.use(initReactI18next).init({
     "Params",
     "Settings",
     "DataSources",
+    "Groups",
     "reserved",
   ],
   defaultNS: "common",
