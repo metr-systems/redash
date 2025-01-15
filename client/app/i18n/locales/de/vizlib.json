@@ -220,7 +220,7 @@
   "sunburst_editor_option1_sequence": "<0>sequenz</0> - Sequenz-ID",
   "sunburst_editor_option1_stage": "<0>phase</0> - welche Phase in der Sequenz dies ist (1, 2, ...)",
   "sunburst_editor_option1_node": "<0>knoten</0> - Phasenname",
-  "sunburst_editor_option1_value": "<0>wert</0> - Anzahl der Vorkommen dieser Sequenz",
+  "sunburst_editor_option1_value": "<0>wert</0> - Häufigkeit dieser Sequenz",
   "sunburst_editor_option2": "Option 2:",
   "sunburst_editor_option2_stage1": "<0>phase1</0> - Phase 1 Wert",
   "sunburst_editor_option2_stage2": "<0>phase2</0> - Phase 2 Wert (oder null)",
