@@ -179,9 +179,6 @@ export function getDynamicDateRangeFromString(value) {
   if (!isDynamicDateRangeString(value)) {
     return null;
   }
-  console.log("-----------------------");
-  console.log(value.substring(DYNAMIC_PREFIX.length));
-  console.log(DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)]);
   return DYNAMIC_DATE_RANGES[value.substring(DYNAMIC_PREFIX.length)];
 }
 
