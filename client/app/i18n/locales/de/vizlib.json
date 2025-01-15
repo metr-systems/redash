@@ -227,7 +227,7 @@
   "sunburst_editor_option2_stage3": "<0>phase3</0> - Phase 3 Wert (oder null)",
   "sunburst_editor_option2_stage4": "<0>phase4</0> - Phase 4 Wert (oder null)",
   "sunburst_editor_option2_stage5": "<0>phase5</0> - Phase 5 Wert (oder null)",
-  "sunburst_editor_option2_value": "<0>wert</0> - Anzahl der Vorkommen dieser Sequenz",
+  "sunburst_editor_option2_value": "<0>wert</0> - Häufigkeit dieser Sequenz",
   "Sunburst Sequence": "Sunburst-Sequenz",
   "value_for_false": "Wert für <1>false</1>",
   "Date/Time format": "Datum/Uhrzeit-Format",
