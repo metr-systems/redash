@@ -49,6 +49,9 @@ import Cards_de from "/client/app/i18n/locales/de/Cards.json";
 import DynamicParams_en from "/client/app/i18n/locales/en/DynamicParams.json";
 import DynamicParams_de from "/client/app/i18n/locales/de/DynamicParams.json";
 
+import Params_en from "/client/app/i18n/locales/en/Params.json";
+import Params_de from "/client/app/i18n/locales/de/Params.json";
+
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
 
@@ -72,6 +75,7 @@ i18n.use(initReactI18next).init({
       Alerts: Alerts_en,
       Cards: Cards_en,
       DynamicParams: DynamicParams_en,
+      Params: Params_en,
       Admin: Admin_en,
     },
     de: {
@@ -91,6 +95,7 @@ i18n.use(initReactI18next).init({
       Alerts: Alerts_de,
       Cards: Cards_de,
       DynamicParams: DynamicParams_de,
+      Params: Params_de,
       Admin: Admin_de,
     },
   },
@@ -114,6 +119,7 @@ i18n.use(initReactI18next).init({
     "Alerts",
     "Admin",
     "DynamicParams",
+    "Params",
     "reserved",
   ],
   defaultNS: "common",
