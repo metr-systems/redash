@@ -4,11 +4,13 @@ import DynamicComponent from "@/components/DynamicComponent";
 import FormatSettings from "./FormatSettings";
 import PlotlySettings from "./PlotlySettings";
 import FeatureFlagsSettings from "./FeatureFlagsSettings";
+import { useTranslation } from "react-i18next";
 
 export default function GeneralSettings(props) {
+  const { t } = useTranslation("Settings");
   return (
     <DynamicComponent name="OrganizationSettings.GeneralSettings" {...props}>
-      <h3 className="m-t-0">General</h3>
+      <h3 className="m-t-0">{t("General")}</h3>
       <hr />
       <FormatSettings {...props} />
       <PlotlySettings {...props} />

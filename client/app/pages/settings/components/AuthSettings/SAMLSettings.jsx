@@ -5,8 +5,10 @@ import Skeleton from "antd/lib/skeleton";
 import Radio from "antd/lib/radio";
 import DynamicComponent from "@/components/DynamicComponent";
 import { SettingsEditorPropTypes, SettingsEditorDefaultProps } from "../prop-types";
+import { useTranslation } from "react-i18next";
 
 export default function SAMLSettings(props) {
+  const { t } = useTranslation("Settings");
   const { values, onChange, loading } = props;
 
   const onChangeEnabledStatus = e => {
@@ -19,7 +21,7 @@ export default function SAMLSettings(props) {
 
   return (
     <DynamicComponent name="OrganizationSettings.SAMLSettings" {...props}>
-      <h4>SAML</h4>
+      <h4>{t("SAML")}</h4>
       <Form.Item label="SAML Enabled">
         {loading ? (
           <Skeleton title={{ width: 300 }} paragraph={false} active />
@@ -27,9 +29,9 @@ export default function SAMLSettings(props) {
           <Radio.Group
             onChange={onChangeEnabledStatus}
             value={values.auth_saml_enabled && (values.auth_saml_type || "dynamic")}>
-            <Radio value={false}>Disabled</Radio>
-            <Radio value={"static"}>Enabled (Static)</Radio>
-            <Radio value={"dynamic"}>Enabled (Dynamic)</Radio>
+            <Radio value={false}>{t("Disabled")}</Radio>
+            <Radio value={"static"}>{t("Enabled (Static)")}</Radio>
+            <Radio value={"dynamic"}>{t("Enabled (Dynamic)")}</Radio>
           </Radio.Group>
         )}
       </Form.Item>
@@ -37,19 +39,19 @@ export default function SAMLSettings(props) {
         <>
           {values.auth_saml_type === "static" && (
             <>
-              <Form.Item label="SAML Single Sign-on URL">
+              <Form.Item label={t("SAML Single Sign-on URL")}>
                 <Input
                   value={values.auth_saml_sso_url}
                   onChange={e => onChange({ auth_saml_sso_url: e.target.value })}
                 />
               </Form.Item>
-              <Form.Item label="SAML Entity ID">
+              <Form.Item label={t("SAML Entity ID")}>
                 <Input
                   value={values.auth_saml_entity_id}
                   onChange={e => onChange({ auth_saml_entity_id: e.target.value })}
                 />
               </Form.Item>
-              <Form.Item label="SAML x509 cert">
+              <Form.Item label={t("SAML x509 cert")}>
                 <Input
                   value={values.auth_saml_x509_cert}
                   onChange={e => onChange({ auth_saml_x509_cert: e.target.value })}
@@ -59,19 +61,19 @@ export default function SAMLSettings(props) {
           )}
           {values.auth_saml_type === "dynamic" && (
             <>
-              <Form.Item label="SAML Metadata URL">
+              <Form.Item label={t("SAML Metadata URL")}>
                 <Input
                   value={values.auth_saml_metadata_url}
                   onChange={e => onChange({ auth_saml_metadata_url: e.target.value })}
                 />
               </Form.Item>
-              <Form.Item label="SAML Entity ID">
+              <Form.Item label={t("SAML Entity ID")}>
                 <Input
                   value={values.auth_saml_entity_id}
                   onChange={e => onChange({ auth_saml_entity_id: e.target.value })}
                 />
               </Form.Item>
-              <Form.Item label="SAML NameID Format">
+              <Form.Item label={t("SAML NameID Format")}>
                 <Input
                   value={values.auth_saml_nameid_format}
                   onChange={e => onChange({ auth_saml_nameid_format: e.target.value })}
