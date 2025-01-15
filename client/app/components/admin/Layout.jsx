@@ -4,23 +4,26 @@ import Menu from "antd/lib/menu";
 import PageHeader from "@/components/PageHeader";
 import Link from "@/components/Link";
 
+import { useTranslation } from "react-i18next";
+
 import "./layout.less";
 
 export default function Layout({ activeTab, children }) {
+  const { t } = useTranslation("Admin");
   return (
     <div className="admin-page-layout">
       <div className="container">
-        <PageHeader title="Admin" />
+        <PageHeader title={t("Admin")} />
         <div className="bg-white tiled">
           <Menu selectedKeys={[activeTab]} selectable={false} mode="horizontal">
             <Menu.Item key="system_status">
-              <Link href="admin/status">System Status</Link>
+              <Link href="admin/status">{t("System Status")}</Link>
             </Menu.Item>
             <Menu.Item key="jobs">
-              <Link href="admin/queries/jobs">RQ Status</Link>
+              <Link href="admin/queries/jobs">{t("RQ Status")}</Link>
             </Menu.Item>
             <Menu.Item key="outdated_queries">
-              <Link href="admin/queries/outdated">Outdated Queries</Link>
+              <Link href="admin/queries/outdated">{t("Outdated Queries")}</Link>
             </Menu.Item>
           </Menu>
           {children}

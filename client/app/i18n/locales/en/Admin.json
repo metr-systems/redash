@@ -1,0 +1,23 @@
+{
+  "Admin": "",
+  "System Status": "",
+  "RQ Status": "",
+  "Outdated Queries": "",
+  "General": "",
+  "No data": "",
+  "Redash Database": "",
+  "Queues": "",
+  "Last Refresh": "",
+  "Started": "",
+  "Outdated Queries Count": "",
+  "Manager": "",
+  "Failed loading status. Please refresh.": "",
+  "Started Jobs": "",
+  "Queued Jobs": "",
+  "Runtime": "",
+  "Last Executed At": "",
+  "Update Schedule": "",
+  "Auto update": "",
+  "Last updated": "",
+  "There are no outdated queries.": ""
+}

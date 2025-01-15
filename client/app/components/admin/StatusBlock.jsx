@@ -2,6 +2,7 @@
 
 import { toPairs } from "lodash";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 import List from "antd/lib/list";
 import Card from "antd/lib/card";
@@ -10,10 +11,11 @@ import TimeAgo from "@/components/TimeAgo";
 import { toHuman, prettySize } from "@/lib/utils";
 
 export function General({ info }) {
+  const { t } = useTranslation("Admin");
   info = toPairs(info);
   return (
-    <Card title="General" size="small">
-      {info.length === 0 && <div className="text-muted text-center">No data</div>}
+    <Card title={t("General")} size="small">
+      {info.length === 0 && <div className="text-muted text-center">{t("No data")}</div>}
       {info.length > 0 && (
         <List
           size="small"
@@ -29,9 +31,10 @@ export function General({ info }) {
 }
 
 export function DatabaseMetrics({ info }) {
+  const { t } = useTranslation("Admin");
   return (
-    <Card title="Redash Database" size="small">
-      {info.length === 0 && <div className="text-muted text-center">No data</div>}
+    <Card title={t("Redash Database")} size="small">
+      {info.length === 0 && <div className="text-muted text-center">{t("No data")}</div>}
       {info.length > 0 && (
         <List
           size="small"
@@ -47,10 +50,11 @@ export function DatabaseMetrics({ info }) {
 }
 
 export function Queues({ info }) {
+  const { t } = useTranslation("Admin");
   info = toPairs(info);
   return (
-    <Card title="Queues" size="small">
-      {info.length === 0 && <div className="text-muted text-center">No data</div>}
+    <Card title={t("Queues")} size="small">
+      {info.length === 0 && <div className="text-muted text-center">{t("No data")}</div>}
       {info.length > 0 && (
         <List
           size="small"
@@ -66,6 +70,7 @@ export function Queues({ info }) {
 }
 
 export function Manager({ info }) {
+  const { t } = useTranslation("Admin");
   const items = info
     ? [
         <List.Item
@@ -74,7 +79,7 @@ export function Manager({ info }) {
               <TimeAgo date={info.lastRefreshAt} placeholder="n/a" />
             </span>
           }>
-          Last Refresh
+          {t("Last Refresh")}
         </List.Item>,
         <List.Item
           extra={
@@ -82,17 +87,17 @@ export function Manager({ info }) {
               <TimeAgo date={info.startedAt} placeholder="n/a" />
             </span>
           }>
-          Started
+          {t("Started")}
         </List.Item>,
         <List.Item extra={<span className="badge">{info.outdatedQueriesCount}</span>}>
-          Outdated Queries Count
+          {t("Outdated Queries Count")}
         </List.Item>,
       ]
     : [];
 
   return (
-    <Card title="Manager" size="small">
-      {!info && <div className="text-muted text-center">No data</div>}
+    <Card title={t("Manager")} size="small">
+      {!info && <div className="text-muted text-center">{t("No data")}</div>}
       {info && <List size="small" itemLayout="vertical" dataSource={items} renderItem={item => item} />}
     </Card>
   );

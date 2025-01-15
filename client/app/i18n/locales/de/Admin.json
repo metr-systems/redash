@@ -1,0 +1,23 @@
+{
+  "Admin": "Admin",
+  "System Status": "Systemstatus",
+  "RQ Status": "RQ-Status",
+  "Outdated Queries": "Veraltete Abfragen",
+  "General": "Allgemein",
+  "No data": "Keine Daten",
+  "Redash Database": "Redash-Datenbank",
+  "Queues": "Warteschlangen",
+  "Last Refresh": "Letzte Aktualisierung",
+  "Started": "Gestartet",
+  "Outdated Queries Count": "Anzahl veralteter Abfragen",
+  "Manager": "Manager",
+  "Failed loading status. Please refresh.": "Fehler beim Laden des Status. Bitte aktualisieren.",
+  "Started Jobs": "Gestartete Jobs",
+  "Queued Jobs": "In Warteschlange stehende Jobs",
+  "Runtime": "Laufzeit",
+  "Last Executed At": "Zuletzt ausgeführt am",
+  "Update Schedule": "Aktualisierungszeitplan",
+  "Auto update": "Automatische Aktualisierung",
+  "Last updated": "Letzte Aktualisierung",
+  "There are no outdated queries.": "Es gibt keine veralteten Abfragen."
+}

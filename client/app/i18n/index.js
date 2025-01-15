@@ -36,8 +36,12 @@ import DynamicForm_de from "/client/app/i18n/locales/de/DynamicForm.json";
 
 import viz_lib_en from "/client/app/i18n/locales/en/vizlib.json";
 import viz_lib_de from "/client/app/i18n/locales/de/vizlib.json";
+
 import Alerts_en from "/client/app/i18n/locales/en/Alerts.json";
 import Alerts_de from "/client/app/i18n/locales/de/Alerts.json";
+
+import Admin_en from "/client/app/i18n/locales/en/Admin.json";
+import Admin_de from "/client/app/i18n/locales/de/Admin.json";
 
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
@@ -60,6 +64,7 @@ i18n.use(initReactI18next).init({
       DynamicForm: DynamicForm_en,
       vizlib: viz_lib_en,
       Alerts: Alerts_en,
+      Admin: Admin_en,
     },
     de: {
       common: common_de,
@@ -76,6 +81,7 @@ i18n.use(initReactI18next).init({
       DynamicForm: DynamicForm_de,
       vizlib: viz_lib_de,
       Alerts: Alerts_de,
+      Admin: Admin_de,
     },
   },
   lng: "de",
@@ -96,6 +102,7 @@ i18n.use(initReactI18next).init({
     "DynamicForm",
     "vizlib",
     "Alerts",
+    "Admin",
     "reserved",
   ],
   defaultNS: "common",

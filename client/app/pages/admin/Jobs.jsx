@@ -5,6 +5,9 @@ import moment from "moment";
 import Alert from "antd/lib/alert";
 import Tabs from "antd/lib/tabs";
 import * as Grid from "antd/lib/grid";
+
+import i18next from "i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
 import { CounterCard, WorkersTable, QueuesTable, QueryJobsTable, OtherJobsTable } from "@/components/admin/RQStatus";
@@ -93,16 +96,24 @@ class Jobs extends React.Component {
     return (
       <Layout activeTab="jobs">
         <div className="p-15">
-          {error && <Alert type="error" message="Failed loading status. Please refresh." />}
+          {error && <Alert type="error" message={i18next.t("Admin:Failed loading status. Please refresh.")} />}
 
           {!error && (
             <React.Fragment>
               <Grid.Row gutter={15} className="m-b-15">
                 <Grid.Col span={8}>
-                  <CounterCard title="Started Jobs" value={overallCounters.started} loading={isLoading} />
+                  <CounterCard
+                    title={i18next.t("Admin:Started Jobs")}
+                    value={overallCounters.started}
+                    loading={isLoading}
+                  />
                 </Grid.Col>
                 <Grid.Col span={8}>
-                  <CounterCard title="Queued Jobs" value={overallCounters.queued} loading={isLoading} />
+                  <CounterCard
+                    title={i18next.t("Admin:Queued Jobs")}
+                    value={overallCounters.queued}
+                    loading={isLoading}
+                  />
                 </Grid.Col>
               </Grid.Row>
 
@@ -132,7 +143,7 @@ routes.register(
   "Admin.Jobs",
   routeWithUserSession({
     path: "/admin/queries/jobs",
-    title: "RQ Status",
+    title: i18next.t("Admin:RQ Status"),
     render: pageProps => <Jobs {...pageProps} />,
   })
 );
