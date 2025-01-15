@@ -3,6 +3,9 @@ import React from "react";
 import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
+
+import i18next from "i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import CardsList from "@/components/cards-list/CardsList";
@@ -95,13 +98,15 @@ class DestinationsList extends React.Component {
 
     return isEmpty(destinations) ? (
       <div className="text-center">
-        There are no alert destinations yet.
+        {i18next.t("Destinations:There are no alert destinations yet.")}
         {policy.isCreateDestinationEnabled() && (
           <div className="m-t-5">
-            <PlainButton type="link" onClick={this.showCreateSourceDialog}>
-              Click here
-            </PlainButton>{" "}
-            to add one.
+            <Trans i18nKey="Destinations:Click here to add one.">
+              <PlainButton type="link" onClick={this.showCreateSourceDialog}>
+                Click here
+              </PlainButton>{" "}
+              to add one.
+            </Trans>
           </div>
         )}
       </div>
@@ -122,7 +127,7 @@ class DestinationsList extends React.Component {
         <div className="m-b-15">
           <Button {...newDestinationProps}>
             <i className="fa fa-plus m-r-5" aria-hidden="true" />
-            New Alert Destination
+            {i18next.t("Destinations:New Alert Destination")}
           </Button>
         </div>
         {this.state.loading ? <LoadingState className="" /> : this.renderDestinations()}
@@ -135,7 +140,7 @@ const DestinationsListPage = wrapSettingsTab(
   "AlertDestinations.List",
   {
     permission: "admin",
-    title: "Alert Destinations",
+    title: i18next.t("Destinations:Alert Destinations"),
     path: "destinations",
     order: 4,
   },
@@ -146,7 +151,7 @@ routes.register(
   "AlertDestinations.List",
   routeWithUserSession({
     path: "/destinations",
-    title: "Alert Destinations",
+    title: i18next.t("Destinations:Alert Destinations"),
     render: pageProps => <DestinationsListPage {...pageProps} />,
   })
 );
@@ -154,7 +159,7 @@ routes.register(
   "AlertDestinations.New",
   routeWithUserSession({
     path: "/destinations/new",
-    title: "Alert Destinations",
+    title: i18next.t("Destinations:Alert Destinations"),
     render: pageProps => <DestinationsListPage {...pageProps} isNewDestinationPage />,
   })
 );
