@@ -55,6 +55,9 @@ import Params_de from "/client/app/i18n/locales/de/Params.json";
 import Settings_en from "/client/app/i18n/locales/en/Settings.json";
 import Settings_de from "/client/app/i18n/locales/de/Settings.json";
 
+import DataSources_en from "/client/app/i18n/locales/en/DataSources.json";
+import DataSources_de from "/client/app/i18n/locales/de/DataSources.json";
+
 import reserved_en from "/client/app/i18n/locales/en/reserved.json";
 import reserved_de from "/client/app/i18n/locales/de/reserved.json";
 
@@ -80,6 +83,7 @@ i18n.use(initReactI18next).init({
       DynamicParams: DynamicParams_en,
       Params: Params_en,
       Settings: Settings_en,
+      DataSources: DataSources_en,
       Admin: Admin_en,
     },
     de: {
@@ -101,6 +105,7 @@ i18n.use(initReactI18next).init({
       DynamicParams: DynamicParams_de,
       Params: Params_de,
       Settings: Settings_de,
+      DataSources: DataSources_de,
       Admin: Admin_de,
     },
   },
@@ -126,6 +131,7 @@ i18n.use(initReactI18next).init({
     "DynamicParams",
     "Params",
     "Settings",
+    "DataSources",
     "reserved",
   ],
   defaultNS: "common",
