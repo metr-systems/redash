@@ -53,13 +53,15 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         email_pending = redis_connection.exists(key)
         self.assertFalse(email_pending)
 
-    def test_does_not_indicate_when_not_near_limit_for_a_query(self):
+    @mock.patch("redash.tasks.failure_report._", side_effect=lambda x: x)
+    def test_does_not_indicate_when_not_near_limit_for_a_query(self, mock_translation):
         self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY / 2)
         failures = self.send_email(self.factory.user)
 
         self.assertFalse(failures[0]["comment"])
 
-    def test_indicates_when_near_limit_for_a_query(self):
+    @mock.patch("redash.tasks.failure_report._", side_effect=lambda x: x)
+    def test_indicates_when_near_limit_for_a_query(self, mock_translation):
         self.notify(schedule_failures=settings.MAX_FAILURE_REPORTS_PER_QUERY - 1)
         failures = self.send_email(self.factory.user)
 
@@ -71,7 +73,8 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
 
         self.assertEqual(key1, key2)
 
-    def test_counts_failures_for_each_reason(self):
+    @mock.patch("redash.tasks.failure_report._", side_effect=lambda x: x)
+    def test_counts_failures_for_each_reason(self, mock_translation):
         query = self.factory.create_query()
 
         self.notify(message="I'm a failure", query=query)
@@ -88,7 +91,8 @@ class TestSendAggregatedErrorsTask(BaseTestCase):
         f3 = next(f for f in failures if f["failure_reason"] == "I'm a totally different query")
         self.assertEqual(1, f3["failure_count"])
 
-    def test_shows_latest_failure_time(self):
+    @mock.patch("redash.tasks.failure_report._", side_effect=lambda x: x)
+    def test_shows_latest_failure_time(self, mock_translation):
         query = self.factory.create_query()
 
         with freeze_time("2000-01-01"):

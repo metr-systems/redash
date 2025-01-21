@@ -2,6 +2,8 @@ import datetime
 import re
 from collections import Counter
 
+from flask_babel import _
+
 from redash import models, redis_connection, settings
 from redash.tasks.general import send_mail
 from redash.utils import base_url, json_dumps, json_loads, render_template
@@ -54,7 +56,9 @@ def send_failure_report(user_id):
             "base_url": base_url(user.org),
         }
 
-        subject = f"Redash failed to execute {len(unique_errors.keys())} of your scheduled queries"
+        subject = _("Redash failed to execute {count} of your scheduled queries").format(
+            count=len(unique_errors.keys())
+        )
         html, text = [
             render_template("emails/failures.{}".format(f), context)
             for f in ["html", "txt"]
