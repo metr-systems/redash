@@ -6,6 +6,8 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
 import getChartData from "../getChartData";
 
+import { useTranslation } from "react-i18next";
+
 function getUniqueValues(chartData: any) {
   const uniqueValuesNames = new Set();
   each(chartData, series => {
@@ -17,6 +19,7 @@ function getUniqueValues(chartData: any) {
 }
 
 export default function PieColorsSettings({ options, data, onOptionsChange }: any) {
+  const { t }=useTranslation("vizlib")
   const colors = useMemo(
     () => ({
       Automatic: null,
@@ -50,11 +53,11 @@ export default function PieColorsSettings({ options, data, onOptionsChange }: an
 
   const columns = [
     {
-      title: "Values",
+      title: t("Values"),
       dataIndex: "key",
     },
     {
-      title: "Color",
+      title: t("Color"),
       dataIndex: "color",
       width: "1%",
       render: (unused: any, item: any) => (

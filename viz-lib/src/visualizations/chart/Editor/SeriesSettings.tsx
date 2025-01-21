@@ -11,12 +11,14 @@ import { EditorPropTypes } from "@/visualizations/prop-types";
 import ChartTypeSelect from "./ChartTypeSelect";
 import getChartData from "../getChartData";
 
+import i18next from "i18next";
+
 const SortableBodyRow = sortableElement((props: any) => <tr {...props} />);
 
 function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateSeriesOption: any) {
   const result = [
     {
-      title: "Order",
+      title: i18next.t("vizlib:Order"),
       dataIndex: "zIndex",
       render: (unused: any, item: any) => (
         <span className="series-settings-order">
@@ -26,7 +28,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
       ),
     },
     {
-      title: "Label",
+      title: i18next.t("vizlib:Label"),
       dataIndex: "name",
       render: (unused: any, item: any) => (
         <Input
@@ -42,7 +44,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
   if (!includes(["pie", "heatmap"], options.globalSeriesType)) {
     if (!options.swappedAxes) {
       result.push({
-        title: "Y Axis",
+        title: i18next.t("vizlib:Y Axis"),
         dataIndex: "yAxis",
         render: (unused, item) => (
           <Radio.Group
@@ -61,7 +63,7 @@ function getTableColumns(options: any, updateSeriesOption: any, debouncedUpdateS
     }
 
     result.push({
-      title: "Type",
+      title: i18next.t("vizlib:Type"),
       dataIndex: "type",
       render: (unused, item) => (
         <ChartTypeSelect

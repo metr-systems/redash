@@ -3,6 +3,8 @@ import React from "react";
 import debug from "debug";
 import Alert from "antd/lib/alert";
 
+import i18next from "i18next";
+
 const logger = debug("redash:errors");
 
 export const ErrorBoundaryContext = React.createContext({
@@ -26,7 +28,7 @@ export function ErrorMessage({ children }: ErrorMessageProps) {
 }
 
 ErrorMessage.defaultProps = {
-  children: "Something went wrong.",
+  children: `${i18next.t("vizlib:Something went wrong")}.`,
 };
 
 type OwnErrorBoundaryProps = {

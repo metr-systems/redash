@@ -2,6 +2,8 @@ import { omit } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from "i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Layout from "@/components/admin/Layout";
 import * as StatusBlock from "@/components/admin/StatusBlock";
@@ -86,7 +88,7 @@ routes.register(
   "Admin.SystemStatus",
   routeWithUserSession({
     path: "/admin/status",
-    title: "System Status",
+    title: i18next.t("Admin:System Status"),
     render: pageProps => <SystemStatus {...pageProps} />,
   })
 );

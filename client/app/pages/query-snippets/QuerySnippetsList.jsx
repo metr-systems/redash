@@ -4,7 +4,7 @@ import React from "react";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -68,7 +68,7 @@ class QuerySnippetsList extends React.Component {
       (text, querySnippet) =>
         canEditQuerySnippet(querySnippet) && (
           <Button type="danger" className="w-100" onClick={e => this.deleteQuerySnippet(e, querySnippet)}>
-            Delete
+            {i18next.t("Delete")}
           </Button>
         ),
       {
@@ -197,7 +197,7 @@ const QuerySnippetsListPage = wrapSettingsTab(
   "QuerySnippets.List",
   {
     permission: "create_query",
-    title: "Query Snippets",
+    title: i18next.t("Queries:Query Snippets"),
     path: "query_snippets",
     order: 5,
   },

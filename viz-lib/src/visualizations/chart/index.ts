@@ -2,9 +2,11 @@ import getOptions from "./getOptions";
 import Renderer from "./Renderer";
 import Editor from "./Editor";
 
+import i18next from "i18next";
+
 export default {
   type: "CHART",
-  name: "Chart",
+  name: i18next.t("vizlib:Chart"),
   isDefault: true,
   getOptions,
   Renderer,

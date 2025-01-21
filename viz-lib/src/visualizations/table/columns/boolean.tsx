@@ -3,6 +3,8 @@ import { useDebouncedCallback } from "use-debounce";
 import { Section, Input } from "@/components/visualizations/editor";
 import { createBooleanFormatter } from "@/lib/value-format";
 
+import { Trans } from "react-i18next";
+
 type Props = {
   column: {
     name: string;
@@ -28,7 +30,7 @@ function Editor({ column, onChange }: Props) {
         <Input
           label={
             <React.Fragment>
-              Value for <code>false</code>
+               <Trans key="vizlib:value_for_false">Value for <code>false</code></Trans>
             </React.Fragment>
           }
           data-test="Table.ColumnEditor.Boolean.False"
@@ -43,7 +45,7 @@ function Editor({ column, onChange }: Props) {
         <Input
           label={
             <React.Fragment>
-              Value for <code>true</code>
+              <Trans key="vizlib:value_for_false">Value for <code>true</code></Trans>
             </React.Fragment>
           }
           data-test="Table.ColumnEditor.Boolean.True"
