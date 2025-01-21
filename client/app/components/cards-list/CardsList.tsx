@@ -2,6 +2,9 @@ import { includes, isEmpty } from "lodash";
 import PropTypes from "prop-types";
 import React, { useState } from "react";
 import Input from "antd/lib/input";
+
+import { useTranslation } from 'react-i18next';
+
 import Link from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
 import EmptyState from "@/components/items-list/components/EmptyState";
@@ -42,6 +45,7 @@ function ListItem({ item, keySuffix }: ListItemProps) {
 }
 
 export default function CardsList({ items = [], showSearch = false }: CardsListProps) {
+  const { t } = useTranslation();
   const [searchText, setSearchText] = useState("");
   const filteredItems = items.filter(
     item => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
@@ -53,8 +57,8 @@ export default function CardsList({ items = [], showSearch = false }: CardsListP
         <div className="row p-10">
           <div className="col-md-4 col-md-offset-4">
             <Input.Search
-              placeholder="Search..."
-              aria-label="Search cards"
+              placeholder={t("Search")+"..." || "Search..."}
+              aria-label={t("Cards:Search cards") || "Search cards"}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
               autoFocus
             />

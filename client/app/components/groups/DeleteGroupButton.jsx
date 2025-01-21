@@ -3,20 +3,23 @@ import React from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+
+import i18next from "i18next";
+
 import Tooltip from "@/components/Tooltip";
 import notification from "@/services/notification";
 import Group from "@/services/group";
 
 function deleteGroup(event, group, onGroupDeleted) {
   Modal.confirm({
-    title: "Delete Group",
-    content: "Are you sure you want to delete this group?",
-    okText: "Yes",
+    title: i18next.t("Groups:Delete Group"),
+    content: i18next.t("Groups:Are you sure you want to delete this group?"),
+    okText: i18next.t("Yes"),
     okType: "danger",
-    cancelText: "No",
+    cancelText: i18next.t("No"),
     onOk: () => {
       Group.delete(group).then(() => {
-        notification.success("Group deleted successfully.");
+        notification.success(i18next.t("Groups:Group deleted successfully."));
         onGroupDeleted();
       });
     },

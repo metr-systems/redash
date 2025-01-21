@@ -4,6 +4,9 @@ import { isFunction, get, findIndex } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 import Typography from "antd/lib/typography";
+
+import i18next from "i18next";
+
 import { DynamicDateType } from "@/services/parameters/DateParameter";
 import { DynamicDateRangeType } from "@/services/parameters/DateRangeParameter";
 
@@ -76,7 +79,7 @@ DynamicButton.defaultProps = {
   selectedDynamicValue: null,
   onSelect: () => {},
   enabled: false,
-  staticValueLabel: "Back to Static Value",
+  staticValueLabel: i18next.t("DynamicParams:Back to Static Value"),
 };
 
 export default DynamicButton;

@@ -5,13 +5,15 @@ import Select from "antd/lib/select";
 import Skeleton from "antd/lib/skeleton";
 import DynamicComponent from "@/components/DynamicComponent";
 import { clientConfig } from "@/services/auth";
+import { useTranslation } from "react-i18next";
 
 export default function FormatSettings(props) {
+  const { t } = useTranslation("Settings");
   const { values, onChange, loading } = props;
 
   return (
     <DynamicComponent name="OrganizationSettings.FormatSettings" {...props}>
-      <Form.Item label="Date Format">
+      <Form.Item label={t("Date Format")}>
         {loading ? (
           <Skeleton.Input style={{ width: 300 }} active />
         ) : (
@@ -27,7 +29,7 @@ export default function FormatSettings(props) {
           </Select>
         )}
       </Form.Item>
-      <Form.Item label="Time Format">
+      <Form.Item label={t("Time Format")}>
         {loading ? (
           <Skeleton.Input style={{ width: 300 }} active />
         ) : (

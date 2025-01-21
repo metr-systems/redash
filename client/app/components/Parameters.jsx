@@ -1,6 +1,9 @@
 import { size, filter, forEach, extend, isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
 import location from "@/services/location";
 import { Parameter, createParameter } from "@/services/parameters";
@@ -146,7 +149,7 @@ export default class Parameters extends React.Component {
           {editable && (
             <PlainButton
               className="btn btn-default btn-xs m-l-5"
-              aria-label="Edit"
+              aria-label={i18next.t("Edit")}
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
               type="button">

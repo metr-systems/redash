@@ -15,6 +15,8 @@ import DataSource, { IMG_ROOT } from "@/services/data-source";
 import notification from "@/services/notification";
 import routes from "@/services/routes";
 
+import i18next from "i18next";
+
 class EditDataSource extends React.Component {
   static propTypes = {
     dataSourceId: PropTypes.string.isRequired,
@@ -67,9 +69,9 @@ class EditDataSource extends React.Component {
     };
 
     Modal.confirm({
-      title: "Delete Data Source",
-      content: "Are you sure you want to delete this data source?",
-      okText: "Delete",
+      title: i18next.t("DataSources:Delete Data Source"),
+      content: i18next.t("DataSources:Are you sure you want to delete this data source?"),
+      okText: i18next.t("Delete"),
       okType: "danger",
       onOk: doDelete,
       onCancel: callback,
@@ -120,8 +122,8 @@ class EditDataSource extends React.Component {
         <div className="text-right m-r-10">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
-              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
-              <span className="sr-only">(help)</span>
+              {i18next.t("DataSources:Setup Instructions")} <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">{"(" + i18next.t("help") + ")"}</span>
             </HelpTrigger>
           )}
         </div>
@@ -147,7 +149,7 @@ routes.register(
   "DataSources.Edit",
   routeWithUserSession({
     path: "/data_sources/:dataSourceId",
-    title: "Data Sources",
+    title: i18next.t("DataSources:Data Sources"),
     render: pageProps => <EditDataSourcePage {...pageProps} />,
   })
 );

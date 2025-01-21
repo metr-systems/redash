@@ -13,6 +13,8 @@ import EmptyState from "@/components/items-list/components/EmptyState";
 import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import helper from "@/components/dynamic-form/dynamicFormHelper";
 import HelpTrigger, { TYPES as HELP_TRIGGER_TYPES } from "@/components/HelpTrigger";
+import i18next from "i18next";
+import { Trans } from "react-i18next";
 
 const { Step } = Steps;
 const { Search } = Input;
@@ -64,12 +66,12 @@ class CreateSourceDialog extends React.Component {
       this.props
         .onCreate(selectedType, values)
         .then(data => {
-          successCallback("Saved.");
+          successCallback(i18next.t("Saved."));
           this.props.dialog.close({ success: true, data });
         })
         .catch(error => {
           this.setState({ savingSource: false, currentStep: StepEnum.CONFIGURE_IT });
-          errorCallback(get(error, "response.data.message", "Failed saving."));
+          errorCallback(get(error, "response.data.message", i18next.t("Failed saving.")));
         });
     }
   };
@@ -83,8 +85,8 @@ class CreateSourceDialog extends React.Component {
     return (
       <div className="m-t-10">
         <Search
-          placeholder="Search..."
-          aria-label="Search"
+          placeholder={i18next.t("Search") + "..."}
+          aria-label={i18next.t("Search")}
           onChange={e => this.setState({ searchText: e.target.value })}
           autoFocus
           data-test="SearchSource"
@@ -114,19 +116,21 @@ class CreateSourceDialog extends React.Component {
         <div className="text-right">
           {HELP_TRIGGER_TYPES[helpTriggerType] && (
             <HelpTrigger className="f-13" type={helpTriggerType}>
-              Setup Instructions <i className="fa fa-question-circle" aria-hidden="true" />
-              <span className="sr-only">(help)</span>
+              {i18next.t("DataSources:Setup Instructions")} <i className="fa fa-question-circle" aria-hidden="true" />
+              <span className="sr-only">{"(" + i18next.t("help") + ")"}</span>
             </HelpTrigger>
           )}
         </div>
         <DynamicForm id={this.formId} fields={fields} onSubmit={this.createSource} feedbackIcons hideSubmitButton />
         {selectedType.type === "databricks" && (
           <small>
-            By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
-            <Link href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
-              Driver Download Terms and Conditions
-            </Link>
-            .
+            <Trans i18nKey="DataSources:databricksAgreement">
+              By using the Databricks Data Source you agree to the Databricks JDBC/ODBC{" "}
+              <Link href="https://databricks.com/spark/odbc-driver-download" target="_blank" rel="noopener noreferrer">
+                Driver Download Terms and Conditions
+              </Link>
+              .
+            </Trans>
           </small>
         )}
       </div>
@@ -155,20 +159,20 @@ class CreateSourceDialog extends React.Component {
     return (
       <Modal
         {...dialog.props}
-        title={`Create a New ${sourceType}`}
+        title={i18next.t("DataSources:Create a New {{sourceType}}", { sourceType })}
         footer={
           currentStep === StepEnum.SELECT_TYPE
             ? [
                 <Button key="cancel" onClick={() => dialog.dismiss()} data-test="CreateSourceCancelButton">
-                  Cancel
+                  {i18next.t("Cancel")}
                 </Button>,
                 <Button key="submit" type="primary" disabled>
-                  Create
+                  {i18next.t("Create")}
                 </Button>,
               ]
             : [
                 <Button key="previous" onClick={this.resetType}>
-                  Previous
+                  {i18next.t("Previous")}
                 </Button>,
                 <Button
                   key="submit"
@@ -177,19 +181,23 @@ class CreateSourceDialog extends React.Component {
                   type="primary"
                   loading={savingSource}
                   data-test="CreateSourceSaveButton">
-                  Create
+                  {i18next.t("Create")}
                 </Button>,
               ]
         }>
         <div data-test="CreateSourceDialog">
           <Steps className="hidden-xs m-b-10" size="small" current={currentStep} progressDot>
             {currentStep === StepEnum.CONFIGURE_IT ? (
-              <Step title={<a>Type Selection</a>} className="clickable" onClick={this.resetType} />
+              <Step
+                title={<a>{i18next.t("DataSources:Type Selection")}</a>}
+                className="clickable"
+                onClick={this.resetType}
+              />
             ) : (
-              <Step title="Type Selection" />
+              <Step title={i18next.t("DataSources:Type Selection")} />
             )}
-            <Step title="Configuration" />
-            <Step title="Done" />
+            <Step title={i18next.t("DataSources:Configuration")} />
+            <Step title={i18next.t("Done")} />
           </Steps>
           {currentStep === StepEnum.SELECT_TYPE && this.renderTypeSelector()}
           {currentStep !== StepEnum.SELECT_TYPE && this.renderForm()}
