@@ -1,8 +1,8 @@
 {
-  "This field is required.": "",
-  "This field is too short.": "",
-  "This field must be a valid email.": "",
-  "Additional Settings": "",
-  "select an option": "",
-  "Click to upload": ""
+  "This field is required.": "This field is required.",
+  "This field is too short.": "This field is too short.",
+  "This field must be a valid email.": "This field must be a valid email.",
+  "Additional Settings": "Additional Settings",
+  "select an option": "select an option",
+  "Click to upload": "Click to upload"
 }
