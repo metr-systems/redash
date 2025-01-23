@@ -119,7 +119,7 @@ i18n.use(initReactI18next).init({
       Destinations: Destinations_de,
     },
   },
-  lng: "de",
+  lng: navigator.language.includes("en") ? "en" : "de",
   fallbackLng: "de",
   preload: ["en", "de"],
   keySeparator: ":",
