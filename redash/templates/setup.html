@@ -44,7 +44,8 @@
 
       <h4 class="m-t-25">{{_('General')}}</h4>
 
-      {{ render_field(form.org_name, help_block="Used in email notifications and the UI.") }}
+      
+      {{ render_field(form.org_name, help_block=_("Used in email notifications and the UI.")) }}
 
       <button type="submit" class="btn btn-primary btn-block m-t-25">{{_('Setup')}}</button>
     </form>
