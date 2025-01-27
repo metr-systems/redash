@@ -3,7 +3,9 @@ import createTabbedEditor from "@/components/visualizations/editor/createTabbedE
 import GeneralSettings from "./GeneralSettings";
 import FormatSettings from "./FormatSettings";
 
+import i18next from "i18next";
+
 export default createTabbedEditor([
-  { key: "General", title: "General", component: GeneralSettings },
-  { key: "Format", title: "Format", component: FormatSettings },
+  { key: "General", title: i18next.t("vizlib:General"), component: GeneralSettings },
+  { key: "Format", title: i18next.t("vizlib:Format"), component: FormatSettings },
 ]);

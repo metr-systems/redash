@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2024-12-11 16:26+0100\n"
+"POT-Creation-Date: 2025-01-24 11:28+0100\n"
 "PO-Revision-Date: 2024-12-04 15:21+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -203,6 +203,24 @@ msgstr "Fehlender Parameterwert für: {},"
 msgid "No cached result found for this query."
 msgstr "Kein zwischengespeichertes Ergebnis für diese Abfrage gefunden."
 
+#: redash/handlers/setup.py:13
+msgid "Name"
+msgstr "Name"
+
+#: redash/handlers/setup.py:14
+#, fuzzy
+msgid "Email Address"
+msgstr "E-Mail-Adresse"
+
+#: redash/handlers/setup.py:15 redash/templates/invite.html:50
+#: redash/templates/login.html:47
+msgid "Password"
+msgstr "Passwort"
+
+#: redash/handlers/setup.py:16
+msgid "Organization Name"
+msgstr "Organisationsname"
+
 #: redash/handlers/users.py:65 redash/handlers/users.py:137
 msgid "Bad email address."
 msgstr "Ungültige E-Mail-Adresse."
@@ -313,10 +331,6 @@ msgstr "Remote-Benutzeranmeldung"
 msgid "LDAP/SSO Login"
 msgstr "LDAP/SSO-Anmeldung"
 
-#: redash/templates/invite.html:50 redash/templates/login.html:47
-msgid "Password"
-msgstr "Passwort"
-
 #: redash/templates/invite.html:53
 msgid "Set Password"
 msgstr "Passwort festlegen"
@@ -363,7 +377,11 @@ msgstr "Admin-Benutzer"
 msgid "General"
 msgstr "Allgemein"
 
-#: redash/templates/setup.html:49
+#: redash/templates/setup.html:48
+msgid "Used in email notifications and the UI."
+msgstr "Wird in E-Mail-Benachrichtigungen und der Benutzeroberfläche verwendet."
+
+#: redash/templates/setup.html:50
 msgid "Setup"
 msgstr "Einrichtung"
 

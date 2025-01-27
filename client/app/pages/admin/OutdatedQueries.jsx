@@ -2,6 +2,9 @@ import { map, uniqueId } from "lodash";
 import React from "react";
 
 import Switch from "antd/lib/switch";
+
+import i18next from "i18next";
+
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
 import Paginator from "@/components/Paginator";
@@ -56,11 +59,15 @@ class OutdatedQueries extends React.Component {
       }
     ),
     Columns.avatar({ field: "user", className: "p-l-0 p-r-0" }, name => `Created by ${name}`),
-    Columns.dateTime.sortable({ title: "Created At", field: "created_at" }),
-    Columns.duration.sortable({ title: "Runtime", field: "runtime" }),
-    Columns.dateTime.sortable({ title: "Last Executed At", field: "retrieved_at", orderByField: "executed_at" }),
+    Columns.dateTime.sortable({ title: i18next.t("Created At"), field: "created_at" }),
+    Columns.duration.sortable({ title: i18next.t("Admin:Runtime"), field: "runtime" }),
+    Columns.dateTime.sortable({
+      title: i18next.t("Admin:Last Executed At"),
+      field: "retrieved_at",
+      orderByField: "executed_at",
+    }),
     Columns.custom.sortable((text, item) => <SchedulePhrase schedule={item.schedule} isNew={item.isNew()} />, {
-      title: "Update Schedule",
+      title: i18next.t("Admin:Update Schedule"),
       field: "schedule",
     }),
   ];
@@ -95,7 +102,7 @@ class OutdatedQueries extends React.Component {
         <div className="m-15">
           <div>
             <label htmlFor={this.autoUpdateSwitchId} className="m-0">
-              Auto update
+              {i18next.t("Admin:Auto update")}
             </label>
             <Switch
               id={this.autoUpdateSwitchId}
@@ -106,13 +113,13 @@ class OutdatedQueries extends React.Component {
           </div>
           {controller.params.lastUpdatedAt && (
             <div className="m-t-5">
-              Last updated: <TimeAgo date={controller.params.lastUpdatedAt * 1000} />
+              {i18next.t("Admin:Last updated")}: <TimeAgo date={controller.params.lastUpdatedAt * 1000} />
             </div>
           )}
         </div>
         {!controller.isLoaded && <LoadingState />}
         {controller.isLoaded && controller.isEmpty && (
-          <div className="text-center p-15">There are no outdated queries.</div>
+          <div className="text-center p-15">{i18next.t("Admin:There are no outdated queries.")}</div>
         )}
         {controller.isLoaded && !controller.isEmpty && (
           <div className="bg-white tiled table-responsive">
@@ -165,7 +172,7 @@ routes.register(
   "Admin.OutdatedQueries",
   routeWithUserSession({
     path: "/admin/queries/outdated",
-    title: "Outdated Queries",
+    title: i18next.t("Admin:Outdated Queries"),
     render: pageProps => <OutdatedQueriesPage {...pageProps} currentPage="outdated_queries" />,
   })
 );

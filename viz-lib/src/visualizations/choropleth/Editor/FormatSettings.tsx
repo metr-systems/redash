@@ -2,6 +2,7 @@ import { map } from "lodash";
 import React, { useMemo } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import * as Grid from "antd/lib/grid";
+import { Trans, useTranslation } from "react-i18next";
 import {
   Section,
   Select,
@@ -28,15 +29,21 @@ function TemplateFormatHint({ geoJsonProperties }: TemplateFormatHintProps) {
     <ContextHelp placement="topLeft" arrowPointAtCenter>
       <div style={{ paddingBottom: 5 }}>
         <div>
-          All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+          <Trans ns="vizlib">
+            All query result columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+          </Trans>
         </div>
         <div>
-          Use <code>{"{{ @@value }}"}</code> to access formatted value.
+          <Trans ns="vizlib">
+            Use <code>{"{{ @@value }}"}</code> to access formatted value.
+          </Trans>
         </div>
       </div>
       {geoJsonProperties.length > 0 && (
         <React.Fragment>
-          <div className="p-b-5">GeoJSON properties could be accessed by these names:</div>
+          <div className="p-b-5">
+            <Trans ns="vizlib">GeoJSON properties could be accessed by these names:</Trans>
+          </div>
           <div style={{ maxHeight: 300, overflow: "auto" }}>
             {map(geoJsonProperties, property => (
               <div key={property}>
@@ -55,6 +62,7 @@ TemplateFormatHint.defaultProps = {
 };
 
 export default function GeneralSettings({ options, onOptionsChange }: any) {
+  const { t } = useTranslation("vizlib");
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
   const [geoJson] = useLoadGeoJson(options.mapType);
   const geoJsonFields = useMemo(() => getGeoJsonFields(geoJson), [geoJson]);
@@ -70,7 +78,7 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
             <Input
               label={
                 <React.Fragment>
-                  Value Format
+                  {t("Value Format")}
                   <ContextHelp.NumberFormatSpecs />
                 </React.Fragment>
               }
@@ -81,7 +89,7 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
           </Grid.Col>
           <Grid.Col span={12}>
             <Input
-              label="Value Placeholder"
+              label={t("Value Placeholder")}
               data-test="Choropleth.Editor.ValuePlaceholder"
               defaultValue={options.noValuePlaceholder}
               onChange={(event: any) => onOptionsChangeDebounced({ noValuePlaceholder: event.target.value })}
@@ -96,7 +104,7 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
           data-test="Choropleth.Editor.LegendVisibility"
           checked={options.legend.visible}
           onChange={event => onOptionsChange({ legend: { visible: event.target.checked } })}>
-          Show Legend
+          {t("Show Legend")}
         </Checkbox>
       </Section>
 
@@ -105,29 +113,29 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
         <Grid.Row gutter={15}>
           <Grid.Col span={12}>
             <Select
-              label="Legend Position"
+              label={t("Legend Position")}
               data-test="Choropleth.Editor.LegendPosition"
               disabled={!options.legend.visible}
               defaultValue={options.legend.position}
               onChange={(position: any) => onOptionsChange({ legend: { position } })}>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="top-left" data-test="Choropleth.Editor.LegendPosition.TopLeft">
-                top / left
+                {t("top")+" / "+t("left")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="top-right" data-test="Choropleth.Editor.LegendPosition.TopRight">
-                top / right
+                {t("top")+" / "+t("right")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="bottom-left" data-test="Choropleth.Editor.LegendPosition.BottomLeft">
-                bottom / left
+                {t("bottom")+" / "+t("left")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option value="bottom-right" data-test="Choropleth.Editor.LegendPosition.BottomRight">
-                bottom / right
+                {t("bottom")+" / "+t("right")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
             </Select>
@@ -135,7 +143,7 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
           <Grid.Col span={12}>
             <TextAlignmentSelect
               data-test="Choropleth.Editor.LegendTextAlignment"
-              label="Legend Text Alignment"
+              label={t("Legend Text Alignment")}
               disabled={!options.legend.visible}
               defaultValue={options.legend.alignText}
               onChange={(event: any) => onOptionsChange({ legend: { alignText: event.target.value } })}
@@ -150,14 +158,14 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
           data-test="Choropleth.Editor.TooltipEnabled"
           checked={options.tooltip.enabled}
           onChange={event => onOptionsChange({ tooltip: { enabled: event.target.checked } })}>
-          Show Tooltip
+          {t("Show Tooltip")}
         </Checkbox>
       </Section>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Input
-          label={<React.Fragment>Tooltip Template {templateFormatHint}</React.Fragment>}
+          label={<React.Fragment>{t("Tooltip Template")} {templateFormatHint}</React.Fragment>}
           data-test="Choropleth.Editor.TooltipTemplate"
           disabled={!options.tooltip.enabled}
           defaultValue={options.tooltip.template}
@@ -171,14 +179,14 @@ export default function GeneralSettings({ options, onOptionsChange }: any) {
           data-test="Choropleth.Editor.PopupEnabled"
           checked={options.popup.enabled}
           onChange={event => onOptionsChange({ popup: { enabled: event.target.checked } })}>
-          Show Popup
+          {t("Show Popup")}
         </Checkbox>
       </Section>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <TextArea
-          label={<React.Fragment>Popup Template {templateFormatHint}</React.Fragment>}
+          label={<React.Fragment>{t("Popup Template")} {templateFormatHint}</React.Fragment>}
           data-test="Choropleth.Editor.PopupTemplate"
           disabled={!options.popup.enabled}
           rows={4}

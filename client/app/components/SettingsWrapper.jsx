@@ -5,6 +5,8 @@ import Link from "@/components/Link";
 import location from "@/services/location";
 import settingsMenu from "@/services/settingsMenu";
 
+import i18next from "i18next";
+
 function wrapSettingsTab(id, options, WrappedComponent) {
   settingsMenu.add(id, options);
 
@@ -13,7 +15,7 @@ function wrapSettingsTab(id, options, WrappedComponent) {
     return (
       <div className="settings-screen">
         <div className="container">
-          <PageHeader title="Settings" />
+          <PageHeader title={i18next.t("Settings:Settings")} />
           <div className="bg-white tiled">
             <Menu selectedKeys={[activeItem && activeItem.title]} selectable={false} mode="horizontal">
               {settingsMenu.getAvailableItems().map(item => (

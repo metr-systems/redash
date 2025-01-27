@@ -3,11 +3,14 @@ import React, { useMemo } from "react";
 import { Section, Select } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
+import { useTranslation } from "react-i18next";
+
 function getColumns(column: any, unusedColumns: any) {
   return filter([column, ...unusedColumns], v => !isNil(v));
 }
 
 export default function GeneralSettings({ options, data, onOptionsChange }: any) {
+  const { t } = useTranslation("vizlib");
   const unusedColumns = useMemo(
     () =>
       difference(
@@ -22,7 +25,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
-          label="Latitude Column Name"
+          label={t("Latitude Column Name")}
           data-test="Map.Editor.LatitudeColumnName"
           value={options.latColName}
           onChange={(latColName: any) => onOptionsChange({ latColName })}>
@@ -39,7 +42,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
-          label="Longitude Column Name"
+          label={t("Longitude Column Name")}
           data-test="Map.Editor.LongitudeColumnName"
           value={options.lonColName}
           onChange={(lonColName: any) => onOptionsChange({ lonColName })}>
@@ -56,7 +59,7 @@ export default function GeneralSettings({ options, data, onOptionsChange }: any)
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
-          label="Group By"
+          label={t("Group By")}
           data-test="Map.Editor.GroupBy"
           allowClear
           placeholder="none"

@@ -2,19 +2,22 @@ import { isString, map, uniq, flatten, filter, sortBy, keys } from "lodash";
 import React from "react";
 import { Section, Select } from "@/components/visualizations/editor";
 
+import { useTranslation } from "react-i18next";
+import i18next from "i18next";
+
 const MappingTypes = {
-  x: { label: "X Column" },
-  y: { label: "Y Columns", multiple: true },
-  series: { label: "Group by" },
-  yError: { label: "Errors column" },
-  size: { label: "Bubble Size Column" },
-  zVal: { label: "Color Column" },
+  x: { label: i18next.t("vizlib:X Column") },
+  y: { label: i18next.t("vizlib:Y Columns"), multiple: true },
+  series: { label: i18next.t("vizlib:Group by") },
+  yError: { label: i18next.t("vizlib:Errors column") },
+  size: { label: i18next.t("vizlib:Bubble Size Column") },
+  zVal: { label: i18next.t("vizlib:Color Column") },
 };
 
 const SwappedMappingTypes = {
   ...MappingTypes,
-  x: { label: "Y Column" },
-  y: { label: "X Columns", multiple: true },
+  x: { label: i18next.t("vizlib:Y Column") },
+  y: { label: i18next.t("vizlib:X Columns"), multiple: true },
 };
 
 type OwnProps = {
@@ -27,6 +30,8 @@ type OwnProps = {
 type Props = OwnProps & typeof ColumnMappingSelect.defaultProps;
 
 export default function ColumnMappingSelect({ value, availableColumns, type, onChange, areAxesSwapped }: Props) {
+  const { t } = useTranslation("vizlib")
+
   const options = sortBy(filter(uniq(flatten([availableColumns, value])), v => isString(v) && v !== ""));
 
   // this swaps the ui, as the data will be swapped on render
@@ -41,7 +46,7 @@ export default function ColumnMappingSelect({ value, availableColumns, type, onC
         mode={multiple ? "multiple" : "default"}
         allowClear
         showSearch
-        placeholder={multiple ? "Choose columns..." : "Choose column..."}
+        placeholder={multiple ? t("Choose columns")+"..." : t("Choose column")+"..."}
         value={value || undefined}
         // @ts-expect-error ts-migrate(2349) FIXME: This expression is not callable.
         onChange={(column: any) => onChange(column || null, type)}>

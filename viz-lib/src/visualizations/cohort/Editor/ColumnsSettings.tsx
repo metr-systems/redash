@@ -3,14 +3,18 @@ import React from "react";
 import { Section, Select } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
+import { useTranslation } from "react-i18next";
+
 export default function ColumnsSettings({ options, data, onOptionsChange }: any) {
+  const {t} =useTranslation("vizlib");
+
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
           layout="horizontal"
-          label="Date (Bucket)"
+          label={t("Date (Bucket)")}
           data-test="Cohort.DateColumn"
           value={options.dateColumn}
           onChange={(dateColumn: any) => onOptionsChange({ dateColumn })}>
@@ -28,7 +32,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }: any)
       <Section>
         <Select
           layout="horizontal"
-          label="Stage"
+          label={t("Stage")}
           data-test="Cohort.StageColumn"
           value={options.stageColumn}
           onChange={(stageColumn: any) => onOptionsChange({ stageColumn })}>
@@ -46,7 +50,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }: any)
       <Section>
         <Select
           layout="horizontal"
-          label="Bucket Population Size"
+          label={t("Bucket Population Size")}
           data-test="Cohort.TotalColumn"
           value={options.totalColumn}
           onChange={(totalColumn: any) => onOptionsChange({ totalColumn })}>
@@ -64,7 +68,7 @@ export default function ColumnsSettings({ options, data, onOptionsChange }: any)
       <Section>
         <Select
           layout="horizontal"
-          label="Stage Value"
+          label={t("Stage Value")}
           data-test="Cohort.ValueColumn"
           value={options.valueColumn}
           onChange={(valueColumn: any) => onOptionsChange({ valueColumn })}>

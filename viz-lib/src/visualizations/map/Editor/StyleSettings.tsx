@@ -1,6 +1,7 @@
 import { isNil, map } from "lodash";
 import React, { useMemo } from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { useTranslation } from "react-i18next";
 import { Section, Select, Checkbox, Input, ColorPicker, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 import ColorPalette from "@/visualizations/ColorPalette";
@@ -74,6 +75,7 @@ function getCustomIconOptionFields(iconShape: any) {
 }
 
 export default function StyleSettings({ options, onOptionsChange }: any) {
+  const { t } = useTranslation("vizlib");
   const [debouncedOnOptionsChange] = useDebouncedCallback(onOptionsChange, 200);
 
   const { showIcon, showBackgroundColor, showBorderColor } = useMemo(
@@ -88,7 +90,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
-          label="Map Tiles"
+          label={t("Map Tiles")}
           data-test="Map.Editor.Tiles"
           value={options.mapTileUrl}
           onChange={(mapTileUrl: any) => onOptionsChange({ mapTileUrl })}>
@@ -103,7 +105,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
       </Section>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
-      <Section.Title>Markers</Section.Title>
+      <Section.Title>{t("Markers")}</Section.Title>
 
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
@@ -111,7 +113,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           data-test="Map.Editor.ClusterMarkers"
           defaultChecked={options.clusterMarkers}
           onChange={event => onOptionsChange({ clusterMarkers: event.target.checked })}>
-          Cluster Markers
+          {t("Cluster Markers")}
         </Checkbox>
       </Section>
 
@@ -122,14 +124,14 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           disabled={!isCustomMarkersStyleAllowed}
           defaultChecked={options.customizeMarkers}
           onChange={event => onOptionsChange({ customizeMarkers: event.target.checked })}>
-          Override default style
+          {t("Override default style")}
         </Checkbox>
         {!isCustomMarkersStyleAllowed && (
           // @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message
           <ContextHelp placement="topLeft" arrowPointAtCenter>
-            Custom marker styles are not available
+            {t("Custom marker styles are not available")}
             <br />
-            when <b>Group By</b> column selected.
+            {t("when")} <b>{t("Group By")}</b> {t("column selected.")}.
           </ContextHelp>
         )}
       </Section>
@@ -140,38 +142,38 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
           <Section>
             <Select
               layout="horizontal"
-              label="Shape"
+              label={t("Shape")}
               data-test="Map.Editor.MarkerShape"
               value={options.iconShape}
               onChange={(iconShape: any) => onOptionsChange({ iconShape })}>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="marker" data-test="Map.Editor.MarkerShape.marker">
-                Marker + Icon
+                {t("Marker")+" + "+t("Icon")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="doughnut" data-test="Map.Editor.MarkerShape.doughnut">
-                Circle
+                {t("Circle")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="circle-dot" data-test="Map.Editor.MarkerShape.circle-dot">
-                Circle Dot
+                {t("Circle Dot")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="circle" data-test="Map.Editor.MarkerShape.circle">
-                Circle + Icon
+                {t("Circle")+" + "+t("Icon")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="rectangle-dot" data-test="Map.Editor.MarkerShape.rectangle-dot">
-                Square Dot
+                {t("Square Dot")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
               {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               <Select.Option key="rectangle" data-test="Map.Editor.MarkerShape.rectangle">
-                Square + Icon
+                {t("Square")+" + "+t("Icon")}
                 {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
               </Select.Option>
             </Select>
@@ -184,19 +186,19 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
                 layout="horizontal"
                 label={
                   <React.Fragment>
-                    Icon
+                    {t("Icon")}
                     {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
                     <ContextHelp placement="topLeft" arrowPointAtCenter>
                       <div style={{ marginBottom: 5 }}>
-                        Enter an icon name from{" "}
+                        {t("Enter an icon name from")}{" "}
                         <a href="https://fontawesome.com/v4.7.0/icons/" target="_blank" rel="noopener noreferrer">
-                          Font-Awesome 4.7
+                          {t("Font-Awesome 4.7")}
                         </a>
                       </div>
                       <div style={{ marginBottom: 5 }}>
-                        Examples: <code>check</code>, <code>times-circle</code>, <code>flag</code>
+                        {t("Examples")}: <code>check</code>, <code>times-circle</code>, <code>flag</code>
                       </div>
-                      <div>Leave blank to remove.</div>
+                      <div>{t("Leave blank to remove.")}</div>
                     </ContextHelp>
                   </React.Fragment>
                 }
@@ -212,7 +214,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
             <Section>
               <ColorPicker
                 layout="horizontal"
-                label="Icon Color"
+                label={t("Icon Color")}
                 interactive
                 presetColors={CustomColorPalette}
                 placement="topRight"
@@ -230,7 +232,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
             <Section>
               <ColorPicker
                 layout="horizontal"
-                label="Background Color"
+                label={t("Background Color")}
                 interactive
                 presetColors={CustomColorPalette}
                 placement="topRight"
@@ -248,7 +250,7 @@ export default function StyleSettings({ options, onOptionsChange }: any) {
             <Section>
               <ColorPicker
                 layout="horizontal"
-                label="Border Color"
+                label={t("Border Color")}
                 interactive
                 presetColors={CustomColorPalette}
                 placement="topRight"
