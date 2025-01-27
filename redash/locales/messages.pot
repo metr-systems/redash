@@ -1,14 +1,14 @@
 # Translations template for PROJECT.
-# Copyright (C) 2024 ORGANIZATION
+# Copyright (C) 2025 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2025.
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-12-11 16:26+0100\n"
+"POT-Creation-Date: 2025-01-24 11:28+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,6 +187,23 @@ msgstr ""
 msgid "No cached result found for this query."
 msgstr ""
 
+#: redash/handlers/setup.py:13
+msgid "Name"
+msgstr ""
+
+#: redash/handlers/setup.py:14
+msgid "Email Address"
+msgstr ""
+
+#: redash/handlers/setup.py:15 redash/templates/invite.html:50
+#: redash/templates/login.html:47
+msgid "Password"
+msgstr ""
+
+#: redash/handlers/setup.py:16
+msgid "Organization Name"
+msgstr ""
+
 #: redash/handlers/users.py:65 redash/handlers/users.py:137
 msgid "Bad email address."
 msgstr ""
@@ -283,10 +300,6 @@ msgstr ""
 msgid "LDAP/SSO Login"
 msgstr ""
 
-#: redash/templates/invite.html:50 redash/templates/login.html:47
-msgid "Password"
-msgstr ""
-
 #: redash/templates/invite.html:53
 msgid "Set Password"
 msgstr ""
@@ -331,7 +344,11 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: redash/templates/setup.html:49
+#: redash/templates/setup.html:48
+msgid "Used in email notifications and the UI."
+msgstr ""
+
+#: redash/templates/setup.html:50
 msgid "Setup"
 msgstr ""
 

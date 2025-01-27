@@ -1,11 +1,11 @@
 {
-  "Need more support?": "",
-  "See our Help": "",
-  "Connect a Data Source": "",
-  "Ask an account admin to connect a data source": "",
-  "Create your first Query": "",
-  "Create your first Alert": "",
-  "Create your first Dashboard": "",
-  "Invite your team members": "",
+  "Need more support?": "Need more support?",
+  "See our Help": "See our Help",
+  "Connect a Data Source": "Connect a Data Source",
+  "Ask an account admin to connect a data source": "Ask an account admin to connect a data source",
+  "Create your first Query": "Create your first Query",
+  "Create your first Alert": "Create your first Alert",
+  "Create your first Dashboard": "Create your first Dashboard",
+  "Invite your team members": "Invite your team members",
   "lets_get_started": "Let's get started"
 }
