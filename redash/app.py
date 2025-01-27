@@ -29,10 +29,13 @@ def get_locale():
     This function uses the `request.accept_languages` attribute to find the best match
     from the list of supported locales defined in `settings.BABEL_SUPPORTED_LOCALES`.
     Returns:
-        str: The best matching locale from the supported locales.
+        str: The best matching locale from the supported locales, or the default locale
+        if no match is found or if the request object is not available.
     """
 
-    return request.accept_languages.best_match(settings.BABEL_SUPPORTED_LOCALES)
+    if not request:
+        return settings.BABEL_DEFAULT_LOCALE
+    return request.accept_languages.best_match(settings.BABEL_SUPPORTED_LOCALES, default=settings.BABEL_DEFAULT_LOCALE)
 
 
 def create_app():
