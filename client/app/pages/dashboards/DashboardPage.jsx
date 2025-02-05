@@ -82,6 +82,7 @@ function DashboardComponent(props) {
     dashboard,
     filters,
     setFilters,
+    refreshing,
     loadDashboard,
     loadWidget,
     removeWidget,
@@ -143,6 +144,7 @@ function DashboardComponent(props) {
             onValuesChange={refreshDashboard}
             sortable={editingLayout}
             onParametersEdit={onParametersEdit}
+            disabled={refreshing} // Disable parameters when refreshing
           />
         </div>
       )}
