@@ -28,6 +28,7 @@ class ParameterValueInput extends React.Component {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     onSelect: PropTypes.func,
     className: PropTypes.string,
+    disabled: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -38,6 +39,7 @@ class ParameterValueInput extends React.Component {
     parameter: null,
     onSelect: () => {},
     className: "",
+    disabled: false,
   };
 
   constructor(props) {
@@ -50,7 +52,6 @@ class ParameterValueInput extends React.Component {
 
   componentDidUpdate = prevProps => {
     const { value, parameter } = this.props;
-    // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
       this.setState({
         value: parameter.hasPendingValue ? parameter.pendingValue : value,
@@ -60,13 +61,14 @@ class ParameterValueInput extends React.Component {
   };
 
   onSelect = value => {
+    if (this.props.disabled) return; // Prevent onSelect if disabled
     const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);
   };
 
   renderDateParameter() {
-    const { type, parameter } = this.props;
+    const { type, parameter, disabled } = this.props;
     const { value } = this.state;
     return (
       <DateParameter
@@ -75,12 +77,13 @@ class ParameterValueInput extends React.Component {
         value={value}
         parameter={parameter}
         onSelect={this.onSelect}
+        disabled={disabled}
       />
     );
   }
 
   renderDateRangeParameter() {
-    const { type, parameter } = this.props;
+    const { type, parameter, disabled } = this.props;
     const { value } = this.state;
     return (
       <DateRangeParameter
@@ -89,15 +92,15 @@ class ParameterValueInput extends React.Component {
         value={value}
         parameter={parameter}
         onSelect={this.onSelect}
+        disabled={disabled}
       />
     );
   }
 
   renderEnumInput() {
-    const { enumOptions, parameter } = this.props;
+    const { enumOptions, parameter, disabled } = this.props;
     const { value } = this.state;
     const enumOptionsArray = enumOptions.split("\n").filter(v => v !== "");
-    // Antd Select doesn't handle null in multiple mode
     const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
 
     return (
@@ -109,14 +112,14 @@ class ParameterValueInput extends React.Component {
         options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
         showSearch
         showArrow
+        disabled={disabled}
         notFoundContent={isEmpty(enumOptionsArray) ? i18next.t("Params:No options available") : null}
-        {...multipleValuesProps}
       />
     );
   }
 
   renderQueryBasedInput() {
-    const { queryId, parameter } = this.props;
+    const { queryId, parameter, disabled } = this.props;
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
@@ -127,13 +130,13 @@ class ParameterValueInput extends React.Component {
         queryId={queryId}
         onSelect={this.onSelect}
         style={{ minWidth: 60 }}
-        {...multipleValuesProps}
+        disabled={disabled}
       />
     );
   }
 
   renderNumberInput() {
-    const { className } = this.props;
+    const { className, disabled } = this.props;
     const { value } = this.state;
 
     const normalize = val => (isNaN(val) ? undefined : val);
@@ -144,12 +147,13 @@ class ParameterValueInput extends React.Component {
         value={normalize(value)}
         aria-label={i18next.t("Params:Parameter number value")}
         onChange={val => this.onSelect(normalize(val))}
+        disabled={disabled}
       />
     );
   }
 
   renderTextInput() {
-    const { className } = this.props;
+    const { className, disabled } = this.props;
     const { value } = this.state;
 
     return (
@@ -159,6 +163,7 @@ class ParameterValueInput extends React.Component {
         aria-label={i18next.t("Params:Parameter text value")}
         data-test="TextParamInput"
         onChange={e => this.onSelect(e.target.value)}
+        disabled={disabled}
       />
     );
   }

@@ -28,6 +28,7 @@ export default class Parameters extends React.Component {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
     editable: PropTypes.bool,
     sortable: PropTypes.bool,
+    disabled: PropTypes.bool,
     disableUrlUpdate: PropTypes.bool,
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
@@ -138,7 +139,7 @@ export default class Parameters extends React.Component {
     if (this.hideValues.some(value => this.toCamelCase(value) === this.toCamelCase(param.name))) {
       return null;
     }
-    const { editable } = this.props;
+    const { editable, disabled } = this.props;
     if (param.hidden) {
       return null;
     }
@@ -165,6 +166,7 @@ export default class Parameters extends React.Component {
           enumOptions={param.enumOptions}
           queryId={param.queryId}
           onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
+          disabled={disabled}
         />
       </div>
     );
