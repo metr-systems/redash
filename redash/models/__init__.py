@@ -1099,12 +1099,21 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             .outerjoin(Visualization)
             .outerjoin(Query)
             .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+            .outerjoin(DashboardGroup, Dashboard.id == DashboardGroup.dashboard_id)
             .filter(
                 Dashboard.is_archived.is_(False),
-                (DataSourceGroup.group_id.in_(group_ids) | (Dashboard.user_id == user_id)),
                 Dashboard.org == org,
             )
         )
+
+        if group_ids:
+            query = query.filter(
+                or_(
+                    DataSourceGroup.group_id.in_(group_ids),
+                    DashboardGroup.group_id.in_(group_ids),
+                    Dashboard.user_id == user_id,
+                )
+            )
 
         query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft.is_(False)))
 

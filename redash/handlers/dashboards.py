@@ -14,9 +14,11 @@ from redash.handlers.base import (
 from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
+    require_access,
     require_admin_or_owner,
     require_object_modify_permission,
     require_permission,
+    view_only,
 )
 from redash.security import csp_allows_embeding
 from redash.serializers import DashboardSerializer, public_dashboard
@@ -47,16 +49,20 @@ class DashboardListResource(BaseResource):
         objects.
         """
         search_term = request.args.get("q")
+        if self.current_user.has_permission("admin"):
+            group_ids = models.Group.all_ids(self.current_org)
+        else:
+            group_ids = self.current_user.group_ids
 
         if search_term:
             results = models.Dashboard.search(
                 self.current_org,
-                self.current_user.group_ids,
+                group_ids,
                 self.current_user.id,
                 search_term,
             )
         else:
-            results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+            results = models.Dashboard.all(self.current_org, group_ids, self.current_user.id)
 
         results = filter_by_tags(results, models.Dashboard.tags)
 
@@ -214,6 +220,8 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+        require_access(dashboard, self.current_user, view_only)
+
         response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
