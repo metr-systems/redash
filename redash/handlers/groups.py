@@ -225,7 +225,7 @@ class GroupDashboardListResource(BaseResource):
 
         self.record_event({"action": "list", "object_id": group_id, "object_type": "group"})
 
-        return [dashboard.to_dict() for dashboard in dashboards]
+        return [dashboard.to_dict(with_permissions_for=group) for dashboard in dashboards]
 
 
 class GroupDashboardResource(BaseResource):
