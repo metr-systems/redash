@@ -44,6 +44,8 @@ from redash.handlers.favorites import (
     QueryFavoriteResource,
 )
 from redash.handlers.groups import (
+    GroupDashboardListResource,
+    GroupDashboardResource,
     GroupDataSourceListResource,
     GroupDataSourceResource,
     GroupListResource,
@@ -176,6 +178,17 @@ api.add_org_resource(
     GroupDataSourceResource,
     "/api/groups/<group_id>/data_sources/<data_source_id>",
     endpoint="group_data_source",
+)
+
+api.add_org_resource(
+    GroupDashboardListResource,
+    "/api/groups/<group_id>/dashboards",
+    endpoint="group_dashboards",
+)
+api.add_org_resource(
+    GroupDashboardResource,
+    "/api/groups/<group_id>/dashboards/<dashboard_id>",
+    endpoint="group_dashboard",
 )
 
 api.add_org_resource(EventsResource, "/api/events", endpoint="events")

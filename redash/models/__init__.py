@@ -1059,6 +1059,21 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    def to_dict(self, with_permissions_for=None):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "slug": self.slug,
+            "user_id": self.user_id,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "version": self.version,
+            "is_archived": self.is_archived,
+            "is_draft": self.is_draft,
+            "tags": self.tags,
+            "options": self.options,
+        }
+
     @property
     def name_as_slug(self):
         return utils.slugify(self.name)
@@ -1153,6 +1168,22 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def lowercase_name(cls):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
+
+    @property
+    def groups(self):
+        groups = DashboardGroup.query.filter(DashboardGroup.dashboard == self)
+        # TODO is view_only necessary?
+        view_only = True
+        return dict([(group.group_id, view_only) for group in groups])
+
+    def add_group(self, group):
+        dsg = DashboardGroup(group=group, dashboard=self)
+        db.session.add(dsg)
+        return dsg
+
+    def remove_group(self, group):
+        DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).delete()
+        db.session.commit()
 
 
 @generic_repr("id", "dashboard_id", "group_id")
