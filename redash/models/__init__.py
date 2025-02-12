@@ -1184,6 +1184,8 @@ class DashboardGroup(db.Model):
     dashboard = db.relationship("Dashboard", backref="dashboard_groups")
     group = db.relationship("Group", backref="dashboards")
 
+    view_only = Column(db.Boolean, default=False)
+
     __tablename__ = "dashboard_groups"
 
 
