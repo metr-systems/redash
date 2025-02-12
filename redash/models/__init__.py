@@ -1060,6 +1060,32 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    def to_dict(self, with_permissions_for=None):
+        d = {
+            "id": self.id,
+            "name": self.name,
+            "slug": self.slug,
+            "user_id": self.user_id,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "version": self.version,
+            "is_archived": self.is_archived,
+            "is_draft": self.is_draft,
+            "tags": self.tags,
+            "options": self.options,
+        }
+        if with_permissions_for is not None:
+            d["view_only"] = (
+                db.session.query(DashboardGroup.view_only)
+                .filter(
+                    DashboardGroup.group == with_permissions_for,
+                    DashboardGroup.dashboard == self,
+                )
+                .one()[0]
+            )
+
+        return d
+
     @property
     def name_as_slug(self):
         return utils.slugify(self.name)
@@ -1169,6 +1195,12 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).delete()
         db.session.commit()
 
+    def update_group_permission(self, group, view_only):
+        dsg = DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).one()
+        dsg.view_only = view_only
+        db.session.add(dsg)
+        return dsg
+
 
 @generic_repr("id", "dashboard_id", "group_id")
 class DashboardGroup(db.Model):
@@ -1181,7 +1213,7 @@ class DashboardGroup(db.Model):
     dashboard_id = db.Column(db.Integer, db.ForeignKey("dashboards.id"))
     group_id = db.Column(db.Integer, db.ForeignKey("groups.id"))
 
-    dashboard = db.relationship("Dashboard", backref="dashboard_groups")
+    dashboard = db.relationship("Dashboard", backref="dashboard_groups_rel")
     group = db.relationship("Group", backref="dashboards")
 
     view_only = Column(db.Boolean, default=False)
