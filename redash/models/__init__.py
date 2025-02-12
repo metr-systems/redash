@@ -1160,6 +1160,15 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         groups = DashboardGroup.query.filter(DashboardGroup.dashboard == self)
         return dict([(group.group_id, group.view_only) for group in groups])
 
+    def add_group(self, group, view_only=False):
+        dsg = DashboardGroup(group=group, dashboard=self, view_only=view_only)
+        db.session.add(dsg)
+        return dsg
+
+    def remove_group(self, group):
+        DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).delete()
+        db.session.commit()
+
 
 @generic_repr("id", "dashboard_id", "group_id")
 class DashboardGroup(db.Model):
