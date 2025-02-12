@@ -273,3 +273,9 @@ Dashboard.prototype.unfavorite = function unfavorite() {
 Dashboard.prototype.getUrl = function getUrl() {
   return urlForDashboard(this);
 };
+
+const DashboardEndpoints = {
+  query: () => axios.get("api/dashboards"),
+  get: ({ id }) => axios.get(`api/dashboards/${id}`),
+};
+export default DashboardEndpoints;

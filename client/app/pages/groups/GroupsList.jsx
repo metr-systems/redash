@@ -2,7 +2,7 @@ import React from "react";
 
 import Button from "antd/lib/button";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
@@ -35,7 +35,9 @@ class GroupsList extends React.Component {
       (text, group) => (
         <div>
           <Link href={"groups/" + group.id}>{group.name}</Link>
-          {group.type === "builtin" && <span className="label label-default m-l-10">{i18next.t("Groups:built-in")}</span>}
+          {group.type === "builtin" && (
+            <span className="label label-default m-l-10">{i18next.t("Groups:built-in")}</span>
+          )}
         </div>
       ),
       {
@@ -47,7 +49,12 @@ class GroupsList extends React.Component {
       (text, group) => (
         <Button.Group>
           <Link.Button href={`groups/${group.id}`}>{i18next.t("Groups:Members")}</Link.Button>
-          {currentUser.isAdmin && <Link.Button href={`groups/${group.id}/data_sources`}>{i18next.t("Groups:Data Sources")}</Link.Button>}
+          {currentUser.isAdmin && (
+            <Link.Button href={`groups/${group.id}/data_sources`}>{i18next.t("Groups:Data Sources")}</Link.Button>
+          )}
+          {currentUser.isAdmin && (
+            <Link.Button href={`groups/${group.id}/dashboards`}>{i18next.t("Groups:Dashboards")}</Link.Button>
+          )}
         </Button.Group>
       ),
       {
