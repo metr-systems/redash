@@ -50,7 +50,7 @@ class DashboardListResource(BaseResource):
         """
         search_term = request.args.get("q")
         if self.current_user.has_permission("admin"):
-            group_ids = models.Group.all_ids(self.current_org)
+            group_ids = models.Group.all(self.current_org)
         else:
             group_ids = self.current_user.group_ids
 
