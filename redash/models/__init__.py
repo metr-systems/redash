@@ -1219,11 +1219,11 @@ class DashboardGroup(db.Model):
     """
 
     id = primary_key("DashboardGroup")
-    dashboard_id = db.Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"))
-    dashboard = db.relationship("Dashboard", back_populates="dashboard_groups")
+    dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"))
+    dashboard = db.relationship(Dashboard, back_populates="dashboard_groups")
 
-    group_id = db.Column(db.Integer, db.ForeignKey("groups.id"))
-    group = db.relationship(key_type("Group"), back_populates="dashboards")
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
+    group = db.relationship(Group, back_populates="dashboards")
 
     view_only = Column(db.Boolean, default=False)
 
