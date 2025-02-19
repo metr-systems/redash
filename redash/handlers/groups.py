@@ -11,7 +11,9 @@ class GroupListResource(BaseResource):
     @require_admin
     def post(self):
         name = request.json["name"]
-        group = models.Group(name=name, org=self.current_org)
+        group = models.Group(
+            name=name, org=self.current_org, permissions=["list_dashboards"]
+        )  # new groups other than the built-in groups will have the permission to list dashboards only
         models.db.session.add(group)
         models.db.session.commit()
 
