@@ -14,11 +14,10 @@ from redash.handlers.base import (
 from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
-    require_access,
+    require_access_or_default,
     require_admin_or_owner,
     require_object_modify_permission,
     require_permission,
-    view_only,
 )
 from redash.security import csp_allows_embeding
 from redash.serializers import DashboardSerializer, public_dashboard
@@ -49,7 +48,11 @@ class DashboardListResource(BaseResource):
         objects.
         """
         search_term = request.args.get("q")
-        if self.current_user.has_permission("admin"):
+        if (
+            self.current_user.has_permission("admin")
+            or self.current_user.org.default_group.id in self.current_user.group_ids
+        ):
+            # users that are admin or in default group can see all dashboards
             group_ids = [group.id for group in models.Group.all(self.current_org)]
         else:
             group_ids = self.current_user.group_ids
@@ -220,7 +223,17 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_id_and_org
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
-        require_access(dashboard, self.current_user, view_only)
+
+        # stops at the first match
+        not_view_only = models.db.session.query(
+            models.DashboardGroup.query.filter(
+                models.DashboardGroup.dashboard_id == dashboard.id,
+                models.DashboardGroup.group_id.in_(self.current_user.group_ids),
+                models.DashboardGroup.view_only is False,
+            ).exists()
+        ).scalar()
+
+        require_access_or_default(dashboard, self.current_user, not not_view_only)
 
         response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 

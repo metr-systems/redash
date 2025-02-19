@@ -55,6 +55,11 @@ def require_access(obj, user, need_view_only):
         abort(403)
 
 
+def require_access_or_default(obj, user, need_view_only):
+    if not (current_user.org.default_group.id in current_user.group_ids or has_access(obj, user, need_view_only)):
+        abort(403)
+
+
 class require_permissions:
     def __init__(self, permissions, allow_one=False):
         self.permissions = permissions
