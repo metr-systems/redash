@@ -9,17 +9,38 @@ import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import recordEvent from "@/services/recordEvent";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
-
-const formFields = [
-  { required: true, name: "name", title: "Name", type: "text", autoFocus: true },
-  { required: true, name: "email", title: "Email", type: "email" },
-];
+import axios from "axios";
 
 function CreateUserDialog({ dialog }) {
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [groups, setGroups] = useState([]);
+
   useEffect(() => {
     recordEvent("view", "page", "users/new");
+
+    axios
+      .get("/api/groups")
+      .then(response => {
+        const groupOptions = response.data.map(group => ({ name: group.name, value: group.id }));
+        setGroups(groupOptions);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
+
+  // Dynamically update the form fields with the fetched groups
+  const formFields = [
+    { required: true, name: "name", title: "Name", type: "text", autoFocus: true },
+    { required: true, name: "email", title: "Email", type: "email" },
+    {
+      required: true,
+      name: "group_id",
+      title: "Group",
+      type: "select",
+      options: groups, // Now it updates when groups change
+    },
+  ];
 
   const handleSubmit = useCallback(values => dialog.close(values).catch(setError), [dialog]);
   const formId = useUniqueId("userForm");
@@ -45,7 +66,11 @@ function CreateUserDialog({ dialog }) {
       wrapProps={{
         "data-test": "CreateUserDialog",
       }}>
-      <DynamicForm id={formId} fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
+      {!loading ? (
+        <DynamicForm id={formId} fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
+      ) : (
+        <p>Loading groups...</p>
+      )}
       {error && <Alert message={error.message} type="error" showIcon data-test="CreateUserErrorAlert" />}
     </Modal>
   );
