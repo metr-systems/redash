@@ -146,6 +146,40 @@ class TestGroupResourceList(BaseTestCase):
         )
 
 
+class TestGroupResourceCreate(BaseTestCase):
+    def test_create_group(self):
+        admin_user = self.factory.create_admin()
+        group_name = "Test Group"
+
+        response = self.make_request(
+            "post",
+            "/api/groups",
+            user=admin_user,
+            data={"name": group_name},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        created_group = Group.query.filter_by(name=group_name, org=admin_user.org).first()
+        self.assertIsNotNone(created_group)
+        self.assertEqual(created_group.name, group_name)
+        self.assertEqual(created_group.permissions, ["list_dashboards", "execute_query"])
+
+    def test_create_group_requires_admin(self):
+        user = self.factory.create_user()
+        group_name = "Test Group"
+
+        response = self.make_request(
+            "post",
+            "/api/groups",
+            user=user,
+            data={"name": group_name},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        created_group = Group.query.filter_by(name=group_name, org=user.org).first()
+        self.assertIsNone(created_group)
+
+
 class TestGroupResourcePost(BaseTestCase):
     def test_doesnt_change_builtin_groups(self):
         current_name = self.factory.default_group.name
