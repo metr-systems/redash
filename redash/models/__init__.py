@@ -1106,14 +1106,13 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             )
         )
 
-        if group_ids:
-            query = query.filter(
-                or_(
-                    DataSourceGroup.group_id.in_(group_ids),
-                    DashboardGroup.group_id.in_(group_ids),
-                    Dashboard.user_id == user_id,
-                )
+        query = query.filter(
+            or_(
+                DataSourceGroup.group_id.in_(group_ids),
+                DashboardGroup.group_id.in_(group_ids),
+                Dashboard.user_id == user_id,
             )
+        )
 
         query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft.is_(False)))
 
