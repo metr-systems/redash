@@ -18,7 +18,9 @@ export default function DetailsPageSidebar({
   canAddMembers,
   onAddMembersClick,
   canAddDataSources,
+  canAddDashboards,
   onAddDataSourcesClick,
+  onAddDashboardsClick,
   onGroupDeleted,
 }) {
   const { t } = useTranslation("Groups");
@@ -37,6 +39,12 @@ export default function DetailsPageSidebar({
         <Button className="w-100 m-t-5" type="primary" onClick={onAddDataSourcesClick}>
           <i className="fa fa-plus m-r-5" aria-hidden="true" />
           {t("Add Data Sources")}
+        </Button>
+      )}
+      {canAddDashboards && (
+        <Button className="w-100 m-t-5" type="primary" onClick={onAddDashboardsClick}>
+          <i className="fa fa-plus m-r-5" aria-hidden="true" />
+          {t("Add Dashboards")}
         </Button>
       )}
       {canRemove && (

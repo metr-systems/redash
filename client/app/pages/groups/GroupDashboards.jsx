@@ -146,8 +146,8 @@ class GroupDashboards extends React.Component {
               controller={controller}
               group={this.group}
               items={this.sidebarMenu}
-              canaddDashboards={currentUser.isAdmin}
-              onaddDashboardsClick={this.addDashboards}
+              canAddDashboards={currentUser.isAdmin}
+              onAddDashboardsClick={this.addDashboards}
               onGroupDeleted={() => navigateTo("groups")}
             />
           </Layout.Sidebar>
