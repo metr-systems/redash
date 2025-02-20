@@ -1061,7 +1061,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return "%s=%s" % (self.id, self.name)
 
     def to_dict(self, with_permissions_for=None):
-        d = {
+        return {
             "id": self.id,
             "name": self.name,
             "slug": self.slug,
@@ -1074,17 +1074,6 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             "tags": self.tags,
             "options": self.options,
         }
-        if with_permissions_for is not None:
-            d["view_only"] = (
-                db.session.query(DashboardGroup.view_only)
-                .filter(
-                    DashboardGroup.group == with_permissions_for,
-                    DashboardGroup.dashboard == self,
-                )
-                .one()[0]
-            )
-
-        return d
 
     @property
     def name_as_slug(self):
@@ -1192,22 +1181,16 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @property
     def groups(self):
         groups = DashboardGroup.query.filter(DashboardGroup.dashboard == self)
-        return dict([(group.group_id, group.view_only) for group in groups])
+        return dict([(group.group_id,) for group in groups])
 
     def add_group(self, group, view_only=False):
-        dsg = DashboardGroup(group=group, dashboard=self, view_only=view_only)
+        dsg = DashboardGroup(group=group, dashboard=self)
         db.session.add(dsg)
         return dsg
 
     def remove_group(self, group):
         DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).delete()
         db.session.commit()
-
-    def update_group_permission(self, group, view_only):
-        dsg = DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).one()
-        dsg.view_only = view_only
-        db.session.add(dsg)
-        return dsg
 
 
 @generic_repr("id", "dashboard_id", "group_id")
@@ -1223,8 +1206,6 @@ class DashboardGroup(db.Model):
 
     group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
     group = db.relationship(Group, back_populates="dashboards")
-
-    view_only = Column(db.Boolean, default=False)
 
     __tablename__ = "dashboard_groups"
     __table_args__ = ({"extend_existing": True},)

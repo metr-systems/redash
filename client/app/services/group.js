@@ -16,7 +16,6 @@ const Group = {
   dashboards: ({ id }) => axios.get(`api/groups/${id}/dashboards`),
   addDashboard: ({ id }, data) => axios.post(`api/groups/${id}/dashboards`, data),
   removeDashboard: ({ id, dashboardId }) => axios.delete(`api/groups/${id}/dashboards/${dashboardId}`),
-  updateDashboard: ({ id, dashboardId }, data) => axios.post(`api/groups/${id}/dashboards/${dashboardId}`, data),
 };
 
 export default Group;

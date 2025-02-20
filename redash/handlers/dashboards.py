@@ -18,6 +18,7 @@ from redash.permissions import (
     require_admin_or_owner,
     require_object_modify_permission,
     require_permission,
+    view_only,
 )
 from redash.security import csp_allows_embeding
 from redash.serializers import DashboardSerializer, public_dashboard
@@ -224,16 +225,7 @@ class DashboardResource(BaseResource):
 
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
 
-        # stops at the first match
-        not_view_only = models.db.session.query(
-            models.DashboardGroup.query.filter(
-                models.DashboardGroup.dashboard_id == dashboard.id,
-                models.DashboardGroup.group_id.in_(self.current_user.group_ids),
-                models.DashboardGroup.view_only is False,
-            ).exists()
-        ).scalar()
-
-        require_access_or_default(dashboard, self.current_user, not not_view_only)
+        require_access_or_default(dashboard, self.current_user, view_only)
 
         response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 

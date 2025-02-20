@@ -230,27 +230,6 @@ class GroupDashboardListResource(BaseResource):
 
 class GroupDashboardResource(BaseResource):
     @require_admin
-    def post(self, group_id, dashboard_id):
-        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
-        group = models.Group.get_by_id_and_org(group_id, self.current_org)
-        view_only = request.json["view_only"]
-
-        dashboard.update_group_permission(group, view_only)
-        models.db.session.commit()
-
-        self.record_event(
-            {
-                "action": "change_dashboard_permission",
-                "object_id": group_id,
-                "object_type": "group",
-                "member_id": dashboard.id,
-                "view_only": view_only,
-            }
-        )
-
-        return dashboard.to_dict()
-
-    @require_admin
     def delete(self, group_id, dashboard_id):
         dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
         group = models.Group.get_by_id_and_org(group_id, self.current_org)

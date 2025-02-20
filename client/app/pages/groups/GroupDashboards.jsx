@@ -69,32 +69,6 @@ class GroupDashboards extends React.Component {
       width: null,
     }),
     Columns.custom(
-      (text, dashboard) => {
-        const menu = (
-          <Menu
-            selectedKeys={[dashboard.view_only ? "viewonly" : "full"]}
-            onClick={item => this.setDashboardPermissions(dashboard, item.key)}>
-            <Menu.Item key="full">{i18next.t("Groups:Full Access")}</Menu.Item>
-            <Menu.Item key="viewonly">{i18next.t("Groups:View Only")}</Menu.Item>
-          </Menu>
-        );
-
-        return (
-          <Dropdown trigger={["click"]} overlay={menu}>
-            <Button className="w-100" aria-label={i18next.t("Groups:Permissions")}>
-              {dashboard.view_only ? i18next.t("Groups:View Only") : i18next.t("Groups:Full Access")}
-              <DownOutlinedIcon aria-hidden="true" />
-            </Button>
-          </Dropdown>
-        );
-      },
-      {
-        width: "1%",
-        className: "p-r-0",
-        isAvailable: () => currentUser.isAdmin,
-      }
-    ),
-    Columns.custom(
       (text, dashboard) => (
         <Button className="w-100" type="danger" onClick={() => this.removeGroupDashboard(dashboard)}>
           {i18next.t("Remove")}
@@ -126,19 +100,6 @@ class GroupDashboards extends React.Component {
       })
       .catch(() => {
         notification.error(i18next.t("Groups:Failed to remove dashboard from group."));
-      });
-  };
-
-  setDashboardPermissions = (dashboard, permission) => {
-    const viewOnly = permission !== "full";
-
-    Group.updateDashboard({ id: this.groupId, dashboardId: dashboard.id }, { view_only: viewOnly })
-      .then(() => {
-        dashboard.view_only = viewOnly;
-        this.forceUpdate();
-      })
-      .catch(() => {
-        notification.error(i18next.t("Groups:Failed change dashboard permissions."));
       });
   };
 
