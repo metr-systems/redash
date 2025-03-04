@@ -107,7 +107,7 @@ class GroupDashboards extends React.Component {
     const alreadyAddedDashboards = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: i18next.t("Groups:Add Dashboards"),
-      inputPlaceholder: i18next.t("Groups:Search Dashboards..."),
+      inputPlaceholder: `${i18next.t("Groups:Search Dashboards")}...`,
       selectedItemsTitle: i18next.t("Groups:New Dashboards"),
       searchItems: searchTerm => DashboardEndpoints.query({ q: searchTerm }).then(({ results }) => results),
       renderItem: (item, { isSelected }) => {
