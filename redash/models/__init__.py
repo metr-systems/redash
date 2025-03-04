@@ -1051,6 +1051,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
     tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
     options = Column(MutableDict.as_mutable(JSONB), default={})
+    dashboard_groups = db.relationship("DashboardGroup", back_populates="dashboard", cascade="all")
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
@@ -1152,6 +1153,24 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def lowercase_name(cls):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
+
+
+@generic_repr("id", "dashboard_id", "group_id")
+class DashboardGroup(db.Model):
+    """
+    Metr-specific
+    This model is used to define view-only permissions for dashboards.
+    """
+
+    id = primary_key("DashboardGroup")
+    dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"))
+    dashboard = db.relationship(Dashboard, back_populates="dashboard_groups")
+
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
+    group = db.relationship(Group, back_populates="dashboards")
+
+    __tablename__ = "dashboard_groups"
+    __table_args__ = ({"extend_existing": True},)
 
 
 @generic_repr("id", "name", "type", "query_id")

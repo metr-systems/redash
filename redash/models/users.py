@@ -263,6 +263,7 @@ class Group(db.Model, BelongsToOrgMixin):
 
     id = primary_key("Group")
     data_sources = db.relationship("DataSourceGroup", back_populates="group", cascade="all")
+    dashboards = db.relationship("DashboardGroup", back_populates="group", cascade="all")
     org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
     org = db.relationship("Organization", back_populates="groups")
     type = Column(db.String(255), default=REGULAR_GROUP)
