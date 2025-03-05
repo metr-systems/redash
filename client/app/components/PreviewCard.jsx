@@ -8,13 +8,15 @@ import Link from "@/components/Link";
 export function PreviewCard({ imageUrl, roundedImage, title, body, children, className, ...props }) {
   return (
     <div {...props} className={className + " w-100 d-flex align-items-center"}>
-      <img
-        src={imageUrl}
-        width="32"
-        height="32"
-        className={classNames({ "profile__image--settings": roundedImage }, "m-r-5")}
-        alt="Logo/Avatar"
-      />
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          width="32"
+          height="32"
+          className={classNames({ "profile__image--settings": roundedImage }, "m-r-5")}
+          alt="Logo/Avatar"
+        />
+      )}
       <div className="flex-fill">
         <div>{title}</div>
         {body && <div className="text-muted">{body}</div>}
