@@ -69,7 +69,7 @@ function CreateUserDialog({ dialog }) {
       {!loading ? (
         <DynamicForm id={formId} fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
       ) : (
-        <p>Loading groups...</p>
+        <p>{i18next.t("Users:Loading groups")}...</p>
       )}
       {error && <Alert message={error.message} type="error" showIcon data-test="CreateUserErrorAlert" />}
     </Modal>

@@ -140,7 +140,7 @@ class UserListResource(BaseResource):
         # Validate group ID
         group = models.Group.query.get(req["group_id"])
         if not group:
-            abort(400, message="Invalid group selected.")
+            abort(400, message=_("Invalid group selected."))
 
         user = models.User(
             org=self.current_org,
