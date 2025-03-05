@@ -104,12 +104,16 @@ class GroupDashboards extends React.Component {
   };
 
   addDashboards = () => {
+    const allDashboards = DashboardEndpoints.query();
     const alreadyAddedDashboards = map(this.props.controller.allItems, ds => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: i18next.t("Groups:Add Dashboards"),
       inputPlaceholder: `${i18next.t("Groups:Search Dashboards")}...`,
       selectedItemsTitle: i18next.t("Groups:New Dashboards"),
-      searchItems: searchTerm => DashboardEndpoints.query({ q: searchTerm }).then(({ results }) => results),
+      searchItems: searchTerm => {
+        searchTerm = toLower(searchTerm);
+        return allDashboards.then(({ results }) => filter(results, d => includes(toLower(d.name), searchTerm)));
+      },
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedDashboards, item.id);
         return {
