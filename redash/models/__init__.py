@@ -1051,12 +1051,28 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
     tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
     options = Column(MutableDict.as_mutable(JSONB), default={})
+    dashboard_groups = db.relationship("DashboardGroup", back_populates="dashboard", cascade="all")
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
 
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
+
+    def to_dict(self, with_permissions_for=None):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "slug": self.slug,
+            "user_id": self.user_id,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "version": self.version,
+            "is_archived": self.is_archived,
+            "is_draft": self.is_draft,
+            "tags": self.tags,
+            "options": self.options,
+        }
 
     @property
     def name_as_slug(self):
@@ -1152,6 +1168,40 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def lowercase_name(cls):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
+
+    @property
+    def groups(self):
+        groups = DashboardGroup.query.filter(DashboardGroup.dashboard == self)
+        # TODO is view_only necessary?
+        view_only = True
+        return dict([(group.group_id, view_only) for group in groups])
+
+    def add_group(self, group):
+        dsg = DashboardGroup(group=group, dashboard=self)
+        db.session.add(dsg)
+        return dsg
+
+    def remove_group(self, group):
+        DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).delete()
+        db.session.commit()
+
+
+@generic_repr("id", "dashboard_id", "group_id")
+class DashboardGroup(db.Model):
+    """
+    Metr-specific
+    This model is used to define view-only permissions for dashboards.
+    """
+
+    id = primary_key("DashboardGroup")
+    dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"))
+    dashboard = db.relationship(Dashboard, back_populates="dashboard_groups")
+
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
+    group = db.relationship(Group, back_populates="dashboards")
+
+    __tablename__ = "dashboard_groups"
+    __table_args__ = ({"extend_existing": True},)
 
 
 @generic_repr("id", "name", "type", "query_id")

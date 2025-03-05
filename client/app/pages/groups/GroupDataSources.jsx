@@ -4,7 +4,7 @@ import Button from "antd/lib/button";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import DownOutlinedIcon from "@ant-design/icons/DownOutlined";
 
@@ -52,6 +52,12 @@ class GroupDataSources extends React.Component {
       key: "datasources",
       href: `groups/${this.groupId}/data_sources`,
       title: i18next.t("Groups:Data Sources"),
+      isAvailable: () => currentUser.isAdmin,
+    },
+    {
+      key: "dashboards",
+      href: `groups/${this.groupId}/dashboards`,
+      title: i18next.t("Groups:Dashboards"),
       isAvailable: () => currentUser.isAdmin,
     },
   ];
