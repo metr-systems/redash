@@ -208,12 +208,11 @@ Enabling Pre-commit check before commit.
 - run the frontend using `REDASH_BACKEND="http://127.0.0.1:5001" yarn start` (you should have run `yarn build` before)
 - It should tells you where your frontend is running in my case, it was on http://localhost:8080, accessing this url for first time you should be redirected to the setup page like this
 
-# Managing migrations
+# Migrations:
+
+When you create the local db the first time you need to create the tables:
 
 - `create_all()` is used to create the tables for a new database, it is ran in this project via `./manage.py database create_tables`
-- To create a new migration after you changed the models , you can run `python ./manage.py db revision --autogenerate -m "name of the revision"`.
-- Use `python ./manage.py db upgrade` to migrate you database, so that it includes the new changes.
-- For any additional command to manage migrations, you can check the help with `python ./manage.py db --help`
 
 # Next step: [Testing](https://github.com/getredash/redash/wiki/Testing-your-changes)
 
@@ -233,4 +232,46 @@ and then run the tests with
 ```
 yarn cypress build
 yarn cypress all
+```
+
+# Other Essential commands to know
+
+## Managing migrations
+
+To manage migration, use flask-migrate commands
+
+- To create a new migration after you changed the models , you can run `flask db migrate -m "message"`.
+- Use `flask db upgrade` to migrate you database, so that it includes the new changes.
+- For any additional command to manage migrations, you can check the help with `flask db --help`
+
+## Managing translations
+
+For backend, everytime you change or add a new translation, you need first to extract it,
+update the translation files, and manually set the translations in these files,
+then you need to compile the translation to see them working
+
+- `pybabel extract -F redash/babel.cfg -o redash/locales/messages.pot .`
+- `pybabel update -i redash/locales/messages.pot -d redash/translations`
+- `pybabel compile -d redash/translations`
+
+For frontend, you simply just need to parse and manually update the translation files.
+Please do not leave english texts with empty values otherwise our config would select german for it.
+
+- `npx i18next-parser --config i18next-parser.config.js`
+
+## Accessing flask shell
+
+To access the Flask shell, follow these steps:
+
+- Enter the container `kubectl exec -n staging -ti pod/dashboards-xxxxxxxx -- /bin/bash`
+- Launch the Flask shell `FLASK_APP=/app/redash/app.py flask shell`
+- Execute your commands: You can now run any necessary commands within the Flask shell. For example, to delete a user, you can use the following Python code:
+
+```python
+from redash import models
+user = models.User.query.filter_by(email="name@gmail.com").first()
+
+from redash.models import db
+db.session.delete(user)
+db.session.commit()
 ```
