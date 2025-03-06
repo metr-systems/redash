@@ -11,33 +11,36 @@ import recordEvent from "@/services/recordEvent";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
 import Group from "@/services/group";
 
+const baseFormFields = [
+  { required: true, name: "name", title: "Name", type: "text", autoFocus: true },
+  { required: true, name: "email", title: "Email", type: "email" },
+];
+
 function CreateUserDialog({ dialog }) {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [groups, setGroups] = useState([]);
+  const [formFields, setFormFields] = useState(baseFormFields);
 
   useEffect(() => {
     recordEvent("view", "page", "users/new");
 
     Group.query().then(groups => {
       const groupOptions = groups.map(group => ({ name: group.name, value: group.id }));
-      setGroups(groupOptions);
+
+      setFormFields([
+        ...baseFormFields,
+        {
+          required: true,
+          name: "group_id",
+          title: "Group",
+          type: "select",
+          options: groupOptions,
+        },
+      ]);
+
       setLoading(false);
     });
   }, []);
-
-  // Dynamically update the form fields with the fetched groups
-  const formFields = [
-    { required: true, name: "name", title: "Name", type: "text", autoFocus: true },
-    { required: true, name: "email", title: "Email", type: "email" },
-    {
-      required: true,
-      name: "group_id",
-      title: "Group",
-      type: "select",
-      options: groups, // Now it updates when groups change
-    },
-  ];
 
   const handleSubmit = useCallback(values => dialog.close(values).catch(setError), [dialog]);
   const formId = useUniqueId("userForm");
