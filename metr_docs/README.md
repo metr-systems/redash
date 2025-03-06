@@ -208,17 +208,11 @@ Enabling Pre-commit check before commit.
 - run the frontend using `REDASH_BACKEND="http://127.0.0.1:5001" yarn start` (you should have run `yarn build` before)
 - It should tells you where your frontend is running in my case, it was on http://localhost:8080, accessing this url for first time you should be redirected to the setup page like this
 
-# Managing migrations
+# Migrations:
 
-When you create the db the first time you need to create the tables:
+When you create the local db the first time you need to create the tables:
 
 - `create_all()` is used to create the tables for a new database, it is ran in this project via `./manage.py database create_tables`
-
-To manage migration, use flask-migrate commands
-
-- To create a new migration after you changed the models , you can run `flask db migrate -m "message"`.
-- Use `flask db upgrade` to migrate you database, so that it includes the new changes.
-- For any additional command to manage migrations, you can check the help with `flask db --help`
 
 # Next step: [Testing](https://github.com/getredash/redash/wiki/Testing-your-changes)
 
@@ -239,3 +233,11 @@ and then run the tests with
 yarn cypress build
 yarn cypress all
 ```
+
+# Managing migrations
+
+To manage migration, use flask-migrate commands
+
+- To create a new migration after you changed the models , you can run `flask db migrate -m "message"`.
+- Use `flask db upgrade` to migrate you database, so that it includes the new changes.
+- For any additional command to manage migrations, you can check the help with `flask db --help`
