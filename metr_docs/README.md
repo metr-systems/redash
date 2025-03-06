@@ -234,7 +234,7 @@ yarn cypress build
 yarn cypress all
 ```
 
-# Essential commands to know
+# Other Essential commands to know
 
 ## Managing migrations
 
@@ -243,6 +243,21 @@ To manage migration, use flask-migrate commands
 - To create a new migration after you changed the models , you can run `flask db migrate -m "message"`.
 - Use `flask db upgrade` to migrate you database, so that it includes the new changes.
 - For any additional command to manage migrations, you can check the help with `flask db --help`
+
+## Managing translations
+
+For backend, everytime you change or add a new translation, you need first to extract it,
+update the translation files, and manually set the translations in these files,
+then you need to compile the translation to see them working
+
+- `pybabel extract -F redash/babel.cfg -o redash/locales/messages.pot .`
+- `pybabel update -i redash/locales/messages.pot -d redash/translations`
+- `pybabel compile -d redash/translations`
+
+For frontend, you simply just need to parse and manually update the translation files.
+Please do not leave english texts with empty values otherwise our config would select german for it.
+
+- `npx i18next-parser --config i18next-parser.config.js`
 
 ## Accessing flask shell
 
