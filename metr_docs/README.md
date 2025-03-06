@@ -234,10 +234,29 @@ yarn cypress build
 yarn cypress all
 ```
 
-# Managing migrations
+# Essential commands to know
+
+## Managing migrations
 
 To manage migration, use flask-migrate commands
 
 - To create a new migration after you changed the models , you can run `flask db migrate -m "message"`.
 - Use `flask db upgrade` to migrate you database, so that it includes the new changes.
 - For any additional command to manage migrations, you can check the help with `flask db --help`
+
+## Accessing flask shell
+
+To access the Flask shell, follow these steps:
+
+- Enter the container `kubectl exec -n staging -ti pod/dashboards-xxxxxxxx -- /bin/bash`
+- Launch the Flask shell `FLASK_APP=/app/redash/app.py flask shell`
+- Execute your commands: You can now run any necessary commands within the Flask shell. For example, to delete a user, you can use the following Python code:
+
+```python
+from redash import models
+user = models.User.query.filter_by(email="name@gmail.com").first()
+
+from redash.models import db
+db.session.delete(user)
+db.session.commit()
+```
