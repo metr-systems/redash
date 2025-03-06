@@ -210,10 +210,15 @@ Enabling Pre-commit check before commit.
 
 # Managing migrations
 
+When you create the db the first time you need to create the tables:
+
 - `create_all()` is used to create the tables for a new database, it is ran in this project via `./manage.py database create_tables`
-- To create a new migration after you changed the models , you can run `python ./manage.py db revision --autogenerate -m "name of the revision"`.
-- Use `python ./manage.py db upgrade` to migrate you database, so that it includes the new changes.
-- For any additional command to manage migrations, you can check the help with `python ./manage.py db --help`
+
+To manage migration, use flask-migrate commands
+
+- To create a new migration after you changed the models , you can run `flask db migrate -m "message"`.
+- Use `flask db upgrade` to migrate you database, so that it includes the new changes.
+- For any additional command to manage migrations, you can check the help with `flask db --help`
 
 # Next step: [Testing](https://github.com/getredash/redash/wiki/Testing-your-changes)
 
