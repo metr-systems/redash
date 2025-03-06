@@ -9,7 +9,7 @@ import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import recordEvent from "@/services/recordEvent";
 import { useUniqueId } from "@/lib/hooks/useUniqueId";
-import axios from "axios";
+import Group from "@/services/group";
 
 function CreateUserDialog({ dialog }) {
   const [error, setError] = useState(null);
@@ -19,14 +19,11 @@ function CreateUserDialog({ dialog }) {
   useEffect(() => {
     recordEvent("view", "page", "users/new");
 
-    axios
-      .get("/api/groups")
-      .then(response => {
-        const groupOptions = response.data.map(group => ({ name: group.name, value: group.id }));
-        setGroups(groupOptions);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
+    Group.query().then(groups => {
+      const groupOptions = groups.map(group => ({ name: group.name, value: group.id }));
+      setGroups(groupOptions);
+      setLoading(false);
+    });
   }, []);
 
   // Dynamically update the form fields with the fetched groups
