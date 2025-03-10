@@ -131,18 +131,23 @@ class UserListResource(BaseResource):
     @require_admin
     def post(self):
         req = request.get_json(force=True)
-        require_fields(req, ("name", "email"))
+        require_fields(req, ("name", "email", "group_id"))
 
         if "@" not in req["email"]:
             abort(400, message=_("Bad email address."))
         require_allowed_email(req["email"])
+
+        # Validate group ID
+        group = models.Group.query.get(req["group_id"])
+        if not group:
+            abort(400, message=_("Invalid group selected."))
 
         user = models.User(
             org=self.current_org,
             name=req["name"],
             email=req["email"],
             is_invitation_pending=True,
-            group_ids=[self.current_org.default_group.id],
+            group_ids=[group.id],
         )
 
         try:

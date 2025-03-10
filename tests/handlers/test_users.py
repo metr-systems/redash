@@ -26,10 +26,21 @@ class TestUserListResourcePost(BaseTestCase):
         )
         self.assertEqual(rv.status_code, 400)
 
+        rv = self.make_request(
+            "post",
+            "/api/users",
+            data={"name": "User", "email": "email@gmail.com", "password": "test"},
+            user=admin,
+        )  # missing group_id
+        self.assertEqual(rv.status_code, 400)
+
     def test_returns_400_when_using_temporary_email(self):
         admin = self.factory.create_admin()
 
-        test_user = {"name": "User", "email": "user@mailinator.com", "password": "test"}
+        group_id = 5
+        self.factory.create_group(id=group_id)
+
+        test_user = {"name": "User", "email": "user@mailinator.com", "password": "test", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user, user=admin)
         self.assertEqual(rv.status_code, 400)
 
@@ -40,7 +51,10 @@ class TestUserListResourcePost(BaseTestCase):
     def test_creates_user(self):
         admin = self.factory.create_admin()
 
-        test_user = {"name": "User", "email": "user@example.com", "password": "test"}
+        group_id = 5
+        self.factory.create_group(id=group_id)
+
+        test_user = {"name": "User", "email": "user@example.com", "password": "test", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user, user=admin)
 
         self.assertEqual(rv.status_code, 200)
@@ -51,7 +65,10 @@ class TestUserListResourcePost(BaseTestCase):
     def test_shows_invite_link_when_email_is_not_configured(self, _):
         admin = self.factory.create_admin()
 
-        test_user = {"name": "User", "email": "user@example.com"}
+        group_id = 5
+        self.factory.create_group(id=group_id)
+
+        test_user = {"name": "User", "email": "user@example.com", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user, user=admin)
 
         self.assertEqual(rv.status_code, 200)
@@ -61,7 +78,10 @@ class TestUserListResourcePost(BaseTestCase):
     def test_does_not_show_invite_link_when_email_is_configured(self, _):
         admin = self.factory.create_admin()
 
-        test_user = {"name": "User", "email": "user@example.com"}
+        group_id = 5
+        self.factory.create_group(id=group_id)
+
+        test_user = {"name": "User", "email": "user@example.com", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user, user=admin)
 
         self.assertEqual(rv.status_code, 200)
@@ -70,7 +90,10 @@ class TestUserListResourcePost(BaseTestCase):
     def test_creates_user_case_insensitive_email(self):
         admin = self.factory.create_admin()
 
-        test_user = {"name": "User", "email": "User@Example.com", "password": "test"}
+        group_id = 5
+        self.factory.create_group(id=group_id)
+
+        test_user = {"name": "User", "email": "User@Example.com", "password": "test", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user, user=admin)
 
         self.assertEqual(rv.status_code, 200)
@@ -80,7 +103,10 @@ class TestUserListResourcePost(BaseTestCase):
     def test_returns_400_when_email_taken(self):
         admin = self.factory.create_admin()
 
-        test_user = {"name": "User", "email": admin.email, "password": "test"}
+        group_id = 5
+        self.factory.create_group(id=group_id)
+
+        test_user = {"name": "User", "email": admin.email, "password": "test", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user, user=admin)
 
         self.assertEqual(rv.status_code, 400)
@@ -88,13 +114,16 @@ class TestUserListResourcePost(BaseTestCase):
     def test_returns_400_when_email_taken_case_insensitive(self):
         admin = self.factory.create_admin()
 
-        test_user1 = {"name": "User", "email": "user@example.com", "password": "test"}
+        group_id = 5
+        self.factory.create_group(id=group_id)
+
+        test_user1 = {"name": "User", "email": "user@example.com", "password": "test", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user1, user=admin)
 
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json["email"], "user@example.com")
 
-        test_user2 = {"name": "User", "email": "user@Example.com", "password": "test"}
+        test_user2 = {"name": "User", "email": "user@Example.com", "password": "test", "group_id": group_id}
         rv = self.make_request("post", "/api/users", data=test_user2, user=admin)
 
         self.assertEqual(rv.status_code, 400)
