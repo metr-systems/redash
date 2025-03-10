@@ -99,7 +99,12 @@ class DashboardListResource(BaseResource):
             is_draft=True,
             layout=[],
         )
+
+        default_group = self.current_org.default_group
+        dashboard_group = models.DashboardGroup(dashboard=dashboard, group=default_group)
+
         models.db.session.add(dashboard)
+        models.db.session.add(dashboard_group)
         models.db.session.commit()
         return DashboardSerializer(dashboard).serialize()
 

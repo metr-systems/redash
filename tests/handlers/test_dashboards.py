@@ -1,4 +1,4 @@
-from redash.models import AccessPermission, ApiKey, Dashboard, db
+from redash.models import AccessPermission, ApiKey, Dashboard, DashboardGroup, db
 from redash.permissions import ACCESS_TYPE_MODIFY
 from redash.serializers import serialize_dashboard
 from redash.utils import json_loads
@@ -13,6 +13,15 @@ class TestDashboardListResource(BaseTestCase):
         self.assertEqual(rv.json["name"], "Test Dashboard")
         self.assertEqual(rv.json["user_id"], self.factory.user.id)
         self.assertEqual(rv.json["layout"], [])
+
+    def test_default_group_has_access_to_new_dashboard(self):
+        dashboard_name = "Test Dashboard"
+        rv = self.make_request("post", "/api/dashboards", data={"name": dashboard_name})
+        self.assertEqual(rv.status_code, 200)
+        dashboard = Dashboard.get_by_id_and_org(rv.json["id"], self.factory.org)
+        dashboard_group = DashboardGroup.query.filter(DashboardGroup.dashboard == dashboard).first()
+        self.assertIsNotNone(dashboard_group)
+        self.assertEqual(dashboard_group.group, self.factory.org.default_group)
 
 
 class TestDashboardListGetResource(BaseTestCase):
