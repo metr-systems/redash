@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Redash 10.0.0\n"
 "Report-Msgid-Bugs-To: engineering@metr.systems\n"
-"POT-Creation-Date: 2025-01-24 11:28+0100\n"
+"POT-Creation-Date: 2025-03-10 10:39+0100\n"
 "PO-Revision-Date: 2025-03-05 13:47+0100\n"
 "Last-Translator: metr Building Management Systems team "
 "<engineering@metr.systems>\n"
@@ -116,7 +116,7 @@ msgstr "Seite ist außerhalb des Bereichs."
 msgid "Page size is out of range (1-250)."
 msgstr "Seitengröße ist außerhalb des Bereichs (1-250)."
 
-#: redash/handlers/dashboards.py:319
+#: redash/handlers/dashboards.py:324
 msgid "Public URLs are disabled."
 msgstr "Öffentliche URLs sind deaktiviert."
 
@@ -203,21 +203,21 @@ msgstr "Fehlender Parameterwert für: {},"
 msgid "No cached result found for this query."
 msgstr "Kein zwischengespeichertes Ergebnis für diese Abfrage gefunden."
 
-#: redash/handlers/setup.py:13
+#: redash/handlers/setup.py:14
 msgid "Name"
 msgstr "Name"
 
-#: redash/handlers/setup.py:14
+#: redash/handlers/setup.py:15
 #, fuzzy
 msgid "Email Address"
 msgstr "E-Mail-Adresse"
 
-#: redash/handlers/setup.py:15 redash/templates/invite.html:50
+#: redash/handlers/setup.py:16 redash/templates/invite.html:50
 #: redash/templates/login.html:47
 msgid "Password"
 msgstr "Passwort"
 
-#: redash/handlers/setup.py:16
+#: redash/handlers/setup.py:17
 msgid "Organization Name"
 msgstr "Organisationsname"
 
@@ -229,32 +229,33 @@ msgstr "Ungültige E-Mail-Adresse."
 msgid "Invalid group selected."
 msgstr "Ungültige Gruppe ausgewählt."
 
+#: redash/handlers/users.py:158 redash/handlers/users.py:265
 msgid "Email already taken."
 msgstr "E-Mail bereits vergeben."
 
-#: redash/handlers/users.py:184
+#: redash/handlers/users.py:189
 msgid "Not found"
 msgstr "Nicht gefunden"
 
-#: redash/handlers/users.py:216
+#: redash/handlers/users.py:221
 msgid "Must provide current password to update password."
 msgstr ""
 "Aktuelles Passwort muss angegeben werden, um das Passwort zu "
 "aktualisieren."
 
-#: redash/handlers/users.py:219
+#: redash/handlers/users.py:224
 msgid "Incorrect current password."
 msgstr "Falsches aktuelles Passwort."
 
-#: redash/handlers/users.py:227
+#: redash/handlers/users.py:232
 msgid "Must be admin to change groups membership."
 msgstr "Muss Administrator sein, um die Gruppenmitgliedschaft zu ändern."
 
-#: redash/handlers/users.py:262
+#: redash/handlers/users.py:267
 msgid "Error updating record"
 msgstr "Fehler beim Aktualisieren des Datensatzes"
 
-#: redash/handlers/users.py:285
+#: redash/handlers/users.py:290
 msgid ""
 "You cannot delete your own account. Please ask another admin to do this "
 "for you."
@@ -262,13 +263,13 @@ msgstr ""
 "Sie können Ihr eigenes Konto nicht löschen. Bitte bitten Sie einen "
 "anderen Administrator, dies für Sie zu tun."
 
-#: redash/handlers/users.py:291
+#: redash/handlers/users.py:296
 msgid "You cannot delete activated users. Please disable the user instead."
 msgstr ""
 "Sie können aktivierte Benutzer nicht löschen. Bitte deaktivieren Sie "
 "stattdessen den Benutzer."
 
-#: redash/handlers/users.py:309
+#: redash/handlers/users.py:314
 msgid ""
 "You cannot disable your own account. Please ask another admin to do this "
 "for you."
