@@ -3,6 +3,7 @@ import datetime
 from unittest import TestCase
 
 from dateutil.parser import parse as date_parse
+from mock import MagicMock, patch
 
 from redash import models
 from redash.models import db
@@ -709,3 +710,25 @@ class TestDashboardAllForAdmin(BaseTestCase):
         self.assertIn(dashboard, dashboards_same_org)
         self.assertNotIn(dashboard, dashboards_other_org)
 
+
+class TestDashboardSearch(BaseTestCase):
+    def setUp(self):
+        super(TestDashboardSearch, self).setUp()
+        self.mock_all_patcher = patch("redash.models.Dashboard.all")
+        self.mock_all = self.mock_all_patcher.start()
+        _set_up_dashboard_test(self)
+
+    def tearDown(self):
+        super(TestDashboardSearch, self).tearDown()
+        self.mock_all_patcher.stop()
+
+    def test_search(self):
+        self.factory.create_dashboard(user=self.u1, name="test")
+
+        MagicMock()
+        user_id = self.u1.id
+        search_term = "test"
+        is_admin = False
+
+        models.Dashboard.search(self.u1.org, self.u1.group_ids, user_id, search_term, is_admin)
+        self.mock_all.assert_called_once_with(self.u1.org, self.u1.group_ids, user_id, is_admin)

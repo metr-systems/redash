@@ -1105,11 +1105,9 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return query
 
     @classmethod
-    def search(cls, org, groups_ids, user_id, search_term):
-        # TODO update with is_admin
-
+    def search(cls, org, groups_ids, user_id, search_term, is_admin=False):
         # TODO: switch to FTS
-        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike("%{}%".format(search_term)))
+        return cls.all(org, groups_ids, user_id, is_admin).filter(cls.name.ilike("%{}%".format(search_term)))
 
     @classmethod
     def search_by_user(cls, term, user, limit=None):
