@@ -586,83 +586,126 @@ def _set_up_dashboard_test(d):
     d.w3 = d.factory.create_widget(visualization=d.v2, dashboard=d.w2.dashboard)
     d.w4 = d.factory.create_widget(visualization=d.v2)
     d.w5 = d.factory.create_widget(visualization=d.v1, dashboard=d.w4.dashboard)
+    db.session.add_all(
+        [
+            models.DashboardGroup(group=d.g1, dashboard=d.w1.dashboard),
+        ]
+    )
     d.w1.dashboard.is_draft = False
     d.w2.dashboard.is_draft = False
     d.w4.dashboard.is_draft = False
 
 
-class TestDashboardAll(BaseTestCase):
+def _get_dashboards(org, group_ids, user_id, is_admin=False):
+    return list(models.Dashboard.all(org, group_ids, user_id, is_admin))
+
+
+class TestDashboardAllForCreator(BaseTestCase):
     def setUp(self):
-        super(TestDashboardAll, self).setUp()
+        super(TestDashboardAllForCreator, self).setUp()
         _set_up_dashboard_test(self)
 
-    def test_requires_group_or_user_id(self):
+    def test_creator_can_see_dashboard(self):
         d1 = self.factory.create_dashboard()
-        self.assertNotIn(d1, list(models.Dashboard.all(d1.user.org, d1.user.group_ids, None)))
-        l2 = list(models.Dashboard.all(d1.user.org, [0], d1.user.id))
-        self.assertIn(d1, l2)
+        self.assertIn(d1, _get_dashboards(d1.user.org, [], d1.user.id))
 
-    def test_returns_dashboards_based_on_groups(self):
-        self.assertIn(
-            self.w1.dashboard,
-            list(models.Dashboard.all(self.u1.org, self.u1.group_ids, None)),
-        )
-        self.assertIn(
-            self.w2.dashboard,
-            list(models.Dashboard.all(self.u2.org, self.u2.group_ids, None)),
-        )
-        self.assertNotIn(
-            self.w1.dashboard,
-            list(models.Dashboard.all(self.u2.org, self.u2.group_ids, None)),
-        )
-        self.assertNotIn(
-            self.w2.dashboard,
-            list(models.Dashboard.all(self.u1.org, self.u1.group_ids, None)),
-        )
-
-    def test_returns_each_dashboard_once(self):
-        dashboards = list(models.Dashboard.all(self.u2.org, self.u2.group_ids, None))
-        self.assertEqual(len(dashboards), 2)
-
-    def test_returns_dashboard_you_have_partial_access_to(self):
-        self.assertIn(
-            self.w5.dashboard,
-            models.Dashboard.all(self.u1.org, self.u1.group_ids, None),
-        )
+    def test_creator_can_see_draft_dashboard(self):
+        d1 = self.factory.create_dashboard(is_draft=True)
+        self.assertIn(d1, _get_dashboards(d1.user.org, [], d1.user.id))
 
     def test_returns_dashboards_created_by_user(self):
         d1 = self.factory.create_dashboard(user=self.u1)
         db.session.flush()
-        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)))
-        self.assertIn(d1, list(models.Dashboard.all(self.u1.org, [0], self.u1.id)))
-        self.assertNotIn(d1, list(models.Dashboard.all(self.u2.org, self.u2.group_ids, self.u2.id)))
+        self.assertIn(d1, _get_dashboards(self.u1.org, self.u1.group_ids, self.u1.id))
+        self.assertIn(d1, _get_dashboards(self.u1.org, [0], self.u1.id))
+        self.assertNotIn(d1, _get_dashboards(self.u2.org, self.u2.group_ids, self.u2.id))
 
     def test_returns_dashboards_with_text_widgets_to_creator(self):
         w1 = self.factory.create_widget(visualization=None)
 
         self.assertEqual(w1.dashboard.user, self.factory.user)
-        self.assertIn(
-            w1.dashboard,
-            list(
-                models.Dashboard.all(
-                    self.factory.user.org,
-                    self.factory.user.group_ids,
-                    self.factory.user.id,
-                )
-            ),
+
+        dashboards = _get_dashboards(self.factory.user.org, self.factory.user.group_ids, self.factory.user.id)
+        self.assertIn(w1.dashboard, dashboards)
+
+        dashboards = _get_dashboards(self.u1.org, self.u1.group_ids, self.u1.id)
+        self.assertNotIn(w1.dashboard, dashboards)
+
+    def test_returns_each_dashboard_once(self):
+        user = self.factory.create_user(group_ids=[self.g1.id, self.g2.id])
+        dashboard = self.factory.create_dashboard(user=self.u2)
+
+        # dashboard has access from the two groups
+        db.session.add_all(
+            [
+                models.DashboardGroup(group=self.g1, dashboard=dashboard),
+                models.DashboardGroup(group=self.g2, dashboard=dashboard),
+            ]
         )
-        self.assertNotIn(
-            w1.dashboard,
-            list(models.Dashboard.all(self.u1.org, self.u1.group_ids, self.u1.id)),
+        db.session.flush()
+
+        dashboards = _get_dashboards(self.u2.org, [self.g1.id, self.g2.id], user.id)
+        self.assertEqual(len(dashboards), 1)
+
+
+class TestDashboardAllForNonAdmin(BaseTestCase):
+    def setUp(self):
+        super(TestDashboardAllForNonAdmin, self).setUp()
+        _set_up_dashboard_test(self)
+
+    def test_dashboard_visibility_based_on_dashboards_group_access(self):
+        # g1, group of u1, has access to data source ds1 and to dashboard d1
+        self.assertIn(self.w1.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
+        self.assertNotIn(self.w2.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
+        self.assertNotIn(self.w1.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
+        self.assertNotIn(self.w2.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
+
+    def test_dashboards_visibility_based_on_data_sources_group_access(self):
+        db.session.add(models.DashboardGroup(group=self.g2, dashboard=self.w2.dashboard))
+        db.session.flush()
+        # g1, group of u1, has access to data source ds1 and to dashboard d1
+        self.assertIn(self.w1.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
+        self.assertNotIn(self.w1.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
+
+        # g2, group of u2, has access to data source ds2 and to dashboard d2
+        self.assertIn(self.w2.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
+        self.assertNotIn(self.w2.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
+
+    def test_return_dashboard_you_have_partial_data_source_access_to(self):
+        user = self.factory.create_user(group_ids=[self.g1.id])
+        db.session.add(models.DashboardGroup(group=self.g1, dashboard=self.w5.dashboard))
+
+        # widget W5 has a query from ds1 , the dashboard has also widgets from queries from ds2
+        self.assertIn(
+            self.w5.dashboard,
+            models.Dashboard.all(self.u1.org, user.group_ids, None),
         )
 
     def test_returns_dashboards_from_current_org_only(self):
-        w1 = self.factory.create_widget()
+        dashboard = self.factory.create_widget().dashboard
+        user_other_org = self.factory.create_user(org=self.factory.create_org())
+        user_same_org = self.factory.create_user()
 
-        user = self.factory.create_user(org=self.factory.create_org())
+        db.session.add(models.DashboardGroup(group=self.factory.default_group, dashboard=dashboard))
+        db.session.flush()
 
-        self.assertIn(
-            w1.dashboard,
-            list(models.Dashboard.all(self.factory.user.org, self.factory.user.group_ids, None)),
+        dashboards_same_org = _get_dashboards(self.factory.user.org, self.factory.user.group_ids, user_same_org.id)
+        self.assertIn(dashboard, dashboards_same_org)
+
+        dashboards_other_org = _get_dashboards(user_other_org.org, user_other_org.group_ids, user_other_org.id)
+        self.assertNotIn(dashboard, dashboards_other_org)
+
+
+class TestDashboardAllForAdmin(BaseTestCase):
+    def test_returns_dashboards_from_current_org_only(self):
+        dashboard = self.factory.create_widget().dashboard
+        user_other_org = self.factory.create_user(org=self.factory.create_org())
+        user_same_org = self.factory.create_user()
+
+        dashboards_same_org = _get_dashboards(
+            self.factory.user.org, self.factory.user.group_ids, user_same_org.id, True
         )
-        self.assertNotIn(w1.dashboard, list(models.Dashboard.all(user.org, user.group_ids, user.id)))
+        dashboards_other_org = _get_dashboards(user_other_org.org, user_other_org.group_ids, user_other_org.id, True)
+        self.assertIn(dashboard, dashboards_same_org)
+        self.assertNotIn(dashboard, dashboards_other_org)
+

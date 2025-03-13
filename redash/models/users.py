@@ -239,6 +239,9 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def get_actual_user(self):
         return repr(self) if self.is_api_user() else self.email
 
+    def is_admin(self):
+        return any(permission in self.permissions for permission in ["admin", "super_admin"])
+
 
 @generic_repr("id", "name", "type", "org_id")
 class Group(db.Model, BelongsToOrgMixin):
