@@ -11,7 +11,6 @@ from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
-from werkzeug.utils import cached_property
 
 from redash import redis_connection
 from redash.utils import dt_from_timestamp, generate_token
@@ -73,6 +72,9 @@ class PermissionsCheckMixin:
         )
 
         return has_permissions
+
+    def has_any_permission(self, permissions):
+        return bool(set(permissions).intersection(self.permissions))
 
 
 @generic_repr("id", "name", "email")
@@ -174,10 +176,6 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
     def permissions(self):
         # TODO: this should be cached.
         return list(itertools.chain(*[g.permissions for g in Group.query.filter(Group.id.in_(self.group_ids))]))
-
-    @cached_property
-    def is_admin(self):
-        return any(permission in self.permissions for permission in ["admin", "super_admin"])
 
     @classmethod
     def get_by_org(cls, org):

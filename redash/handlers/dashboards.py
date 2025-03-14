@@ -49,17 +49,14 @@ class DashboardListResource(BaseResource):
         search_term = request.args.get("q")
 
         group_ids = self.current_user.group_ids
-        if self.current_user.is_admin:
+        is_admin = self.current_user.has_any_permission(["admin", "super_admin"])
+        if is_admin:
             group_ids = [group.id for group in models.Group.all(self.current_org)]
 
         if search_term:
-            results = models.Dashboard.search(
-                self.current_org, group_ids, self.current_user.id, search_term, self.current_user.is_admin
-            )
+            results = models.Dashboard.search(self.current_org, group_ids, self.current_user.id, search_term, is_admin)
         else:
-            results = models.Dashboard.all(
-                self.current_org, group_ids, self.current_user.id, self.current_user.is_admin
-            )
+            results = models.Dashboard.all(self.current_org, group_ids, self.current_user.id, is_admin)
 
         results = filter_by_tags(results, models.Dashboard.tags)
 

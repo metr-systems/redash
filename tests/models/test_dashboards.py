@@ -138,11 +138,7 @@ def _set_up_dashboard_test(d):
     d.w3 = d.factory.create_widget(visualization=d.v2, dashboard=d.w2.dashboard)
     d.w4 = d.factory.create_widget(visualization=d.v2)
     d.w5 = d.factory.create_widget(visualization=d.v1, dashboard=d.w4.dashboard)
-    db.session.add_all(
-        [
-            models.DashboardGroup(group=d.g1, dashboard=d.w1.dashboard),
-        ]
-    )
+    db.session.add(models.DashboardGroup(group=d.g1, dashboard=d.w1.dashboard))
     d.w1.dashboard.is_draft = False
     d.w2.dashboard.is_draft = False
     d.w4.dashboard.is_draft = False

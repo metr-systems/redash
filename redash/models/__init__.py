@@ -1115,7 +1115,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all_tags(cls, org, user):
-        dashboards = cls.all(org, user.group_ids, user.id, user.is_admin)
+        is_admin = user.has_any_permission(["admin", "super_admin"])
+        dashboards = cls.all(org, user.group_ids, user.id, is_admin)
 
         tag_column = func.unnest(cls.tags).label("tag")
         usage_count = func.count(1).label("usage_count")
@@ -1131,7 +1132,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def favorites(cls, user, base_query=None):
         if base_query is None:
-            base_query = cls.all(user.org, user.group_ids, user.id, user.is_admin)
+            is_admin = user.has_any_permission(["admin", "super_admin"])
+            base_query = cls.all(user.org, user.group_ids, user.id, is_admin)
         return base_query.join(
             (
                 Favorite,
@@ -1144,7 +1146,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def by_user(cls, user):
-        return cls.all(user.org, user.group_ids, user.id, user.is_admin).filter(Dashboard.user == user)
+        is_admin = user.has_any_permission(["admin", "super_admin"])
+        return cls.all(user.org, user.group_ids, user.id, is_admin).filter(Dashboard.user == user)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
