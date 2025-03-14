@@ -32,8 +32,8 @@ class TestDashboardListGetResource(BaseTestCase):
 
         rv = self.make_request("get", "/api/dashboards")
 
-        assert len(rv.json["results"]) == 3
-        assert set([result["id"] for result in rv.json["results"]]) == set([d1.id, d2.id, d3.id])
+        self.assertEqual(len(rv.json["results"]), 3)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id, d3.id]))
 
     def test_filters_with_tags(self):
         d1 = self.factory.create_dashboard(tags=["test"])
@@ -50,8 +50,51 @@ class TestDashboardListGetResource(BaseTestCase):
         self.factory.create_dashboard(name="Ops")
 
         rv = self.make_request("get", "/api/dashboards?q=sales")
-        assert len(rv.json["results"]) == 2
-        assert set([result["id"] for result in rv.json["results"]]) == set([d1.id, d2.id])
+        self.assertEqual(len(rv.json["results"]), 2)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id]))
+
+    def test_non_admin_group_dashboard_visibility(self):
+        non_admin_user = self.factory.create_user()
+        group = self.factory.create_group(id=5555)
+        non_admin_user.group_ids = [group.id]
+
+        d1 = self.factory.create_dashboard(is_draft=False)
+        d2 = self.factory.create_dashboard(is_draft=False)
+        self.factory.create_dashboard(is_draft=False)
+
+        # Group access setup
+
+        # Group needs access to d1 and d2
+        self.factory.create_dashboard_group_permission(d1, group)
+        self.factory.create_dashboard_group_permission(d2, group)
+
+        # Group needs access to data source and query to see the dashboard
+        data_source = self.factory.create_data_source(group=group)
+        query = self.factory.create_query(data_source=data_source)
+        v1 = self.factory.create_visualization(query_rel=query)
+        v2 = self.factory.create_visualization(query_rel=query)
+        self.factory.create_widget(visualization=v1, dashboard=d1)
+        self.factory.create_widget(visualization=v2, dashboard=d2)
+
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards", user=non_admin_user)
+
+        self.assertEqual(len(rv.json["results"]), 2)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id]))
+
+    def test_admin_sees_all_dashboards(self):
+        admin = self.factory.create_admin()
+        d1 = self.factory.create_dashboard()
+        d2 = self.factory.create_dashboard()
+        d3 = self.factory.create_dashboard()
+
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards", user=admin)
+
+        self.assertEqual(len(rv.json["results"]), 3)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id, d3.id]))
 
 
 class TestDashboardResourceGet(BaseTestCase):
