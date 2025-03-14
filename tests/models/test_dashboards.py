@@ -5,8 +5,8 @@ from redash.models import Dashboard, db
 from tests import BaseTestCase
 
 
-class DashboardTest(BaseTestCase):
-    def create_tagged_dashboard(self, tags):
+class TestDashboardTags(BaseTestCase):
+    def _create_tagged_dashboard(self, tags):
         dashboard = self.factory.create_dashboard(tags=tags)
         ds = self.factory.create_data_source(group=self.factory.default_group)
         query = self.factory.create_query(data_source=ds)
@@ -23,14 +23,24 @@ class DashboardTest(BaseTestCase):
         return dashboard
 
     def test_all_tags(self):
-        self.create_tagged_dashboard(tags=["tag1"])
-        self.create_tagged_dashboard(tags=["tag1", "tag2"])
-        self.create_tagged_dashboard(tags=["tag1", "tag2", "tag3"])
+        self._create_tagged_dashboard(tags=["tag1"])
+        self._create_tagged_dashboard(tags=["tag1", "tag2"])
+        self._create_tagged_dashboard(tags=["tag1", "tag2", "tag3"])
 
         self.assertEqual(
             list(Dashboard.all_tags(self.factory.org, self.factory.user)),
             [("tag1", 3), ("tag2", 2), ("tag3", 1)],
         )
+
+    def test_dashboard_all_called_with_IS_ADMIN(self):
+        with patch("redash.models.Dashboard.all") as mock_all:
+            self._create_tagged_dashboard(tags=["tag1"])
+            self._create_tagged_dashboard(tags=["tag1", "tag2"])
+            self._create_tagged_dashboard(tags=["tag1", "tag2", "tag3"])
+
+            Dashboard.all_tags(self.factory.org, self.factory.user)
+            is_admin = False
+            mock_all.assert_called_with(self.factory.org, self.factory.user.group_ids, self.factory.user.id, is_admin)
 
 
 class TestDashboardsByUser(BaseTestCase):
@@ -85,6 +95,24 @@ class TestDashboardsByUser(BaseTestCase):
         results = Dashboard.all(self.factory.org, usr.group_ids, usr.id)
 
         self.assertEqual(2, results.count(), "The incorrect number of dashboards were returned")
+
+    def test_dashboard_all_called_with_IS_ADMIN(self):
+        with patch("redash.models.Dashboard.all") as mock_all:
+            Dashboard.by_user(self.factory.user)
+            is_admin = False
+            mock_all.assert_called_with(
+                self.factory.user.org, self.factory.user.group_ids, self.factory.user.id, is_admin
+            )
+
+
+class TestDashboardsFavorites(BaseTestCase):
+    def test_dashboard_all_called_with_IS_ADMIN(self):
+        with patch("redash.models.Dashboard.all") as mock_all:
+            Dashboard.favorites(self.factory.user)
+            is_admin = False
+            mock_all.assert_called_with(
+                self.factory.user.org, self.factory.user.group_ids, self.factory.user.id, is_admin
+            )
 
 
 def _set_up_dashboard_test(d):
