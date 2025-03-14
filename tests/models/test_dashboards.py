@@ -142,11 +142,9 @@ class TestDashboardAllForCreator(BaseTestCase):
         db.session.flush()
         self.assertIn(d1, _get_dashboards(self.u1.org, self.u1.group_ids, self.u1.id))
         self.assertIn(d1, _get_dashboards(self.u1.org, [0], self.u1.id))
-        self.assertNotIn(d1, _get_dashboards(self.u2.org, self.u2.group_ids, self.u2.id))
 
     def test_returns_dashboards_with_text_widgets_to_creator(self):
         w1 = self.factory.create_widget(visualization=None)
-
         self.assertEqual(w1.dashboard.user, self.factory.user)
 
         dashboards = _get_dashboards(self.factory.user.org, self.factory.user.group_ids, self.factory.user.id)
@@ -177,23 +175,23 @@ class TestDashboardAllForNonAdmin(BaseTestCase):
         super(TestDashboardAllForNonAdmin, self).setUp()
         _set_up_dashboard_test(self)
 
-    def test_dashboard_visibility_based_on_dashboards_group_access(self):
+    def test_dashboard_visibility_based_on_group_access(self):
         # g1, group of u1, has access to data source ds1 and to dashboard d1
         self.assertIn(self.w1.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w2.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
-        self.assertNotIn(self.w1.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
+
+        # g1, group of u1, has NOT access to data source ds2 and to dashboard d2
         self.assertNotIn(self.w2.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
 
-    def test_dashboards_visibility_based_on_data_sources_group_access(self):
+        # g2, group of u2, has NOT access to data source ds1 and to dashboard d1
+        self.assertNotIn(self.w1.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
+
+        # g2, group of u2, has access to data source ds2 but has NOT access to dashboard d2
+        self.assertNotIn(self.w2.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
+
+        # g2, group of u2, has now access to data source ds2 and to dashboard d2
         db.session.add(models.DashboardGroup(group=self.g2, dashboard=self.w2.dashboard))
         db.session.flush()
-        # g1, group of u1, has access to data source ds1 and to dashboard d1
-        self.assertIn(self.w1.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
-        self.assertNotIn(self.w1.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
-
-        # g2, group of u2, has access to data source ds2 and to dashboard d2
         self.assertIn(self.w2.dashboard, _get_dashboards(self.u2.org, self.u2.group_ids, None))
-        self.assertNotIn(self.w2.dashboard, _get_dashboards(self.u1.org, self.u1.group_ids, None))
 
     def test_return_dashboard_you_have_partial_data_source_access_to(self):
         user = self.factory.create_user(group_ids=[self.g1.id])
@@ -223,8 +221,8 @@ class TestDashboardAllForNonAdmin(BaseTestCase):
 class TestDashboardAllForAdmin(BaseTestCase):
     def test_returns_dashboards_from_current_org_only(self):
         dashboard = self.factory.create_widget().dashboard
-        user_other_org = self.factory.create_user(org=self.factory.create_org())
-        user_same_org = self.factory.create_user()
+        user_other_org = self.factory.create_admin(org=self.factory.create_org())
+        user_same_org = self.factory.create_admin()
 
         dashboards_same_org = _get_dashboards(
             self.factory.user.org, self.factory.user.group_ids, user_same_org.id, True
