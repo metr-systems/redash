@@ -15,6 +15,7 @@ from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
     require_admin_or_owner,
+    require_dashboard_group_access,
     require_object_modify_permission,
     require_permission,
 )
@@ -217,8 +218,10 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_slug_and_org
         else:
             fn = models.Dashboard.get_by_id_and_org
-
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+
+        require_dashboard_group_access(dashboard, self.current_user)
+
         response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)

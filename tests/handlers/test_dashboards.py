@@ -97,10 +97,11 @@ class TestDashboardListGetResource(BaseTestCase):
         self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id, d3.id]))
 
 
-class TestDashboardResourceGet(BaseTestCase):
-    def test_get_dashboard(self):
+class TestDashboardResourceGetByAdmin(BaseTestCase):
+    def test_get_dashboard_by_admin(self):
         d1 = self.factory.create_dashboard()
-        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id))
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id), user=admin)
         self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
@@ -108,9 +109,10 @@ class TestDashboardResourceGet(BaseTestCase):
 
         self.assertResponseEqual(expected, actual)
 
-    def test_get_dashboard_with_slug(self):
+    def test_get_dashboard_with_slug_by_admin(self):
         d1 = self.factory.create_dashboard()
-        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug))
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug), user=admin)
         self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
@@ -118,23 +120,91 @@ class TestDashboardResourceGet(BaseTestCase):
 
         self.assertResponseEqual(expected, actual)
 
-    def test_get_dashboard_filters_unauthorized_widgets(self):
+    def test_get_non_existing_dashboard_by_admin(self):
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/dashboards/-1", user=admin)
+        self.assertEqual(rv.status_code, 404)
+
+
+class TestDashboardResourceGetByCustom(BaseTestCase):
+    def test_get_dashboard_by_custom_requires_group_access(self):
         dashboard = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user)
+        self.assertEqual(rv.status_code, 403)
+
+        user_with_access = self.factory.create_user()
+        user_with_access.group_ids = [group.id]
+
+        # create the permission
+        self.factory.create_dashboard_group_permission(dashboard, group)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user_with_access)
+        self.assertEqual(rv.status_code, 200)
+
+    def test_get_dashboard_by_custom(self):
+        d1 = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(d1, group)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
+        actual = json_loads(rv.data)
+
+        self.assertResponseEqual(expected, actual)
+
+    def test_get_dashboard_with_slug_by_custom(self):
+        d1 = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(d1, group)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
+        actual = json_loads(rv.data)
+
+        self.assertResponseEqual(expected, actual)
+
+    def test_get_dashboard_by_custom_filters_unauthorized_widgets(self):
+        dashboard = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(dashboard, group)
 
         restricted_ds = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=restricted_ds)
         vis = self.factory.create_visualization(query_rel=query)
         restricted_widget = self.factory.create_widget(visualization=vis, dashboard=dashboard)
-        widget = self.factory.create_widget(dashboard=dashboard)
-        dashboard.layout = [[widget.id, restricted_widget.id]]
+
+        accessible_ds = self.factory.create_data_source(group=group)
+        accessible_query = self.factory.create_query(data_source=accessible_ds)
+        accessible_vis = self.factory.create_visualization(query_rel=accessible_query)
+        accessible_widget = self.factory.create_widget(visualization=accessible_vis, dashboard=dashboard)
+        dashboard.layout = [[accessible_widget.id, restricted_widget.id]]
+
         db.session.commit()
 
-        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id))
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user)
         self.assertEqual(rv.status_code, 200)
+        self.assertTrue(len(rv.json["widgets"]) == 2)
         self.assertTrue(rv.json["widgets"][0]["restricted"])
         self.assertNotIn("restricted", rv.json["widgets"][1])
 
-    def test_get_non_existing_dashboard(self):
+    def test_get_non_existing_dashboard_by_custom(self):
         rv = self.make_request("get", "/api/dashboards/-1")
         self.assertEqual(rv.status_code, 404)
 

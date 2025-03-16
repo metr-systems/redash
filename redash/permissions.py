@@ -55,6 +55,23 @@ def require_access(obj, user, need_view_only):
         abort(403)
 
 
+def has_dashboard_group_access(dashboard, user):
+    matching_groups = set(dashboard.groups.keys()).intersection(user.group_ids)
+
+    if not matching_groups:
+        return False
+
+    return True
+
+
+def require_dashboard_group_access(dashboard, user):
+    if any(role in user.permissions for role in ["admin", "super_admin"]):
+        return True
+
+    if not has_dashboard_group_access(dashboard, user):
+        abort(403)
+
+
 class require_permissions:
     def __init__(self, permissions, allow_one=False):
         self.permissions = permissions
