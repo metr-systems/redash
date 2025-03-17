@@ -65,7 +65,7 @@ def has_dashboard_group_access(dashboard, user):
 
 
 def require_dashboard_group_access(dashboard, user):
-    if any(role in user.permissions for role in ["admin", "super_admin"]):
+    if user.has_any_permission(["admin", "super_admin"]):
         return True
 
     if not has_dashboard_group_access(dashboard, user):
