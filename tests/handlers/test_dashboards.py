@@ -83,19 +83,6 @@ class TestDashboardListGetResource(BaseTestCase):
         self.assertEqual(len(rv.json["results"]), 2)
         self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id]))
 
-    def test_admin_sees_all_dashboards(self):
-        admin = self.factory.create_admin()
-        d1 = self.factory.create_dashboard()
-        d2 = self.factory.create_dashboard()
-        d3 = self.factory.create_dashboard()
-
-        db.session.commit()
-
-        rv = self.make_request("get", "/api/dashboards", user=admin)
-
-        self.assertEqual(len(rv.json["results"]), 3)
-        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id, d3.id]))
-
 
 class TestDashboardResourceGetByAdmin(BaseTestCase):
     def test_get_dashboard_by_admin(self):
@@ -108,6 +95,19 @@ class TestDashboardResourceGetByAdmin(BaseTestCase):
         actual = json_loads(rv.data)
 
         self.assertResponseEqual(expected, actual)
+
+    def test_admin_sees_all_dashboards(self):
+        admin = self.factory.create_admin()
+        d1 = self.factory.create_dashboard()
+        d2 = self.factory.create_dashboard()
+        d3 = self.factory.create_dashboard()
+
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards", user=admin)
+
+        self.assertEqual(len(rv.json["results"]), 3)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id, d3.id]))
 
     def test_get_dashboard_with_slug_by_admin(self):
         d1 = self.factory.create_dashboard()
