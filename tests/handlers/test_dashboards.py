@@ -54,6 +54,22 @@ class TestDashboardListGetResource(BaseTestCase):
         self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id]))
 
     def test_non_admin_group_dashboard_visibility(self):
+        """
+        Scenario: Non-admin user should only see dashboards they have access to
+
+        Given a non-admin user
+        And a group
+        And the non-admin user belongs to the group
+        And three dashboards exist
+        And the group has access to the first and second dashboards
+        And the group has access to a data source and query required to see the dashboards
+        And the first and second dashboards have widgets linked to visualizations from the query
+
+        When the non-admin user requests the list of dashboards
+
+        Then the response should contain exactly two dashboards
+        And the ids of the dashboards should match the ids of the first and second dashboards
+        """
         non_admin_user = self.factory.create_user()
         group = self.factory.create_group(id=5555)
         non_admin_user.group_ids = [group.id]
@@ -62,13 +78,9 @@ class TestDashboardListGetResource(BaseTestCase):
         d2 = self.factory.create_dashboard(is_draft=False)
         self.factory.create_dashboard(is_draft=False)
 
-        # Group access setup
-
-        # Group needs access to d1 and d2
         self.factory.create_dashboard_group_permission(d1, group)
         self.factory.create_dashboard_group_permission(d2, group)
 
-        # Group needs access to data source and query to see the dashboard
         data_source = self.factory.create_data_source(group=group)
         query = self.factory.create_query(data_source=data_source)
         v1 = self.factory.create_visualization(query_rel=query)
@@ -128,6 +140,21 @@ class TestDashboardResourceGetByAdmin(BaseTestCase):
 
 class TestDashboardResourceGetByCustom(BaseTestCase):
     def test_get_dashboard_by_custom_requires_group_access(self):
+        """
+        Scenario: Get dashboard by custom requires group access
+
+        Given a dashboard exists
+        And a group exists
+        And a user exists who belongs to the group
+        When the user makes a GET request to the dashboard API endpoint
+        without permission to access the dashboard
+        Then the response status code should be 403 (Forbidden)
+
+        Given another user exists who belongs to the group
+        And the group has permission to access the dashboard
+        When the user with access makes a GET request to the dashboard API endpoint
+        Then the response status code should be 200 (OK)
+        """
         dashboard = self.factory.create_dashboard()
         group = self.factory.create_group()
         user = self.factory.create_user()
@@ -139,7 +166,6 @@ class TestDashboardResourceGetByCustom(BaseTestCase):
         user_with_access = self.factory.create_user()
         user_with_access.group_ids = [group.id]
 
-        # create the permission
         self.factory.create_dashboard_group_permission(dashboard, group)
         db.session.commit()
 
