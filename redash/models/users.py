@@ -73,6 +73,9 @@ class PermissionsCheckMixin:
 
         return has_permissions
 
+    def has_any_permission(self, permissions):
+        return bool(set(permissions).intersection(self.permissions))
+
 
 @generic_repr("id", "name", "email")
 class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCheckMixin):

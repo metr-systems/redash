@@ -274,6 +274,11 @@ class Factory:
         args.update(kwargs)
         return dashboard_factory.create(**args)
 
+    def create_dashboard_group_permission(self, dashboard, group):
+        permission = redash.models.DashboardGroup(dashboard=dashboard, group=group)
+        db.session.add(permission)
+        return permission
+
     def create_query(self, **kwargs):
         args = {"user": self.user, "data_source": self.data_source, "org": self.org}
         args.update(kwargs)

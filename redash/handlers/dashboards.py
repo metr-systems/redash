@@ -15,6 +15,7 @@ from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
     require_admin_or_owner,
+    require_dashboard_group_access,
     require_object_modify_permission,
     require_permission,
 )
@@ -48,15 +49,15 @@ class DashboardListResource(BaseResource):
         """
         search_term = request.args.get("q")
 
+        group_ids = self.current_user.group_ids
+        is_admin = self.current_user.has_any_permission(["admin", "super_admin"])
+        if is_admin:
+            group_ids = [group.id for group in models.Group.all(self.current_org)]
+
         if search_term:
-            results = models.Dashboard.search(
-                self.current_org,
-                self.current_user.group_ids,
-                self.current_user.id,
-                search_term,
-            )
+            results = models.Dashboard.search(self.current_org, group_ids, self.current_user.id, search_term, is_admin)
         else:
-            results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+            results = models.Dashboard.all(self.current_org, group_ids, self.current_user.id, is_admin)
 
         results = filter_by_tags(results, models.Dashboard.tags)
 
@@ -217,8 +218,10 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_slug_and_org
         else:
             fn = models.Dashboard.get_by_id_and_org
-
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+
+        require_dashboard_group_access(dashboard, self.current_user)
+
         response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
