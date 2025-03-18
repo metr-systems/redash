@@ -1079,7 +1079,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return utils.slugify(self.name)
 
     @classmethod
-    def all(cls, org, group_ids, user_id):
+    def all(cls, org, group_ids, user_id, is_admin=False):
         query = (
             Dashboard.query.options(joinedload(Dashboard.user).load_only("id", "name", "details", "email"))
             .distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug)
@@ -1087,21 +1087,27 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             .outerjoin(Visualization)
             .outerjoin(Query)
             .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+            .outerjoin(DashboardGroup, Dashboard.id == DashboardGroup.dashboard_id)
             .filter(
                 Dashboard.is_archived.is_(False),
-                (DataSourceGroup.group_id.in_(group_ids) | (Dashboard.user_id == user_id)),
                 Dashboard.org == org,
             )
         )
 
-        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft.is_(False)))
+        is_creator = Dashboard.user_id == user_id
+
+        if not is_admin:
+            group_has_access = and_(DataSourceGroup.group_id.in_(group_ids), DashboardGroup.group_id.in_(group_ids))
+            query = query.filter(or_(group_has_access, is_creator))
+
+        query = query.filter(or_(is_creator, Dashboard.is_draft.is_(False)))
 
         return query
 
     @classmethod
-    def search(cls, org, groups_ids, user_id, search_term):
+    def search(cls, org, groups_ids, user_id, search_term, is_admin=False):
         # TODO: switch to FTS
-        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike("%{}%".format(search_term)))
+        return cls.all(org, groups_ids, user_id, is_admin).filter(cls.name.ilike("%{}%".format(search_term)))
 
     @classmethod
     def search_by_user(cls, term, user, limit=None):
@@ -1109,7 +1115,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all_tags(cls, org, user):
-        dashboards = cls.all(org, user.group_ids, user.id)
+        is_admin = user.has_any_permission(["admin", "super_admin"])
+        dashboards = cls.all(org, user.group_ids, user.id, is_admin)
 
         tag_column = func.unnest(cls.tags).label("tag")
         usage_count = func.count(1).label("usage_count")
@@ -1125,7 +1132,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def favorites(cls, user, base_query=None):
         if base_query is None:
-            base_query = cls.all(user.org, user.group_ids, user.id)
+            is_admin = user.has_any_permission(["admin", "super_admin"])
+            base_query = cls.all(user.org, user.group_ids, user.id, is_admin)
         return base_query.join(
             (
                 Favorite,
@@ -1138,7 +1146,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def by_user(cls, user):
-        return cls.all(user.org, user.group_ids, user.id).filter(Dashboard.user == user)
+        is_admin = user.has_any_permission(["admin", "super_admin"])
+        return cls.all(user.org, user.group_ids, user.id, is_admin).filter(Dashboard.user == user)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):

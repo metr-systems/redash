@@ -11,7 +11,7 @@ class GroupListResource(BaseResource):
     @require_admin
     def post(self):
         name = request.json["name"]
-        group = models.Group(name=name, org=self.current_org)
+        group = models.Group(name=name, org=self.current_org, permissions=["list_dashboards", "execute_query"])
         models.db.session.add(group)
         models.db.session.commit()
 
