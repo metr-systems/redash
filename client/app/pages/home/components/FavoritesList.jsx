@@ -9,6 +9,7 @@ import LoadingOutlinedIcon from "@ant-design/icons/LoadingOutlined";
 
 import { Dashboard } from "@/services/dashboard";
 import { Query } from "@/services/query";
+import { currentUser } from "@/services/auth";
 
 export function FavoriteList({ title, resource, itemUrl, emptyState }) {
   const { t } = useTranslation("Home");
@@ -57,6 +58,11 @@ FavoriteList.defaultProps = { emptyState: null };
 
 export function DashboardAndQueryFavoritesList() {
   const { t } = useTranslation("Home");
+  const hasListQueriesPermission =
+    currentUser.hasPermission("super_admin") ||
+    currentUser.hasPermission("admin") ||
+    currentUser.hasPermission("view_query");
+
   return (
     <div className="tile">
       <div className="t-body tb-padding">
@@ -79,21 +85,23 @@ export function DashboardAndQueryFavoritesList() {
             />
           </div>
           <div className="col-sm-6 m-t-20">
-            <FavoriteList
-              title={t("Favorite Queries")}
-              resource={Query}
-              itemUrl={query => `queries/${query.id}`}
-              emptyState={
-                <p>
-                  <span className="btn-favorite m-r-5">
-                    <i className="fa fa-star" aria-hidden="true" />
-                  </span>
-                  <Trans i18nKey="Home:favourite_queries">
-                    Favorite <Link href="queries">Queries</Link> will appear here
-                  </Trans>
-                </p>
-              }
-            />
+            {hasListQueriesPermission && (
+              <FavoriteList
+                title={t("Favorite Queries")}
+                resource={Query}
+                itemUrl={query => `queries/${query.id}`}
+                emptyState={
+                  <p>
+                    <span className="btn-favorite m-r-5">
+                      <i className="fa fa-star" aria-hidden="true" />
+                    </span>
+                    <Trans i18nKey="Home:favourite_queries">
+                      Favorite <Link href="queries">Queries</Link> will appear here
+                    </Trans>
+                  </p>
+                }
+              />
+            )}
           </div>
         </div>
       </div>
