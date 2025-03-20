@@ -116,6 +116,13 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
         super(User, self).__init__(*args, **kwargs)
 
     @property
+    def is_default(self):
+        """
+        Returns True if the user is part of the default group for the organization.
+        """
+        return self.org.default_group.id in self.group_ids
+
+    @property
     def is_disabled(self):
         return self.disabled_at is not None
 
@@ -145,6 +152,7 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
             "created_at": self.created_at,
             "disabled_at": self.disabled_at,
             "is_disabled": self.is_disabled,
+            "is_default": self.is_default,
             "active_at": self.active_at,
             "is_invitation_pending": self.is_invitation_pending,
             "is_email_verified": self.is_email_verified,

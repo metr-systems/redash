@@ -17,7 +17,6 @@ import "./MobileNavbar.less";
 
 export default function MobileNavbar({ getPopupContainer }) {
   const { t } = useTranslation("ApplicationArea");
-
   const firstSettingsTab = first(settingsMenu.getAvailableItems());
 
   return (
@@ -53,7 +52,7 @@ export default function MobileNavbar({ getPopupContainer }) {
                 <Link href="users/me">{t("Edit Profile")}</Link>
               </Menu.Item>
               <Menu.Divider />
-              {firstSettingsTab && (
+              {firstSettingsTab && currentUser.canViewSettings() && (
                 <Menu.Item key="settings">
                   <Link href={firstSettingsTab.path}>{t("Settings")}</Link>
                 </Menu.Item>
