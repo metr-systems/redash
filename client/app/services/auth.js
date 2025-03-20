@@ -22,6 +22,10 @@ export const currentUser = {
     return this.hasPermission("super_admin") || this.hasPermission("admin") || this.hasPermission("view_query");
   },
 
+  canViewSettings() {
+    return this.is_default || this.hasPermission("admin") || this.hasPermission("super_admin");
+  },
+
   hasPermission(permission) {
     if (permission === "admin" && this._isAdmin !== undefined) {
       return this._isAdmin;

@@ -319,6 +319,7 @@ def session(org_slug=None):
             "email": current_user.email,
             "groups": current_user.group_ids,
             "permissions": current_user.permissions,
+            "is_default": current_user.is_default,
         }
 
     return json_response(
