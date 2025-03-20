@@ -18,6 +18,10 @@ export const currentUser = {
     );
   },
 
+  canListQueries() {
+    return this.hasPermission("super_admin") || this.hasPermission("admin") || this.hasPermission("view_query");
+  },
+
   hasPermission(permission) {
     if (permission === "admin" && this._isAdmin !== undefined) {
       return this._isAdmin;

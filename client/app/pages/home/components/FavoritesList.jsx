@@ -58,10 +58,6 @@ FavoriteList.defaultProps = { emptyState: null };
 
 export function DashboardAndQueryFavoritesList() {
   const { t } = useTranslation("Home");
-  const hasListQueriesPermission =
-    currentUser.hasPermission("super_admin") ||
-    currentUser.hasPermission("admin") ||
-    currentUser.hasPermission("view_query");
 
   return (
     <div className="tile">
@@ -85,7 +81,7 @@ export function DashboardAndQueryFavoritesList() {
             />
           </div>
           <div className="col-sm-6 m-t-20">
-            {hasListQueriesPermission && (
+            {currentUser.canListQueries() && (
               <FavoriteList
                 title={t("Favorite Queries")}
                 resource={Query}
