@@ -67,8 +67,6 @@ function useNavbarActiveState() {
 
 export default function DesktopNavbar() {
   const { t } = useTranslation("ApplicationArea");
-  const canSeeSettings =
-    currentUser.is_default || currentUser.hasPermission("admin") || currentUser.hasPermission("super_admin");
   const firstSettingsTab = first(settingsMenu.getAvailableItems());
 
   const activeState = useNavbarActiveState();
@@ -159,7 +157,7 @@ export default function DesktopNavbar() {
             <span className="desktop-navbar-label">{t("Help")}</span>
           </HelpTrigger>
         </Menu.Item>
-        {firstSettingsTab && canSeeSettings && (
+        {firstSettingsTab && currentUser.canViewSettings() && (
           <Menu.Item key="settings" className={activeState.dataSources ? "navbar-active-item" : null}>
             <Link href={firstSettingsTab.path} data-test="SettingsLink">
               <SettingOutlinedIcon />
