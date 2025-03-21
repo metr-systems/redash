@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
@@ -155,7 +155,8 @@ class UsersList extends React.Component {
             content: (
               <React.Fragment>
                 <p>
-                  {i18next.t("Users:The mail server is not configured, please send the following link to")} <b>{user.name}</b>:
+                  {i18next.t("Users:The mail server is not configured, please send the following link to")}{" "}
+                  <b>{user.name}</b>:
                 </p>
                 <InputWithCopy value={absoluteUrl(user.invite_link)} aria-label="Invite link" readOnly />
               </React.Fragment>
@@ -164,7 +165,10 @@ class UsersList extends React.Component {
         }
       })
       .catch(error => {
-        const message = find([get(error, "response.data.message"), get(error, "message"), i18next.t("Users:Failed saving.")], isString);
+        const message = find(
+          [get(error, "response.data.message"), get(error, "message"), i18next.t("Users:Failed saving.")],
+          isString
+        );
         return Promise.reject(new Error(message));
       });
 
@@ -201,7 +205,7 @@ class UsersList extends React.Component {
       <div className="m-b-15">
         <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
           <i className="fa fa-plus m-r-5" aria-hidden="true" />
-         {i18next.t("Users:New User")}
+          {i18next.t("Users:New User")}
         </Button>
         <DynamicComponent name="UsersListExtra" />
       </div>
