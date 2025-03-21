@@ -1085,6 +1085,7 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     widgets = db.relationship("Widget", backref="dashboard", lazy="dynamic")
     tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
     options = Column(MutableDict.as_mutable(JSONB), default={})
+    dashboard_groups = db.relationship("DashboardGroup", back_populates="dashboard", cascade="all")
 
     __tablename__ = "dashboards"
     __mapper_args__ = {"version_id_col": version}
@@ -1092,12 +1093,27 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def __str__(self):
         return "%s=%s" % (self.id, self.name)
 
+    def to_dict(self, with_permissions_for=None):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "slug": self.slug,
+            "user_id": self.user_id,
+            "created_at": self.created_at,
+            "updated_at": self.updated_at,
+            "version": self.version,
+            "is_archived": self.is_archived,
+            "is_draft": self.is_draft,
+            "tags": self.tags,
+            "options": self.options,
+        }
+
     @property
     def name_as_slug(self):
         return utils.slugify(self.name)
 
     @classmethod
-    def all(cls, org, group_ids, user_id):
+    def all(cls, org, group_ids, user_id, is_admin=False):
         query = (
             Dashboard.query.options(joinedload(Dashboard.user).load_only("id", "name", "details", "email"))
             .distinct(cls.lowercase_name, Dashboard.created_at, Dashboard.slug)
@@ -1105,21 +1121,27 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
             .outerjoin(Visualization)
             .outerjoin(Query)
             .outerjoin(DataSourceGroup, Query.data_source_id == DataSourceGroup.data_source_id)
+            .outerjoin(DashboardGroup, Dashboard.id == DashboardGroup.dashboard_id)
             .filter(
                 Dashboard.is_archived.is_(False),
-                (DataSourceGroup.group_id.in_(group_ids) | (Dashboard.user_id == user_id)),
                 Dashboard.org == org,
             )
         )
 
-        query = query.filter(or_(Dashboard.user_id == user_id, Dashboard.is_draft.is_(False)))
+        is_creator = Dashboard.user_id == user_id
+
+        if not is_admin:
+            group_has_access = and_(DataSourceGroup.group_id.in_(group_ids), DashboardGroup.group_id.in_(group_ids))
+            query = query.filter(or_(group_has_access, is_creator))
+
+        query = query.filter(or_(is_creator, Dashboard.is_draft.is_(False)))
 
         return query
 
     @classmethod
-    def search(cls, org, groups_ids, user_id, search_term):
+    def search(cls, org, groups_ids, user_id, search_term, is_admin=False):
         # TODO: switch to FTS
-        return cls.all(org, groups_ids, user_id).filter(cls.name.ilike("%{}%".format(search_term)))
+        return cls.all(org, groups_ids, user_id, is_admin).filter(cls.name.ilike("%{}%".format(search_term)))
 
     @classmethod
     def search_by_user(cls, term, user, limit=None):
@@ -1127,7 +1149,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def all_tags(cls, org, user):
-        dashboards = cls.all(org, user.group_ids, user.id)
+        is_admin = user.has_any_permission(["admin", "super_admin"])
+        dashboards = cls.all(org, user.group_ids, user.id, is_admin)
 
         tag_column = func.unnest(cls.tags).label("tag")
         usage_count = func.count(1).label("usage_count")
@@ -1143,7 +1166,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     @classmethod
     def favorites(cls, user, base_query=None):
         if base_query is None:
-            base_query = cls.all(user.org, user.group_ids, user.id)
+            is_admin = user.has_any_permission(["admin", "super_admin"])
+            base_query = cls.all(user.org, user.group_ids, user.id, is_admin)
         return base_query.join(
             (
                 Favorite,
@@ -1156,7 +1180,8 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
 
     @classmethod
     def by_user(cls, user):
-        return cls.all(user.org, user.group_ids, user.id).filter(Dashboard.user == user)
+        is_admin = user.has_any_permission(["admin", "super_admin"])
+        return cls.all(user.org, user.group_ids, user.id, is_admin).filter(Dashboard.user == user)
 
     @classmethod
     def get_by_slug_and_org(cls, slug, org):
@@ -1186,6 +1211,40 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def lowercase_name(cls):
         "The SQLAlchemy expression for the property above."
         return func.lower(cls.name)
+
+    @property
+    def groups(self):
+        groups = DashboardGroup.query.filter(DashboardGroup.dashboard == self)
+        # TODO is view_only necessary?
+        view_only = True
+        return dict([(group.group_id, view_only) for group in groups])
+
+    def add_group(self, group):
+        dsg = DashboardGroup(group=group, dashboard=self)
+        db.session.add(dsg)
+        return dsg
+
+    def remove_group(self, group):
+        DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).delete()
+        db.session.commit()
+
+
+@generic_repr("id", "dashboard_id", "group_id")
+class DashboardGroup(db.Model):
+    """
+    Metr-specific
+    This model is used to define view-only permissions for dashboards.
+    """
+
+    id = primary_key("DashboardGroup")
+    dashboard_id = Column(key_type("Dashboard"), db.ForeignKey("dashboards.id"))
+    dashboard = db.relationship(Dashboard, back_populates="dashboard_groups")
+
+    group_id = Column(key_type("Group"), db.ForeignKey("groups.id"))
+    group = db.relationship(Group, back_populates="dashboards")
+
+    __tablename__ = "dashboard_groups"
+    __table_args__ = ({"extend_existing": True},)
 
 
 @generic_repr("id", "name", "type", "query_id")
@@ -1244,6 +1303,16 @@ class Widget(TimestampMixin, BelongsToOrgMixin, db.Model):
             "visualization_id": self.visualization_id,
             "dashboard_id": dashboard_id,
         }
+
+
+@generic_repr("id", "widget_id")
+class metrWidget(TimestampMixin, BelongsToOrgMixin, db.Model):
+    id = primary_key("metrWidget")
+    widget_id = Column(key_type("Widget"), db.ForeignKey("widgets.id"))
+    widget = db.relationship(Widget, backref=backref("metr_widget", cascade="delete", uselist=False))
+    tags = Column("tags", MutableList.as_mutable(ARRAY(db.Unicode)), nullable=True)
+
+    __tablename__ = "metrwidgets"
 
 
 @generic_repr("id", "object_type", "object_id", "action", "user_id", "org_id", "created_at")

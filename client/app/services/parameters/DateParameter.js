@@ -3,6 +3,8 @@ import moment from "moment";
 import PropTypes from "prop-types";
 import Parameter from "./Parameter";
 
+import i18next from "i18next";
+
 const DATETIME_FORMATS = {
   // eslint-disable-next-line quote-props
   date: "YYYY-MM-DD",
@@ -14,11 +16,11 @@ const DYNAMIC_PREFIX = "d_";
 
 const DYNAMIC_DATES = {
   now: {
-    name: "Today/Now",
+    name: i18next.t("DynamicParams:Today/Now"),
     value: () => moment(),
   },
   yesterday: {
-    name: "Yesterday",
+    name: i18next.t("DynamicParams:Yesterday"),
     value: () => moment().subtract(1, "day"),
   },
 };

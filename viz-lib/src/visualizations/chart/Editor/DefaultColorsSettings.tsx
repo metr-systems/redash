@@ -7,7 +7,11 @@ import { AllColorPalettes } from "@/visualizations/ColorPalette";
 import getChartData from "../getChartData";
 import { Section, Select } from "@/components/visualizations/editor";
 
+import { useTranslation } from "react-i18next";
+
 export default function DefaultColorsSettings({ options, data, onOptionsChange }: any) {
+  const { t } = useTranslation("vizlib")
+
   const colors = useMemo(
     () => ({
       Automatic: null,
@@ -41,11 +45,11 @@ export default function DefaultColorsSettings({ options, data, onOptionsChange }
 
   const columns = [
     {
-      title: "Series",
+      title: t("Series"),
       dataIndex: "key",
     },
     {
-      title: "Color",
+      title: t("Color"),
       dataIndex: "color",
       width: "1%",
       render: (unused: any, item: any) => (

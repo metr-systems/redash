@@ -2,6 +2,7 @@ import importlib
 import os
 import ssl
 
+from dotenv import load_dotenv
 from flask_talisman import talisman
 from funcy import distinct, remove
 
@@ -15,6 +16,8 @@ from redash.settings.helpers import (
     set_from_string,
 )
 from redash.settings.organization import DATE_FORMAT, TIME_FORMAT  # noqa
+
+load_dotenv()
 
 # _REDIS_URL is the unchanged REDIS_URL we get from env vars, to be used later with RQ
 _REDIS_URL = os.environ.get("REDASH_REDIS_URL", os.environ.get("REDIS_URL", "redis://localhost:6379/0"))
@@ -459,3 +462,8 @@ CSRF_TIME_LIMIT = int(os.environ.get("REDASH_CSRF_TIME_LIMIT", 3600 * 6))
 
 # Email blocked domains, use delimiter comma to separated multiple domains
 BLOCKED_DOMAINS = set_from_string(os.environ.get("REDASH_BLOCKED_DOMAINS", "qq.com"))
+
+
+# Translation related configuration
+BABEL_DEFAULT_LOCALE = "de"  # Note this is only temporary
+BABEL_SUPPORTED_LOCALES = ["en", "de"]

@@ -1,13 +1,16 @@
 import React from "react";
 import Link from "@/components/Link";
 import { clientConfig, currentUser } from "@/services/auth";
+import { useTranslation } from "react-i18next";
 import frontendVersion from "@/version.json";
 
 export default function VersionInfo() {
+  const { t } = useTranslation("ApplicationArea");
+
   return (
     <React.Fragment>
       <div>
-        Version: {clientConfig.version}
+        {t("Version")}: {clientConfig.version}
         {frontendVersion !== clientConfig.version && ` (${frontendVersion.substring(0, 8)})`}
       </div>
       {clientConfig.newVersionAvailable && currentUser.hasPermission("super_admin") && (

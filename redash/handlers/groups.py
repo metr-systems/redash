@@ -1,4 +1,5 @@
 from flask import request
+from flask_babel import _
 from flask_restful import abort
 
 from redash import models
@@ -10,7 +11,7 @@ class GroupListResource(BaseResource):
     @require_admin
     def post(self):
         name = request.json["name"]
-        group = models.Group(name=name, org=self.current_org)
+        group = models.Group(name=name, org=self.current_org, permissions=["list_dashboards", "execute_query"])
         models.db.session.add(group)
         models.db.session.commit()
 
@@ -58,7 +59,7 @@ class GroupResource(BaseResource):
     def delete(self, group_id):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
         if group.type == models.Group.BUILTIN_GROUP:
-            abort(400, message="Can't delete built-in groups.")
+            abort(400, message=_("Can't delete built-in groups."))
 
         members = models.Group.members(group_id)
         for member in members:
@@ -191,5 +192,56 @@ class GroupDataSourceResource(BaseResource):
                 "object_id": group_id,
                 "object_type": "group",
                 "member_id": data_source.id,
+            }
+        )
+
+
+class GroupDashboardListResource(BaseResource):
+    @require_admin
+    def post(self, group_id):
+        dashboard_id = request.json["dashboard_id"]
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+        group = models.Group.get_by_id_and_org(group_id, self.current_org)
+
+        dashboard.add_group(group)
+        models.db.session.commit()
+
+        self.record_event(
+            {
+                "action": "add_dashboard",
+                "object_id": group_id,
+                "object_type": "group",
+                "member_id": dashboard.id,
+            }
+        )
+
+        return dashboard.to_dict()
+
+    @require_admin
+    def get(self, group_id):
+        group = get_object_or_404(models.Group.get_by_id_and_org, group_id, self.current_org)
+
+        dashboards = models.Dashboard.query.join(models.DashboardGroup).filter(models.DashboardGroup.group == group)
+
+        self.record_event({"action": "list", "object_id": group_id, "object_type": "group"})
+
+        return [dashboard.to_dict() for dashboard in dashboards]
+
+
+class GroupDashboardResource(BaseResource):
+    @require_admin
+    def delete(self, group_id, dashboard_id):
+        dashboard = models.Dashboard.get_by_id_and_org(dashboard_id, self.current_org)
+        group = models.Group.get_by_id_and_org(group_id, self.current_org)
+
+        dashboard.remove_group(group)
+        models.db.session.commit()
+
+        self.record_event(
+            {
+                "action": "remove_dashboard",
+                "object_id": group_id,
+                "object_type": "group",
+                "member_id": dashboard.id,
             }
         )

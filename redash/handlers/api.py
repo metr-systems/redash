@@ -45,6 +45,8 @@ from redash.handlers.favorites import (
     QueryFavoriteResource,
 )
 from redash.handlers.groups import (
+    GroupDashboardListResource,
+    GroupDashboardResource,
     GroupDataSourceListResource,
     GroupDataSourceResource,
     GroupListResource,
@@ -52,6 +54,7 @@ from redash.handlers.groups import (
     GroupMemberResource,
     GroupResource,
 )
+from redash.handlers.metr_widgets import MetrWidgetTagsResource
 from redash.handlers.permissions import (
     CheckPermissionResource,
     ObjectPermissionsListResource,
@@ -179,6 +182,17 @@ api.add_org_resource(
     endpoint="group_data_source",
 )
 
+api.add_org_resource(
+    GroupDashboardListResource,
+    "/api/groups/<group_id>/dashboards",
+    endpoint="group_dashboards",
+)
+api.add_org_resource(
+    GroupDashboardResource,
+    "/api/groups/<group_id>/dashboards/<dashboard_id>",
+    endpoint="group_dashboard",
+)
+
 api.add_org_resource(EventsResource, "/api/events", endpoint="events")
 
 api.add_org_resource(QueryFavoriteListResource, "/api/queries/favorites", endpoint="query_favorites")
@@ -199,6 +213,7 @@ api.add_org_resource(MyDashboardsResource, "/api/dashboards/my", endpoint="my_da
 
 api.add_org_resource(QueryTagsResource, "/api/queries/tags", endpoint="query_tags")
 api.add_org_resource(DashboardTagsResource, "/api/dashboards/tags", endpoint="dashboard_tags")
+api.add_org_resource(MetrWidgetTagsResource, "/api/metrwidgets/<widget_id>/tags", endpoint="widgets_tags")
 
 api.add_org_resource(QuerySearchResource, "/api/queries/search", endpoint="queries_search")
 api.add_org_resource(QueryRecentResource, "/api/queries/recent", endpoint="recent_queries")

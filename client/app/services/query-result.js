@@ -1,5 +1,8 @@
 import debug from "debug";
 import moment from "moment";
+
+import i18next from "i18next";
+
 import { axios } from "@/services/axios";
 import { QueryResultError } from "@/services/query";
 import { Auth } from "@/services/auth";
@@ -79,7 +82,7 @@ function handleErrorResponse(queryResult, error) {
     case 404:
       queryResult.update({
         job: {
-          error: "cached query result unavailable, please execute again.",
+          error: i18next.t("Queries:cached query result unavailable, please execute again."),
           status: 4,
         },
       });
@@ -90,7 +93,7 @@ function handleErrorResponse(queryResult, error) {
   logger("Unknown error", error);
   queryResult.update({
     job: {
-      error: get(error, "response.data.message", "Unknown error occurred. Please try again later."),
+      error: get(error, "response.data.message", i18next.t("Queries:Unknown error occurred. Please try again later.")),
       status: 4,
     },
   });
@@ -388,7 +391,9 @@ class QueryResult {
           logger("Connection error while trying to load result", error);
           this.update({
             job: {
-              error: "failed communicating with server. Please check your Internet connection and try again.",
+              error: i18next.t(
+                "Queries:failed communicating with server. Please check your Internet connection and try again."
+              ),
               status: 4,
             },
           });
@@ -427,7 +432,9 @@ class QueryResult {
         // TODO: use QueryResultError, or better yet: exception/reject of promise.
         this.update({
           job: {
-            error: "failed communicating with server. Please check your Internet connection and try again.",
+            error: i18next.t(
+              "Queries:failed communicating with server. Please check your Internet connection and try again."
+            ),
             status: 4,
           },
         });

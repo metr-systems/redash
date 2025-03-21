@@ -1,7 +1,11 @@
 import { debounce, find, has, isMatch, map, pickBy } from "lodash";
 import { useCallback, useEffect, useState } from "react";
+
+import { useTranslation } from "react-i18next";
+
 import location from "@/services/location";
 import notification from "@/services/notification";
+import { calculateLayoutsOrder } from "./utils";
 
 export const DashboardStatusEnum = {
   SAVED: "saved",
@@ -18,10 +22,12 @@ function getChangedPositions(widgets, nextPositions = {}) {
 }
 
 export default function useEditModeHandler(canEditDashboard, widgets) {
+  const { t } = useTranslation("Dashboards");
   const [editingLayout, setEditingLayout] = useState(canEditDashboard && has(location.search, "edit"));
   const [dashboardStatus, setDashboardStatus] = useState(DashboardStatusEnum.SAVED);
   const [recentPositions, setRecentPositions] = useState([]);
   const [doneBtnClickedWhileSaving, setDoneBtnClickedWhileSaving] = useState(false);
+  const [editedlayoutsOrder, setEditedlayoutsOrder] = useState([]);
 
   useEffect(() => {
     location.setSearch({ edit: editingLayout ? true : null }, true);
@@ -31,6 +37,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
     if (doneBtnClickedWhileSaving && dashboardStatus === DashboardStatusEnum.SAVED) {
       setDoneBtnClickedWhileSaving(false);
       setEditingLayout(false);
+      setEditedlayoutsOrder(calculateLayoutsOrder(recentPositions));
     }
   }, [doneBtnClickedWhileSaving, dashboardStatus]);
 
@@ -61,7 +68,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
         .then(() => setDashboardStatus(DashboardStatusEnum.SAVED))
         .catch(() => {
           setDashboardStatus(DashboardStatusEnum.SAVING_FAILED);
-          notification.error("Error saving changes.");
+          notification.error(t("Error saving changes."));
         });
     },
     [canEditDashboard, widgets]
@@ -87,13 +94,16 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
         return;
       }
       setEditingLayout(canEditDashboard && editing);
+      if (!editing) setEditedlayoutsOrder(calculateLayoutsOrder(recentPositions));
     },
-    [dashboardStatus, canEditDashboard]
+    [dashboardStatus, canEditDashboard, recentPositions]
   );
 
   return {
     editingLayout: canEditDashboard && editingLayout,
     setEditingLayout: setEditing,
+    editedlayoutsOrder,
+    setEditedlayoutsOrder,
     saveDashboardLayout: editingLayout ? saveDashboardLayoutDebounced : saveDashboardLayout,
     retrySaveDashboardLayout,
     doneBtnClickedWhileSaving,

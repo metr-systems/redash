@@ -2,6 +2,9 @@ import { trim } from "lodash";
 import React, { useState } from "react";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+
+import { useTranslation } from "react-i18next";
+
 import DynamicComponent from "@/components/DynamicComponent";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -10,6 +13,7 @@ import { policy } from "@/services/policy";
 import { Dashboard } from "@/services/dashboard";
 
 function CreateDashboardDialog({ dialog }) {
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [isValid, setIsValid] = useState(false);
   const [saveInProgress, setSaveInProgress] = useState(false);
@@ -37,9 +41,9 @@ function CreateDashboardDialog({ dialog }) {
     <Modal
       {...dialog.props}
       {...(isCreateDashboardEnabled ? {} : { footer: null })}
-      title="New Dashboard"
-      okText="Save"
-      cancelText="Close"
+      title={t("Dashboards:New Dashboard")}
+      okText={t("Save")}
+      cancelText={t("Close")}
       okButtonProps={{
         disabled: !isValid || saveInProgress,
         loading: saveInProgress,
@@ -59,8 +63,8 @@ function CreateDashboardDialog({ dialog }) {
           defaultValue={name}
           onChange={handleNameChange}
           onPressEnter={save}
-          placeholder="Dashboard Name"
-          aria-label="Dashboard name"
+          placeholder={t("Dashboards:Dashboard Name")}
+          aria-label={t("Dashboards:Dashboard name")}
           disabled={saveInProgress}
           autoFocus
         />

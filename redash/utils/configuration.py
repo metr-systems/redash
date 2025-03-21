@@ -1,6 +1,7 @@
 import copy
 
 import jsonschema
+from flask_babel import _
 from jsonschema import ValidationError
 from sqlalchemy.ext.mutable import Mutable
 
@@ -37,7 +38,7 @@ class ConfigurationContainer(Mutable):
     @property
     def schema(self):
         if self._schema is None:
-            raise RuntimeError("Schema missing.")
+            raise RuntimeError(_("Schema missing."))
 
         return self._schema
 

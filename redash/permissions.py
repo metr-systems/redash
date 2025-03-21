@@ -1,5 +1,6 @@
 import functools
 
+from flask_babel import _
 from flask_login import current_user
 from flask_restful import abort
 from funcy import flatten
@@ -51,6 +52,23 @@ def has_access_to_groups(obj, user, need_view_only):
 
 def require_access(obj, user, need_view_only):
     if not has_access(obj, user, need_view_only):
+        abort(403)
+
+
+def has_dashboard_group_access(dashboard, user):
+    matching_groups = set(dashboard.groups.keys()).intersection(user.group_ids)
+
+    if not matching_groups:
+        return False
+
+    return True
+
+
+def require_dashboard_group_access(dashboard, user):
+    if user.has_any_permission(["admin", "super_admin"]):
+        return True
+
+    if not has_dashboard_group_access(dashboard, user):
         abort(403)
 
 
@@ -106,7 +124,7 @@ def require_permission_or_owner(permission, object_owner_id):
 
 def require_admin_or_owner(object_owner_id):
     if not is_admin_or_owner(object_owner_id):
-        abort(403, message="You don't have permission to edit this resource.")
+        abort(403, message=_("You don't have permission to edit this resource."))
 
 
 def can_modify(obj, user):

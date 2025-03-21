@@ -2,6 +2,10 @@ import { keys, some } from "lodash";
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import classNames from "classnames";
+
+import i18next from "i18next";
+import { Trans, useTranslation } from "react-i18next";
+
 import CloseOutlinedIcon from "@ant-design/icons/CloseOutlined";
 import Link from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
@@ -45,11 +49,12 @@ Step.defaultProps = {
 };
 
 export function EmptyStateHelpMessage({ helpTriggerType }) {
+  const { t } = useTranslation("EmptyState");
   return (
     <p>
-      Need more support?{" "}
+      {t("Need more support?")}{" "}
       <HelpTrigger className="f-14" type={helpTriggerType} showTooltip={false}>
-        See our Help
+        {t("See our Help")}
       </HelpTrigger>
     </p>
   );
@@ -75,6 +80,8 @@ function EmptyState({
   getStepsItems,
   illustrationPath,
 }) {
+  const { t } = useTranslation("EmptyState");
+
   const isAvailable = {
     dataSource: showDataSourceStep,
     query: true,
@@ -110,7 +117,7 @@ function EmptyState({
           show={isAvailable.dataSource}
           completed={isCompleted.dataSource}
           url="data_sources/new"
-          urlText="Connect a Data Source"
+          urlText={t("Connect a Data Source")}
         />
       );
     }
@@ -120,7 +127,7 @@ function EmptyState({
         key="dataSources"
         show={isAvailable.dataSource}
         completed={isCompleted.dataSource}
-        text="Ask an account admin to connect a data source"
+        text={t("Ask an account admin to connect a data source")}
       />
     );
   };
@@ -138,7 +145,7 @@ function EmptyState({
           show={isAvailable.query}
           completed={isCompleted.query}
           url="queries/new"
-          urlText="Create your first Query"
+          urlText={t("Create your first Query")}
         />
       ),
     },
@@ -150,7 +157,7 @@ function EmptyState({
           show={isAvailable.alert}
           completed={isCompleted.alert}
           url="alerts/new"
-          urlText="Create your first Alert"
+          urlText={t("Create your first Alert")}
         />
       ),
     },
@@ -162,7 +169,7 @@ function EmptyState({
           show={isAvailable.dashboard}
           completed={isCompleted.dashboard}
           onClick={showCreateDashboardDialog}
-          urlText="Create your first Dashboard"
+          urlText={t("Create your first Dashboard")}
         />
       ),
     },
@@ -174,14 +181,14 @@ function EmptyState({
           show={isAvailable.inviteUsers}
           completed={isCompleted.inviteUsers}
           url="users/new"
-          urlText="Invite your team members"
+          urlText={t("Invite your team members")}
         />
       ),
     },
   ];
 
   const stepsItems = getStepsItems ? getStepsItems(defaultStepsItems) : defaultStepsItems;
-  const imageSource = illustrationPath ? illustrationPath : "static/images/illustrations/" + illustration + ".svg";
+  const imageSource = illustrationPath ? illustrationPath : "/static/images/illustrations/" + illustration + ".svg";
 
   return (
     <div className="empty-state-wrapper">
@@ -195,13 +202,15 @@ function EmptyState({
           <img src={imageSource} alt={illustration + " Illustration"} width="75%" />
         </div>
         <div className="empty-state__steps">
-          <h4>Let&apos;s get started</h4>
+          <h4>
+            <Trans i18nKey="EmptyState:lets_get_started">Let's get started</Trans>
+          </h4>
           <ol>{stepsItems.map(item => item.node)}</ol>
           {helpMessage}
         </div>
       </div>
       {closable && (
-        <PlainButton className="close-button" aria-label="Close" onClick={onClose}>
+        <PlainButton className="close-button" aria-label={i18next.t("common:Close")} onClick={onClose}>
           <CloseOutlinedIcon />
         </PlainButton>
       )}

@@ -4,7 +4,10 @@ import * as Grid from "antd/lib/grid";
 import { Section, Select, InputNumber, ControlLabel } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
+import { useTranslation } from "react-i18next";
+
 export default function Editor({ options, data, onOptionsChange }: any) {
+  const {t}=useTranslation("vizlib");
   const optionsChanged = (newOptions: any) => {
     onOptionsChange(merge({}, options, newOptions));
   };
@@ -14,7 +17,7 @@ export default function Editor({ options, data, onOptionsChange }: any) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
-          label="Words Column"
+          label={t("Words Column")}
           data-test="WordCloud.WordsColumn"
           value={options.column}
           onChange={(column: any) => optionsChanged({ column })}>
@@ -30,13 +33,13 @@ export default function Editor({ options, data, onOptionsChange }: any) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <Select
-          label="Frequencies Column"
+          label={t("Frequencies Column")}
           data-test="WordCloud.FrequenciesColumn"
           value={options.frequenciesColumn}
           onChange={(frequenciesColumn: any) => optionsChanged({ frequenciesColumn })}>
           {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           <Select.Option key="none" value="">
-            <i>(count word frequencies automatically)</i>
+            <i>{"("+ t("count word frequencies automatically") + ")"}</i>
             {/* @ts-expect-error ts-migrate(2339) FIXME: Property 'Option' does not exist on type '({ class... Remove this comment to see the full error message */}
           </Select.Option>
           {map(data.columns, ({ name }) => (
@@ -51,7 +54,7 @@ export default function Editor({ options, data, onOptionsChange }: any) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
-        <ControlLabel label="Words Length Limit">
+        <ControlLabel label={t("Words Length Limit")}>
           {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
           <Grid.Row gutter={15} type="flex">
             <Grid.Col span={12}>
@@ -78,7 +81,7 @@ export default function Editor({ options, data, onOptionsChange }: any) {
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'string' is not assignable to type 'null | un... Remove this comment to see the full error message */}
-        <ControlLabel label="Frequencies Limit">
+        <ControlLabel label={t("Frequencies Limit")}>
           {/* @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message */}
           <Grid.Row gutter={15} type="flex">
             <Grid.Col span={12}>

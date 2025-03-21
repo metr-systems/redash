@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import { head, isEmpty, isNull, isUndefined } from "lodash";
 import Mustache from "mustache";
 
+import { useTranslation } from "react-i18next";
+
 import HelpTrigger from "@/components/HelpTrigger";
 import { Alert as AlertType, Query as QueryType } from "@/components/proptypes";
 
@@ -31,6 +33,7 @@ function normalizeCustomTemplateData(alert, query, columnNames, resultValues) {
 }
 
 function NotificationTemplate({ alert, query, columnNames, resultValues, subject, setSubject, body, setBody }) {
+  const { t } = useTranslation("Alerts");
   const hasContent = !!(subject || body);
   const [enabled, setEnabled] = useState(hasContent ? 1 : 0);
   const [showPreview, setShowPreview] = useState(false);
@@ -44,8 +47,8 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
       setShowPreview(false);
     } else {
       Modal.confirm({
-        title: "Are you sure?",
-        content: "Switching to default template will discard your custom template.",
+        title: t("Are you sure?"),
+        content: t("Switching to default template will discard your custom template."),
         onOk: () => {
           setSubject(null);
           setBody(null);
@@ -66,39 +69,39 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
         optionLabelProp="label"
         dropdownMatchSelectWidth={false}
         style={{ width: "fit-content" }}>
-        <Select.Option value={0} label="Use default template">
-          Default template
+        <Select.Option value={0} label={t("Use default template")}>
+          {t("Default template")}
         </Select.Option>
-        <Select.Option value={1} label="Use custom template">
-          Custom template
+        <Select.Option value={1} label={t("Use custom template")}>
+          {t("Custom template")}
         </Select.Option>
       </Select>
       {!!enabled && (
         <div className="alert-custom-template" data-test="AlertCustomTemplate">
           <div className="d-flex align-items-center">
-            <h5 className="flex-fill">Subject / Body</h5>
-            Preview{" "}
+            <h5 className="flex-fill">{t("Subject / Body")}</h5>
+            {t("Preview")}{" "}
             <Switch size="small" className="alert-template-preview" value={showPreview} onChange={setShowPreview} />
           </div>
           {/* TODO: consider adding real labels (not clear for sighted users as well) */}
           <Input
             value={showPreview ? render(subject) : subject}
-            aria-label="Subject"
+            aria-label={t("Subject")}
             onChange={e => setSubject(e.target.value)}
             disabled={showPreview}
             data-test="CustomSubject"
           />
           <Input.TextArea
             value={showPreview ? render(body) : body}
-            aria-label="Body"
+            aria-label={t("Body")}
             autoSize={{ minRows: 9 }}
             onChange={e => setBody(e.target.value)}
             disabled={showPreview}
             data-test="CustomBody"
           />
           <HelpTrigger type="ALERT_NOTIF_TEMPLATE_GUIDE" className="f-13">
-            <i className="fa fa-question-circle" aria-hidden="true" /> Formatting guide{" "}
-            <span className="sr-only">(help)</span>
+            <i className="fa fa-question-circle" aria-hidden="true" /> {t("Formatting guide")}{" "}
+            <span className="sr-only">{t("(help)")}</span>
           </HelpTrigger>
         </div>
       )}

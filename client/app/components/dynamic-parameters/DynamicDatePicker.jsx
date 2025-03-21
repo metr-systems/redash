@@ -86,7 +86,6 @@ class DynamicDatePicker extends React.Component {
       additionalAttributes.placeholder = dynamicDate && dynamicDate.name;
       additionalAttributes.value = null;
     }
-
     return (
       <div className={classNames("date-parameter", className)}>
         <DateComponent

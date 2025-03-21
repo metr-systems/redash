@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Divider from "antd/lib/divider";
 
+import { useTranslation } from "react-i18next";
+
 import * as Sidebar from "@/components/items-list/components/Sidebar";
 import { ControllerType } from "@/components/items-list/ItemsList";
 import DeleteGroupButton from "./DeleteGroupButton";
@@ -16,9 +18,12 @@ export default function DetailsPageSidebar({
   canAddMembers,
   onAddMembersClick,
   canAddDataSources,
+  canAddDashboards,
   onAddDataSourcesClick,
+  onAddDashboardsClick,
   onGroupDeleted,
 }) {
+  const { t } = useTranslation("Groups");
   const canRemove = group && currentUser.isAdmin && group.type !== "builtin";
 
   return (
@@ -27,20 +32,26 @@ export default function DetailsPageSidebar({
       {canAddMembers && (
         <Button className="w-100 m-t-5" type="primary" onClick={onAddMembersClick}>
           <i className="fa fa-plus m-r-5" aria-hidden="true" />
-          Add Members
+          {t("Add Members")}
         </Button>
       )}
       {canAddDataSources && (
         <Button className="w-100 m-t-5" type="primary" onClick={onAddDataSourcesClick}>
           <i className="fa fa-plus m-r-5" aria-hidden="true" />
-          Add Data Sources
+          {t("Add Data Sources")}
+        </Button>
+      )}
+      {canAddDashboards && (
+        <Button className="w-100 m-t-5" type="primary" onClick={onAddDashboardsClick}>
+          <i className="fa fa-plus m-r-5" aria-hidden="true" />
+          {t("Add Dashboards")}
         </Button>
       )}
       {canRemove && (
         <React.Fragment>
           <Divider dashed className="m-t-10 m-b-10" />
           <DeleteGroupButton className="w-100" group={group} onClick={onGroupDeleted}>
-            Delete Group
+            {t("Delete Group")}
           </DeleteGroupButton>
         </React.Fragment>
       )}

@@ -1,29 +1,37 @@
 import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
-import { isEmpty } from "lodash";
+import { isEmpty, isEqual } from "lodash";
 import Dropdown from "antd/lib/dropdown";
 import Modal from "antd/lib/modal";
 import Menu from "antd/lib/menu";
+
+import i18next from "i18next";
+import { useTranslation } from "react-i18next";
+
 import recordEvent from "@/services/recordEvent";
 import { Moment } from "@/components/proptypes";
 import PlainButton from "@/components/PlainButton";
-
+import { WidgetTagsControl } from "@/components/tags-control/TagsControl";
 import "./Widget.less";
 
 function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
+  const { t } = useTranslation("Dashboards");
   const WidgetMenu = (
     <Menu data-test="WidgetDropdownButtonMenu">
       {extraOptions}
       {showDeleteOption && extraOptions && <Menu.Divider />}
-      {showDeleteOption && <Menu.Item onClick={onDelete}>Remove from Dashboard</Menu.Item>}
+      {showDeleteOption && <Menu.Item onClick={onDelete}>{t("Remove_from_Dashboard")}</Menu.Item>}
     </Menu>
   );
 
   return (
     <div className="widget-menu-regular">
       <Dropdown overlay={WidgetMenu} placement="bottomRight" trigger={["click"]}>
-        <PlainButton className="action p-l-15 p-r-15" data-test="WidgetDropdownButton" aria-label="More options">
+        <PlainButton
+          className="action p-l-15 p-r-15"
+          data-test="WidgetDropdownButton"
+          aria-label={t("Dashboards:More_options")}>
           <i className="zmdi zmdi-more-vert" aria-hidden="true" />
         </PlainButton>
       </Dropdown>
@@ -48,10 +56,10 @@ function WidgetDeleteButton({ onClick }) {
     <div className="widget-menu-remove">
       <PlainButton
         className="action"
-        title="Remove From Dashboard"
+        title={i18next.t("Dashboards:Remove From Dashboard")}
         onClick={onClick}
         data-test="WidgetDeleteButton"
-        aria-label="Close">
+        aria-label={i18next.t("common:Close")}>
         <i className="zmdi zmdi-close" aria-hidden="true" />
       </PlainButton>
     </div>
@@ -89,18 +97,37 @@ class Widget extends React.Component {
     onDelete: () => {},
   };
 
+  constructor(props) {
+    super(props);
+    this.state = { tags: props.widget.tags };
+  }
+
   componentDidMount() {
     const { widget } = this.props;
     recordEvent("view", "widget", widget.id);
   }
 
+  handleUpdateTags = newTags => {
+    const { widget } = this.props;
+    const { tags: currentTags } = this.state;
+
+    // Check if the new tags are different from the current tags
+    // then update the tags and save the widget in backend
+    if (!isEqual(newTags, currentTags)) {
+      widget.save_tags(newTags);
+      widget.tags = newTags;
+      this.setState({ tags: newTags });
+    }
+  };
+
   deleteWidget = () => {
     const { widget, onDelete } = this.props;
 
     Modal.confirm({
-      title: "Delete Widget",
-      content: "Are you sure you want to remove this widget from the dashboard?",
-      okText: "Delete",
+      title: i18next.t("Dashboards:Delete Widget"),
+      content: i18next.t("Dashboards:Are you sure you want to remove this widget from the dashboard?"),
+      okText: i18next.t("common:Delete"),
+      cancelText: i18next.t("common:Cancel"),
       okType: "danger",
       onOk: () => widget.delete().then(onDelete),
       maskClosable: true,
@@ -109,7 +136,8 @@ class Widget extends React.Component {
   };
 
   render() {
-    const { className, children, header, footer, canEdit, isPublic, menuOptions, tileProps } = this.props;
+    const { tags } = this.state;
+    const { className, children, header, footer, canEdit, isEditing, isPublic, menuOptions, tileProps } = this.props;
     const showDropdownButton = !isPublic && (canEdit || !isEmpty(menuOptions));
     return (
       <div className="widget-wrapper">
@@ -126,6 +154,14 @@ class Widget extends React.Component {
           </div>
           <div className="body-row widget-header">{header}</div>
           {children}
+          {canEdit && isEditing && (
+            <WidgetTagsControl
+              className="justify-content-start tile__bottom-control"
+              tags={tags}
+              canEdit={canEdit && isEditing}
+              onEdit={tags => this.handleUpdateTags(tags)}
+            />
+          )}
           {footer && <div className="body-row tile__bottom-control">{footer}</div>}
         </div>
       </div>

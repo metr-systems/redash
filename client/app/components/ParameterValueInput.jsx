@@ -1,6 +1,9 @@
 import { isEqual, isEmpty, map } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+
+import i18next from "i18next";
+
 import SelectWithVirtualScroll from "@/components/SelectWithVirtualScroll";
 import Input from "antd/lib/input";
 import InputNumber from "antd/lib/input-number";
@@ -14,7 +17,7 @@ import Tooltip from "./Tooltip";
 const multipleValuesProps = {
   maxTagCount: 3,
   maxTagTextLength: 10,
-  maxTagPlaceholder: (num) => `+${num.length} more`,
+  maxTagPlaceholder: num => `+${num.length} more`,
 };
 
 class ParameterValueInput extends React.Component {
@@ -27,6 +30,7 @@ class ParameterValueInput extends React.Component {
     onSelect: PropTypes.func,
     className: PropTypes.string,
     regex: PropTypes.string,
+    disabled: PropTypes.bool,
   };
 
   static defaultProps = {
@@ -38,6 +42,7 @@ class ParameterValueInput extends React.Component {
     onSelect: () => {},
     className: "",
     regex: "",
+    disabled: false,
   };
 
   constructor(props) {
@@ -48,7 +53,7 @@ class ParameterValueInput extends React.Component {
     };
   }
 
-  componentDidUpdate = (prevProps) => {
+  componentDidUpdate = prevProps => {
     const { value, parameter } = this.props;
     // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
@@ -59,14 +64,15 @@ class ParameterValueInput extends React.Component {
     }
   };
 
-  onSelect = (value) => {
+  onSelect = value => {
+    if (this.props.disabled) return; // Prevent onSelect if disabled
     const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
     this.props.onSelect(value, isDirty);
   };
 
   renderDateParameter() {
-    const { type, parameter } = this.props;
+    const { type, parameter, disabled } = this.props;
     const { value } = this.state;
     return (
       <DateParameter
@@ -75,12 +81,13 @@ class ParameterValueInput extends React.Component {
         value={value}
         parameter={parameter}
         onSelect={this.onSelect}
+        disabled={disabled}
       />
     );
   }
 
   renderDateRangeParameter() {
-    const { type, parameter } = this.props;
+    const { type, parameter, disabled } = this.props;
     const { value } = this.state;
     return (
       <DateRangeParameter
@@ -89,16 +96,17 @@ class ParameterValueInput extends React.Component {
         value={value}
         parameter={parameter}
         onSelect={this.onSelect}
+        disabled={disabled}
       />
     );
   }
 
   renderEnumInput() {
-    const { enumOptions, parameter } = this.props;
+    const { enumOptions, parameter, disabled } = this.props;
     const { value } = this.state;
-    const enumOptionsArray = enumOptions.split("\n").filter((v) => v !== "");
+    const enumOptionsArray = enumOptions.split("\n").filter(v => v !== "");
     // Antd Select doesn't handle null in multiple mode
-    const normalize = (val) => (parameter.multiValuesOptions && val === null ? [] : val);
+    const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
 
     return (
       <SelectWithVirtualScroll
@@ -106,17 +114,18 @@ class ParameterValueInput extends React.Component {
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
         value={normalize(value)}
         onChange={this.onSelect}
-        options={map(enumOptionsArray, (opt) => ({ label: String(opt), value: opt }))}
+        options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
         showSearch
         showArrow
-        notFoundContent={isEmpty(enumOptionsArray) ? "No options available" : null}
+        disabled={disabled}
+        notFoundContent={isEmpty(enumOptionsArray) ? i18next.t("Params:No options available") : null}
         {...multipleValuesProps}
       />
     );
   }
 
   renderQueryBasedInput() {
-    const { queryId, parameter } = this.props;
+    const { queryId, parameter, disabled } = this.props;
     const { value } = this.state;
     return (
       <QueryBasedParameterInput
@@ -127,23 +136,25 @@ class ParameterValueInput extends React.Component {
         queryId={queryId}
         onSelect={this.onSelect}
         style={{ minWidth: 60 }}
+        disabled={disabled}
         {...multipleValuesProps}
       />
     );
   }
 
   renderNumberInput() {
-    const { className } = this.props;
+    const { className, disabled } = this.props;
     const { value } = this.state;
 
-    const normalize = (val) => (isNaN(val) ? undefined : val);
+    const normalize = val => (isNaN(val) ? undefined : val);
 
     return (
       <InputNumber
         className={className}
         value={normalize(value)}
-        aria-label="Parameter number value"
-        onChange={(val) => this.onSelect(normalize(val))}
+        aria-label={i18next.t("Params:Parameter number value")}
+        onChange={val => this.onSelect(normalize(val))}
+        disabled={disabled}
       />
     );
   }
@@ -159,7 +170,7 @@ class ParameterValueInput extends React.Component {
             className={className}
             value={value}
             aria-label="Parameter text pattern value"
-            onChange={(e) => this.onSelect(e.target.value)}
+            onChange={e => this.onSelect(e.target.value)}
           />
         </Tooltip>
       </React.Fragment>
@@ -167,16 +178,17 @@ class ParameterValueInput extends React.Component {
   }
 
   renderTextInput() {
-    const { className } = this.props;
+    const { className, disabled } = this.props;
     const { value } = this.state;
 
     return (
       <Input
         className={className}
         value={value}
-        aria-label="Parameter text value"
+        aria-label={i18next.t("Params:Parameter text value")}
         data-test="TextParamInput"
-        onChange={(e) => this.onSelect(e.target.value)}
+        onChange={e => this.onSelect(e.target.value)}
+        disabled={disabled}
       />
     );
   }

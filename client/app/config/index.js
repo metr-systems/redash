@@ -11,24 +11,47 @@ import "@redash/viz/lib";
 import "@/pages";
 
 import "./antd-spinner";
+import i18next from "i18next";
 
-moment.updateLocale("en", {
-  relativeTime: {
-    future: "%s",
-    past: "%s",
-    s: "just now",
-    m: "a minute ago",
-    mm: "%d minutes ago",
-    h: "an hour ago",
-    hh: "%d hours ago",
-    d: "a day ago",
-    dd: "%d days ago",
-    M: "a month ago",
-    MM: "%d months ago",
-    y: "a year ago",
-    yy: "%d years ago",
-  },
-});
+const currentLanguage = i18next.language;
+
+if (currentLanguage.startsWith("de")) {
+  moment.updateLocale("de", {
+    relativeTime: {
+      future: "%s",
+      past: "%s",
+      s: "gerade eben",
+      m: "vor einer Minute",
+      mm: "vor %d Minuten",
+      h: "vor einer Stunde",
+      hh: "vor %d Stunden",
+      d: "vor einem Tag",
+      dd: "vor %d Tagen",
+      M: "vor einem Monat",
+      MM: "vor %d Monaten",
+      y: "vor einem Jahr",
+      yy: "vor %d Jahren",
+    },
+  });
+} else {
+  moment.updateLocale("en", {
+    relativeTime: {
+      future: "%s",
+      past: "%s",
+      s: "just now",
+      m: "a minute ago",
+      mm: "%d minutes ago",
+      h: "an hour ago",
+      hh: "%d hours ago",
+      d: "a day ago",
+      dd: "%d days ago",
+      M: "a month ago",
+      MM: "%d months ago",
+      y: "a year ago",
+      yy: "%d years ago",
+    },
+  });
+}
 
 function requireImages() {
   // client/app/assets/images/<path> => /images/<path>

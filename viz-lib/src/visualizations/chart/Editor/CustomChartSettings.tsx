@@ -3,6 +3,8 @@ import React from "react";
 import { Section, Switch, TextArea } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
+import { useTranslation } from "react-i18next";
+
 const defaultCustomCode = trimStart(`
 // Available variables are x, ys, element, and Plotly
 // Type console.log(x, ys); for more info about x and ys
@@ -11,12 +13,14 @@ const defaultCustomCode = trimStart(`
 `);
 
 export default function CustomChartSettings({ options, onOptionsChange }: any) {
+  const { t } = useTranslation("vizlib")
+
   return (
     <React.Fragment>
       {/* @ts-expect-error ts-migrate(2745) FIXME: This JSX tag's 'children' prop expects type 'never... Remove this comment to see the full error message */}
       <Section>
         <TextArea
-          label="Custom code"
+          label={t("Custom code")}
           data-test="Chart.Custom.Code"
           rows="10"
           defaultValue={isNil(options.customCode) ? defaultCustomCode : options.customCode}

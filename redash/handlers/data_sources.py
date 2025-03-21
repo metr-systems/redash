@@ -2,6 +2,7 @@ import logging
 import time
 
 from flask import make_response, request
+from flask_babel import _
 from flask_restful import abort
 from funcy import project
 from sqlalchemy.exc import IntegrityError
@@ -73,7 +74,7 @@ class DataSourceResource(BaseResource):
             if req["name"] in str(e):
                 abort(
                     400,
-                    message="Data source with the name {} already exists.".format(req["name"]),
+                    message=_("Data source with the name {} already exists.").format(req["name"]),
                 )
 
             abort(400)
@@ -151,7 +152,7 @@ class DataSourceListResource(BaseResource):
             if req["name"] in str(e):
                 abort(
                     400,
-                    message="Data source with the name {} already exists.".format(req["name"]),
+                    message=_("Data source with the name {} already exists.").format(req["name"]),
                 )
 
             abort(400)

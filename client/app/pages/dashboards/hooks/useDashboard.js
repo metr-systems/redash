@@ -1,8 +1,12 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { isEmpty, includes, compact, map, has, pick, keys, extend, every, get } from "lodash";
+
+import { useTranslation } from "react-i18next";
+
 import notification from "@/services/notification";
 import location from "@/services/location";
 import url from "@/services/url";
+import { clientConfig } from "@/services/auth";
 import { Dashboard, collectDashboardFilters } from "@/services/dashboard";
 import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
@@ -17,7 +21,7 @@ import useRefreshRateHandler from "./useRefreshRateHandler";
 import useEditModeHandler from "./useEditModeHandler";
 import useDuplicateDashboard from "./useDuplicateDashboard";
 import { policy } from "@/services/policy";
-
+import { getAllowedWidgetsForCurrentParam } from "./utils";
 export { DashboardStatusEnum } from "./useEditModeHandler";
 
 function getAffectedWidgets(widgets, updatedParameters = []) {
@@ -36,6 +40,7 @@ function getAffectedWidgets(widgets, updatedParameters = []) {
 }
 
 function useDashboard(dashboardData) {
+  const { t } = useTranslation("Dashboards");
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -82,11 +87,11 @@ function useDashboard(dashboardData) {
         .catch(error => {
           const status = get(error, "response.status");
           if (status === 403) {
-            notification.error("Dashboard update failed", "Permission Denied.");
+            notification.error(t("Dashboard update failed"), t("Permission Denied."));
           } else if (status === 409) {
             notification.error(
-              "It seems like the dashboard has been modified by another user. ",
-              "Please copy/backup your changes and reload this page.",
+              t("It seems like the dashboard has been modified by another user. "),
+              t("Please copy/backup your changes and reload this page."),
               { duration: null }
             );
           }
@@ -130,6 +135,16 @@ function useDashboard(dashboardData) {
 
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
+      // get the values of the parameters
+      const widgetFilterParams = updatedParameters.length > 0 ? updatedParameters : globalParameters;
+
+      // filter widgets to show from all the widgets according to the current parameters
+      dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(
+        widgetFilterParams,
+        dashboardRef.current.allowed_widgets,
+        dashboardRef.current.saved_all_widgets
+      );
+
       const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
       const loadWidgetPromises = compact(
         affectedWidgets.map(widget => loadWidget(widget, forceRefresh).catch(error => error))
@@ -141,7 +156,7 @@ function useDashboard(dashboardData) {
         setFilters(updatedFilters);
       });
     },
-    [loadWidget]
+    [globalParameters, loadWidget]
   );
 
   const refreshDashboard = useCallback(
@@ -206,7 +221,14 @@ function useDashboard(dashboardData) {
 
   useEffect(() => {
     setDashboard(dashboardData);
-    loadDashboard();
+    if (clientConfig.enableDashboardAutoRefresh) {
+      if (!refreshing) {
+        setRefreshing(true);
+        loadDashboard(true, []).finally(() => setRefreshing(false));
+      }
+    } else {
+      loadDashboard();
+    }
   }, [dashboardData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {

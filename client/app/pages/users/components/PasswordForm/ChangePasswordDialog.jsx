@@ -3,6 +3,9 @@ import React from "react";
 import Form from "antd/lib/form";
 import Modal from "antd/lib/modal";
 import Input from "antd/lib/input";
+
+import i18next from "i18next";
+
 import { UserProfile } from "@/components/proptypes";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import User from "@/services/user";
@@ -25,9 +28,10 @@ class ChangePasswordDialog extends React.Component {
   }
 
   fieldError = (name, value) => {
-    if (value.length === 0) return "This field is required.";
-    if (name !== "currentPassword" && value.length < 6) return "This field is too short.";
-    if (name === "repeatPassword" && value !== this.state.newPassword.value) return "Passwords don't match";
+    if (value.length === 0) return i18next.t("Users:This field is required.");
+    if (name !== "currentPassword" && value.length < 6) return i18next.t("Users:This field is too short.");
+    if (name === "repeatPassword" && value !== this.state.newPassword.value)
+      return i18next.t("Users:Passwords don't match");
     return null;
   };
 
@@ -69,11 +73,11 @@ class ChangePasswordDialog extends React.Component {
 
           User.save(userData)
             .then(() => {
-              notification.success("Saved.");
+              notification.success(i18next.t("Saved."));
               this.props.dialog.close({ success: true });
             })
             .catch(error => {
-              notification.error(get(error, "response.data.message", "Failed saving."));
+              notification.error(get(error, "response.data.message", i18next.t("Failed saving.")));
               this.setState({ updatingPassword: false });
             });
         } else {
@@ -112,27 +116,27 @@ class ChangePasswordDialog extends React.Component {
         {...dialog.props}
         okButtonProps={{ loading: updatingPassword }}
         onOk={this.updatePassword}
-        title="Change Password">
+        title={i18next.t("Users:Change Password")}>
         <Form layout="vertical">
           <Form.Item
             {...formItemProps}
             validateStatus={currentPassword.touched && currentPassword.error ? "error" : null}
             help={currentPassword.touched ? currentPassword.error : null}
-            label="Current Password">
+            label={i18next.t("Users:Current Password")}>
             <Input.Password {...inputProps} name="currentPassword" data-test="CurrentPassword" autoFocus />
           </Form.Item>
           <Form.Item
             {...formItemProps}
             validateStatus={newPassword.touched && newPassword.error ? "error" : null}
             help={newPassword.touched ? newPassword.error : null}
-            label="New Password">
+            label={i18next.t("Users:New Password")}>
             <Input.Password {...inputProps} name="newPassword" data-test="NewPassword" />
           </Form.Item>
           <Form.Item
             {...formItemProps}
             validateStatus={repeatPassword.touched && repeatPassword.error ? "error" : null}
             help={repeatPassword.touched ? repeatPassword.error : null}
-            label="Repeat New Password">
+            label={i18next.t("Users:Repeat New Password")}>
             <Input.Password {...inputProps} name="repeatPassword" data-test="RepeatPassword" />
           </Form.Item>
         </Form>

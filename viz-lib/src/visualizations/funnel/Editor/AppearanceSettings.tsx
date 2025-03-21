@@ -1,9 +1,11 @@
 import React from "react";
 import { useDebouncedCallback } from "use-debounce";
+import { useTranslation } from "react-i18next";
 import { Section, Input, InputNumber, ContextHelp } from "@/components/visualizations/editor";
 import { EditorPropTypes } from "@/visualizations/prop-types";
 
 export default function AppearanceSettings({ options, onOptionsChange }: any) {
+  const { t } = useTranslation("vizlib");
   const [onOptionsChangeDebounced] = useDebouncedCallback(onOptionsChange, 200);
 
   return (
@@ -14,7 +16,7 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
           layout="horizontal"
           label={
             <React.Fragment>
-              Number Values Format
+              {t('Number Values Format')}
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -30,7 +32,7 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
           layout="horizontal"
           label={
             <React.Fragment>
-              Percent Values Format
+              {t('Percent Values Format')}
               <ContextHelp.NumberFormatSpecs />
             </React.Fragment>
           }
@@ -44,7 +46,7 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Items Count Limit"
+          label={t('Items Count Limit')}
           data-test="Funnel.ItemsLimit"
           min={2}
           defaultValue={options.itemsLimit}
@@ -56,7 +58,7 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Min Percent Value"
+          label={t('Min Percent Value')}
           data-test="Funnel.PercentRangeMin"
           min={0}
           defaultValue={options.percentValuesRange.min}
@@ -68,7 +70,7 @@ export default function AppearanceSettings({ options, onOptionsChange }: any) {
       <Section>
         <InputNumber
           layout="horizontal"
-          label="Max Percent Value"
+          label={t('Max Percent Value')}
           data-test="Funnel.PercentRangeMax"
           min={0}
           defaultValue={options.percentValuesRange.max}

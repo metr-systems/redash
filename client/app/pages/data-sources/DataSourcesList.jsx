@@ -2,6 +2,9 @@ import { isEmpty, reject } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from "i18next";
+import { useTranslation } from "react-i18next";
+
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
@@ -19,6 +22,8 @@ import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
 
 export function DataSourcesListComponent({ dataSources, onClickCreate }) {
+  const { t } = useTranslation("DataSources");
+
   const items = dataSources.map(dataSource => ({
     title: dataSource.name,
     imgSrc: `${IMG_ROOT}/${dataSource.type}.png`,
@@ -27,13 +32,13 @@ export function DataSourcesListComponent({ dataSources, onClickCreate }) {
 
   return isEmpty(dataSources) ? (
     <div className="text-center">
-      There are no data sources yet.
+      {t("There are no data sources yet.")}
       {policy.isCreateDataSourceEnabled() && (
         <div className="m-t-5">
           <PlainButton type="link" onClick={onClickCreate} data-test="CreateDataSourceLink">
-            Click here
+            {t("Click here")}
           </PlainButton>{" "}
-          to add one.
+          {t("to add one.")}
         </div>
       )}
     </div>
@@ -140,7 +145,7 @@ class DataSourcesList extends React.Component {
         <div className="m-b-15">
           <Button {...newDataSourceProps}>
             <i className="fa fa-plus m-r-5" aria-hidden="true" />
-            New Data Source
+            {i18next.t("DataSources:New Data Source")}
           </Button>
           <DynamicComponent name="DataSourcesListExtra" />
         </div>
@@ -162,7 +167,7 @@ const DataSourcesListPage = wrapSettingsTab(
   "DataSources.List",
   {
     permission: "admin",
-    title: "Data Sources",
+    title: i18next.t("DataSources:Data Sources"),
     path: "data_sources",
     order: 1,
   },
@@ -173,7 +178,7 @@ routes.register(
   "DataSources.List",
   routeWithUserSession({
     path: "/data_sources",
-    title: "Data Sources",
+    title: i18next.t("DataSources:Data Sources"),
     render: pageProps => <DataSourcesListPage {...pageProps} />,
   })
 );
@@ -181,7 +186,7 @@ routes.register(
   "DataSources.New",
   routeWithUserSession({
     path: "/data_sources/new",
-    title: "Data Sources",
+    title: i18next.t("DataSources:Data Sources"),
     render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
   })
 );

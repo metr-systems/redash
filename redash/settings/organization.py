@@ -44,6 +44,10 @@ SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES = parse_boolean(
 HIDE_PLOTLY_MODE_BAR = parse_boolean(os.environ.get("HIDE_PLOTLY_MODE_BAR", "false"))
 DISABLE_PUBLIC_URLS = parse_boolean(os.environ.get("REDASH_DISABLE_PUBLIC_URLS", "false"))
 
+ENABLE_AUTO_REFRESH_WHEN_OPENING_DASHBOARD = parse_boolean(
+    os.environ.get("ENABLE_AUTO_REFRESH_WHEN_OPENING_DASHBOARD", "false")
+)
+
 settings = {
     "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
@@ -71,4 +75,5 @@ settings = {
     "send_email_on_failed_scheduled_queries": SEND_EMAIL_ON_FAILED_SCHEDULED_QUERIES,
     "hide_plotly_mode_bar": HIDE_PLOTLY_MODE_BAR,
     "disable_public_urls": DISABLE_PUBLIC_URLS,
+    "enable_auto_refresh_when_opening_dashboard": ENABLE_AUTO_REFRESH_WHEN_OPENING_DASHBOARD,
 }

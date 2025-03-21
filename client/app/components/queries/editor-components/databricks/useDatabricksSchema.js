@@ -1,5 +1,8 @@
 import { includes, has, get, map, first, isFunction, isEmpty, startsWith } from "lodash";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+
+import i18next from "i18next";
+
 import notification from "@/services/notification";
 import DatabricksDataSource from "@/services/databricks-data-source";
 
@@ -9,7 +12,10 @@ function getDatabases(dataSource, refresh = false) {
   }
 
   return DatabricksDataSource.getDatabases(dataSource, refresh).catch(() => {
-    notification.error("Failed to load Database list.", "Please try again later.");
+    notification.error(
+      i18next.t("Queries:Failed to load Database list."),
+      i18next.t("Queries:Please try again later.")
+    );
     return Promise.reject();
   });
 }
@@ -20,7 +26,10 @@ function getSchema(dataSource, databaseName, refresh = false) {
   }
 
   return DatabricksDataSource.getDatabaseTables(dataSource, databaseName, refresh).catch(() => {
-    notification.error(`Failed to load tables for ${databaseName}.`, "Please try again later.");
+    notification.error(
+      i18next.t("Queries:Failed to load tables for {{databaseName}}.", { databaseName: databaseName }),
+      i18next.t("Queries:Please try again later.")
+    );
     return Promise.reject();
   });
 }

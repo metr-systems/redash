@@ -2,6 +2,8 @@ import { isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
 
+import i18next from "i18next";
+
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import Link from "@/components/Link";
 import BigMessage from "@/components/BigMessage";
@@ -83,7 +85,7 @@ class PublicDashboardPage extends React.Component {
       <div className="public-dashboard-page">
         {loading ? (
           <div className="container loading-message">
-            <BigMessage className="" icon="fa-spinner fa-2x fa-pulse" message="Loading..." />
+            <BigMessage className="" icon="fa-spinner fa-2x fa-pulse" message={i18next.t("Loading...")} />
           </div>
         ) : (
           <PublicDashboard dashboard={dashboard} />
@@ -94,7 +96,7 @@ class PublicDashboardPage extends React.Component {
               <img alt="Redash Logo" src={logoUrl} width="38" />
             </Link>
           </div>
-          Powered by <Link href="https://redash.io/?ref=public-dashboard">Redash</Link>
+          {i18next.t("Powered by")} <Link href="https://redash.io/?ref=public-dashboard">Redash</Link>
         </div>
       </div>
     );

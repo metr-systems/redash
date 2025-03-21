@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import Modal from "antd/lib/modal";
 import Select from "antd/lib/select";
 import Input from "antd/lib/input";
+
+import i18next from "i18next";
+
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import Filters, { filterData } from "@/components/Filters";
 import notification from "@/services/notification";
@@ -41,11 +44,11 @@ function saveVisualization(visualization) {
 
   return Visualization.save(visualization)
     .then(result => {
-      notification.success("Visualization saved");
+      notification.success(i18next.t("Visualizations:Visualization saved"));
       return result;
     })
     .catch(error => {
-      notification.error("Visualization could not be saved");
+      notification.error(i18next.t("Visualizations:Visualization could not be saved"));
       return Promise.reject(error);
     });
 }
@@ -54,10 +57,10 @@ function confirmDialogClose(isDirty) {
   return new Promise((resolve, reject) => {
     if (isDirty) {
       Modal.confirm({
-        title: "Visualization Editor",
-        content: "Are you sure you want to close the editor without saving?",
-        okText: "Yes",
-        cancelText: "No",
+        title: i18next.t("Visualizations:Visualization Editor"),
+        content: i18next.t("Visualizations:Are you sure you want to close the editor without saving?"),
+        okText: i18next.t("Yes"),
+        cancelText: i18next.t("No"),
         onOk: () => resolve(),
         onCancel: () => reject(),
       });
@@ -166,8 +169,8 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
     <Modal
       {...dialog.props}
       wrapClassName="ant-modal-fullscreen"
-      title="Visualization Editor"
-      okText="Save"
+      title={i18next.t("Visualizations:Visualization Editor")}
+      okText={i18next.t("Save")}
       okButtonProps={{
         loading: saveInProgress,
         disabled: saveInProgress,
@@ -178,7 +181,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
       <div className="edit-visualization-dialog">
         <div className="visualization-settings">
           <div className="m-b-15">
-            <label htmlFor={vizTypeId}>Visualization Type</label>
+            <label htmlFor={vizTypeId}>{i18next.t("Visualizations:Visualization Type")}</label>
             <Select
               data-test="VisualizationType"
               id={vizTypeId}
@@ -194,7 +197,7 @@ function EditVisualizationDialog({ dialog, visualization, query, queryResult }) 
             </Select>
           </div>
           <div className="m-b-15">
-            <label htmlFor={vizNameId}>Visualization Name</label>
+            <label htmlFor={vizNameId}>{i18next.t("Visualizations:Visualization Name")}</label>
             <Input
               data-test="VisualizationName"
               id={vizNameId}

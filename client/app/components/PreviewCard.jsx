@@ -8,13 +8,15 @@ import Link from "@/components/Link";
 export function PreviewCard({ imageUrl, roundedImage, title, body, children, className, ...props }) {
   return (
     <div {...props} className={className + " w-100 d-flex align-items-center"}>
-      <img
-        src={imageUrl}
-        width="32"
-        height="32"
-        className={classNames({ "profile__image--settings": roundedImage }, "m-r-5")}
-        alt="Logo/Avatar"
-      />
+      {imageUrl && (
+        <img
+          src={imageUrl}
+          width="32"
+          height="32"
+          className={classNames({ "profile__image--settings": roundedImage }, "m-r-5")}
+          alt="Logo/Avatar"
+        />
+      )}
       <div className="flex-fill">
         <div>{title}</div>
         {body && <div className="text-muted">{body}</div>}
@@ -69,7 +71,7 @@ UserPreviewCard.defaultProps = {
 // DataSourcePreviewCard
 
 export function DataSourcePreviewCard({ dataSource, withLink, children, ...props }) {
-  const imageUrl = `static/images/db-logos/${dataSource.type}.png`;
+  const imageUrl = `/static/images/db-logos/${dataSource.type}.png`;
   const title = withLink ? <Link href={"data_sources/" + dataSource.id}>{dataSource.name}</Link> : dataSource.name;
   return (
     <PreviewCard {...props} imageUrl={imageUrl} title={title}>
@@ -88,6 +90,29 @@ DataSourcePreviewCard.propTypes = {
 };
 
 DataSourcePreviewCard.defaultProps = {
+  withLink: false,
+  children: null,
+};
+
+export function DashboardPreviewCard({ dashboard, withLink, children, ...props }) {
+  const title = withLink ? <Link href={"dashboards/" + dashboard.id}>{dashboard.name}</Link> : dashboard.name;
+  return (
+    <PreviewCard {...props} title={title}>
+      {children}
+    </PreviewCard>
+  );
+}
+
+DashboardPreviewCard.propTypes = {
+  dashboard: PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    type: PropTypes.string.isRequired,
+  }).isRequired,
+  withLink: PropTypes.bool,
+  children: PropTypes.node,
+};
+
+DashboardPreviewCard.defaultProps = {
   withLink: false,
   children: null,
 };

@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Form from "antd/lib/form";
 import Skeleton from "antd/lib/skeleton";
+import i18next from "i18next";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import wrapSettingsTab from "@/components/SettingsWrapper";
 
@@ -27,7 +28,7 @@ function OrganizationSettings({ onError }) {
               <Skeleton.Button active />
             ) : (
               <Button type="primary" htmlType="submit" loading={isSaving} data-test="OrganizationSettingsSaveButton">
-                Save
+                {i18next.t("Save")}
               </Button>
             )}
           </Form.Item>
@@ -49,7 +50,7 @@ const OrganizationSettingsPage = wrapSettingsTab(
   "Settings.Organization",
   {
     permission: "admin",
-    title: "General",
+    title: i18next.t("Settings:General"),
     path: "settings/general",
     order: 6,
   },
@@ -60,7 +61,7 @@ routes.register(
   "Settings.Organization",
   routeWithUserSession({
     path: "/settings/general",
-    title: "General Settings",
+    title: i18next.t("Settings:General Settings"),
     render: pageProps => <OrganizationSettingsPage {...pageProps} />,
   })
 );

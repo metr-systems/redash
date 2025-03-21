@@ -30,6 +30,91 @@ class TestGroupDataSourceListResource(BaseTestCase):
         self.assertEqual(response.json[0]["id"], ds.id)
 
 
+class TestGroupDashboardListResource(BaseTestCase):
+    def test_post_adds_dashboard_to_group(self):
+        group = self.factory.create_group()
+        dashboard = self.factory.create_dashboard()
+
+        response = self.make_request(
+            "post",
+            "/api/groups/{}/dashboards".format(group.id),
+            user=self.factory.create_admin(),
+            data={"dashboard_id": dashboard.id},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(group.id, dashboard.groups.keys())
+        self.assertEqual(response.json["id"], dashboard.id)
+
+    def test_post_requires_admin(self):
+        group = self.factory.create_group()
+        dashboard = self.factory.create_dashboard()
+
+        response = self.make_request(
+            "post",
+            "/api/groups/{}/dashboards".format(group.id),
+            data={"dashboard_id": dashboard.id},
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+    def test_get_lists_dashboards_for_group(self):
+        group = self.factory.create_group()
+        dashboard = self.factory.create_dashboard()
+        dashboard.add_group(group)
+        db.session.commit()
+
+        response = self.make_request(
+            "get",
+            "/api/groups/{}/dashboards".format(group.id),
+            user=self.factory.create_admin(),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json), 1)
+        self.assertEqual(response.json[0]["id"], dashboard.id)
+
+    def test_get_requires_admin(self):
+        group = self.factory.create_group()
+
+        response = self.make_request(
+            "get",
+            "/api/groups/{}/dashboards".format(group.id),
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+
+class TestGroupDashboardResource(BaseTestCase):
+    def test_delete_removes_dashboard_from_group(self):
+        group = self.factory.create_group()
+        dashboard = self.factory.create_dashboard()
+        dashboard.add_group(group)
+        db.session.commit()
+
+        response = self.make_request(
+            "delete",
+            "/api/groups/{}/dashboards/{}".format(group.id, dashboard.id),
+            user=self.factory.create_admin(),
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(group.id, dashboard.groups.keys())
+
+    def test_delete_requires_admin(self):
+        group = self.factory.create_group()
+        dashboard = self.factory.create_dashboard()
+        dashboard.add_group(group)
+        db.session.commit()
+
+        response = self.make_request(
+            "delete",
+            "/api/groups/{}/dashboards/{}".format(group.id, dashboard.id),
+        )
+
+        self.assertEqual(response.status_code, 403)
+
+
 class TestGroupResourceList(BaseTestCase):
     def test_list_admin(self):
         self.factory.create_group(org=self.factory.create_org())
@@ -59,6 +144,40 @@ class TestGroupResourceList(BaseTestCase):
             filtergroups(response.json),
             filtergroups(g.to_dict() for g in [self.factory.default_group, group1]),
         )
+
+
+class TestGroupResourceCreate(BaseTestCase):
+    def test_create_group(self):
+        admin_user = self.factory.create_admin()
+        group_name = "Test Group"
+
+        response = self.make_request(
+            "post",
+            "/api/groups",
+            user=admin_user,
+            data={"name": group_name},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        created_group = Group.query.filter_by(name=group_name, org=admin_user.org).first()
+        self.assertIsNotNone(created_group)
+        self.assertEqual(created_group.name, group_name)
+        self.assertEqual(created_group.permissions, ["list_dashboards", "execute_query"])
+
+    def test_create_group_requires_admin(self):
+        user = self.factory.create_user()
+        group_name = "Test Group"
+
+        response = self.make_request(
+            "post",
+            "/api/groups",
+            user=user,
+            data={"name": group_name},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        created_group = Group.query.filter_by(name=group_name, org=user.org).first()
+        self.assertIsNone(created_group)
 
 
 class TestGroupResourcePost(BaseTestCase):

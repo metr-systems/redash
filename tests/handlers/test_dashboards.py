@@ -1,4 +1,4 @@
-from redash.models import AccessPermission, ApiKey, Dashboard, db
+from redash.models import AccessPermission, ApiKey, Dashboard, DashboardGroup, db
 from redash.permissions import ACCESS_TYPE_MODIFY
 from redash.serializers import serialize_dashboard
 from redash.utils import json_loads
@@ -14,6 +14,15 @@ class TestDashboardListResource(BaseTestCase):
         self.assertEqual(rv.json["user_id"], self.factory.user.id)
         self.assertEqual(rv.json["layout"], [])
 
+    def test_default_group_has_access_to_new_dashboard(self):
+        dashboard_name = "Test Dashboard"
+        rv = self.make_request("post", "/api/dashboards", data={"name": dashboard_name})
+        self.assertEqual(rv.status_code, 200)
+        dashboard = Dashboard.get_by_id_and_org(rv.json["id"], self.factory.org)
+        dashboard_group = DashboardGroup.query.filter(DashboardGroup.dashboard == dashboard).first()
+        self.assertIsNotNone(dashboard_group)
+        self.assertEqual(dashboard_group.group, self.factory.org.default_group)
+
 
 class TestDashboardListGetResource(BaseTestCase):
     def test_returns_dashboards(self):
@@ -23,8 +32,8 @@ class TestDashboardListGetResource(BaseTestCase):
 
         rv = self.make_request("get", "/api/dashboards")
 
-        assert len(rv.json["results"]) == 3
-        assert set([result["id"] for result in rv.json["results"]]) == set([d1.id, d2.id, d3.id])
+        self.assertEqual(len(rv.json["results"]), 3)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id, d3.id]))
 
     def test_filters_with_tags(self):
         d1 = self.factory.create_dashboard(tags=["test"])
@@ -41,14 +50,57 @@ class TestDashboardListGetResource(BaseTestCase):
         self.factory.create_dashboard(name="Ops")
 
         rv = self.make_request("get", "/api/dashboards?q=sales")
-        assert len(rv.json["results"]) == 2
-        assert set([result["id"] for result in rv.json["results"]]) == set([d1.id, d2.id])
+        self.assertEqual(len(rv.json["results"]), 2)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id]))
+
+    def test_non_admin_group_dashboard_visibility(self):
+        """
+        Scenario: Non-admin user should only see dashboards they have access to
+
+        Given a non-admin user
+        And a group
+        And the non-admin user belongs to the group
+        And three dashboards exist
+        And the group has access to the first and second dashboards
+        And the group has access to a data source and query required to see the dashboards
+        And the first and second dashboards have widgets linked to visualizations from the query
+
+        When the non-admin user requests the list of dashboards
+
+        Then the response should contain exactly two dashboards
+        And the ids of the dashboards should match the ids of the first and second dashboards
+        """
+        non_admin_user = self.factory.create_user()
+        group = self.factory.create_group(id=5555)
+        non_admin_user.group_ids = [group.id]
+
+        d1 = self.factory.create_dashboard(is_draft=False)
+        d2 = self.factory.create_dashboard(is_draft=False)
+        self.factory.create_dashboard(is_draft=False)
+
+        self.factory.create_dashboard_group_permission(d1, group)
+        self.factory.create_dashboard_group_permission(d2, group)
+
+        data_source = self.factory.create_data_source(group=group)
+        query = self.factory.create_query(data_source=data_source)
+        v1 = self.factory.create_visualization(query_rel=query)
+        v2 = self.factory.create_visualization(query_rel=query)
+        self.factory.create_widget(visualization=v1, dashboard=d1)
+        self.factory.create_widget(visualization=v2, dashboard=d2)
+
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards", user=non_admin_user)
+
+        self.assertEqual(len(rv.json["results"]), 2)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id]))
 
 
-class TestDashboardResourceGet(BaseTestCase):
-    def test_get_dashboard(self):
+class TestDashboardResourceGetByAdmin(BaseTestCase):
+    def test_get_dashboard_by_admin(self):
         d1 = self.factory.create_dashboard()
-        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id))
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id), user=admin)
         self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
@@ -56,9 +108,23 @@ class TestDashboardResourceGet(BaseTestCase):
 
         self.assertResponseEqual(expected, actual)
 
-    def test_get_dashboard_with_slug(self):
+    def test_admin_sees_all_dashboards(self):
+        admin = self.factory.create_admin()
         d1 = self.factory.create_dashboard()
-        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug))
+        d2 = self.factory.create_dashboard()
+        d3 = self.factory.create_dashboard()
+
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards", user=admin)
+
+        self.assertEqual(len(rv.json["results"]), 3)
+        self.assertSetEqual(set([result["id"] for result in rv.json["results"]]), set([d1.id, d2.id, d3.id]))
+
+    def test_get_dashboard_with_slug_by_admin(self):
+        d1 = self.factory.create_dashboard()
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug), user=admin)
         self.assertEqual(rv.status_code, 200)
 
         expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
@@ -66,23 +132,105 @@ class TestDashboardResourceGet(BaseTestCase):
 
         self.assertResponseEqual(expected, actual)
 
-    def test_get_dashboard_filters_unauthorized_widgets(self):
+    def test_get_non_existing_dashboard_by_admin(self):
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/dashboards/-1", user=admin)
+        self.assertEqual(rv.status_code, 404)
+
+
+class TestDashboardResourceGetByCustom(BaseTestCase):
+    def test_get_dashboard_by_custom_requires_group_access(self):
+        """
+        Scenario: Get dashboard by custom requires group access
+
+        Given a dashboard exists
+        And a group exists
+        And a user exists who belongs to the group
+        When the user makes a GET request to the dashboard API endpoint
+        without permission to access the dashboard
+        Then the response status code should be 403 (Forbidden)
+
+        Given another user exists who belongs to the group
+        And the group has permission to access the dashboard
+        When the user with access makes a GET request to the dashboard API endpoint
+        Then the response status code should be 200 (OK)
+        """
         dashboard = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user)
+        self.assertEqual(rv.status_code, 403)
+
+        user_with_access = self.factory.create_user()
+        user_with_access.group_ids = [group.id]
+
+        self.factory.create_dashboard_group_permission(dashboard, group)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user_with_access)
+        self.assertEqual(rv.status_code, 200)
+
+    def test_get_dashboard_by_custom(self):
+        d1 = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(d1, group)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(d1.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
+        actual = json_loads(rv.data)
+
+        self.assertResponseEqual(expected, actual)
+
+    def test_get_dashboard_with_slug_by_custom(self):
+        d1 = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(d1, group)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}?legacy".format(d1.slug), user=user)
+        self.assertEqual(rv.status_code, 200)
+
+        expected = serialize_dashboard(d1, with_widgets=True, with_favorite_state=False)
+        actual = json_loads(rv.data)
+
+        self.assertResponseEqual(expected, actual)
+
+    def test_get_dashboard_by_custom_filters_unauthorized_widgets(self):
+        dashboard = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(dashboard, group)
 
         restricted_ds = self.factory.create_data_source(group=self.factory.create_group())
         query = self.factory.create_query(data_source=restricted_ds)
         vis = self.factory.create_visualization(query_rel=query)
         restricted_widget = self.factory.create_widget(visualization=vis, dashboard=dashboard)
-        widget = self.factory.create_widget(dashboard=dashboard)
-        dashboard.layout = [[widget.id, restricted_widget.id]]
+
+        accessible_ds = self.factory.create_data_source(group=group)
+        accessible_query = self.factory.create_query(data_source=accessible_ds)
+        accessible_vis = self.factory.create_visualization(query_rel=accessible_query)
+        accessible_widget = self.factory.create_widget(visualization=accessible_vis, dashboard=dashboard)
+        dashboard.layout = [[accessible_widget.id, restricted_widget.id]]
+
         db.session.commit()
 
-        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id))
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user)
         self.assertEqual(rv.status_code, 200)
+        self.assertTrue(len(rv.json["widgets"]) == 2)
         self.assertTrue(rv.json["widgets"][0]["restricted"])
         self.assertNotIn("restricted", rv.json["widgets"][1])
 
-    def test_get_non_existing_dashboard(self):
+    def test_get_non_existing_dashboard_by_custom(self):
         rv = self.make_request("get", "/api/dashboards/-1")
         self.assertEqual(rv.status_code, 404)
 

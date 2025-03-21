@@ -1,4 +1,5 @@
 from flask import g, redirect, render_template, request, url_for
+from flask_babel import _
 from flask_login import login_user
 from wtforms import BooleanField, Form, PasswordField, StringField, validators
 from wtforms.fields.html5 import EmailField
@@ -11,10 +12,10 @@ from redash.tasks.general import subscribe
 
 
 class SetupForm(Form):
-    name = StringField("Name", validators=[validators.InputRequired()])
-    email = EmailField("Email Address", validators=[validators.Email()])
-    password = PasswordField("Password", validators=[validators.Length(6)])
-    org_name = StringField("Organization Name", validators=[validators.InputRequired()])
+    name = StringField(_("Name"), validators=[validators.InputRequired()])
+    email = EmailField(_("Email Address"), validators=[validators.Email()])
+    password = PasswordField(_("Password"), validators=[validators.Length(6)])
+    org_name = StringField(_("Organization Name"), validators=[validators.InputRequired()])
     security_notifications = BooleanField()
     newsletter = BooleanField()
 

@@ -1,0 +1,14 @@
+{
+  "Setup Instructions": "Setup Instructions",
+  "databricksAgreement": "By using the Databricks Data Source you agree to the Databricks JDBC/ODBC <2>Driver Download Terms and Conditions</2>.",
+  "Create a New {{sourceType}}": "Create a New {{sourceType}}",
+  "Type Selection": "Type Selection",
+  "Configuration": "Configuration",
+  "There are no data sources yet.": "There are no data sources yet.",
+  "Click here": "Click here",
+  "to add one.": "to add one.",
+  "New Data Source": "New Data Source",
+  "Data Sources": "Data Sources",
+  "Delete Data Source": "Delete Data Source",
+  "Are you sure you want to delete this data source?": "Are you sure you want to delete this data source?"
+}

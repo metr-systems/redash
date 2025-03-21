@@ -1,10 +1,11 @@
 import DetailsRenderer from "./DetailsRenderer";
+import i18next from "i18next";
 
 const DEFAULT_OPTIONS = {};
 
 export default {
   type: "DETAILS",
-  name: "Details View",
+  name: i18next.t("vizlib:Details View"),
   getOptions: (options: any) => ({
     ...DEFAULT_OPTIONS,
     ...options,

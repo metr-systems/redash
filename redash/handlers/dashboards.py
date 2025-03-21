@@ -1,4 +1,5 @@
 from flask import request, url_for
+from flask_babel import _
 from flask_restful import abort
 from funcy import partial, project
 from sqlalchemy.orm.exc import StaleDataError
@@ -14,6 +15,7 @@ from redash.handlers.base import order_results as _order_results
 from redash.permissions import (
     can_modify,
     require_admin_or_owner,
+    require_dashboard_group_access,
     require_object_modify_permission,
     require_permission,
 )
@@ -47,15 +49,15 @@ class DashboardListResource(BaseResource):
         """
         search_term = request.args.get("q")
 
+        group_ids = self.current_user.group_ids
+        is_admin = self.current_user.has_any_permission(["admin", "super_admin"])
+        if is_admin:
+            group_ids = [group.id for group in models.Group.all(self.current_org)]
+
         if search_term:
-            results = models.Dashboard.search(
-                self.current_org,
-                self.current_user.group_ids,
-                self.current_user.id,
-                search_term,
-            )
+            results = models.Dashboard.search(self.current_org, group_ids, self.current_user.id, search_term, is_admin)
         else:
-            results = models.Dashboard.all(self.current_org, self.current_user.group_ids, self.current_user.id)
+            results = models.Dashboard.all(self.current_org, group_ids, self.current_user.id, is_admin)
 
         results = filter_by_tags(results, models.Dashboard.tags)
 
@@ -98,7 +100,12 @@ class DashboardListResource(BaseResource):
             is_draft=True,
             layout=[],
         )
+
+        default_group = self.current_org.default_group
+        dashboard_group = models.DashboardGroup(dashboard=dashboard, group=default_group)
+
         models.db.session.add(dashboard)
+        models.db.session.add(dashboard_group)
         models.db.session.commit()
         return DashboardSerializer(dashboard).serialize()
 
@@ -135,8 +142,43 @@ class MyDashboardsResource(BaseResource):
         return paginate(ordered_results, page, page_size, DashboardSerializer)
 
 
+def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name):
+    """This function adds allowed_widgets info to the data to return to frontend
+    if we have a query named as follow f"allowed_widgets_{dashboard_id}".
+    It returns an empty dictionary if the query does not exist"""
+    # get the query having the allowed widgets information for the current dashboard
+    query_name = f"allowed_widgets_{dashboard_id}"
+    query = models.Query.query.filter(models.Query.name == query_name).first()
+
+    # construct the allowed_widgets dictionary from the query data
+    allowed_widgets = {}
+    if query:
+        data = query.latest_query_data.data["rows"]
+        for row in data:
+            if parameter_col_name in row.keys() and widgets_col_name in row.keys():
+                allowed_widgets[row[parameter_col_name]] = row[widgets_col_name]
+
+    return allowed_widgets
+
+
+def add_allowed_widgets_info(method):
+    def wrapper(self, dashboard_id):
+        result = method(self, dashboard_id)
+
+        # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
+        parameter_col_name = "main_parameter"
+        widgets_col_name = "widgets"
+        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name)
+        if allowed_widgets:
+            result["allowed_widgets"] = allowed_widgets
+        return result
+
+    return wrapper
+
+
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")
+    @add_allowed_widgets_info
     def get(self, dashboard_id=None):
         """
         Retrieves a dashboard.
@@ -176,8 +218,10 @@ class DashboardResource(BaseResource):
             fn = models.Dashboard.get_by_slug_and_org
         else:
             fn = models.Dashboard.get_by_id_and_org
-
         dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+
+        require_dashboard_group_access(dashboard, self.current_user)
+
         response = DashboardSerializer(dashboard, with_widgets=True, user=self.current_user).serialize()
 
         api_key = models.ApiKey.get_by_object(dashboard)
@@ -193,7 +237,6 @@ class DashboardResource(BaseResource):
         response["can_edit"] = can_modify(dashboard, self.current_user)
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
-
         return response
 
     @require_permission("edit_dashboard")
@@ -281,7 +324,7 @@ class PublicDashboardResource(BaseResource):
         :>json array widgets: An array of arrays of :ref:`public widgets <public-widget-label>`, corresponding to the rows and columns the widgets are displayed in
         """
         if self.current_org.get_setting("disable_public_urls"):
-            abort(400, message="Public URLs are disabled.")
+            abort(400, message=_("Public URLs are disabled."))
 
         if not isinstance(self.current_user, models.ApiUser):
             api_key = get_object_or_404(models.ApiKey.get_by_api_key, token)

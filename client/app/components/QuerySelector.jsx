@@ -4,6 +4,9 @@ import PropTypes from "prop-types";
 import cx from "classnames";
 import Input from "antd/lib/input";
 import Select from "antd/lib/select";
+
+import { useTranslation } from "react-i18next";
+
 import { Query } from "@/services/query";
 import PlainButton from "@/components/PlainButton";
 import notification from "@/services/notification";
@@ -26,24 +29,25 @@ function search(term) {
 }
 
 export default function QuerySelector(props) {
+  const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedQuery, setSelectedQuery] = useState();
   const [doSearch, searchResults, searching] = useSearchResults(search, { initialResults: [] });
 
-  const placeholder = "Search a query by name";
+  const placeholder = t("Queries:Search a query by name");
   const clearIcon = (
     <i
       className="fa fa-times hide-in-percy"
       role="button"
       tabIndex={0}
-      aria-label="Clear"
+      aria-label={t("Clear")}
       onClick={() => selectQuery(null)}
     />
   );
   const spinIcon = (
     <span role="status" aria-live="polite" aria-relevant="additions removals">
       <i className={cx("fa fa-spinner fa-pulse hide-in-percy", { hidden: !searching })} aria-hidden="true" />
-      <span className="sr-only">Searching...</span>
+      <span className="sr-only">{t("Searching...")}</span>
     </span>
   );
 
@@ -64,7 +68,7 @@ export default function QuerySelector(props) {
       query = find(searchResults, { id: queryId });
       if (!query) {
         // shouldn't happen
-        notification.error("Something went wrong...", "Couldn't select query");
+        notification.error(t("Queries:Something went wrong..."), t("Queries:Couldn't select query"));
       }
     }
 
@@ -75,7 +79,7 @@ export default function QuerySelector(props) {
 
   function renderResults() {
     if (!searchResults.length) {
-      return <div className="text-muted">No results matching search term.</div>;
+      return <div className="text-muted">{t("Queries:No results matching search term.")}</div>;
     }
 
     return (
@@ -144,12 +148,12 @@ export default function QuerySelector(props) {
   return (
     <span data-test="QuerySelector">
       {selectedQuery ? (
-        <Input value={selectedQuery.name} aria-label="Tied query" suffix={clearIcon} readOnly />
+        <Input value={selectedQuery.name} aria-label={t("Queries:Tied query")} suffix={clearIcon} readOnly />
       ) : (
         <Input
           placeholder={placeholder}
           value={searchTerm}
-          aria-label="Tied query"
+          aria-label={t("Queries:Tied query")}
           onChange={e => setSearchTerm(e.target.value)}
           suffix={spinIcon}
         />

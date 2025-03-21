@@ -1,4 +1,5 @@
-from flask import Flask
+from flask import Flask, request
+from flask_babel import Babel
 from werkzeug.middleware.proxy_fix import ProxyFix
 
 from redash import settings
@@ -22,6 +23,21 @@ class Redash(Flask):
         self.config.from_object("redash.settings")
 
 
+def get_locale():
+    """
+    Determine the best match for supported locales based on the browser's language settings.
+    This function uses the `request.accept_languages` attribute to find the best match
+    from the list of supported locales defined in `settings.BABEL_SUPPORTED_LOCALES`.
+    Returns:
+        str: The best matching locale from the supported locales, or the default locale
+        if no match is found or if the request object is not available.
+    """
+
+    if not request:
+        return settings.BABEL_DEFAULT_LOCALE
+    return request.accept_languages.best_match(settings.BABEL_SUPPORTED_LOCALES, default=settings.BABEL_DEFAULT_LOCALE)
+
+
 def create_app():
     from . import (
         authentication,
@@ -43,6 +59,9 @@ def create_app():
 
     # Check and update the cached version for use by the client
     reset_new_version_status()
+
+    # Initialize the Flask-Babel extension
+    Babel(app, locale_selector=get_locale)
 
     security.init_app(app)
     request_metrics.init_app(app)

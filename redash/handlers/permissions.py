@@ -1,6 +1,7 @@
 from collections import defaultdict
 
 from flask import request
+from flask_babel import _
 from flask_restful import abort
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -44,12 +45,12 @@ class ObjectPermissionsListResource(BaseResource):
         access_type = req["access_type"]
 
         if access_type not in ACCESS_TYPES:
-            abort(400, message="Unknown access type.")
+            abort(400, message=_("Unknown access type."))
 
         try:
             grantee = User.get_by_id_and_org(req["user_id"], self.current_org)
         except NoResultFound:
-            abort(400, message="User not found.")
+            abort(400, message=_("User not found."))
 
         permission = AccessPermission.grant(obj, access_type, grantee, self.current_user)
         db.session.commit()
@@ -78,7 +79,7 @@ class ObjectPermissionsListResource(BaseResource):
 
         grantee = User.query.get(req["user_id"])
         if grantee is None:
-            abort(400, message="User not found.")
+            abort(400, message=_("User not found."))
 
         AccessPermission.revoke(obj, grantee, access_type)
         db.session.commit()

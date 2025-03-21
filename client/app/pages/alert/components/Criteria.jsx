@@ -2,6 +2,8 @@ import React from "react";
 import PropTypes from "prop-types";
 import { head, includes, toString, isEmpty } from "lodash";
 
+import { useTranslation } from "react-i18next";
+
 import Input from "antd/lib/input";
 import WarningFilledIcon from "@ant-design/icons/WarningFilled";
 import Select from "antd/lib/select";
@@ -36,6 +38,7 @@ DisabledInput.propTypes = {
 };
 
 export default function Criteria({ columnNames, resultValues, alertOptions, onChange, editMode }) {
+  const { t } = useTranslation("Alerts");
   const columnValue = !isEmpty(resultValues) ? head(resultValues)[alertOptions.column] : null;
   const invalidMessage = (() => {
     // bail if condition is valid for strings
@@ -44,11 +47,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
     }
 
     if (isNaN(alertOptions.value)) {
-      return "Value column type doesn't match threshold type.";
+      return t("Value column type doesn't match threshold type.");
     }
 
     if (isNaN(columnValue)) {
-      return "Value column isn't supported by condition type.";
+      return t("Value column isn't supported by condition type.");
     }
 
     return null;
@@ -59,16 +62,16 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
   if (alertOptions.selector === "first") {
     columnHint = (
       <small className="alert-criteria-hint">
-        Top row value is <code className="p-0">{toString(columnValue) || "unknown"}</code>
+        {t("Top row value is")} <code className="p-0">{toString(columnValue) || "unknown"}</code>
       </small>
     );
   } else if (alertOptions.selector === "max") {
     columnHint = (
       <small className="alert-criteria-hint">
-        Max column value is{" "}
+        {t("Max column value is")}{" "}
         <code className="p-0">
           {toString(
-            Math.max(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))
+            Math.max(...resultValues.map(o => Number(o[alertOptions.column])).filter(value => !isNaN(value)))
           ) || "unknown"}
         </code>
       </small>
@@ -76,10 +79,10 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
   } else if (alertOptions.selector === "min") {
     columnHint = (
       <small className="alert-criteria-hint">
-        Min column value is{" "}
+        {t("Min column value is")}{" "}
         <code className="p-0">
           {toString(
-            Math.min(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))
+            Math.min(...resultValues.map(o => Number(o[alertOptions.column])).filter(value => !isNaN(value)))
           ) || "unknown"}
         </code>
       </small>
@@ -93,19 +96,18 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {editMode ? (
           <Select
             value={alertOptions.selector}
-            onChange={(selector) => onChange({ selector })}
+            onChange={selector => onChange({ selector })}
             optionLabelProp="label"
             dropdownMatchSelectWidth={false}
-            style={{ width: 80 }}
-          >
+            style={{ width: 80 }}>
             <Select.Option value="first" label="first">
-              first
+              {t("first")}
             </Select.Option>
             <Select.Option value="min" label="min">
-              min
+              {t("min")}
             </Select.Option>
             <Select.Option value="max" label="max">
-              max
+              {t("max")}
             </Select.Option>
           </Select>
         ) : (
@@ -117,11 +119,10 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {editMode ? (
           <Select
             value={alertOptions.column}
-            onChange={(column) => onChange({ column })}
+            onChange={column => onChange({ column })}
             dropdownMatchSelectWidth={false}
-            style={{ minWidth: 100 }}
-          >
-            {columnNames.map((name) => (
+            style={{ minWidth: 100 }}>
+            {columnNames.map(name => (
               <Select.Option key={name}>{name}</Select.Option>
             ))}
           </Select>
@@ -130,38 +131,37 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         )}
       </div>
       <div className="input-title">
-        <span className="input-label">Condition</span>
+        <span className="input-label">{t("Condition")}</span>
         {editMode ? (
           <Select
             value={alertOptions.op}
-            onChange={(op) => onChange({ op })}
+            onChange={op => onChange({ op })}
             optionLabelProp="label"
             dropdownMatchSelectWidth={false}
-            style={{ width: 55 }}
-          >
+            style={{ width: 55 }}>
             <Select.Option value=">" label={CONDITIONS[">"]}>
-              {CONDITIONS[">"]} greater than
+              {CONDITIONS[">"]} {t("greater than")}
             </Select.Option>
             <Select.Option value=">=" label={CONDITIONS[">="]}>
-              {CONDITIONS[">="]} greater than or equals
+              {CONDITIONS[">="]} {t("greater than or equals")}
             </Select.Option>
             <Select.Option disabled key="dv1">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
             <Select.Option value="<" label={CONDITIONS["<"]}>
-              {CONDITIONS["<"]} less than
+              {CONDITIONS["<"]} {t("less than")}
             </Select.Option>
             <Select.Option value="<=" label={CONDITIONS["<="]}>
-              {CONDITIONS["<="]} less than or equals
+              {CONDITIONS["<="]} {t("less than or equals")}
             </Select.Option>
             <Select.Option disabled key="dv2">
               <Divider className="select-option-divider m-t-10 m-b-5" />
             </Select.Option>
             <Select.Option value="==" label={CONDITIONS["=="]}>
-              {CONDITIONS["=="]} equals
+              {CONDITIONS["=="]} {t("equals")}
             </Select.Option>
             <Select.Option value="!=" label={CONDITIONS["!="]}>
-              {CONDITIONS["!="]} not equal to
+              {CONDITIONS["!="]} {t("not equal to")}
             </Select.Option>
           </Select>
         ) : (
@@ -170,14 +170,14 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
       </div>
       <div className="input-title">
         <label className="input-label" htmlFor="threshold-criterion">
-          Threshold
+          {t("Threshold")}
         </label>
         {editMode ? (
           <Input
             id="threshold-criterion"
             style={{ width: 90 }}
             value={alertOptions.value}
-            onChange={(e) => onChange({ value: e.target.value })}
+            onChange={e => onChange({ value: e.target.value })}
           />
         ) : (
           <DisabledInput minWidth={50}>{alertOptions.value}</DisabledInput>

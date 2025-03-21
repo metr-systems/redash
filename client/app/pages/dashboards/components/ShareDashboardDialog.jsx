@@ -6,6 +6,9 @@ import Switch from "antd/lib/switch";
 import Modal from "antd/lib/modal";
 import Form from "antd/lib/form";
 import Alert from "antd/lib/alert";
+
+import i18next from "i18next";
+
 import notification from "@/services/notification";
 import { wrap as wrapDialog, DialogPropType } from "@/components/DialogWrapper";
 import InputWithCopy from "@/components/InputWithCopy";
@@ -41,9 +44,10 @@ class ShareDashboardDialog extends React.Component {
   static get headerContent() {
     return (
       <React.Fragment>
-        Share Dashboard
+        {i18next.t("Dashboards:Share Dashboard")}
         <div className="modal-header-desc">
-          Allow public access to this dashboard with a secret address. <HelpTrigger type="SHARE_DASHBOARD" />
+          {i18next.t("Dashboards:Allow public access to this dashboard with a secret address.")}{" "}
+          <HelpTrigger type="SHARE_DASHBOARD" />
         </div>
       </React.Fragment>
     );
@@ -60,7 +64,7 @@ class ShareDashboardDialog extends React.Component {
         dashboard.public_url = data.public_url;
       })
       .catch(() => {
-        notification.error("Failed to turn on sharing for this dashboard");
+        notification.error(i18next.t("Dashboards:Failed to turn on sharing for this dashboard"));
       })
       .finally(() => {
         this.setState({ saving: false });
@@ -78,7 +82,7 @@ class ShareDashboardDialog extends React.Component {
         delete dashboard.public_url;
       })
       .catch(() => {
-        notification.error("Failed to turn off sharing for this dashboard");
+        notification.error(i18next.t("Dashboards:Failed to turn off sharing for this dashboard"));
       })
       .finally(() => {
         this.setState({ saving: false });
@@ -102,13 +106,15 @@ class ShareDashboardDialog extends React.Component {
           {!hasOnlySafeQueries && (
             <Form.Item>
               <Alert
-                message="For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
+                message={i18next.t(
+                  "Dashboards:For your security, sharing is currently not supported for dashboards containing queries with text parameters. Consider changing the text parameters in your query to a different type."
+                )}
                 type="error"
               />
             </Form.Item>
           )}
 
-          <Form.Item label="Allow public access" {...this.formItemProps}>
+          <Form.Item label={i18next.t("Dashboards:Allow public access")} {...this.formItemProps}>
             <Switch
               checked={dashboard.publicAccessEnabled}
               onChange={this.onChange}
@@ -118,7 +124,7 @@ class ShareDashboardDialog extends React.Component {
             />
           </Form.Item>
           {dashboard.public_url && (
-            <Form.Item label="Secret address" {...this.formItemProps}>
+            <Form.Item label={i18next.t("Dashboards:Secret address")} {...this.formItemProps}>
               <InputWithCopy value={dashboard.public_url} data-test="SecretAddress" />
             </Form.Item>
           )}

@@ -1,8 +1,7 @@
-Hi {{ user.name }},
+Hallo {{ user.name }},
 
-You told us you forgot your password. If you really did, click here to choose a new one:
+Sie möchten Ihr Passwort zurücksetzen? Klicken Sie dazu einfach auf diesen Link:
 
 {{ reset_link }}
 
-If you didn't mean to reset your password, then you can just ignore this email; your password will not change.
-
+Falls Sie Ihr Passwort nicht zurücksetzen möchten, dann ignorieren Sie diese E-Mail ganz einfach. Ihr bisheriges Passwort bleibt bestehen. 

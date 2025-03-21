@@ -2,6 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
+import i18next from "i18next";
+import { Trans, useTranslation } from "react-i18next";
+
 import Link from "@/components/Link";
 import TimeAgo from "@/components/TimeAgo";
 import { Alert as AlertType } from "@/components/proptypes";
@@ -22,13 +25,18 @@ import { STATE_CLASS } from "../alerts/AlertsList";
 import DynamicComponent from "@/components/DynamicComponent";
 
 function AlertState({ state, lastTriggered }) {
+  const { t } = useTranslation("Alerts");
   return (
     <div className="alert-state">
-      <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>Status: {state}</span>
-      {state === "unknown" && <div className="ant-form-item-explain">Alert condition has not been evaluated.</div>}
+      <span className={`alert-state-indicator label ${STATE_CLASS[state]}`}>
+        {t("Status")}: {state}
+      </span>
+      {state === "unknown" && (
+        <div className="ant-form-item-explain">{t("Alerts:Alert condition has not been evaluated.")}</div>
+      )}
       {lastTriggered && (
         <div className="ant-form-item-explain">
-          Last triggered{" "}
+          {t("Last triggered")}{" "}
           <span className="alert-last-triggered">
             <TimeAgo date={lastTriggered} />
           </span>
@@ -63,6 +71,7 @@ export default class AlertView extends React.Component {
   render() {
     const { alert, queryResult, canEdit, onEdit, menuButton } = this.props;
     const { query, name, options, rearm } = alert;
+    const template = options.custom_subject || options.custom_body ? "custom" : "default";
 
     return (
       <>
@@ -72,15 +81,15 @@ export default class AlertView extends React.Component {
             <>
               <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
                 <i className="fa fa-edit m-r-5" aria-hidden="true" />
-                Edit
+                {i18next.t("Edit")}
               </Button>
               {menuButton}
             </>
           ) : (
-            <Tooltip title="You do not have sufficient permissions to edit this alert">
+            <Tooltip title={i18next.t("Alerts:You do not have sufficient permissions to edit this alert")}>
               <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
                 <i className="fa fa-edit m-r-5" aria-hidden="true" />
-                Edit
+                {i18next.t("Edit")}
               </Button>
               {menuButton}
             </Tooltip>
@@ -93,23 +102,24 @@ export default class AlertView extends React.Component {
                 <HorizontalFormItem>
                   <AlertState state={alert.state} lastTriggered={alert.last_triggered_at} />
                 </HorizontalFormItem>
-                <HorizontalFormItem label="Query">
+                <HorizontalFormItem label={i18next.t("Alerts:Query")}>
                   <Query query={query} queryResult={queryResult} />
                 </HorizontalFormItem>
                 {queryResult && options && (
                   <>
-                    <HorizontalFormItem label="Trigger when" className="alert-criteria">
+                    <HorizontalFormItem label={i18next.t("Alerts:Trigger when")} className="alert-criteria">
                       <Criteria
                         columnNames={queryResult.getColumnNames()}
                         resultValues={queryResult.getData()}
                         alertOptions={options}
                       />
                     </HorizontalFormItem>
-                    <HorizontalFormItem label="Notifications" className="form-item-line-height-normal">
+                    <HorizontalFormItem
+                      label={i18next.t("Alerts:Notifications")}
+                      className="form-item-line-height-normal">
                       <Rearm value={rearm || 0} />
                       <br />
-                      Set to {options.custom_subject || options.custom_body ? "custom" : "default"} notification
-                      template.
+                      {i18next.t("Alerts:set_notification_template", { template: template })}
                     </HorizontalFormItem>
                   </>
                 )}
@@ -121,23 +131,24 @@ export default class AlertView extends React.Component {
                   className="m-b-20"
                   message={
                     <>
-                      <i className="fa fa-bell-slash-o" aria-hidden="true" /> Notifications are muted
+                      <i className="fa fa-bell-slash-o" aria-hidden="true" />{" "}
+                      {i18next.t("Alerts:Notifications are muted")}
                     </>
                   }
                   description={
                     <>
-                      Notifications for this alert will not be sent.
+                      {i18next.t("Alerts:Notifications for this alert will not be sent.")}
                       <br />
                       {canEdit && (
                         <>
-                          To restore notifications click
+                          {i18next.t("Alerts:To restore notifications click")}
                           <Button
                             size="small"
                             type="primary"
                             onClick={this.unmute}
                             loading={this.state.unmuting}
                             className="m-t-5 m-l-5">
-                            Unmute
+                            {i18next.t("Alerts:Unmute")}
                           </Button>
                         </>
                       )}
@@ -147,11 +158,11 @@ export default class AlertView extends React.Component {
                 />
               )}
               <h4>
-                Destinations{" "}
-                <Tooltip title="Open Alert Destinations page in a new tab.">
+                {i18next.t("Alerts:Destinations")}{" "}
+                <Tooltip title={i18next.t("Alerts:Open Alert Destinations page in a new tab.")}>
                   <Link href="destinations" target="_blank">
                     <i className="fa fa-external-link f-13" aria-hidden="true" />
-                    <span className="sr-only">(opens in a new tab)</span>
+                    <span className="sr-only">{i18next.t("(opens in a new tab)")}</span>
                   </Link>
                 </Tooltip>
               </h4>

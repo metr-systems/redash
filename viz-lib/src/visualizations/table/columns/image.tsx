@@ -4,6 +4,8 @@ import { useDebouncedCallback } from "use-debounce";
 import { Section, Input, ControlLabel, ContextHelp } from "@/components/visualizations/editor";
 import { formatSimpleTemplate } from "@/lib/value-format";
 
+import {Trans, useTranslation} from "react-i18next";
+
 type Props = {
   column: {
     name: string;
@@ -16,6 +18,7 @@ type Props = {
 };
 
 function Editor({ column, onChange }: Props) {
+  const { t } = useTranslation("vizlib");
   const [onChangeDebounced] = useDebouncedCallback(onChange, 200);
 
   return (
@@ -36,11 +39,11 @@ function Editor({ column, onChange }: Props) {
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
           label={
             <React.Fragment>
-              Size
+              {t("Size")}
               {/* @ts-expect-error ts-migrate(2746) FIXME: This JSX tag's 'children' prop expects a single ch... Remove this comment to see the full error message */}
               <ContextHelp placement="topLeft" arrowPointAtCenter>
-                <div style={{ marginBottom: 5 }}>Any positive integer value that specifies size in pixels.</div>
-                <div>Leave empty to use default value.</div>
+                <div style={{ marginBottom: 5 }}>{t("Any positive integer value that specifies size in pixels")}.</div>
+                <div>{t("Leave empty to use default value")}.</div>
               </ContextHelp>
             </React.Fragment>
           }>
@@ -80,14 +83,18 @@ function Editor({ column, onChange }: Props) {
           placement="topLeft"
           arrowPointAtCenter
           // @ts-expect-error ts-migrate(2322) FIXME: Type 'Element' is not assignable to type 'null | u... Remove this comment to see the full error message
-          icon={<span style={{ cursor: "default" }}>Format specs {ContextHelp.defaultIcon}</span>}>
+          icon={<span style={{ cursor: "default" }}>{t("Format specs")} {ContextHelp.defaultIcon}</span>}>
           <div>
-            All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+            <Trans key="vizlib:columns_reference">
+              All columns can be referenced using <code>{"{{ column_name }}"}</code> syntax.
+            </Trans>
           </div>
           <div>
-            Use <code>{"{{ @ }}"}</code> to reference current (this) column.
+            <Trans key="vizlib:current_column_reference">
+              Use <code>{"{{ @ }}"}</code> to reference current (this) column.
+            </Trans>
           </div>
-          <div>This syntax is applicable to URL, Title and Size options.</div>
+          <div>{t("This syntax is applicable to URL, Title and Size options")}.</div>
         </ContextHelp>
       </Section>
     </React.Fragment>

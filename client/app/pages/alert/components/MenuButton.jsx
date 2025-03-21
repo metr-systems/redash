@@ -2,6 +2,8 @@ import React, { useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
+import { useTranslation } from "react-i18next";
+
 import Modal from "antd/lib/modal";
 import Dropdown from "antd/lib/dropdown";
 import Menu from "antd/lib/menu";
@@ -12,6 +14,7 @@ import EllipsisOutlinedIcon from "@ant-design/icons/EllipsisOutlined";
 import PlainButton from "@/components/PlainButton";
 
 export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, muted }) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
   const execute = useCallback(action => {
@@ -23,9 +26,9 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, 
 
   const confirmDelete = useCallback(() => {
     Modal.confirm({
-      title: "Delete Alert",
-      content: "Are you sure you want to delete this alert?",
-      okText: "Delete",
+      title: t("Alerts:Delete Alert"),
+      content: t("Alerts:Are you sure you want to delete this alert?"),
+      okText: t("Delete"),
       okType: "danger",
       onOk: () => {
         setLoading(true);
@@ -47,20 +50,20 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, 
         <Menu>
           <Menu.Item>
             {muted ? (
-              <PlainButton onClick={() => execute(unmute)}>Unmute Notifications</PlainButton>
+              <PlainButton onClick={() => execute(unmute)}>{t("Alerts:Unmute Notifications")}</PlainButton>
             ) : (
-              <PlainButton onClick={() => execute(mute)}>Mute Notifications</PlainButton>
+              <PlainButton onClick={() => execute(mute)}>{t("Alerts:Mute Notifications")}</PlainButton>
             )}
           </Menu.Item>
           <Menu.Item>
-            <PlainButton onClick={confirmDelete}>Delete</PlainButton>
+            <PlainButton onClick={confirmDelete}>{t("Delete")}</PlainButton>
           </Menu.Item>
           <Menu.Item>
             <PlainButton onClick={() => execute(evaluate)}>Evaluate</PlainButton>
           </Menu.Item>
         </Menu>
       }>
-      <Button aria-label="More actions">
+      <Button aria-label={t("More actions")}>
         {loading ? <LoadingOutlinedIcon /> : <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />}
       </Button>
     </Dropdown>

@@ -1,6 +1,7 @@
 import logging
 
 from flask import Blueprint, flash, redirect, request, url_for
+from flask_babel import _
 from saml2 import BINDING_HTTP_POST, BINDING_HTTP_REDIRECT, entity
 from saml2.client import Saml2Client
 from saml2.config import Config as Saml2Config
@@ -119,7 +120,7 @@ def idp_initiated(org_slug=None):
         )
     except Exception:
         logger.error("Failed to parse SAML response", exc_info=True)
-        flash("SAML login failed. Please try again later.")
+        flash(_("SAML login failed. Please try again later."))
         return redirect(url_for("redash.login", org_slug=org_slug))
 
     authn_response.get_identity()
