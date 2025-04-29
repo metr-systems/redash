@@ -104,7 +104,29 @@ class GroupDashboards extends React.Component {
   };
 
   addDashboards = () => {
-    const allDashboards = DashboardEndpoints.query();
+    const fetchAllDashboards = async () => {
+      const dashboards = [];
+
+      // Fetch the first page
+      let response = await DashboardEndpoints.query();
+
+      dashboards.push(...response.results);
+
+      let currentPage = response.page;
+      const totalPages = Math.ceil(response.count / response.page_size);
+
+      // Fetch the remaining pages
+      while (currentPage < totalPages) {
+        currentPage += 1;
+        response = await DashboardEndpoints.query({ page: currentPage });
+        dashboards.push(...response.results);
+      }
+
+      return { results: dashboards };
+    };
+
+    const allDashboards = fetchAllDashboards();
+
     const alreadyAddedDashboards = map(this.props.controller.allItems, (ds) => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: i18next.t("Groups:Add Dashboards"),

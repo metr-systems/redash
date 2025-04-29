@@ -278,7 +278,7 @@ Dashboard.prototype.getUrl = function getUrl() {
 };
 
 const DashboardEndpoints = {
-  query: () => axios.get("api/dashboards"),
+  query: (params = {}) => axios.get("api/dashboards", { params }),
   get: ({ id }) => axios.get(`api/dashboards/${id}`),
 };
 export default DashboardEndpoints;

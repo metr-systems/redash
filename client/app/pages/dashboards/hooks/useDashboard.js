@@ -43,6 +43,7 @@ function useDashboard(dashboardData) {
   const { t } = useTranslation("Dashboards");
   const [dashboard, setDashboard] = useState(dashboardData);
   const [filters, setFilters] = useState([]);
+  const [visibleWidgets, setVisibleWidgets] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
@@ -136,16 +137,16 @@ function useDashboard(dashboardData) {
   const loadDashboard = useCallback(
     (forceRefresh = false, updatedParameters = []) => {
       // get the values of the parameters
-      const widgetFilterParams = updatedParameters.length > 0 ? updatedParameters : globalParameters;
 
       // filter widgets to show from all the widgets according to the current parameters
-      dashboardRef.current.widgets = getAllowedWidgetsForCurrentParam(
-        widgetFilterParams,
+      const allowedWidgets = getAllowedWidgetsForCurrentParam(
+        globalParameters,
         dashboardRef.current.allowed_widgets,
         dashboardRef.current.saved_all_widgets
       );
+      setVisibleWidgets(allowedWidgets);
 
-      const affectedWidgets = getAffectedWidgets(dashboardRef.current.widgets, updatedParameters);
+      const affectedWidgets = getAffectedWidgets(allowedWidgets, updatedParameters);
       const loadWidgetPromises = compact(
         affectedWidgets.map((widget) => loadWidget(widget, forceRefresh).catch((error) => error))
       );
@@ -156,7 +157,7 @@ function useDashboard(dashboardData) {
         setFilters(updatedFilters);
       });
     },
-    [globalParameters, loadWidget]
+    [globalParameters, loadWidget, dashboardRef]
   );
 
   const refreshDashboard = useCallback(
@@ -270,6 +271,7 @@ function useDashboard(dashboardData) {
     managePermissions,
     isDuplicating,
     duplicateDashboard,
+    visibleWidgets,
   };
 }
 

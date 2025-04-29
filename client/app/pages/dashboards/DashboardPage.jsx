@@ -96,6 +96,7 @@ function DashboardComponent(props) {
     editedlayoutsOrder,
     setEditedlayoutsOrder,
     setGridDisabled,
+    visibleWidgets,
   } = dashboardConfiguration;
 
   const [pageContainer, setPageContainer] = useState(null);
@@ -158,7 +159,7 @@ function DashboardComponent(props) {
       <div id="dashboard-container">
         <DashboardGrid
           dashboard={dashboard}
-          widgets={dashboard.widgets}
+          widgets={visibleWidgets}
           filters={filters}
           editedlayoutsOrder={editedlayoutsOrder}
           setEditedlayoutsOrder={setEditedlayoutsOrder}
