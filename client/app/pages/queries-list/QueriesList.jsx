@@ -167,9 +167,9 @@ function QueriesList({ controller }) {
                     showPageSizeSelect
                     totalCount={controller.totalItemsCount}
                     pageSize={controller.itemsPerPage}
-                    onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                    onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
                     page={controller.page}
-                    onChange={page => controller.updatePagination({ page })}
+                    onChange={(page) => controller.updatePagination({ page })}
                   />
                 </div>
               </React.Fragment>
@@ -198,7 +198,7 @@ const QueriesListPage = itemsList(
         }[currentPage];
       },
       getItemProcessor() {
-        return item => new Query(item);
+        return (item) => new Query(item);
       },
     }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
@@ -209,7 +209,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries",
     title: i18next.t("Queries:Queries"),
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="all" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="all" />,
   })
 );
 routes.register(
@@ -217,7 +217,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/favorites",
     title: i18next.t("Queries:Favorite Queries"),
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="favorites" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="favorites" />,
   })
 );
 routes.register(
@@ -225,7 +225,7 @@ routes.register(
   routeWithUserSession({
     path: "/queries/archive",
     title: i18next.t("Queries:Archived Queries"),
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="archive" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="archive" />,
   })
 );
 routes.register(
@@ -233,6 +233,6 @@ routes.register(
   routeWithUserSession({
     path: "/queries/my",
     title: i18next.t("Queries:My Queries"),
-    render: pageProps => <QueriesListPage {...pageProps} currentPage="my" />,
+    render: (pageProps) => <QueriesListPage {...pageProps} currentPage="my" />,
   })
 );

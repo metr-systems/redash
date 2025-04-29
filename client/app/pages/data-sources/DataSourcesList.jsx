@@ -24,7 +24,7 @@ import routes from "@/services/routes";
 export function DataSourcesListComponent({ dataSources, onClickCreate }) {
   const { t } = useTranslation("DataSources");
 
-  const items = dataSources.map(dataSource => ({
+  const items = dataSources.map((dataSource) => ({
     title: dataSource.name,
     imgSrc: `${IMG_ROOT}/${dataSource.type}.png`,
     href: `data_sources/${dataSource.id}`,
@@ -70,7 +70,7 @@ class DataSourcesList extends React.Component {
 
   componentDidMount() {
     Promise.all([DataSource.query(), DataSource.types()])
-      .then(values =>
+      .then((values) =>
         this.setState(
           {
             dataSources: values[0],
@@ -89,7 +89,7 @@ class DataSourcesList extends React.Component {
           }
         )
       )
-      .catch(error => this.props.onError(error));
+      .catch((error) => this.props.onError(error));
   }
 
   componentWillUnmount() {
@@ -102,9 +102,9 @@ class DataSourcesList extends React.Component {
     const target = { options: {}, type: selectedType.type };
     helper.updateTargetWithValues(target, values);
 
-    return DataSource.create(target).then(dataSource => {
+    return DataSource.create(target).then((dataSource) => {
       this.setState({ loading: true });
-      DataSource.query().then(dataSources => this.setState({ dataSources, loading: false }));
+      DataSource.query().then((dataSources) => this.setState({ dataSources, loading: false }));
       return dataSource;
     });
   };
@@ -179,7 +179,7 @@ routes.register(
   routeWithUserSession({
     path: "/data_sources",
     title: i18next.t("DataSources:Data Sources"),
-    render: pageProps => <DataSourcesListPage {...pageProps} />,
+    render: (pageProps) => <DataSourcesListPage {...pageProps} />,
   })
 );
 routes.register(
@@ -187,6 +187,6 @@ routes.register(
   routeWithUserSession({
     path: "/data_sources/new",
     title: i18next.t("DataSources:Data Sources"),
-    render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
+    render: (pageProps) => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
   })
 );

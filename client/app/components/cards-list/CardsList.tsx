@@ -48,7 +48,7 @@ export default function CardsList({ items = [], showSearch = false }: CardsListP
   const { t } = useTranslation();
   const [searchText, setSearchText] = useState("");
   const filteredItems = items.filter(
-    item => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
+    (item) => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
   );
 
   return (

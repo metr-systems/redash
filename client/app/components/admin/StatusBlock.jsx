@@ -78,7 +78,8 @@ export function Manager({ info }) {
             <span className="badge">
               <TimeAgo date={info.lastRefreshAt} placeholder="n/a" />
             </span>
-          }>
+          }
+        >
           {t("Last Refresh")}
         </List.Item>,
         <List.Item
@@ -86,7 +87,8 @@ export function Manager({ info }) {
             <span className="badge">
               <TimeAgo date={info.startedAt} placeholder="n/a" />
             </span>
-          }>
+          }
+        >
           {t("Started")}
         </List.Item>,
         <List.Item extra={<span className="badge">{info.outdatedQueriesCount}</span>}>
@@ -98,7 +100,7 @@ export function Manager({ info }) {
   return (
     <Card title={t("Manager")} size="small">
       {!info && <div className="text-muted text-center">{t("No data")}</div>}
-      {info && <List size="small" itemLayout="vertical" dataSource={items} renderItem={item => item} />}
+      {info && <List size="small" itemLayout="vertical" dataSource={items} renderItem={(item) => item} />}
     </Card>
   );
 }

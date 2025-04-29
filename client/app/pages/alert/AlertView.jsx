@@ -116,7 +116,8 @@ export default class AlertView extends React.Component {
                     </HorizontalFormItem>
                     <HorizontalFormItem
                       label={i18next.t("Alerts:Notifications")}
-                      className="form-item-line-height-normal">
+                      className="form-item-line-height-normal"
+                    >
                       <Rearm value={rearm || 0} />
                       <br />
                       {i18next.t("Alerts:set_notification_template", { template: template })}
@@ -147,7 +148,8 @@ export default class AlertView extends React.Component {
                             type="primary"
                             onClick={this.unmute}
                             loading={this.state.unmuting}
-                            className="m-t-5 m-l-5">
+                            className="m-t-5 m-l-5"
+                          >
                             {i18next.t("Alerts:Unmute")}
                           </Button>
                         </>

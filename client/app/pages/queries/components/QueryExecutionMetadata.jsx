@@ -55,7 +55,8 @@ export default function QueryExecutionMetadata({
                 title={t(
                   "Result truncated to {{count}} rows. Databricks may truncate query results that are unstably large.",
                   { count: queryResultData.rows.length }
-                )}>
+                )}
+              >
                 <WarningTwoTone twoToneColor="#FF9800" />
               </Tooltip>
             </span>

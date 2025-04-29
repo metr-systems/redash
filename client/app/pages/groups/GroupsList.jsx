@@ -71,7 +71,8 @@ class GroupsList extends React.Component {
             disabled={!canRemove}
             group={group}
             title={canRemove ? null : i18next.t("Groups:Cannot delete built-in group")}
-            onClick={() => this.onGroupDeleted()}>
+            onClick={() => this.onGroupDeleted()}
+          >
             {i18next.t("Delete")}
           </DeleteGroupButton>
         );
@@ -85,8 +86,8 @@ class GroupsList extends React.Component {
   ];
 
   createGroup = () => {
-    CreateGroupDialog.showModal().onClose(group =>
-      Group.create(group).then(newGroup => navigateTo(`groups/${newGroup.id}`))
+    CreateGroupDialog.showModal().onClose((group) =>
+      Group.create(group).then((newGroup) => navigateTo(`groups/${newGroup.id}`))
     );
   };
 
@@ -126,9 +127,9 @@ class GroupsList extends React.Component {
               showPageSizeSelect
               totalCount={controller.totalItemsCount}
               pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
               page={controller.page}
-              onChange={page => controller.updatePagination({ page })}
+              onChange={(page) => controller.updatePagination({ page })}
             />
           </div>
         )}
@@ -166,6 +167,6 @@ routes.register(
   routeWithUserSession({
     path: "/groups",
     title: i18next.t("Groups:Groups"),
-    render: pageProps => <GroupsListPage {...pageProps} currentPage="groups" />,
+    render: (pageProps) => <GroupsListPage {...pageProps} currentPage="groups" />,
   })
 );

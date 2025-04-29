@@ -24,8 +24,8 @@ function CreateUserDialog({ dialog }) {
   useEffect(() => {
     recordEvent("view", "page", "users/new");
 
-    Group.query().then(groups => {
-      const groupOptions = groups.map(group => ({ name: group.name, value: group.id }));
+    Group.query().then((groups) => {
+      const groupOptions = groups.map((group) => ({ name: group.name, value: group.id }));
 
       setFormFields([
         ...baseFormFields,
@@ -42,7 +42,7 @@ function CreateUserDialog({ dialog }) {
     });
   }, []);
 
-  const handleSubmit = useCallback(values => dialog.close(values).catch(setError), [dialog]);
+  const handleSubmit = useCallback((values) => dialog.close(values).catch(setError), [dialog]);
   const formId = useUniqueId("userForm");
 
   return (
@@ -59,13 +59,15 @@ function CreateUserDialog({ dialog }) {
           htmlType="submit"
           type="primary"
           form={formId}
-          data-test="SaveUserButton">
+          data-test="SaveUserButton"
+        >
           {i18next.t("Create")}
         </Button>,
       ]}
       wrapProps={{
         "data-test": "CreateUserDialog",
-      }}>
+      }}
+    >
       {!loading ? (
         <DynamicForm id={formId} fields={formFields} onSubmit={handleSubmit} hideSubmitButton />
       ) : (

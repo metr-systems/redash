@@ -62,6 +62,6 @@ routes.register(
   routeWithUserSession({
     path: "/settings/general",
     title: i18next.t("Settings:General Settings"),
-    render: pageProps => <OrganizationSettingsPage {...pageProps} />,
+    render: (pageProps) => <OrganizationSettingsPage {...pageProps} />,
   })
 );

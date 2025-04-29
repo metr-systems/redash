@@ -32,7 +32,8 @@ export default function QueryFormItem({ query, queryResult, onChange, editMode }
         <Tooltip
           title={t(
             "A query schedule is not necessary but is highly recommended for alerts. An Alert without a query schedule will only send notifications if a user in your organization manually executes this query."
-          )}>
+          )}
+        >
           <a role="presentation">
             {t("Why it's recommended")}
             <QuestionCircleTwoToneIcon />

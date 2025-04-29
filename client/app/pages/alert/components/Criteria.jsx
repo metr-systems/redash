@@ -71,7 +71,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {t("Max column value is")}{" "}
         <code className="p-0">
           {toString(
-            Math.max(...resultValues.map(o => Number(o[alertOptions.column])).filter(value => !isNaN(value)))
+            Math.max(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))
           ) || "unknown"}
         </code>
       </small>
@@ -82,7 +82,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {t("Min column value is")}{" "}
         <code className="p-0">
           {toString(
-            Math.min(...resultValues.map(o => Number(o[alertOptions.column])).filter(value => !isNaN(value)))
+            Math.min(...resultValues.map((o) => Number(o[alertOptions.column])).filter((value) => !isNaN(value)))
           ) || "unknown"}
         </code>
       </small>
@@ -96,10 +96,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {editMode ? (
           <Select
             value={alertOptions.selector}
-            onChange={selector => onChange({ selector })}
+            onChange={(selector) => onChange({ selector })}
             optionLabelProp="label"
             dropdownMatchSelectWidth={false}
-            style={{ width: 80 }}>
+            style={{ width: 80 }}
+          >
             <Select.Option value="first" label="first">
               {t("first")}
             </Select.Option>
@@ -119,10 +120,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {editMode ? (
           <Select
             value={alertOptions.column}
-            onChange={column => onChange({ column })}
+            onChange={(column) => onChange({ column })}
             dropdownMatchSelectWidth={false}
-            style={{ minWidth: 100 }}>
-            {columnNames.map(name => (
+            style={{ minWidth: 100 }}
+          >
+            {columnNames.map((name) => (
               <Select.Option key={name}>{name}</Select.Option>
             ))}
           </Select>
@@ -135,10 +137,11 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
         {editMode ? (
           <Select
             value={alertOptions.op}
-            onChange={op => onChange({ op })}
+            onChange={(op) => onChange({ op })}
             optionLabelProp="label"
             dropdownMatchSelectWidth={false}
-            style={{ width: 55 }}>
+            style={{ width: 55 }}
+          >
             <Select.Option value=">" label={CONDITIONS[">"]}>
               {CONDITIONS[">"]} {t("greater than")}
             </Select.Option>
@@ -177,7 +180,7 @@ export default function Criteria({ columnNames, resultValues, alertOptions, onCh
             id="threshold-criterion"
             style={{ width: 90 }}
             value={alertOptions.value}
-            onChange={e => onChange({ value: e.target.value })}
+            onChange={(e) => onChange({ value: e.target.value })}
           />
         ) : (
           <DisabledInput minWidth={50}>{alertOptions.value}</DisabledInput>

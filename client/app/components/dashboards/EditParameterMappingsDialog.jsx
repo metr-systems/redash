@@ -17,8 +17,8 @@ import notification from "@/services/notification";
 
 export function getParamValuesSnapshot(mappings, dashboardParameters) {
   return map(
-    sortBy(mappings, m => m.name),
-    m => {
+    sortBy(mappings, (m) => m.name),
+    (m) => {
       let param;
       switch (m.type) {
         case MappingType.StaticValue:
@@ -27,7 +27,7 @@ export function getParamValuesSnapshot(mappings, dashboardParameters) {
           return [m.name, m.param.value];
         case MappingType.DashboardAddNew:
         case MappingType.DashboardMapToExisting:
-          param = find(dashboardParameters, p => p.name === m.mapTo);
+          param = find(dashboardParameters, (p) => p.name === m.mapTo);
           return [m.name, param ? param.value : null];
         // no default
       }
@@ -50,7 +50,7 @@ class EditParameterMappingsDialog extends React.Component {
     const parameterMappings = parameterMappingsToEditableMappings(
       props.widget.options.parameterMappings,
       props.widget.query.getParametersDefs(),
-      map(this.props.dashboard.getParametersDefs(), p => p.name)
+      map(this.props.dashboard.getParametersDefs(), (p) => p.name)
     );
 
     this.originalParamValuesSnapshot = getParamValuesSnapshot(
@@ -82,7 +82,7 @@ class EditParameterMappingsDialog extends React.Component {
       ...synchronizeWidgetTitles(widget.options.parameterMappings, this.props.dashboard.widgets),
     ];
 
-    Promise.all(map(widgetsToSave, w => w.save()))
+    Promise.all(map(widgetsToSave, (w) => w.save()))
       .then(() => {
         this.props.dialog.close(valuesChanged);
       })
@@ -106,12 +106,13 @@ class EditParameterMappingsDialog extends React.Component {
         title={i18next.t("Dashboards:Parameters")}
         onOk={() => this.saveWidget()}
         okButtonProps={{ loading: this.state.saveInProgress }}
-        width={700}>
+        width={700}
+      >
         {this.state.parameterMappings.length > 0 && (
           <ParameterMappingListInput
             mappings={this.state.parameterMappings}
             existingParams={this.props.dashboard.getParametersDefs()}
-            onChange={mappings => this.updateParamMappings(mappings)}
+            onChange={(mappings) => this.updateParamMappings(mappings)}
           />
         )}
       </Modal>

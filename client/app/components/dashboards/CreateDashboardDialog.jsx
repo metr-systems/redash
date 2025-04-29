@@ -29,7 +29,7 @@ function CreateDashboardDialog({ dialog }) {
     if (name !== "") {
       setSaveInProgress(true);
 
-      Dashboard.save({ name }).then(data => {
+      Dashboard.save({ name }).then((data) => {
         dialog.close();
         navigateTo(`${data.url}?edit`);
       });
@@ -57,7 +57,8 @@ function CreateDashboardDialog({ dialog }) {
       maskClosable={!saveInProgress}
       wrapProps={{
         "data-test": "CreateDashboardDialog",
-      }}>
+      }}
+    >
       <DynamicComponent name="CreateDashboardDialogExtra" disabled={!isCreateDashboardEnabled}>
         <Input
           defaultValue={name}

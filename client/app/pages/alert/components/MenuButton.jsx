@@ -17,7 +17,7 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, 
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
 
-  const execute = useCallback(action => {
+  const execute = useCallback((action) => {
     setLoading(true);
     action().finally(() => {
       setLoading(false);
@@ -62,7 +62,8 @@ export default function MenuButton({ doDelete, canEdit, mute, unmute, evaluate, 
             <PlainButton onClick={() => execute(evaluate)}>Evaluate</PlainButton>
           </Menu.Item>
         </Menu>
-      }>
+      }
+    >
       <Button aria-label={t("More actions")}>
         {loading ? <LoadingOutlinedIcon /> : <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />}
       </Button>

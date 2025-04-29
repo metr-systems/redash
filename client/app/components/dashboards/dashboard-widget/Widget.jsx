@@ -31,7 +31,8 @@ function WidgetDropdownButton({ extraOptions, showDeleteOption, onDelete }) {
         <PlainButton
           className="action p-l-15 p-r-15"
           data-test="WidgetDropdownButton"
-          aria-label={t("Dashboards:More_options")}>
+          aria-label={t("Dashboards:More_options")}
+        >
           <i className="zmdi zmdi-more-vert" aria-hidden="true" />
         </PlainButton>
       </Dropdown>
@@ -59,7 +60,8 @@ function WidgetDeleteButton({ onClick }) {
         title={i18next.t("Dashboards:Remove From Dashboard")}
         onClick={onClick}
         data-test="WidgetDeleteButton"
-        aria-label={i18next.t("common:Close")}>
+        aria-label={i18next.t("common:Close")}
+      >
         <i className="zmdi zmdi-close" aria-hidden="true" />
       </PlainButton>
     </div>
@@ -107,7 +109,7 @@ class Widget extends React.Component {
     recordEvent("view", "widget", widget.id);
   }
 
-  handleUpdateTags = newTags => {
+  handleUpdateTags = (newTags) => {
     const { widget } = this.props;
     const { tags: currentTags } = this.state;
 
@@ -159,7 +161,7 @@ class Widget extends React.Component {
               className="justify-content-start tile__bottom-control"
               tags={tags}
               canEdit={canEdit && isEditing}
-              onEdit={tags => this.handleUpdateTags(tags)}
+              onEdit={(tags) => this.handleUpdateTags(tags)}
             />
           )}
           {footer && <div className="body-row tile__bottom-control">{footer}</div>}

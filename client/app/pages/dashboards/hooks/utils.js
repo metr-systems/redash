@@ -30,11 +30,11 @@ export function getAllowedWidgetsForCurrentParam(dashboardParameters, AllowedWid
         let allowedWidgets = convertStringIntoList(AllowedWidgetsIdentifiers[paramValue]);
 
         let filtered_wgt_id = dashboardAllWidgets
-          .filter(widget => isWidgetToShow(allowedWidgets, widget.tags))
-          .map(widget => widget.id);
+          .filter((widget) => isWidgetToShow(allowedWidgets, widget.tags))
+          .map((widget) => widget.id);
 
         // we only consider one main parameter, this is why we return here
-        return dashboardAllWidgets.filter(widget => filtered_wgt_id.includes(widget.id));
+        return dashboardAllWidgets.filter((widget) => filtered_wgt_id.includes(widget.id));
       }
     }
   } catch (error) {
@@ -52,7 +52,7 @@ export function calculateLayoutsOrder(layouts) {
    12:{col: 0, row: 16, sizeX: 3, sizeY: 4}}
    result: ["10", "11", "12"]
   */
-  const layoutArray = Object.keys(layouts).map(key => ({ key, ...layouts[key] }));
+  const layoutArray = Object.keys(layouts).map((key) => ({ key, ...layouts[key] }));
   const sortedLayouts = _.sortBy(layoutArray, ["row", "col"]);
-  return sortedLayouts.map(layout => layout.key.toString());
+  return sortedLayouts.map((layout) => layout.key.toString());
 }

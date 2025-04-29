@@ -40,8 +40,8 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
 
   const renderData = normalizeCustomTemplateData(alert, query, columnNames, resultValues);
 
-  const render = tmpl => Mustache.render(tmpl || "", renderData);
-  const onEnabledChange = value => {
+  const render = (tmpl) => Mustache.render(tmpl || "", renderData);
+  const onEnabledChange = (value) => {
     if (value || !hasContent) {
       setEnabled(value);
       setShowPreview(false);
@@ -68,7 +68,8 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
         onChange={onEnabledChange}
         optionLabelProp="label"
         dropdownMatchSelectWidth={false}
-        style={{ width: "fit-content" }}>
+        style={{ width: "fit-content" }}
+      >
         <Select.Option value={0} label={t("Use default template")}>
           {t("Default template")}
         </Select.Option>
@@ -87,7 +88,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
           <Input
             value={showPreview ? render(subject) : subject}
             aria-label={t("Subject")}
-            onChange={e => setSubject(e.target.value)}
+            onChange={(e) => setSubject(e.target.value)}
             disabled={showPreview}
             data-test="CustomSubject"
           />
@@ -95,7 +96,7 @@ function NotificationTemplate({ alert, query, columnNames, resultValues, subject
             value={showPreview ? render(body) : body}
             aria-label={t("Body")}
             autoSize={{ minRows: 9 }}
-            onChange={e => setBody(e.target.value)}
+            onChange={(e) => setBody(e.target.value)}
             disabled={showPreview}
             data-test="CustomBody"
           />

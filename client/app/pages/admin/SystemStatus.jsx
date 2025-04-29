@@ -44,7 +44,7 @@ class SystemStatus extends React.Component {
   refresh = () => {
     axios
       .get("/status.json")
-      .then(data => {
+      .then((data) => {
         this.setState({
           queues: data.manager.queues,
           manager: {
@@ -56,7 +56,7 @@ class SystemStatus extends React.Component {
           status: omit(data, ["workers", "manager", "database_metrics"]),
         });
       })
-      .catch(error => this.props.onError(error));
+      .catch((error) => this.props.onError(error));
     this._refreshTimer = setTimeout(this.refresh, 60 * 1000);
   };
 
@@ -89,6 +89,6 @@ routes.register(
   routeWithUserSession({
     path: "/admin/status",
     title: i18next.t("Admin:System Status"),
-    render: pageProps => <SystemStatus {...pageProps} />,
+    render: (pageProps) => <SystemStatus {...pageProps} />,
   })
 );

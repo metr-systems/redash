@@ -14,7 +14,7 @@ export default function AuthSettings(props) {
   const { t } = useTranslation("Settings");
   const { values, onChange } = props;
   const handleChange = useCallback(
-    changes => {
+    (changes) => {
       const allSettings = { ...values, ...changes };
       const allAuthMethodsDisabled =
         !clientConfig.googleLoginEnabled && !clientConfig.ldapLoginEnabled && !allSettings.auth_saml_enabled;

@@ -104,12 +104,12 @@ export default class AlertDestinations extends React.Component {
       ),
       dialogTitle: i18next.t("Alerts:Add Existing Alert Destinations"),
       inputPlaceholder: i18next.t("Alerts:Search destinations..."),
-      searchItems: searchTerm => {
+      searchItems: (searchTerm) => {
         searchTerm = toLower(searchTerm);
-        return Promise.resolve(dests.filter(d => includes(toLower(d.name), searchTerm)));
+        return Promise.resolve(dests.filter((d) => includes(toLower(d.name), searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
-        const alreadyInGroup = !!find(subs, s => s.destination.id === item.id);
+        const alreadyInGroup = !!find(subs, (s) => s.destination.id === item.id);
 
         return {
           content: (
@@ -123,8 +123,8 @@ export default class AlertDestinations extends React.Component {
           className: isSelected || alreadyInGroup ? "selected" : "",
         };
       },
-    }).onClose(items => {
-      const promises = map(items, item => this.subscribe(item));
+    }).onClose((items) => {
+      const promises = map(items, (item) => this.subscribe(item));
       return Promise.all(promises)
         .then(() => {
           notification.success(i18next.t("Alerts:Subscribed."));
@@ -136,7 +136,7 @@ export default class AlertDestinations extends React.Component {
     });
   };
 
-  onUserEmailToggle = sub => {
+  onUserEmailToggle = (sub) => {
     if (sub) {
       this.unsubscribe(sub);
     } else {
@@ -144,7 +144,7 @@ export default class AlertDestinations extends React.Component {
     }
   };
 
-  subscribe = dest => {
+  subscribe = (dest) => {
     const { alertId } = this.props;
 
     const sub = { alert_id: alertId };
@@ -152,7 +152,7 @@ export default class AlertDestinations extends React.Component {
       sub.destination_id = dest.id;
     }
 
-    return AlertSubscription.create(sub).then(sub => {
+    return AlertSubscription.create(sub).then((sub) => {
       const { subs } = this.state;
       this.setState({
         subs: [...subs, normalizeSub(sub)],
@@ -160,7 +160,7 @@ export default class AlertDestinations extends React.Component {
     });
   };
 
-  unsubscribe = sub => {
+  unsubscribe = (sub) => {
     AlertSubscription.delete(sub)
       .then(() => {
         // not showing subscribe notification cause it's redundant here
@@ -195,7 +195,8 @@ export default class AlertDestinations extends React.Component {
             type="primary"
             size="small"
             className="add-button"
-            onClick={this.showAddAlertSubDialog}>
+            onClick={this.showAddAlertSubDialog}
+          >
             <i className="fa fa-plus f-12 m-r-5" aria-hidden="true" /> {i18next.t("Add")}
           </Button>
         </Tooltip>
@@ -215,7 +216,7 @@ export default class AlertDestinations extends React.Component {
               />
             )}
           </li>
-          {filteredSubs.map(s => (
+          {filteredSubs.map((s) => (
             <ListItem key={s.id} unsubscribe={() => this.unsubscribe(s)} {...s} />
           ))}
         </ul>

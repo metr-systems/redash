@@ -28,11 +28,12 @@ class CreateGroupDialog extends React.Component {
         {...dialog.props}
         title={i18next.t("Groups:Create a New Group")}
         okText={i18next.t("Create")}
-        onOk={() => this.save()}>
+        onOk={() => this.save()}
+      >
         <Input
           className="form-control"
           defaultValue={this.state.name}
-          onChange={event => this.setState({ name: event.target.value })}
+          onChange={(event) => this.setState({ name: event.target.value })}
           onPressEnter={() => this.save()}
           placeholder={i18next.t("Groups:Group Name")}
           aria-label={i18next.t("Groups:Group name")}

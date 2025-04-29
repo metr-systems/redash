@@ -27,7 +27,8 @@ export default function AutoLimitCheckbox({ available, checked, onChange }) {
         className="query-editor-controls-checkbox"
         disabled={!available}
         onClick={handleClick}
-        checked={available && checked}>
+        checked={available && checked}
+      >
         {t("LIMIT 1000")}
       </Checkbox>
     </Tooltip>

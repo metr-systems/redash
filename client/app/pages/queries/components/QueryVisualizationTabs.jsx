@@ -45,7 +45,7 @@ EmptyState.defaultProps = {
 function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props }) {
   const { t } = useTranslation();
   const handleDelete = useCallback(
-    e => {
+    (e) => {
       e.stopPropagation();
       Modal.confirm({
         title: t("Queries:Delete Visualization"),
@@ -68,7 +68,8 @@ function TabWithDeleteButton({ visualizationName, canDelete, onDelete, ...props 
           className="delete-visualization-button"
           onClick={handleDelete}
           aria-label={t("common:Close")}
-          title={t("common:Close")}>
+          title={t("common:Close")}
+        >
           <i className="zmdi zmdi-close" aria-hidden="true" />
         </PlainButton>
       )}
@@ -121,7 +122,8 @@ export default function QueryVisualizationTabs({
         className="add-visualization-button"
         data-test="NewVisualization"
         type="link"
-        onClick={() => onAddVisualization()}>
+        onClick={() => onAddVisualization()}
+      >
         <i className="fa fa-plus" aria-hidden="true" />
         <span className="m-l-5 hidden-xs">{t("Add Visualization")}</span>
       </Button>
@@ -129,7 +131,7 @@ export default function QueryVisualizationTabs({
   }
 
   const orderedVisualizations = useMemo(() => orderBy(visualizations, ["id"]), [visualizations]);
-  const isFirstVisualization = useCallback(visId => visId === orderedVisualizations[0].id, [orderedVisualizations]);
+  const isFirstVisualization = useCallback((visId) => visId === orderedVisualizations[0].id, [orderedVisualizations]);
   const isMobile = useMedia({ maxWidth: 768 });
 
   const [filters, setFilters] = useState([]);
@@ -142,9 +144,10 @@ export default function QueryVisualizationTabs({
       data-test="QueryPageVisualizationTabs"
       animated={false}
       tabBarGutter={0}
-      onChange={activeKey => onChangeTab(+activeKey)}
-      destroyInactiveTabPane>
-      {orderedVisualizations.map(visualization => (
+      onChange={(activeKey) => onChangeTab(+activeKey)}
+      destroyInactiveTabPane
+    >
+      {orderedVisualizations.map((visualization) => (
         <TabPane
           key={`${visualization.id}`}
           tab={
@@ -154,7 +157,8 @@ export default function QueryVisualizationTabs({
               visualizationName={visualization.name}
               onDelete={() => onDeleteVisualization(visualization.id)}
             />
-          }>
+          }
+        >
           {queryResult ? (
             <VisualizationRenderer
               visualization={visualization}
