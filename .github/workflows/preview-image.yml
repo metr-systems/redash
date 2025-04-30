@@ -3,6 +3,16 @@ on:
   push:
     tags:
       - '*-dev'
+  workflow_dispatch:
+    inputs:
+      dockerRepository:
+        description: 'Docker repository'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - redash
 
 env:
   NODE_VERSION: 18
@@ -44,10 +54,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'yarn'
 
-      - name: Install Dependencies
-        run: |
-          npm install --global --force yarn@1.22.22
-          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -58,6 +68,11 @@ jobs:
           username: ${{ vars.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
+      - name: Install Dependencies
+        run: |
+          npm install --global --force yarn@1.22.22
+          yarn cache clean && yarn --frozen-lockfile --network-concurrency 1
+
       - name: Set version
         id: version
         run: |
@@ -66,8 +81,10 @@ jobs:
           VERSION_TAG=$(jq -r .version package.json)
           echo "VERSION_TAG=$VERSION_TAG" >> "$GITHUB_OUTPUT"
 
+      # TODO: We can use GitHub Actions's matrix option to reduce the build time.
       - name: Build and push preview image to Docker Hub
         uses: docker/build-push-action@v4
+        if: ${{ github.event.inputs.dockerRepository == 'preview' || !github.event.workflow_run }}
         with:
           push: true
           tags: |
@@ -76,9 +93,25 @@ jobs:
           context: .
           build-args: |
             test_all_deps=true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64
+          cache-from: type=gha,scope=multi-platform
+          cache-to: type=gha,mode=max,scope=multi-platform
+          platforms: linux/amd64,linux/arm64
+        env:
+          DOCKER_CONTENT_TRUST: true
+
+      - name: Build and push release image to Docker Hub
+        uses: docker/build-push-action@v4
+        if: ${{ github.event.inputs.dockerRepository == 'redash' }}
+        with:
+          push: true
+          tags: |
+            redash/redash:${{ steps.version.outputs.VERSION_TAG }}
+          context: .
+          build-args: |
+            test_all_deps=true
+          cache-from: type=gha,scope=multi-platform
+          cache-to: type=gha,mode=max,scope=multi-platform
+          platforms: linux/amd64,linux/arm64
         env:
           DOCKER_CONTENT_TRUST: true
 

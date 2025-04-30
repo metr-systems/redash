@@ -77,13 +77,23 @@ export default class AlertView extends React.Component {
       <>
         <Title name={name} alert={alert}>
           <DynamicComponent name="AlertView.HeaderExtra" alert={alert} />
-          <Tooltip title={canEdit ? "" : i18next.t("Alerts:You do not have sufficient permissions to edit this alert")}>
-            <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
-              <i className="fa fa-edit m-r-5" aria-hidden="true" />
-              {i18next.t("Edit")}
-            </Button>
-            {menuButton}
-          </Tooltip>
+          {canEdit ? (
+            <>
+              <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
+                <i className="fa fa-edit m-r-5" aria-hidden="true" />
+                {i18next.t("Edit")}
+              </Button>
+              {menuButton}
+            </>
+          ) : (
+            <Tooltip title={i18next.t("Alerts:You do not have sufficient permissions to edit this alert")}>
+              <Button type="default" onClick={canEdit ? onEdit : null} className={cx({ disabled: !canEdit })}>
+                <i className="fa fa-edit m-r-5" aria-hidden="true" />
+                {i18next.t("Edit")}
+              </Button>
+              {menuButton}
+            </Tooltip>
+          )}
         </Title>
         <div className="bg-white tiled p-20">
           <Grid.Row type="flex" gutter={16}>
@@ -106,7 +116,8 @@ export default class AlertView extends React.Component {
                     </HorizontalFormItem>
                     <HorizontalFormItem
                       label={i18next.t("Alerts:Notifications")}
-                      className="form-item-line-height-normal">
+                      className="form-item-line-height-normal"
+                    >
                       <Rearm value={rearm || 0} />
                       <br />
                       {i18next.t("Alerts:set_notification_template", { template: template })}
@@ -137,7 +148,8 @@ export default class AlertView extends React.Component {
                             type="primary"
                             onClick={this.unmute}
                             loading={this.state.unmuting}
-                            className="m-t-5 m-l-5">
+                            className="m-t-5 m-l-5"
+                          >
                             {i18next.t("Alerts:Unmute")}
                           </Button>
                         </>

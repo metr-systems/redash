@@ -33,7 +33,8 @@ export default function AutocompleteToggle({ available, enabled, onToggle }) {
         className="query-editor-controls-button m-r-5"
         disabled={!available}
         onClick={handleClick}
-        aria-label={enabled ? t("Disable live autocomplete") : t("Enable live autocomplete")}>
+        aria-label={enabled ? t("Disable live autocomplete") : t("Enable live autocomplete")}
+      >
         <i className={"icon " + icon} aria-hidden="true" />
       </Button>
     </Tooltip>

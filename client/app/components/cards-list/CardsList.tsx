@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import React, { useState } from "react";
 import Input from "antd/lib/input";
 
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from "react-i18next";
 
 import Link from "@/components/Link";
 import PlainButton from "@/components/PlainButton";
@@ -48,7 +48,7 @@ export default function CardsList({ items = [], showSearch = false }: CardsListP
   const { t } = useTranslation();
   const [searchText, setSearchText] = useState("");
   const filteredItems = items.filter(
-    item => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
+    (item) => isEmpty(searchText) || includes(item.title.toLowerCase(), searchText.toLowerCase())
   );
 
   return (
@@ -57,7 +57,7 @@ export default function CardsList({ items = [], showSearch = false }: CardsListP
         <div className="row p-10">
           <div className="col-md-4 col-md-offset-4">
             <Input.Search
-              placeholder={t("Search")+"..." || "Search..."}
+              placeholder={t("Search") + "..." || "Search..."}
               aria-label={t("Cards:Search cards") || "Search cards"}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchText(e.target.value)}
               autoFocus

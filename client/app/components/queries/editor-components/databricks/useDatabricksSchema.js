@@ -39,7 +39,7 @@ function addDisplayNameWithoutDatabaseName(schema, databaseName) {
     return schema;
   }
   // add display name without {databaseName} + "."
-  return map(schema, table => {
+  return map(schema, (table) => {
     const databaseNamePrefix = databaseName + ".";
     let displayName = table.name;
     if (startsWith(table.name, databaseNamePrefix)) {
@@ -58,8 +58,8 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   const [refreshing, setRefreshing] = useState(false);
 
   const setCurrentSchema = useCallback(
-    schema =>
-      setSchemas(currentSchemas => ({
+    (schema) =>
+      setSchemas((currentSchemas) => ({
         ...currentSchemas,
         [currentDatabaseName]: schema,
       })),
@@ -69,17 +69,17 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   const currentDatabaseNameRef = useRef();
   currentDatabaseNameRef.current = currentDatabaseName;
   const loadTableColumns = useCallback(
-    tableName => {
+    (tableName) => {
       // remove [databaseName.] from the tableName
       DatabricksDataSource.getTableColumns(
         dataSource,
         currentDatabaseName,
         tableName.substring(currentDatabaseName.length + 1)
-      ).then(columns => {
+      ).then((columns) => {
         if (currentDatabaseNameRef.current === currentDatabaseName) {
-          setSchemas(currentSchemas => {
+          setSchemas((currentSchemas) => {
             const schema = get(currentSchemas, currentDatabaseName, []);
-            const updatedSchema = map(schema, table => {
+            const updatedSchema = map(schema, (table) => {
               if (table.name === tableName) {
                 return { ...table, columns, loading: false };
               }
@@ -126,7 +126,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
         .then(({ schema, has_columns }) => {
           if (!isCancelled) {
             if (!has_columns && !isEmpty(schema)) {
-              schema = map(schema, table => ({ ...table, loading: true }));
+              schema = map(schema, (table) => ({ ...table, loading: true }));
               getSchema(dataSource, currentDatabaseName, true).then(({ schema }) => {
                 if (!isCancelled) {
                   setCurrentSchema(schema);
@@ -156,7 +156,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
     setSchemas({});
     getDatabases(dataSource)
       .catch(() => Promise.resolve([]))
-      .then(data => {
+      .then((data) => {
         if (!isCancelled) {
           setDatabases(data);
 
@@ -186,7 +186,7 @@ export default function useDatabricksSchema(dataSource, options = null, onOption
   }, [dataSource]);
 
   const setCurrentDatabase = useCallback(
-    databaseName => {
+    (databaseName) => {
       if (databaseName) {
         try {
           localStorage.setItem(`lastSelectedDatabricksDatabase_${dataSource.id}`, databaseName);

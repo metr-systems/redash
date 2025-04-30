@@ -35,7 +35,7 @@ function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
     { name: "trigger", title: t("Queries:Trigger"), type: "text", required: true, autoFocus: !isEditing },
     { name: "description", title: t("Queries:Description"), type: "text" },
     { name: "snippet", title: t("Queries:Snippet"), type: "ace", required: true },
-  ].map(field => ({ ...field, readOnly, initialValue: get(querySnippet, field.name, "") }));
+  ].map((field) => ({ ...field, readOnly, initialValue: get(querySnippet, field.name, "") }));
 
   const querySnippetsFormId = useUniqueId("querySnippetForm");
 
@@ -55,14 +55,16 @@ function QuerySnippetDialog({ querySnippet, dialog, readOnly }) {
             htmlType="submit"
             type="primary"
             form={querySnippetsFormId}
-            data-test="SaveQuerySnippetButton">
+            data-test="SaveQuerySnippetButton"
+          >
             {isEditing ? t("Save") : t("Create")}
           </Button>
         ),
       ]}
       wrapProps={{
         "data-test": "QuerySnippetDialog",
-      }}>
+      }}
+    >
       <DynamicForm
         id={querySnippetsFormId}
         fields={formFields}

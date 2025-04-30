@@ -164,14 +164,14 @@ class Widget {
 
       queryResult
         .toPromise()
-        .then(result => {
+        .then((result) => {
           if (this.queryResult === queryResult) {
             this.loading = false;
             this.data = result;
           }
           return result;
         })
-        .catch(error => {
+        .catch((error) => {
           if (this.queryResult === queryResult) {
             this.loading = false;
             this.data = error;
@@ -198,7 +198,7 @@ class Widget {
       url = `${url}/${this.id}`;
     }
 
-    return axios.post(url, data).then(data => {
+    return axios.post(url, data).then((data) => {
       each(data, (v, k) => {
         this[k] = v;
       });
@@ -227,8 +227,8 @@ class Widget {
 
     const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue];
     const localParameters = map(
-      filter(params, param => localTypes.indexOf(mappings[param.name].type) >= 0),
-      param => {
+      filter(params, (param) => localTypes.indexOf(mappings[param.name].type) >= 0),
+      (param) => {
         const mapping = mappings[param.name];
         const result = cloneParameter(param);
         result.title = mapping.title || param.title;
@@ -244,7 +244,7 @@ class Widget {
     );
 
     // order widget params using paramOrder
-    return sortBy(localParameters, param =>
+    return sortBy(localParameters, (param) =>
       includes(this.options.paramOrder, param.name)
         ? indexOf(this.options.paramOrder, param.name)
         : size(this.options.paramOrder)
@@ -259,7 +259,7 @@ class Widget {
     const existingParams = {};
     // textboxes does not have query
     const params = this.getQuery() ? this.getQuery().getParametersDefs(false) : [];
-    each(params, param => {
+    each(params, (param) => {
       existingParams[param.name] = true;
       if (!isObject(this.options.parameterMappings[param.name])) {
         // "migration" for old dashboards: parameters with `global` flag
@@ -276,7 +276,7 @@ class Widget {
 
     // Remove mappings for parameters that do not exists anymore
     const removedParams = difference(keys(this.options.parameterMappings), keys(existingParams));
-    each(removedParams, name => {
+    each(removedParams, (name) => {
       delete this.options.parameterMappings[name];
     });
 
@@ -284,7 +284,7 @@ class Widget {
   }
 
   getLocalParameters() {
-    return filter(this.getParametersDefs(), param => !this.isStaticParam(param));
+    return filter(this.getParametersDefs(), (param) => !this.isStaticParam(param));
   }
 }
 

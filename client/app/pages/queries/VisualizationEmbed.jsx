@@ -77,7 +77,8 @@ function VisualizationEmbedFooter({
           queryResult={queryResults}
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed>
+          embed
+        >
           <FileOutlinedIcon /> {t("Download as CSV File")}
         </QueryResultsLink>
       </Menu.Item>
@@ -88,7 +89,8 @@ function VisualizationEmbedFooter({
           queryResult={queryResults}
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed>
+          embed
+        >
           <FileOutlinedIcon /> {t("Queries:Download as TSV File")}
         </QueryResultsLink>
       </Menu.Item>
@@ -99,7 +101,8 @@ function VisualizationEmbedFooter({
           queryResult={queryResults}
           apiKey={apiKey}
           disabled={!queryResults || !queryResults.getData || !queryResults.getData()}
-          embed>
+          embed
+        >
           <FileExcelOutlinedIcon /> {t("Queries:Download as Excel File")}
         </QueryResultsLink>
       </Menu.Item>
@@ -172,7 +175,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
   useEffect(() => {
     let isCancelled = false;
     Query.get({ id: queryId })
-      .then(result => {
+      .then((result) => {
         if (!isCancelled) {
           setQuery(result);
         }
@@ -190,10 +193,10 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
       setRefreshStartedAt(moment());
       query
         .getQueryResultPromise()
-        .then(result => {
+        .then((result) => {
           setQueryResults(result);
         })
-        .catch(err => {
+        .catch((err) => {
           setError(err.getError());
         })
         .finally(() => setRefreshStartedAt(null));
@@ -216,7 +219,7 @@ function VisualizationEmbed({ queryId, visualizationId, apiKey, onError }) {
 
   const showQueryDescription = has(location.search, "showDescription");
   visualizationId = parseInt(visualizationId, 10);
-  const visualization = find(query.visualizations, vis => vis.id === visualizationId);
+  const visualization = find(query.visualizations, (vis) => vis.id === visualizationId);
 
   if (!visualization) {
     // call error handler async, otherwise it will destroy the component on render phase
@@ -282,7 +285,7 @@ routes.register(
   "Visualizations.ViewShared",
   routeWithApiKeySession({
     path: "/embed/query/:queryId/visualization/:visualizationId",
-    render: pageProps => <VisualizationEmbed {...pageProps} />,
+    render: (pageProps) => <VisualizationEmbed {...pageProps} />,
     getApiKey: () => location.search.api_key,
   })
 );

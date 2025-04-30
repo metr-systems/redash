@@ -124,9 +124,9 @@ class AlertsList extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  onChange={(page) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -157,6 +157,6 @@ routes.register(
   routeWithUserSession({
     path: "/alerts",
     title: i18next.t("Alerts:Alerts"),
-    render: pageProps => <AlertsListPage {...pageProps} currentPage="alerts" />,
+    render: (pageProps) => <AlertsListPage {...pageProps} currentPage="alerts" />,
   })
 );

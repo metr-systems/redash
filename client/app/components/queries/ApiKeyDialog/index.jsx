@@ -26,7 +26,7 @@ function ApiKeyDialog({ dialog, ...props }) {
     setUpdatingApiKey(true);
     axios
       .post(`api/queries/${query.id}/regenerate_api_key`)
-      .then(data => {
+      .then((data) => {
         setUpdatingApiKey(false);
         setQuery(extend(query.clone(), { api_key: data.api_key }));
       })

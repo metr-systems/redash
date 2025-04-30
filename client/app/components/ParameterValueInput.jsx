@@ -12,11 +12,12 @@ import DateRangeParameter from "@/components/dynamic-parameters/DateRangeParamet
 import QueryBasedParameterInput from "./QueryBasedParameterInput";
 
 import "./ParameterValueInput.less";
+import Tooltip from "./Tooltip";
 
 const multipleValuesProps = {
   maxTagCount: 3,
   maxTagTextLength: 10,
-  maxTagPlaceholder: num => `+${num.length} more`,
+  maxTagPlaceholder: (num) => `+${num.length} more`,
 };
 
 class ParameterValueInput extends React.Component {
@@ -28,6 +29,7 @@ class ParameterValueInput extends React.Component {
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     onSelect: PropTypes.func,
     className: PropTypes.string,
+    regex: PropTypes.string,
     disabled: PropTypes.bool,
   };
 
@@ -39,6 +41,7 @@ class ParameterValueInput extends React.Component {
     parameter: null,
     onSelect: () => {},
     className: "",
+    regex: "",
     disabled: false,
   };
 
@@ -50,8 +53,9 @@ class ParameterValueInput extends React.Component {
     };
   }
 
-  componentDidUpdate = prevProps => {
+  componentDidUpdate = (prevProps) => {
     const { value, parameter } = this.props;
+    // if value prop updated, reset dirty state
     if (prevProps.value !== value || prevProps.parameter !== parameter) {
       this.setState({
         value: parameter.hasPendingValue ? parameter.pendingValue : value,
@@ -60,7 +64,7 @@ class ParameterValueInput extends React.Component {
     }
   };
 
-  onSelect = value => {
+  onSelect = (value) => {
     if (this.props.disabled) return; // Prevent onSelect if disabled
     const isDirty = !isEqual(value, this.props.value);
     this.setState({ value, isDirty });
@@ -100,8 +104,9 @@ class ParameterValueInput extends React.Component {
   renderEnumInput() {
     const { enumOptions, parameter, disabled } = this.props;
     const { value } = this.state;
-    const enumOptionsArray = enumOptions.split("\n").filter(v => v !== "");
-    const normalize = val => (parameter.multiValuesOptions && val === null ? [] : val);
+    const enumOptionsArray = enumOptions.split("\n").filter((v) => v !== "");
+    // Antd Select doesn't handle null in multiple mode
+    const normalize = (val) => (parameter.multiValuesOptions && val === null ? [] : val);
 
     return (
       <SelectWithVirtualScroll
@@ -109,11 +114,12 @@ class ParameterValueInput extends React.Component {
         mode={parameter.multiValuesOptions ? "multiple" : "default"}
         value={normalize(value)}
         onChange={this.onSelect}
-        options={map(enumOptionsArray, opt => ({ label: String(opt), value: opt }))}
+        options={map(enumOptionsArray, (opt) => ({ label: String(opt), value: opt }))}
         showSearch
         showArrow
         disabled={disabled}
         notFoundContent={isEmpty(enumOptionsArray) ? i18next.t("Params:No options available") : null}
+        {...multipleValuesProps}
       />
     );
   }
@@ -131,6 +137,7 @@ class ParameterValueInput extends React.Component {
         onSelect={this.onSelect}
         style={{ minWidth: 60 }}
         disabled={disabled}
+        {...multipleValuesProps}
       />
     );
   }
@@ -139,16 +146,34 @@ class ParameterValueInput extends React.Component {
     const { className, disabled } = this.props;
     const { value } = this.state;
 
-    const normalize = val => (isNaN(val) ? undefined : val);
+    const normalize = (val) => (isNaN(val) ? undefined : val);
 
     return (
       <InputNumber
         className={className}
         value={normalize(value)}
         aria-label={i18next.t("Params:Parameter number value")}
-        onChange={val => this.onSelect(normalize(val))}
+        onChange={(val) => this.onSelect(normalize(val))}
         disabled={disabled}
       />
+    );
+  }
+
+  renderTextPatternInput() {
+    const { className } = this.props;
+    const { value } = this.state;
+
+    return (
+      <React.Fragment>
+        <Tooltip title={`Regex to match: ${this.props.regex}`} placement="right">
+          <Input
+            className={className}
+            value={value}
+            aria-label="Parameter text pattern value"
+            onChange={(e) => this.onSelect(e.target.value)}
+          />
+        </Tooltip>
+      </React.Fragment>
     );
   }
 
@@ -162,7 +187,7 @@ class ParameterValueInput extends React.Component {
         value={value}
         aria-label={i18next.t("Params:Parameter text value")}
         data-test="TextParamInput"
-        onChange={e => this.onSelect(e.target.value)}
+        onChange={(e) => this.onSelect(e.target.value)}
         disabled={disabled}
       />
     );
@@ -185,6 +210,8 @@ class ParameterValueInput extends React.Component {
         return this.renderQueryBasedInput();
       case "number":
         return this.renderNumberInput();
+      case "text-pattern":
+        return this.renderTextPatternInput();
       default:
         return this.renderTextInput();
     }

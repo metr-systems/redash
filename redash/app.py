@@ -52,9 +52,13 @@ def create_app():
     from .metrics import request as request_metrics
     from .models import db, users
     from .utils import sentry
+    from .version_check import reset_new_version_status
 
     sentry.init()
     app = Redash()
+
+    # Check and update the cached version for use by the client
+    reset_new_version_status()
 
     # Initialize the Flask-Babel extension
     Babel(app, locale_selector=get_locale)

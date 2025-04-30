@@ -124,7 +124,8 @@ export default function DesktopNavbar() {
                 <PlusOutlinedIcon />
                 <span className="desktop-navbar-label">{t("Create")}</span>
               </React.Fragment>
-            }>
+            }
+          >
             {canCreateQuery && (
               <Menu.Item key="new-query">
                 <Link href="queries/new" data-test="CreateQueryMenuItem">
@@ -176,7 +177,8 @@ export default function DesktopNavbar() {
             <span data-test="ProfileDropdown" className="desktop-navbar-profile-menu-title">
               <img className="profile__image_thumb" src={currentUser.profile_image_url} alt={currentUser.name} />
             </span>
-          }>
+          }
+        >
           <Menu.Item key="profile">
             <Link href="users/me">{t("Profile")}</Link>
           </Menu.Item>

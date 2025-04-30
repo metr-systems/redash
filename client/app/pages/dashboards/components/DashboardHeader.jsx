@@ -25,7 +25,7 @@ import { DashboardStatusEnum } from "../hooks/useDashboard";
 import "./DashboardHeader.less";
 
 function getDashboardTags() {
-  return getTags("api/dashboards/tags").then(tags => map(tags, t => t.name));
+  return getTags("api/dashboards/tags").then((tags) => map(tags, (t) => t.name));
 }
 
 function buttonType(value) {
@@ -41,7 +41,7 @@ function DashboardPageTitle({ dashboardConfiguration }) {
         <h3>
           <EditInPlace
             isEditable={editingLayout}
-            onDone={name => updateDashboard({ name })}
+            onDone={(name) => updateDashboard({ name })}
             value={dashboard.name}
             ignoreBlanks
           />
@@ -56,7 +56,7 @@ function DashboardPageTitle({ dashboardConfiguration }) {
         isArchived={dashboard.is_archived}
         canEdit={canEditDashboard}
         getAvailableTags={getDashboardTags}
-        onEdit={tags => updateDashboard({ tags })}
+        onEdit={(tags) => updateDashboard({ tags })}
       />
     </div>
   );
@@ -87,7 +87,8 @@ function RefreshButton({ dashboardConfiguration }) {
           refreshRate
             ? t("Dashboards:Auto Refreshing every {{duration}}", { duration: durationHumanize(refreshRate) })
             : null
-        }>
+        }
+      >
         <Button type={buttonType(refreshRate)} onClick={() => refreshDashboard()}>
           <i className={cx("zmdi zmdi-refresh m-r-5", { "zmdi-hc-spin": refreshing })} aria-hidden="true" />
           {refreshRate ? durationHumanize(refreshRate) : t("Dashboards:Refresh")}
@@ -98,14 +99,15 @@ function RefreshButton({ dashboardConfiguration }) {
         placement="bottomRight"
         overlay={
           <Menu onClick={onRefreshRateSelected} selectedKeys={[`${refreshRate}`]}>
-            {refreshRateOptions.map(option => (
+            {refreshRateOptions.map((option) => (
               <Menu.Item key={`${option}`} disabled={!includes(allowedIntervals, option)}>
                 {durationHumanize(option)}
               </Menu.Item>
             ))}
             {refreshRate && <Menu.Item key={null}>{t("Dashboards:Disable auto refresh")}</Menu.Item>}
           </Menu>
-        }>
+        }
+      >
         <Button className="icon-button hidden-xs" type={buttonType(refreshRate)}>
           <i className="fa fa-angle-down" aria-hidden="true" />
           <span className="sr-only">{t("Dashboards:Split button!")}</span>
@@ -177,7 +179,8 @@ function DashboardMoreOptionsButton({ dashboardConfiguration }) {
             <PlainButton onClick={archive}>{t("Archive")}</PlainButton>
           </Menu.Item>
         </Menu>
-      }>
+      }
+    >
       <Button className="icon-button m-l-5" data-test="DashboardMoreButton" aria-label={t("More actions")}>
         <EllipsisOutlinedIcon rotate={90} aria-hidden="true" />
       </Button>
@@ -228,7 +231,8 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
                 type={buttonType(fullscreen)}
                 className="icon-button m-l-5"
                 onClick={toggleFullscreen}
-                aria-label={t("Dashboards:Toggle fullscreen display")}>
+                aria-label={t("Dashboards:Toggle fullscreen display")}
+              >
                 <i className="zmdi zmdi-fullscreen" aria-hidden="true" />
               </Button>
             </Tooltip>
@@ -241,7 +245,8 @@ function DashboardControl({ dashboardConfiguration, headerExtra }) {
                 type={buttonType(dashboard.publicAccessEnabled)}
                 onClick={showShareDashboardDialog}
                 data-test="OpenShareForm"
-                aria-label={t("Dashboards:Share")}>
+                aria-label={t("Dashboards:Share")}
+              >
                 <i className="zmdi zmdi-share" aria-hidden="true" />
               </Button>
             </Tooltip>
@@ -260,12 +265,8 @@ DashboardControl.propTypes = {
 
 function DashboardEditControl({ dashboardConfiguration, headerExtra }) {
   const { t } = useTranslation();
-  const {
-    setEditingLayout,
-    doneBtnClickedWhileSaving,
-    dashboardStatus,
-    retrySaveDashboardLayout,
-  } = dashboardConfiguration;
+  const { setEditingLayout, doneBtnClickedWhileSaving, dashboardStatus, retrySaveDashboardLayout } =
+    dashboardConfiguration;
   let status;
   if (dashboardStatus === DashboardStatusEnum.SAVED) {
     status = <span className="save-status">{t("Dashboards:Saved")}</span>;

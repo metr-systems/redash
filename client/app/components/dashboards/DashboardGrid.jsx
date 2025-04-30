@@ -144,7 +144,7 @@ class DashboardGrid extends React.Component {
 
   autoHeightCtrl = null;
 
-  setLayoutsOrder = newOrder => {
+  setLayoutsOrder = (newOrder) => {
     this.setState({ layoutsOrder: newOrder });
   };
 
@@ -154,7 +154,7 @@ class DashboardGrid extends React.Component {
     this.state = {
       layouts: {},
       layoutsOrder: this.props.dashboard.saved_all_widgets
-        ? this.props.dashboard.saved_all_widgets.map(widget => widget.id)
+        ? this.props.dashboard.saved_all_widgets.map((widget) => widget.id)
         : [],
       disableAnimations: true,
     };
@@ -204,15 +204,12 @@ class DashboardGrid extends React.Component {
       return;
     }
 
-    const normalized = chain(newLayouts[MULTI])
-      .keyBy("i")
-      .mapValues(this.normalizeTo)
-      .value();
+    const normalized = chain(newLayouts[MULTI]).keyBy("i").mapValues(this.normalizeTo).value();
 
     this.props.onLayoutChange(normalized);
   };
 
-  onBreakpointChange = mode => {
+  onBreakpointChange = (mode) => {
     this.mode = mode;
     this.props.onBreakpointChange(mode === SINGLE);
   };
@@ -251,7 +248,7 @@ class DashboardGrid extends React.Component {
     return keepLayoutsOrder(layoutsOrder, layouts[MULTI], widgets);
   }
 
-  normalizeTo = layout => ({
+  normalizeTo = (layout) => ({
     col: layout.x,
     row: layout.y,
     sizeX: layout.w,
@@ -288,8 +285,9 @@ class DashboardGrid extends React.Component {
           layouts={this.state.layouts}
           onLayoutChange={this.onLayoutChange}
           onBreakpointChange={this.onBreakpointChange}
-          breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}>
-          {widgets.map(widget => (
+          breakpoints={{ [MULTI]: cfg.mobileBreakPoint, [SINGLE]: 0 }}
+        >
+          {widgets.map((widget) => (
             <div
               key={widget.id}
               data-grid={DashboardGrid.normalizeFrom(widget)}
@@ -297,7 +295,8 @@ class DashboardGrid extends React.Component {
               data-test={`WidgetId${widget.id}`}
               className={cx("dashboard-widget-wrapper", {
                 "widget-auto-height-enabled": this.autoHeightCtrl.exists(widget.id),
-              })}>
+              })}
+            >
               <DashboardWidget
                 dashboard={dashboard}
                 widget={widget}

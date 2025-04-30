@@ -42,7 +42,7 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
   }, [doneBtnClickedWhileSaving, dashboardStatus]);
 
   const saveDashboardLayout = useCallback(
-    positions => {
+    (positions) => {
       if (!canEditDashboard) {
         setDashboardStatus(DashboardStatusEnum.SAVED);
         return;
@@ -82,13 +82,13 @@ export default function useEditModeHandler(canEditDashboard, widgets) {
     [saveDashboardLayout]
   );
 
-  const retrySaveDashboardLayout = useCallback(() => saveDashboardLayout(recentPositions), [
-    recentPositions,
-    saveDashboardLayout,
-  ]);
+  const retrySaveDashboardLayout = useCallback(
+    () => saveDashboardLayout(recentPositions),
+    [recentPositions, saveDashboardLayout]
+  );
 
   const setEditing = useCallback(
-    editing => {
+    (editing) => {
       if (!editing && dashboardStatus !== DashboardStatusEnum.SAVED) {
         setDoneBtnClickedWhileSaving(true);
         return;

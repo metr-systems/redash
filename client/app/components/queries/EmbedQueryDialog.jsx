@@ -53,7 +53,8 @@ class EmbedQueryDialog extends React.Component {
         {...dialog.props}
         className="embed-query-dialog"
         title={i18next.t("Queries:Embed Query")}
-        footer={<Button onClick={dialog.dismiss}>{i18next.t("Close")}</Button>}>
+        footer={<Button onClick={dialog.dismiss}>{i18next.t("Close")}</Button>}
+      >
         {query.is_safe ? (
           <React.Fragment>
             <h5 id={this.urlEmbedLabelId} className="m-t-0">
@@ -75,14 +76,14 @@ class EmbedQueryDialog extends React.Component {
                 <Form.Item>
                   <Checkbox
                     checked={enableChangeIframeSize}
-                    onChange={e => this.setState({ enableChangeIframeSize: e.target.checked })}
+                    onChange={(e) => this.setState({ enableChangeIframeSize: e.target.checked })}
                   />
                 </Form.Item>
                 <Form.Item label="Width">
                   <InputNumber
                     className="size-input"
                     value={iframeWidth}
-                    onChange={value => this.setState({ iframeWidth: value })}
+                    onChange={(value) => this.setState({ iframeWidth: value })}
                     size="small"
                     disabled={!enableChangeIframeSize}
                   />
@@ -91,7 +92,7 @@ class EmbedQueryDialog extends React.Component {
                   <InputNumber
                     className="size-input"
                     value={iframeHeight}
-                    onChange={value => this.setState({ iframeHeight: value })}
+                    onChange={(value) => this.setState({ iframeHeight: value })}
                     size="small"
                     disabled={!enableChangeIframeSize}
                   />

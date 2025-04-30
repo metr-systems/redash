@@ -18,7 +18,7 @@ function wrapSettingsTab(id, options, WrappedComponent) {
           <PageHeader title={i18next.t("Settings:Settings")} />
           <div className="bg-white tiled">
             <Menu selectedKeys={[activeItem && activeItem.title]} selectable={false} mode="horizontal">
-              {settingsMenu.getAvailableItems().map(item => (
+              {settingsMenu.getAvailableItems().map((item) => (
                 <Menu.Item key={item.title}>
                   <Link href={item.path} data-test="SettingsScreenItem">
                     {item.title}

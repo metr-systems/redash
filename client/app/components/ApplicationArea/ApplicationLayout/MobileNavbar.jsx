@@ -73,7 +73,8 @@ export default function MobileNavbar({ getPopupContainer }) {
                 {t("Log out")}
               </Menu.Item>
             </Menu>
-          }>
+          }
+        >
           <Button className="mobile-navbar-toggle-button" ghost>
             <MenuOutlinedIcon />
           </Button>

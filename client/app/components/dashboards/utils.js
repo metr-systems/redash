@@ -6,17 +6,17 @@ export function keepLayoutsOrder(orderedLayoutsIds, layouts, widgets) {
   let usedColumns = 0;
   let biggestHeightInLine = 0;
 
-  const getWidgetById = id => widgets.find(widget => widget.id.toString() === id.toString());
-  const isTextbox = widget => widget && !widget.visualization;
+  const getWidgetById = (id) => widgets.find((widget) => widget.id.toString() === id.toString());
+  const isTextbox = (widget) => widget && !widget.visualization;
 
-  const initNewLine = layout => {
+  const initNewLine = (layout) => {
     layout.y = currentY;
     layout.x = 0;
     usedColumns = layout.w;
     biggestHeightInLine = layout.h;
   };
 
-  const moveToNewLine = layout => {
+  const moveToNewLine = (layout) => {
     currentY += biggestHeightInLine;
     initNewLine(layout);
   };
@@ -34,8 +34,8 @@ export function keepLayoutsOrder(orderedLayoutsIds, layouts, widgets) {
     previousLayout.w + layout.w > cfg.columns ||
     usedColumns + layout.w > cfg.columns;
 
-  orderedLayoutsIds.forEach(id => {
-    const layout = layouts.find(l => l.i === id.toString());
+  orderedLayoutsIds.forEach((id) => {
+    const layout = layouts.find((l) => l.i === id.toString());
     if (!layout) return;
 
     if (newLayouts.length === 0) {

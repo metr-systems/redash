@@ -12,6 +12,7 @@ import QueryControlDropdown from "@/components/EditVisualizationButton/QueryCont
 import EditVisualizationButton from "@/components/EditVisualizationButton";
 import useQueryResultData from "@/lib/useQueryResultData";
 import { durationHumanize, pluralize, prettySize } from "@/lib/utils";
+import { isUndefined } from "lodash";
 
 import "./QueryExecutionMetadata.less";
 
@@ -54,7 +55,8 @@ export default function QueryExecutionMetadata({
                 title={t(
                   "Result truncated to {{count}} rows. Databricks may truncate query results that are unstably large.",
                   { count: queryResultData.rows.length }
-                )}>
+                )}
+              >
                 <WarningTwoTone twoToneColor="#FF9800" />
               </Tooltip>
             </span>
@@ -70,7 +72,7 @@ export default function QueryExecutionMetadata({
           )}
           {isQueryExecuting && <span>{t("Running")}&hellip;</span>}
         </span>
-        {queryResultData.metadata.data_scanned && (
+        {!isUndefined(queryResultData.metadata.data_scanned) && !isQueryExecuting && (
           <span className="m-l-5">
             {t("Data Scanned")}
             <strong>{prettySize(queryResultData.metadata.data_scanned)}</strong>

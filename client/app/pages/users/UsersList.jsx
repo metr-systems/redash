@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
 
-import i18next from 'i18next';
+import i18next from "i18next";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import Link from "@/components/Link";
@@ -42,17 +42,17 @@ function UsersListActions({ user, enableUser, disableUser, deleteUser }) {
   }
   if (user.is_invitation_pending) {
     return (
-      <Button type="danger" className="w-100" onClick={event => deleteUser(event, user)}>
+      <Button type="danger" className="w-100" onClick={(event) => deleteUser(event, user)}>
         {i18next.t("Delete")}
       </Button>
     );
   }
   return user.is_disabled ? (
-    <Button type="primary" className="w-100" onClick={event => enableUser(event, user)}>
+    <Button type="primary" className="w-100" onClick={(event) => enableUser(event, user)}>
       {i18next.t("Users:Enable")}
     </Button>
   ) : (
-    <Button className="w-100" onClick={event => disableUser(event, user)}>
+    <Button className="w-100" onClick={(event) => disableUser(event, user)}>
       {i18next.t("Users:Disable")}
     </Button>
   );
@@ -101,7 +101,7 @@ class UsersList extends React.Component {
     }),
     Columns.custom.sortable(
       (text, user) =>
-        map(user.groups, group => (
+        map(user.groups, (group) => (
           <Link key={"group" + group.id} className="label label-tag" href={"groups/" + group.id}>
             {group.name}
           </Link>
@@ -145,9 +145,9 @@ class UsersList extends React.Component {
     }
   }
 
-  createUser = values =>
+  createUser = (values) =>
     User.create(values)
-      .then(user => {
+      .then((user) => {
         notification.success(i18next.t("Saved."));
         if (user.invite_link) {
           Modal.warning({
@@ -155,7 +155,8 @@ class UsersList extends React.Component {
             content: (
               <React.Fragment>
                 <p>
-                  {i18next.t("Users:The mail server is not configured, please send the following link to")} <b>{user.name}</b>:
+                  {i18next.t("Users:The mail server is not configured, please send the following link to")}{" "}
+                  <b>{user.name}</b>:
                 </p>
                 <InputWithCopy value={absoluteUrl(user.invite_link)} aria-label="Invite link" readOnly />
               </React.Fragment>
@@ -163,8 +164,11 @@ class UsersList extends React.Component {
           });
         }
       })
-      .catch(error => {
-        const message = find([get(error, "response.data.message"), get(error, "message"), i18next.t("Users:Failed saving.")], isString);
+      .catch((error) => {
+        const message = find(
+          [get(error, "response.data.message"), get(error, "message"), i18next.t("Users:Failed saving.")],
+          isString
+        );
         return Promise.reject(new Error(message));
       });
 
@@ -176,7 +180,7 @@ class UsersList extends React.Component {
         }
       };
       CreateUserDialog.showModal()
-        .onClose(values =>
+        .onClose((values) =>
           this.createUser(values).then(() => {
             this.props.controller.update();
             goToUsersList();
@@ -201,7 +205,7 @@ class UsersList extends React.Component {
       <div className="m-b-15">
         <Button type="primary" disabled={!policy.isCreateUserEnabled()} onClick={this.showCreateUserDialog}>
           <i className="fa fa-plus m-r-5" aria-hidden="true" />
-         {i18next.t("Users:New User")}
+          {i18next.t("Users:New User")}
         </Button>
         <DynamicComponent name="UsersListExtra" />
       </div>
@@ -239,9 +243,9 @@ class UsersList extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  onChange={(page) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -258,7 +262,7 @@ const UsersListPage = wrapSettingsTab(
     permission: "list_users",
     title: i18next.t("Users:Users"),
     path: "users",
-    isActive: path => path.startsWith("/users") && path !== "/users/me",
+    isActive: (path) => path.startsWith("/users") && path !== "/users/me",
     order: 2,
   },
   itemsList(
@@ -293,7 +297,7 @@ routes.register(
   routeWithUserSession({
     path: "/users/new",
     title: i18next.t("Users:Users"),
-    render: pageProps => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
+    render: (pageProps) => <UsersListPage {...pageProps} currentPage="active" isNewUserPage />,
   })
 );
 routes.register(
@@ -301,7 +305,7 @@ routes.register(
   routeWithUserSession({
     path: "/users",
     title: i18next.t("Users:Users"),
-    render: pageProps => <UsersListPage {...pageProps} currentPage="active" />,
+    render: (pageProps) => <UsersListPage {...pageProps} currentPage="active" />,
   })
 );
 routes.register(
@@ -309,7 +313,7 @@ routes.register(
   routeWithUserSession({
     path: "/users/pending",
     title: i18next.t("Users:Pending Invitations"),
-    render: pageProps => <UsersListPage {...pageProps} currentPage="pending" />,
+    render: (pageProps) => <UsersListPage {...pageProps} currentPage="pending" />,
   })
 );
 routes.register(
@@ -317,6 +321,6 @@ routes.register(
   routeWithUserSession({
     path: "/users/disabled",
     title: i18next.t("Users:Disabled Users"),
-    render: pageProps => <UsersListPage {...pageProps} currentPage="disabled" />,
+    render: (pageProps) => <UsersListPage {...pageProps} currentPage="disabled" />,
   })
 );

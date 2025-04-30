@@ -25,7 +25,7 @@ export default function ApiKeyForm(props) {
     const doRegenerate = () => {
       setLoading(true);
       User.regenerateApiKey(user)
-        .then(apiKey => {
+        .then((apiKey) => {
           if (apiKey) {
             handleChange({ ...user, apiKey });
           }

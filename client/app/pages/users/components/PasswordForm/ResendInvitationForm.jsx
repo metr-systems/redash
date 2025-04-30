@@ -19,7 +19,7 @@ export default function ResendInvitationForm(props) {
     setLoading(true);
 
     User.resendInvitation(user)
-      .then(passwordLink => {
+      .then((passwordLink) => {
         setPasswordLink(passwordLink);
       })
       .finally(() => {

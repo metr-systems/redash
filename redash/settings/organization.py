@@ -49,6 +49,7 @@ ENABLE_AUTO_REFRESH_WHEN_OPENING_DASHBOARD = parse_boolean(
 )
 
 settings = {
+    "beacon_consent": None,
     "auth_password_login_enabled": PASSWORD_LOGIN_ENABLED,
     "auth_saml_enabled": SAML_LOGIN_ENABLED,
     "auth_saml_type": SAML_LOGIN_TYPE,

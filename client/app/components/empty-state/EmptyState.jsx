@@ -103,7 +103,7 @@ function EmptyState({
   }, []);
 
   // Show if `onboardingMode=false` or any requested step not completed
-  const shouldShow = !onboardingMode || some(keys(isAvailable), step => isAvailable[step] && !isCompleted[step]);
+  const shouldShow = !onboardingMode || some(keys(isAvailable), (step) => isAvailable[step] && !isCompleted[step]);
 
   if (!shouldShow) {
     return null;
@@ -205,7 +205,7 @@ function EmptyState({
           <h4>
             <Trans i18nKey="EmptyState:lets_get_started">Let's get started</Trans>
           </h4>
-          <ol>{stepsItems.map(item => item.node)}</ol>
+          <ol>{stepsItems.map((item) => item.node)}</ol>
           {helpMessage}
         </div>
       </div>

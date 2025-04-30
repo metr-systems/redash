@@ -83,16 +83,16 @@ class GroupDashboards extends React.Component {
 
   componentDidMount() {
     Group.get({ id: this.groupId })
-      .then(group => {
+      .then((group) => {
         this.group = group;
         this.forceUpdate();
       })
-      .catch(error => {
+      .catch((error) => {
         this.props.controller.handleError(error);
       });
   }
 
-  removeGroupDashboard = dashboard => {
+  removeGroupDashboard = (dashboard) => {
     Group.removeDashboard({ id: this.groupId, dashboardId: dashboard.id })
       .then(() => {
         this.props.controller.updatePagination({ page: 1 });
@@ -127,14 +127,14 @@ class GroupDashboards extends React.Component {
 
     const allDashboards = fetchAllDashboards();
 
-    const alreadyAddedDashboards = map(this.props.controller.allItems, ds => ds.id);
+    const alreadyAddedDashboards = map(this.props.controller.allItems, (ds) => ds.id);
     SelectItemsDialog.showModal({
       dialogTitle: i18next.t("Groups:Add Dashboards"),
       inputPlaceholder: `${i18next.t("Groups:Search Dashboards")}...`,
       selectedItemsTitle: i18next.t("Groups:New Dashboards"),
-      searchItems: searchTerm => {
+      searchItems: (searchTerm) => {
         searchTerm = toLower(searchTerm);
-        return allDashboards.then(({ results }) => filter(results, d => includes(toLower(d.name), searchTerm)));
+        return allDashboards.then(({ results }) => filter(results, (d) => includes(toLower(d.name), searchTerm)));
       },
       renderItem: (item, { isSelected }) => {
         const alreadyInGroup = includes(alreadyAddedDashboards, item.id);
@@ -155,8 +155,8 @@ class GroupDashboards extends React.Component {
           </DashboardPreviewCard>
         ),
       }),
-    }).onClose(items => {
-      const promises = map(items, ds => Group.addDashboard({ id: this.groupId }, { dashboard_id: ds.id }));
+    }).onClose((items) => {
+      const promises = map(items, (ds) => Group.addDashboard({ id: this.groupId }, { dashboard_id: ds.id }));
       return Promise.all(promises).then(() => this.props.controller.update());
     });
   };
@@ -205,9 +205,9 @@ class GroupDashboards extends React.Component {
                   showPageSizeSelect
                   totalCount={controller.totalItemsCount}
                   pageSize={controller.itemsPerPage}
-                  onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+                  onPageSizeChange={(itemsPerPage) => controller.updatePagination({ itemsPerPage })}
                   page={controller.page}
-                  onChange={page => controller.updatePagination({ page })}
+                  onChange={(page) => controller.updatePagination({ page })}
                 />
               </div>
             )}
@@ -242,6 +242,6 @@ routes.register(
   routeWithUserSession({
     path: "/groups/:groupId/dashboards",
     title: i18next.t("Groups:Group Dashboards"),
-    render: pageProps => <GroupDashboardsPage {...pageProps} currentPage="dashboards" />,
+    render: (pageProps) => <GroupDashboardsPage {...pageProps} currentPage="dashboards" />,
   })
 );

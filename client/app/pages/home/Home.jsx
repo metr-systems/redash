@@ -9,6 +9,7 @@ import Link from "@/components/Link";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import EmptyState, { EmptyStateHelpMessage } from "@/components/empty-state/EmptyState";
 import DynamicComponent from "@/components/DynamicComponent";
+import BeaconConsent from "@/components/BeaconConsent";
 import PlainButton from "@/components/PlainButton";
 
 import { axios } from "@/services/axios";
@@ -36,7 +37,8 @@ function DeprecatedEmbedFeatureAlert() {
           <Link
             href="https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337"
             target="_blank"
-            rel="noopener noreferrer">
+            rel="noopener noreferrer"
+          >
             {t("Read more")}
           </Link>
           .
@@ -49,7 +51,7 @@ function DeprecatedEmbedFeatureAlert() {
 function EmailNotVerifiedAlert() {
   const { t } = useTranslation("Home");
   const verifyEmail = () => {
-    axios.post("verification_email/").then(data => {
+    axios.post("verification_email/").then((data) => {
       notification.success(data.message);
     });
   };
@@ -98,6 +100,7 @@ export default function Home() {
         </DynamicComponent>
         <DynamicComponent name="HomeExtra" />
         <DashboardAndQueryFavoritesList />
+        <BeaconConsent />
       </div>
     </div>
   );
@@ -108,6 +111,6 @@ routes.register(
   routeWithUserSession({
     path: "/",
     title: "Redash",
-    render: pageProps => <Home {...pageProps} />,
+    render: (pageProps) => <Home {...pageProps} />,
   })
 );
