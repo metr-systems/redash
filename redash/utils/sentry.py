@@ -11,7 +11,7 @@ from redash import __version__, settings
 
 TRACES_SAMPLE_RATE = float(os.environ.get("SENTRY_TRACES_SAMPLE_RATE", "0.0"))
 
-NON_REPORTED_EXCEPTIONS = ["QueryExecutionError"]
+NON_REPORTED_EXCEPTIONS = ["QueryExecutionError", "RefreshQueriesError"]
 
 
 def before_send(event, hint):
