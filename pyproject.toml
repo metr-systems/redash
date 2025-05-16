@@ -91,6 +91,13 @@ paramiko = "3.4.1"
 flask-babel = "^4.0.0"
 babel = "^2.16.0"
 
+[tool.poetry.group.metr]
+optional = true
+
+[tool.poetry.group.metr.dependencies]
+google-api-python-client = "1.7.11"
+gspread = "5.11.2"
+
 [tool.poetry.group.all_ds]
 optional = true
 
