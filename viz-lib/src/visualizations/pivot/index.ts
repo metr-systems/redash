@@ -25,6 +25,6 @@ export default {
   Editor,
 
   defaultRows: 10,
-  defaultColumns: 6,
+  defaultColumns: 3,
   minColumns: 2,
 };
