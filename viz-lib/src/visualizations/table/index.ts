@@ -12,6 +12,6 @@ export default {
 
   autoHeight: true,
   defaultRows: 14,
-  defaultColumns: 3,
+  defaultColumns: 6,
   minColumns: 2,
 };

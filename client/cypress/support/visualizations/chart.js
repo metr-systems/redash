@@ -3,7 +3,7 @@
  * @param should Passed to should expression after plot points are captured
  */
 export function assertPlotPreview(should = "exist") {
-  cy.getByTestId("VisualizationPreview").find("g.plot").should("exist").find("g.points").should(should);
+  cy.getByTestId("VisualizationPreview").find("g.overplot").should("exist").find("g.points").should(should);
 }
 
 export function createChartThroughUI(chartName, chartSpecificAssertionFn = () => {}) {
