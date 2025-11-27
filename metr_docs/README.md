@@ -365,6 +365,7 @@ pre-commit run --all-files
 ```
 
  4. Go to the Test step in this readme and check that tests are running
+ 5. check this PR for reference for QA checklist: https://github.com/metr-systems/backlog/issues/4412
 
 ### Phase 4: Update metr-main
 
