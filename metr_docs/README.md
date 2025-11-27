@@ -275,3 +275,126 @@ from redash.models import db
 db.session.delete(user)
 db.session.commit()
 ```
+
+## Updating redash with upstream 
+
+**Strategy:** Create branch from main → Merge upstream into it → Merge back to main.
+
+### Phase 1: Preparation
+
+**Goal:** Get the latest code and create the merging branch.
+
+```bash
+# 1. Fetch the latest tags from the official Redash repo (upstream)
+git fetch upstream --tags
+
+# 2. Switch to main branch and ensure it is up to date
+git checkout metr-main
+git pull origin metr-main
+
+# 3. Create the merge branch FROM metr-main
+git checkout -b merge-v25.8.0
+```
+
+### Phase 2: The Merge
+
+**Goal:** Pull the new Redash code (v25.8.0) into your branch.
+
+```bash
+# 1. Merge the official release tag into your current branch
+git merge v25.8.0
+```
+
+**⚠️ Check the Output**
+
+- **If it says "Fast-forward":** You are done with this phase.
+
+- **If it says "CONFLICT":**
+  1. Open the files listed in red.
+  2. Look for `<<<<<<< HEAD` (Your code) and `>>>>>>> v25.8.0` (New Redash code).
+  3. Resolve the conflict (usually keeping the new Redash code but reapplying your specific config/changes).
+  4. Stage and commit:
+     ```bash
+     git add <file>
+     git commit  # Accept the default merge message
+     ```
+
+### Phase 3: Verification
+
+**Goal:** Ensure the application works before pushing.
+
+
+  1. If poetry dependencies have been changed, you will need to refresh the content-hash by executing : 
+```bash
+poetry lock --no-update 
+```
+
+Note that you can check if poetry is okay by executing 
+```bash
+poetry check --lock
+```
+
+Make sure to install if needed
+```bash
+poetry install
+```
+
+  2. If there were some new or updated yarn dependencies you will need to do 
+```bash
+yarn install
+```
+Your yarn lock will be updated according to the package.json file updates
+
+ 3. Check that there is no db migrations conflict
+
+```bash
+flask db heads
+```
+If conflicting heads (more than one head)
+
+```bash
+flask db merge -m "merge conflicting heads"
+flask db upgrade
+```
+
+Don’t forget to check files formatting with 
+
+```bash
+yarn prettier
+pre-commit run --all-files
+```
+
+ 4. Go to the Test step in this readme and check that tests are running
+ 5. check this PR for reference for QA checklist: https://github.com/metr-systems/backlog/issues/4412
+
+### Phase 4: Update metr-main
+
+**Goal:** Update metr-main
+
+Either ppen PR about merge branch and merge it into metr-main after review
+Or do it with commands directly with the following:
+
+```bash
+# 1. Switch back to your main branch
+git checkout metr-main
+
+# 2. Merge your working branch back into main
+# (This will be a clean fast-forward)
+git merge merge-v25.8.0
+```
+
+### Phase 5: Finalize & Deploy
+
+**Goal:** Push to the server/Deploy.
+
+# 1. Create and Push the main branch with the Deployment Tag
+
+```bash
+git tag v25.8.0-metr-r1
+git push origin meta-main —tags
+```
+# 2. Cleanup (Delete the working branch)
+
+```bash
+git branch -d merge-v25.8.0
+```
