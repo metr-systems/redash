@@ -43,8 +43,14 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
     result.param = find(parameters, (p) => p.name === mapping.name);
     switch (mapping.type) {
       case ParameterMappingType.DashboardLevel:
-        result.type = alreadyExists ? MappingType.DashboardMapToExisting : MappingType.DashboardAddNew;
-        result.value = null;
+       // If this mapping was saved as a "static dashboard" one, restore that type
+        if (mapping.staticDashboard) {
+          result.type = MappingType.StaticDashboardValue;
+          result.value = mapping.value || null;
+        } else {
+          result.type = alreadyExists ? MappingType.DashboardMapToExisting : MappingType.DashboardAddNew;
+          result.value = null;
+        }
         break;
       case ParameterMappingType.StaticValue:
         result.type = MappingType.StaticValue;
@@ -86,6 +92,16 @@ export function editableMappingsToParameterMappings(mappings) {
           case MappingType.WidgetLevel:
             result.type = ParameterMappingType.WidgetLevel;
             result.value = null;
+            break;
+          case MappingType.StaticDashboardValue:
+            // Save as dashboard-level mapping with an extra flag so that:
+            // - we know it's intended to be backed by a static dashboard parameter
+            // - parameterMappingsToEditableMappings can restore the correct editor type
+            result.type = ParameterMappingType.DashboardLevel;
+            result.staticDashboard = true;
+            result.param = cloneParameter(mapping.param);
+            result.param.setValue(mapping.value);
+            result.value = result.param.value;
             break;
           // no default
         }
