@@ -30,6 +30,8 @@ export default class Parameters extends React.Component {
     sortable: PropTypes.bool,
     disabled: PropTypes.bool,
     disableUrlUpdate: PropTypes.bool,
+    lockedParameterNames: PropTypes.arrayOf(PropTypes.string),
+    hideLockedParameters: PropTypes.bool,
     onValuesChange: PropTypes.func,
     onPendingValuesChange: PropTypes.func,
     onParametersEdit: PropTypes.func,
@@ -41,6 +43,8 @@ export default class Parameters extends React.Component {
     editable: false,
     sortable: false,
     disableUrlUpdate: false,
+    lockedParameterNames: [],
+    hideLockedParameters: false,
     onValuesChange: () => {},
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
@@ -58,6 +62,7 @@ export default class Parameters extends React.Component {
     super(props);
     const { parameters, disableUrlUpdate } = props;
     this.state = { parameters };
+    this.lockedNames = new Set(props.lockedParameterNames || []);
     if (!disableUrlUpdate) {
       updateUrl(parameters);
     }
@@ -75,6 +80,9 @@ export default class Parameters extends React.Component {
     }
     if ((parametersChanged || disableUrlUpdateChanged) && !disableUrlUpdate) {
       updateUrl(parameters);
+    }
+    if (prevProps.lockedParameterNames !== this.props.lockedParameterNames) {
+      this.lockedNames = new Set(this.props.lockedParameterNames || []);
     }
   };
 
