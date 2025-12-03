@@ -573,7 +573,7 @@ export class ParameterMappingListInput extends React.Component {
       }
 
       // static type is different since it's fed param.normalizedValue
-    } else if (type === MappingType.StaticValue) {
+    } else if (type === MappingType.StaticValue || type === MappingType.StaticDashboardValue) {
       param = cloneParameter(param).setValue(mapping.value);
     }
 
@@ -600,6 +600,8 @@ export class ParameterMappingListInput extends React.Component {
         return i18next.t("Params:Widget parameter");
       case MappingType.StaticValue:
         return i18next.t("Params:Static value");
+      case MappingType.StaticDashboardValue:
+        return i18next.t("Params:Static dashboard value");
       default:
         return ""; // won't happen (typescript-ftw)
     }
