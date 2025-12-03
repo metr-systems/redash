@@ -33,6 +33,7 @@ export const MappingType = {
   DashboardMapToExisting: "dashboard-map-to-existing",
   WidgetLevel: "widget-level",
   StaticValue: "static-value",
+  StaticDashboardValue: "static-dashboard-value",
 };
 
 export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
@@ -166,7 +167,7 @@ export class ParameterMappingInput extends React.Component {
       newMapping.param.setValue(newMapping.value);
     }
     if (has(update, "type")) {
-      if (update.type === MappingType.StaticValue) {
+      if (update.type === MappingType.StaticValue || update.type === MappingType.StaticDashboardValue) {
         newMapping.value = newMapping.param.value;
       } else {
         newMapping.value = null;
@@ -195,6 +196,9 @@ export class ParameterMappingInput extends React.Component {
         </Radio>
         <Radio className="radio" value={MappingType.StaticValue} data-test="StaticValueOption">
           {i18next.t("Params:Static value")}
+        </Radio>
+        <Radio className="radio" value={MappingType.StaticDashboardValue} data-test="StaticDashboardValueOption">
+          {i18next.t("Params:Static dashboard value")}
         </Radio>
       </Radio.Group>
     );
@@ -235,6 +239,31 @@ export class ParameterMappingInput extends React.Component {
     );
   }
 
+  renderStaticDashboardValue() {
+    const { mapping } = this.props;
+    return (
+      <div className="static-dashboard-param-block">
+        <div className="m-b-5">
+          <Input
+            value={mapping.mapTo}
+            aria-label={i18next.t("Params:Parameter name (key)")}
+            placeholder={i18next.t("Params:Parameter name (key)")}
+            onChange={(e) => this.updateParamMapping({ mapTo: e.target.value })}
+          />
+        </div>
+        <ParameterValueInput
+          type={mapping.param.type}
+          value={mapping.param.normalizedValue}
+          enumOptions={mapping.param.enumOptions}
+          queryId={mapping.param.queryId}
+          parameter={mapping.param}
+          onSelect={(value) => this.updateParamMapping({ value })}
+          regex={mapping.param.regex}
+        />
+      </div>
+    );
+  }
+
   renderInputBlock() {
     const { mapping } = this.props;
     switch (mapping.type) {
@@ -248,6 +277,12 @@ export class ParameterMappingInput extends React.Component {
         ];
       case MappingType.StaticValue:
         return ["Value", null, this.renderStaticValue()];
+      case MappingType.StaticDashboardValue:
+        return [
+          i18next.t("Params:Key & value"),
+          i18next.t("Params:Create a new static dashboard parameter with a fixed value"),
+          this.renderStaticDashboardValue(),
+        ];
       default:
         return [];
     }
@@ -300,7 +335,7 @@ class MappingEditor extends React.Component {
   onChange = (mapping) => {
     let inputError = null;
 
-    if (mapping.type === MappingType.DashboardAddNew) {
+    if (mapping.type === MappingType.DashboardAddNew || mapping.type === MappingType.StaticDashboardValue) {
       if (isEmpty(mapping.mapTo)) {
         inputError = i18next.t("Params:Keyword must have a value");
       } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
