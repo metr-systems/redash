@@ -47,6 +47,8 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
         if (mapping.staticDashboard) {
           result.type = MappingType.StaticDashboardValue;
           result.value = mapping.value || null;
+        result.param = cloneParameter(result.param);
+        result.param.setValue(result.value);
         } else {
           result.type = alreadyExists ? MappingType.DashboardMapToExisting : MappingType.DashboardAddNew;
           result.value = null;
