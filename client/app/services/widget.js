@@ -90,6 +90,7 @@ export const ParameterMappingType = {
   DashboardLevel: "dashboard-level",
   WidgetLevel: "widget-level",
   StaticValue: "static-value",
+  StaticDashboardValue: "static-dashboard-value",
 };
 
 class Widget {
@@ -215,7 +216,7 @@ class Widget {
   isStaticParam(param) {
     const mappings = this.getParameterMappings();
     const mappingType = mappings[param.name].type;
-    return mappingType === Widget.MappingType.StaticValue;
+    return mappingType === Widget.MappingType.StaticValue || mappingType === Widget.MappingType.StaticDashboardValue;
   }
 
   getParametersDefs() {
@@ -225,7 +226,7 @@ class Widget {
 
     const queryParams = location.search;
 
-    const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue];
+    const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue, Widget.MappingType.StaticDashboardValue];
     const localParameters = map(
       filter(params, (param) => localTypes.indexOf(mappings[param.name].type) >= 0),
       (param) => {
@@ -234,7 +235,7 @@ class Widget {
         result.title = mapping.title || param.title;
         result.locals = [param];
         result.urlPrefix = `p_w${this.id}_`;
-        if (mapping.type === Widget.MappingType.StaticValue) {
+        if (mapping.type === Widget.MappingType.StaticValue || mapping.type === Widget.MappingType.StaticDashboardValue) {
           result.setValue(mapping.value);
         } else {
           result.fromUrlParams(queryParams);
