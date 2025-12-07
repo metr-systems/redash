@@ -93,4 +93,27 @@ describe("Dashboard Parameters", () => {
       cy.getByTestId("TableVisualization").should("contain", "StaticValue");
     });
   });
+
+  it("supports static dashboard values for parameters", function () {
+    openMappingOptions(this.widgetTestId);
+    cy.getByTestId("EditParamMappingButton-param1").click();
+
+    cy.getByTestId("StaticDashboardValueOption").click();
+
+    cy.getByTestId("EditParamMappingPopover").within(() => {
+      cy.getByTestId("ParameterValueInput").find("input").type("{selectall}StaticDashboardValue");
+    });
+
+    saveMappingOptions(true);
+
+    cy.getByTestId(this.widgetTestId).within(() => {
+      cy.getByTestId("ParameterName-param1").should("not.exist");
+    });
+
+    cy.getByTestId("DashboardParameters").should("not.exist");
+
+    cy.getByTestId(this.widgetTestId).within(() => {
+      cy.getByTestId("TableVisualization").should("contain", "StaticDashboardValue");
+    });
+  });
 });
