@@ -33,6 +33,7 @@ export const MappingType = {
   DashboardMapToExisting: "dashboard-map-to-existing",
   WidgetLevel: "widget-level",
   StaticValue: "static-value",
+  StaticDashboardValue: "static-dashboard-value",
 };
 
 export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
@@ -47,6 +48,11 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
         break;
       case ParameterMappingType.StaticValue:
         result.type = MappingType.StaticValue;
+        result.param = cloneParameter(result.param);
+        result.param.setValue(result.value);
+        break;
+      case ParameterMappingType.StaticDashboardValue:
+        result.type = MappingType.StaticDashboardValue;
         result.param = cloneParameter(result.param);
         result.param.setValue(result.value);
         break;
@@ -78,6 +84,12 @@ export function editableMappingsToParameterMappings(mappings) {
             break;
           case MappingType.StaticValue:
             result.type = ParameterMappingType.StaticValue;
+            result.param = cloneParameter(mapping.param);
+            result.param.setValue(result.value);
+            result.value = result.param.value;
+            break;
+          case MappingType.StaticDashboardValue:
+            result.type = ParameterMappingType.StaticDashboardValue;
             result.param = cloneParameter(mapping.param);
             result.param.setValue(result.value);
             result.value = result.param.value;
@@ -166,7 +178,7 @@ export class ParameterMappingInput extends React.Component {
       newMapping.param.setValue(newMapping.value);
     }
     if (has(update, "type")) {
-      if (update.type === MappingType.StaticValue) {
+      if (update.type === MappingType.StaticValue || update.type === MappingType.StaticDashboardValue) {
         newMapping.value = newMapping.param.value;
       } else {
         newMapping.value = null;
@@ -195,6 +207,9 @@ export class ParameterMappingInput extends React.Component {
         </Radio>
         <Radio className="radio" value={MappingType.StaticValue} data-test="StaticValueOption">
           {i18next.t("Params:Static value")}
+        </Radio>
+        <Radio className="radio" value={MappingType.StaticDashboardValue} data-test="StaticDashboardValueOption">
+          {i18next.t("Params:Static dashboard value")}
         </Radio>
       </Radio.Group>
     );
@@ -235,6 +250,21 @@ export class ParameterMappingInput extends React.Component {
     );
   }
 
+  renderStaticDashboardValue() {
+    const { mapping } = this.props;
+    return (
+      <ParameterValueInput
+        type={mapping.param.type}
+        value={mapping.param.normalizedValue}
+        enumOptions={mapping.param.enumOptions}
+        queryId={mapping.param.queryId}
+        parameter={mapping.param}
+        onSelect={(value) => this.updateParamMapping({ value })}
+        regex={mapping.param.regex}
+      />
+    );
+  }
+
   renderInputBlock() {
     const { mapping } = this.props;
     switch (mapping.type) {
@@ -248,6 +278,8 @@ export class ParameterMappingInput extends React.Component {
         ];
       case MappingType.StaticValue:
         return ["Value", null, this.renderStaticValue()];
+      case MappingType.StaticDashboardValue:
+        return ["Value", null, this.renderStaticDashboardValue()];
       default:
         return [];
     }
@@ -453,7 +485,7 @@ class TitleEditor extends React.Component {
 
   renderEditButton() {
     const { mapping } = this.props;
-    if (mapping.type === MappingType.StaticValue) {
+    if (mapping.type === MappingType.StaticValue || mapping.type === MappingType.StaticDashboardValue) {
       return (
         <Tooltip placement="right" title={i18next.t("Params:Titles for static values don't appear in widgets")}>
           {/* eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex */}
@@ -481,7 +513,7 @@ class TitleEditor extends React.Component {
   render() {
     const { mapping } = this.props;
     // static value are non-editable hence disabled
-    const disabled = mapping.type === MappingType.StaticValue;
+    const disabled = mapping.type === MappingType.StaticValue || mapping.type === MappingType.StaticDashboardValue;
 
     return (
       <div className={classNames("parameter-mapping-title", { disabled })}>
@@ -538,7 +570,7 @@ export class ParameterMappingListInput extends React.Component {
       }
 
       // static type is different since it's fed param.normalizedValue
-    } else if (type === MappingType.StaticValue) {
+    } else if (type === MappingType.StaticValue || type === MappingType.StaticDashboardValue) {
       param = cloneParameter(param).setValue(mapping.value);
     }
 
@@ -565,6 +597,8 @@ export class ParameterMappingListInput extends React.Component {
         return i18next.t("Params:Widget parameter");
       case MappingType.StaticValue:
         return i18next.t("Params:Static value");
+      case MappingType.StaticDashboardValue:
+        return i18next.t("Params:Static dashboard value");
       default:
         return ""; // won't happen (typescript-ftw)
     }
