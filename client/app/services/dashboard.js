@@ -208,6 +208,9 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
               globalParams[mapping.mapTo].name = mapping.mapTo;
               globalParams[mapping.mapTo].title = mapping.title || param.title;
               globalParams[mapping.mapTo].locals = [];
+              // Store static dashboard info for later use
+              globalParams[mapping.mapTo]._staticDashboard = mapping.staticDashboard;
+              globalParams[mapping.mapTo]._staticValue = mapping.value;
             }
 
             // add to locals list
@@ -218,8 +221,16 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
   });
   const resultingGlobalParams = _.values(
     _.each(globalParams, (param) => {
-      param.setValue(param.value); // apply global param value to all locals
-      param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
+      // If this is a static dashboard parameter, use the static value instead of URL params
+      if (param._staticDashboard === true) {
+        param.setValue(param._staticValue); // use static value from mapping
+      } else {
+        param.setValue(param.value); // apply global param value to all locals
+        param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)
+      }
+      // Clean up temporary properties
+      delete param._staticDashboard;
+      delete param._staticValue;
     })
   );
 

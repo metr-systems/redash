@@ -214,8 +214,9 @@ class Widget {
 
   isStaticParam(param) {
     const mappings = this.getParameterMappings();
-    const mappingType = mappings[param.name].type;
-    return mappingType === Widget.MappingType.StaticValue;
+    const mapping = mappings[param.name];
+    return mapping.type === Widget.MappingType.StaticValue || 
+           (mapping.type === Widget.MappingType.DashboardLevel && mapping.staticDashboard === true);
   }
 
   getParametersDefs() {
