@@ -30,7 +30,11 @@ function PublicDashboard({ dashboard }) {
       <PageHeader title={dashboard.name} />
       {!isEmpty(globalParameters) && (
         <div className="m-b-10 p-15 bg-white tiled">
-          <Parameters parameters={globalParameters} onValuesChange={refreshDashboard} />
+          <Parameters 
+            parameters={globalParameters} 
+            onValuesChange={refreshDashboard}
+            lockedParameterNames={globalParameters.filter(p => p._isStaticDashboard).map(p => p.name)}
+          />
         </div>
       )}
       {!isEmpty(filters) && (

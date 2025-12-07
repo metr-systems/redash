@@ -147,6 +147,7 @@ function DashboardComponent(props) {
             sortable={editingLayout}
             onParametersEdit={onParametersEdit}
             disabled={refreshing} // Disable parameters when refreshing
+            lockedParameterNames={globalParameters.filter(p => p._isStaticDashboard).map(p => p.name)}
           />
         </div>
       )}

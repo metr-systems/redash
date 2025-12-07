@@ -224,6 +224,7 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
       // If this is a static dashboard parameter, use the static value instead of URL params
       if (param._staticDashboard === true) {
         param.setValue(param._staticValue); // use static value from mapping
+        param._isStaticDashboard = true; // Mark for UI locking
       } else {
         param.setValue(param.value); // apply global param value to all locals
         param.fromUrlParams(queryParams); // try to initialize from url (may do nothing)

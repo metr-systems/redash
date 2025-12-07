@@ -147,15 +147,28 @@ export default class Parameters extends React.Component {
     if (this.hideValues.some((value) => this.toCamelCase(value) === this.toCamelCase(param.name))) {
       return null;
     }
-    const { editable, disabled } = this.props;
+    const { editable, disabled, hideLockedParameters } = this.props;
+    const isLocked = this.lockedNames.has(param.name);
+    
     if (param.hidden) {
       return null;
     }
+    
+    // Hide locked parameters if hideLockedParameters is true
+    if (isLocked && hideLockedParameters) {
+      return null;
+    }
+    
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
           <label>{param.title || toHuman(param.name)}</label>
-          {editable && (
+          {isLocked && (
+            <span className="label label-default m-l-5" title="This parameter has a fixed value">
+              <i className="fa fa-lock" aria-hidden="true" /> Static
+            </span>
+          )}
+          {editable && !isLocked && (
             <PlainButton
               className="btn btn-default btn-xs m-l-5"
               aria-label={i18next.t("Edit")}
@@ -176,7 +189,7 @@ export default class Parameters extends React.Component {
           queryId={param.queryId}
           onSelect={(value, isDirty) => this.setPendingValue(param, value, isDirty)}
           regex={param.regex}
-          disabled={disabled}
+          disabled={disabled || isLocked}
         />
       </div>
     );
