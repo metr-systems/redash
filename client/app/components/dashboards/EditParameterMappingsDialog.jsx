@@ -22,6 +22,7 @@ export function getParamValuesSnapshot(mappings, dashboardParameters) {
       let param;
       switch (m.type) {
         case MappingType.StaticValue:
+        case MappingType.StaticDashboardValue:
           return [m.name, m.value];
         case MappingType.WidgetLevel:
           return [m.name, m.param.value];
