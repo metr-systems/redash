@@ -14,7 +14,7 @@ import { QueryResultError } from "@/services/query";
 import AddWidgetDialog from "@/components/dashboards/AddWidgetDialog";
 import TextboxDialog from "@/components/dashboards/TextboxDialog";
 import PermissionsEditorDialog from "@/components/PermissionsEditorDialog";
-import { editableMappingsToParameterMappings, synchronizeWidgetTitles } from "@/components/ParameterMappingInput";
+import { editableMappingsToParameterMappings, synchronizeWidgetTitles, synchronizeStaticDashboardValues } from "@/components/ParameterMappingInput";
 import ShareDashboardDialog from "../components/ShareDashboardDialog";
 import useFullscreenHandler from "../../../lib/hooks/useFullscreenHandler";
 import useRefreshRateHandler from "./useRefreshRateHandler";
@@ -208,6 +208,7 @@ function useDashboard(dashboardData) {
           const widgetsToSave = [
             widget,
             ...synchronizeWidgetTitles(widget.options.parameterMappings, dashboard.widgets),
+            ...synchronizeStaticDashboardValues(widget.options.parameterMappings, dashboard.widgets, widget),
           ];
           return Promise.all(widgetsToSave.map((w) => w.save())).then(() =>
             setDashboard((currentDashboard) => extend({}, currentDashboard))

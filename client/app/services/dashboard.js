@@ -212,6 +212,16 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
 
             // add to locals list
             globalParams[mapping.mapTo].locals.push(param);
+          } else if (mapping.type === Widget.MappingType.StaticDashboardValue) {
+            // create global param for static dashboard value
+            if (!globalParams[mapping.mapTo]) {
+              globalParams[mapping.mapTo] = cloneParameter(param);
+              globalParams[mapping.mapTo].name = mapping.mapTo;
+              globalParams[mapping.mapTo].title = mapping.title || param.title;
+              globalParams[mapping.mapTo].setValue(mapping.value);
+              globalParams[mapping.mapTo].locals = [];
+            }
+            globalParams[mapping.mapTo].locals.push(param);
           }
         });
     }

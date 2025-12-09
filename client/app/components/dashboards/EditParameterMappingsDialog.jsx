@@ -12,6 +12,7 @@ import {
   parameterMappingsToEditableMappings,
   editableMappingsToParameterMappings,
   synchronizeWidgetTitles,
+  synchronizeStaticDashboardValues,
 } from "@/components/ParameterMappingInput";
 import notification from "@/services/notification";
 
@@ -78,14 +79,21 @@ class EditParameterMappingsDialog extends React.Component {
       getParamValuesSnapshot(this.state.parameterMappings, this.props.dashboard.getParametersDefs())
     );
 
+    const titleSyncWidgets = synchronizeWidgetTitles(widget.options.parameterMappings, this.props.dashboard.widgets);
+    const staticValueSyncWidgets = synchronizeStaticDashboardValues(widget.options.parameterMappings, this.props.dashboard.widgets, widget);
+    
     const widgetsToSave = [
       widget,
-      ...synchronizeWidgetTitles(widget.options.parameterMappings, this.props.dashboard.widgets),
+      ...titleSyncWidgets,
+      ...staticValueSyncWidgets,
     ];
+
+    // If any static dashboard values were synchronized, those widgets need refreshing too
+    const anyStaticValuesChanged = staticValueSyncWidgets.length > 0;
 
     Promise.all(map(widgetsToSave, (w) => w.save()))
       .then(() => {
-        this.props.dialog.close(valuesChanged);
+        this.props.dialog.close(valuesChanged || anyStaticValuesChanged);
       })
       .catch(() => {
         notification.error(i18next.t("Dashboards:Widget cannot be updated"));

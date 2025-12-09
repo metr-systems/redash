@@ -111,18 +111,59 @@ export function synchronizeWidgetTitles(sourceMappings, widgets) {
   const affectedWidgets = [];
 
   each(sourceMappings, (sourceMapping) => {
-    if (sourceMapping.type === ParameterMappingType.DashboardLevel) {
+    if (sourceMapping.type === ParameterMappingType.DashboardLevel || sourceMapping.type === ParameterMappingType.StaticDashboardValue) {
       each(widgets, (widget) => {
         const widgetMappings = widget.options.parameterMappings;
         each(widgetMappings, (widgetMapping) => {
-          // check if mapped to the same dashboard-level parameter
+          // check if mapped to the same dashboard-level or static dashboard parameter
           if (
-            widgetMapping.type === ParameterMappingType.DashboardLevel &&
+            (widgetMapping.type === ParameterMappingType.DashboardLevel || widgetMapping.type === ParameterMappingType.StaticDashboardValue) &&
             widgetMapping.mapTo === sourceMapping.mapTo
           ) {
             // dirty check - update only when needed
             if (widgetMapping.title !== sourceMapping.title) {
               widgetMapping.title = sourceMapping.title;
+              affectedWidgets.push(widget);
+            }
+            // For static dashboard values, also sync the value
+            if (sourceMapping.type === ParameterMappingType.StaticDashboardValue && 
+                widgetMapping.type === ParameterMappingType.StaticDashboardValue &&
+                widgetMapping.value !== sourceMapping.value) {
+              widgetMapping.value = sourceMapping.value;
+              affectedWidgets.push(widget);
+            }
+          }
+        });
+      });
+    }
+  });
+
+  return affectedWidgets;
+}
+
+export function synchronizeStaticDashboardValues(sourceMappings, widgets, sourceWidget) {
+  const affectedWidgets = [];
+
+  each(sourceMappings, (sourceMapping) => {
+    if (sourceMapping.type === ParameterMappingType.StaticDashboardValue) {
+      each(widgets, (widget) => {
+        // Skip the source widget to avoid infinite loops
+        if (widget.id === sourceWidget.id) {
+          return;
+        }
+
+        const widgetMappings = widget.options.parameterMappings;
+        each(widgetMappings, (widgetMapping) => {
+          // check if mapped to the same static dashboard parameter
+          if (
+            widgetMapping.type === ParameterMappingType.StaticDashboardValue &&
+            widgetMapping.mapTo === sourceMapping.mapTo &&
+            widgetMapping.name === sourceMapping.name
+          ) {
+            // dirty check - update only when needed
+            if (widgetMapping.value !== sourceMapping.value) {
+              widgetMapping.value = sourceMapping.value;
+              widgetMapping.title = sourceMapping.title; // also sync title
               affectedWidgets.push(widget);
             }
           }
