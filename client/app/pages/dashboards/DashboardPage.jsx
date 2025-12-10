@@ -140,7 +140,7 @@ export function DashboardComponent(props) {
           />
         }
       />
-      {!isEmpty(globalParameters) && (currentUser.isAdmin || currentUser.is_default || !!currentUser.apiKey) && (
+      {!isEmpty(globalParameters) && (currentUser.isAdmin || currentUser.is_default) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
           <Parameters
             parameters={globalParameters}

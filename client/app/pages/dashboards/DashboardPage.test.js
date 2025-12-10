@@ -53,20 +53,6 @@ describe("DashboardPage Parameter Visibility", () => {
     expect(wrapper.find('[data-test="DashboardParameters"]')).toHaveLength(1);
   });
 
-  it("shows parameters for API users (public dashboards)", () => {
-    auth.currentUser = { isAdmin: false, is_default: false, apiKey: "test-key" };
-    mockUseDashboard.mockReturnValue({
-      dashboard: mockDashboard,
-      globalParameters: mockParameters,
-      refreshDashboard: jest.fn(),
-      editingLayout: false,
-    });
-
-    const wrapper = shallow(<DashboardComponent dashboard={mockDashboard} />);
-    
-    expect(wrapper.find('[data-test="DashboardParameters"]')).toHaveLength(1);
-  });
-
   it("hides parameters for custom group users", () => {
     auth.currentUser = { isAdmin: false, is_default: false };
     mockUseDashboard.mockReturnValue({
