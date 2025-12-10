@@ -15,6 +15,7 @@ import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 
 import { Dashboard } from "@/services/dashboard";
+import { currentUser } from "@/services/auth";
 import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
 import routes from "@/services/routes";
@@ -77,7 +78,7 @@ AddWidgetContainer.propTypes = {
   className: PropTypes.string,
 };
 
-function DashboardComponent(props) {
+export function DashboardComponent(props) {
   const dashboardConfiguration = useDashboard(props.dashboard);
   const {
     dashboard,
@@ -139,7 +140,7 @@ function DashboardComponent(props) {
           />
         }
       />
-      {!isEmpty(globalParameters) && (
+      {!isEmpty(globalParameters) && (currentUser.isAdmin || currentUser.is_default || !!currentUser.apiKey) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
           <Parameters
             parameters={globalParameters}
