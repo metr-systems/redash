@@ -15,7 +15,7 @@ describe("DashboardPage Parameter Visibility", () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
+
     // Default mock configuration
     mockUseDashboard.mockReturnValue({
       dashboard: mockDashboard,
@@ -35,7 +35,7 @@ describe("DashboardPage Parameter Visibility", () => {
     });
 
     const wrapper = shallow(<DashboardComponent dashboard={mockDashboard} />);
-    
+
     expect(wrapper.find('[data-test="DashboardParameters"]')).toHaveLength(1);
   });
 
@@ -49,7 +49,7 @@ describe("DashboardPage Parameter Visibility", () => {
     });
 
     const wrapper = shallow(<DashboardComponent dashboard={mockDashboard} />);
-    
+
     expect(wrapper.find('[data-test="DashboardParameters"]')).toHaveLength(1);
   });
 
@@ -63,7 +63,7 @@ describe("DashboardPage Parameter Visibility", () => {
     });
 
     const wrapper = shallow(<DashboardComponent dashboard={mockDashboard} />);
-    
+
     expect(wrapper.find('[data-test="DashboardParameters"]')).toHaveLength(0);
   });
 
@@ -77,7 +77,7 @@ describe("DashboardPage Parameter Visibility", () => {
     });
 
     const wrapper = shallow(<DashboardComponent dashboard={mockDashboard} />);
-    
+
     expect(wrapper.find('[data-test="DashboardParameters"]')).toHaveLength(0);
   });
 });
