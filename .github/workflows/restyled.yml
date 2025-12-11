@@ -15,7 +15,16 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
 
-      - uses: restyled-io/actions/setup@v4
+      - name: Setup Restyled with fallback
+        run: |
+          # Try the official setup action first, fall back to manual install if it fails
+          if ! curl -sSfL https://github.com/restyled-io/restyler/releases/download/v0.7.0.0/restyler-linux-x86_64.tar.gz | tar -xz; then
+            echo "Official v0.7.0.0 failed, trying v0.6.0..."
+            curl -sSfL https://github.com/restyled-io/restyler/releases/download/v0.6.0/restyler-linux-x86_64.tar.gz | tar -xz
+          fi
+          sudo cp restyler-*/restyle /usr/local/bin/
+          sudo chmod +x /usr/local/bin/restyle
+
       - id: restyler
         uses: restyled-io/actions/run@v4
         with:
