@@ -22,6 +22,12 @@ import dashboardGridOptions from "@/config/dashboard-grid-options";
 import { registeredVisualizations } from "@redash/viz/lib";
 import { Query } from "./query";
 
+// Read dashboard URL params once and provide a small helper
+const _params = new URLSearchParams(window.location.search);
+function getDashboardUrlParamValue(paramName) {
+  return _params.get(`p_${paramName}`);
+}
+
 export const WidgetTypeEnum = {
   TEXTBOX: "textbox",
   VISUALIZATION: "visualization",
@@ -226,7 +232,11 @@ class Widget {
 
     const queryParams = location.search;
 
-    const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue];
+    const localTypes = [
+      Widget.MappingType.WidgetLevel,
+      Widget.MappingType.StaticValue,
+      Widget.MappingType.FixedFromUrl,
+    ];
     const localParameters = map(
       filter(params, (param) => localTypes.indexOf(mappings[param.name].type) >= 0),
       (param) => {
@@ -237,6 +247,13 @@ class Widget {
         result.urlPrefix = `p_w${this.id}_`;
         if (mapping.type === Widget.MappingType.StaticValue) {
           result.setValue(mapping.value);
+        } else if (mapping.type === Widget.MappingType.FixedFromUrl) {
+          // Read dashboard-level URL param `p_<mapTo>` and apply it —
+          // ignore any widget-scoped params like `p_w<ID>_<param>`.
+          const v = getDashboardUrlParamValue(mapping.mapTo);
+          if (v !== null) {
+            result.setValue(v);
+          }
         } else {
           result.fromUrlParams(queryParams);
         }
