@@ -26,6 +26,7 @@ function updateUrl(parameters) {
 export default class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
+    hiddenParameterNames: PropTypes.arrayOf(PropTypes.string),
     editable: PropTypes.bool,
     sortable: PropTypes.bool,
     disabled: PropTypes.bool,
@@ -45,6 +46,7 @@ export default class Parameters extends React.Component {
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
     appendSortableToParent: true,
+    hiddenParameterNames: [],
   };
 
   toCamelCase = (str) => {
@@ -137,6 +139,10 @@ export default class Parameters extends React.Component {
 
   renderParameter(param, index) {
     if (this.hideValues.some((value) => this.toCamelCase(value) === this.toCamelCase(param.name))) {
+      return null;
+    }
+    // If parent requests certain params to be hidden (e.g. fixed-from-url), skip rendering
+    if (this.props.hiddenParameterNames && this.props.hiddenParameterNames.indexOf(param.name) >= 0) {
       return null;
     }
     const { editable, disabled } = this.props;
