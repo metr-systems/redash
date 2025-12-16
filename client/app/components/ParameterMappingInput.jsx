@@ -205,6 +205,9 @@ export class ParameterMappingInput extends React.Component {
         <Radio className="radio" value={MappingType.StaticValue} data-test="StaticValueOption">
           {i18next.t("Params:Static value")}
         </Radio>
+        <Radio className="radio" value={MappingType.FixedFromUrl} data-test="FixedFromUrlOption">
+          {i18next.t("Params:Fixed from URL")}
+        </Radio>
       </Radio.Group>
     );
   }
