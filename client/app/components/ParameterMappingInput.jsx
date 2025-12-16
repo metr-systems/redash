@@ -152,16 +152,24 @@ export class ParameterMappingInput extends React.Component {
     className: "form-item",
   };
 
+  isCreateDashboardParamType(type) {
+    return type === MappingType.DashboardAddNew || type === MappingType.FixedFromUrl;
+  }
+
   updateSourceType = (type) => {
-    let {
-      mapping: { mapTo },
-    } = this.props;
-    const { existingParamNames } = this.props;
+    const { mapping, existingParamNames } = this.props;
+    let { mapTo } = mapping;
 
     // if mapped name doesn't already exists
     // default to first select option
     if (type === MappingType.DashboardMapToExisting && !includes(existingParamNames, mapTo)) {
       mapTo = existingParamNames[0];
+    }
+
+    // when switching to a type that creates a dashboard param, default the name
+    // to the query param name if user hasn't typed one yet
+    if (this.isCreateDashboardParamType(type) && !mapTo) {
+      mapTo = mapping.name;
     }
 
     this.updateParamMapping({ type, mapTo });
@@ -261,7 +269,8 @@ export class ParameterMappingInput extends React.Component {
       case MappingType.StaticValue:
         return ["Value", null, this.renderStaticValue()];
       case MappingType.FixedFromUrl:
-        return ["Value", i18next.t("Params:Value is fixed from URL"), null];
+        // Treat FixedFromUrl like creating a new dashboard parameter for the key input
+        return ["Key", i18next.t("Params:Value is fixed from URL"), this.renderDashboardAddNew()];
       default:
         return [];
     }
@@ -314,7 +323,7 @@ class MappingEditor extends React.Component {
   onChange = (mapping) => {
     let inputError = null;
 
-    if (mapping.type === MappingType.DashboardAddNew) {
+    if (mapping.type === MappingType.DashboardAddNew || mapping.type === MappingType.FixedFromUrl) {
       if (isEmpty(mapping.mapTo)) {
         inputError = i18next.t("Params:Keyword must have a value");
       } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
