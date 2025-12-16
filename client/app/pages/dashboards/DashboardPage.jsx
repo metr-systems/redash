@@ -1,5 +1,5 @@
 import { isEmpty, map } from "lodash";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
@@ -99,6 +99,20 @@ function DashboardComponent(props) {
     visibleWidgets,
   } = dashboardConfiguration;
 
+  const fixedFromUrlParamNames = useMemo(() => {
+    const names = new Set();
+    const widgetsToScan = dashboard && dashboard.widgets ? dashboard.widgets : [];
+    widgetsToScan.forEach((w) => {
+      const mappings = (w.options && w.options.parameterMappings) || {};
+      Object.values(mappings).forEach((m) => {
+        if (m && m.type === "fixed-from-url" && m.mapTo) {
+          names.add(m.mapTo);
+        }
+      });
+    });
+    return Array.from(names);
+  }, [dashboard?.widgets]);
+
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
   const onParametersEdit = (parameters) => {
@@ -141,13 +155,14 @@ function DashboardComponent(props) {
       />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
-          <Parameters
-            parameters={globalParameters}
-            onValuesChange={refreshDashboard}
-            sortable={editingLayout}
-            onParametersEdit={onParametersEdit}
-            disabled={refreshing} // Disable parameters when refreshing
-          />
+              <Parameters
+                parameters={globalParameters}
+                hiddenParameterNames={fixedFromUrlParamNames}
+                onValuesChange={refreshDashboard}
+                sortable={editingLayout}
+                onParametersEdit={onParametersEdit}
+                disabled={refreshing} // Disable parameters when refreshing
+              />
         </div>
       )}
       {!isEmpty(filters) && (
