@@ -57,7 +57,7 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
         break;
       case ParameterMappingType.FixedFromUrl:
         result.type = MappingType.FixedFromUrl;
-        result.value = mapping.value;
+        result.value = null;
         break;
       // no default
     }
@@ -93,7 +93,7 @@ export function editableMappingsToParameterMappings(mappings) {
             break;
           case MappingType.FixedFromUrl:
             result.type = ParameterMappingType.FixedFromUrl;
-            result.value = mapping.value;
+            result.value = null;
             break;
           // no default
         }
