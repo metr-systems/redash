@@ -90,6 +90,7 @@ export const ParameterMappingType = {
   DashboardLevel: "dashboard-level",
   WidgetLevel: "widget-level",
   StaticValue: "static-value",
+  FixedFromUrl: "fixed-from-url",
 };
 
 class Widget {

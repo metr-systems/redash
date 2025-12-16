@@ -33,6 +33,7 @@ export const MappingType = {
   DashboardMapToExisting: "dashboard-map-to-existing",
   WidgetLevel: "widget-level",
   StaticValue: "static-value",
+  FixedFromUrl: "fixed-from-url",
 };
 
 export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
@@ -53,6 +54,10 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
       case ParameterMappingType.WidgetLevel:
         result.type = MappingType.WidgetLevel;
         result.value = null;
+        break;
+      case ParameterMappingType.FixedFromUrl:
+        result.type = MappingType.FixedFromUrl;
+        result.value = mapping.value;
         break;
       // no default
     }
@@ -85,6 +90,10 @@ export function editableMappingsToParameterMappings(mappings) {
           case MappingType.WidgetLevel:
             result.type = ParameterMappingType.WidgetLevel;
             result.value = null;
+            break;
+          case MappingType.FixedFromUrl:
+            result.type = ParameterMappingType.FixedFromUrl;
+            result.value = mapping.value;
             break;
           // no default
         }
@@ -248,6 +257,8 @@ export class ParameterMappingInput extends React.Component {
         ];
       case MappingType.StaticValue:
         return ["Value", null, this.renderStaticValue()];
+      case MappingType.FixedFromUrl:
+        return ["Value", i18next.t("Params:Value is fixed from URL"), null];
       default:
         return [];
     }
@@ -565,6 +576,8 @@ export class ParameterMappingListInput extends React.Component {
         return i18next.t("Params:Widget parameter");
       case MappingType.StaticValue:
         return i18next.t("Params:Static value");
+      case MappingType.FixedFromUrl:
+        return i18next.t("Params:Fixed from URL");
       default:
         return ""; // won't happen (typescript-ftw)
     }

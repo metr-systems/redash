@@ -46,5 +46,7 @@
   "Value Source": "Value Source",
   "No options available": "No options available",
   "Parameter number value": "Parameter number value",
-  "Parameter text value": "Parameter text value"
+  "Parameter text value": "Parameter text value",
+  "Fixed from URL": "Fixed from URL",
+  "Value is fixed from URL": "Value is fixed from URL"
 }
