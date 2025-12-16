@@ -108,13 +108,17 @@ export function synchronizeWidgetTitles(sourceMappings, widgets) {
   const affectedWidgets = [];
 
   each(sourceMappings, (sourceMapping) => {
-    if (sourceMapping.type === ParameterMappingType.DashboardLevel) {
+    if (
+      sourceMapping.type === ParameterMappingType.DashboardLevel ||
+      sourceMapping.type === ParameterMappingType.FixedFromUrl
+    ) {
       each(widgets, (widget) => {
         const widgetMappings = widget.options.parameterMappings;
         each(widgetMappings, (widgetMapping) => {
           // check if mapped to the same dashboard-level parameter
           if (
-            widgetMapping.type === ParameterMappingType.DashboardLevel &&
+            (widgetMapping.type === ParameterMappingType.DashboardLevel ||
+              widgetMapping.type === ParameterMappingType.FixedFromUrl) &&
             widgetMapping.mapTo === sourceMapping.mapTo
           ) {
             // dirty check - update only when needed

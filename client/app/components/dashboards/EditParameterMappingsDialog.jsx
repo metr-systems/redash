@@ -26,7 +26,8 @@ export function getParamValuesSnapshot(mappings, dashboardParameters) {
         case MappingType.WidgetLevel:
           return [m.name, m.param.value];
         case MappingType.FixedFromUrl:
-          return [m.name, m.value];
+          param = find(dashboardParameters, (p) => p.name === m.mapTo);
+          return [m.name, param ? param.value : null];
         case MappingType.DashboardAddNew:
         case MappingType.DashboardMapToExisting:
           param = find(dashboardParameters, (p) => p.name === m.mapTo);
