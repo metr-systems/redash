@@ -12,6 +12,7 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
+import ParameterValueInput from "@/components/ParameterValueInput";
 import Filters from "@/components/Filters";
 
 import { Dashboard } from "@/services/dashboard";
@@ -182,14 +183,51 @@ function DashboardComponent(props) {
       />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
-              <Parameters
-                parameters={globalParameters}
-                hiddenParameterNames={fixedFromUrlParamNames}
-                onValuesChange={refreshDashboard}
-                sortable={editingLayout}
-                onParametersEdit={onParametersEdit}
-                disabled={refreshing} // Disable parameters when refreshing
-              />
+          <Parameters
+            parameters={globalParameters}
+            hiddenParameterNames={fixedFromUrlParamNames}
+            onValuesChange={refreshDashboard}
+            sortable={editingLayout}
+            onParametersEdit={onParametersEdit}
+            disabled={refreshing}
+          >
+            {fixedFromUrlParamNames &&
+              fixedFromUrlParamNames.length > 0 &&
+              fixedFromUrlParamNames.map((name) => {
+                const gp = (globalParameters || []).find((g) => g.name === name);
+                const label = (gp && (gp.title || gp.name)) || name;
+
+                const params = location.search || {};
+                const key = `p_${name}`;
+                const rawValue = Object.prototype.hasOwnProperty.call(params, key)
+                  ? params[key]
+                  : gp
+                  ? gp.normalizedValue
+                  : null;
+                const value = rawValue == null || rawValue === "" ? "(missing)" : rawValue;
+
+                return (
+                  <div key={name} className="parameter-block" data-test={`FixedFromUrlParam-${name}`}>
+                    <div className="di-block">
+                      <div className="parameter-heading">
+                        <label>{label} (Fixed)</label>
+                      </div>
+
+                      <div className="parameter-input">
+                        <ParameterValueInput
+                          type={(gp && gp.type) || "text"}
+                          value={gp ? gp.normalizedValue : value}
+                          parameter={gp}
+                          enumOptions={gp ? gp.enumOptions : ""}
+                          queryId={gp ? gp.queryId : undefined}
+                          disabled
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+          </Parameters>
         </div>
       )}
       {!isEmpty(filters) && (
