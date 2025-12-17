@@ -32,9 +32,11 @@
   "There are no dashboard parameters corresponding to this data type": "There are no dashboard parameters corresponding to this data type",
   "Widget parameter": "Widget parameter",
   "Static value": "Static value",
+  "Fixed from URL": "Fixed from URL",
   "Parameter name (key)": "Parameter name (key)",
   "Enter a new parameter keyword": "Enter a new parameter keyword",
   "Select from a list of existing parameters": "Select from a list of existing parameters",
+  "Value is fixed from URL": "Value is fixed from URL",
   "Keyword must have a value": "Keyword must have a value",
   "A parameter with this name already exists": "A parameter with this name already exists",
   "Edit Source and Value": "Edit Source and Value",
@@ -46,7 +48,5 @@
   "Value Source": "Value Source",
   "No options available": "No options available",
   "Parameter number value": "Parameter number value",
-  "Parameter text value": "Parameter text value",
-  "Fixed from URL": "Fixed from URL",
-  "Value is fixed from URL": "Value is fixed from URL"
+  "Parameter text value": "Parameter text value"
 }
