@@ -1,5 +1,5 @@
-import { isEmpty, map } from "lodash";
 import React, { useState, useEffect, useMemo } from "react";
+import { isEmpty, map } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
@@ -80,6 +80,7 @@ AddWidgetContainer.propTypes = {
 
 function DashboardComponent(props) {
   const dashboardConfiguration = useDashboard(props.dashboard);
+  const { t } = useTranslation("Dashboards");
   const {
     dashboard,
     filters,
@@ -100,9 +101,11 @@ function DashboardComponent(props) {
     visibleWidgets,
   } = dashboardConfiguration;
 
+  const widgets = dashboard ? dashboard.widgets : [];
+
   const fixedFromUrlParamNames = useMemo(() => {
     const names = new Set();
-    const widgetsToScan = dashboard && dashboard.widgets ? dashboard.widgets : [];
+    const widgetsToScan = widgets || [];
     widgetsToScan.forEach((w) => {
       const mappings = (w.options && w.options.parameterMappings) || {};
       Object.values(mappings).forEach((m) => {
@@ -112,7 +115,46 @@ function DashboardComponent(props) {
       });
     });
     return Array.from(names);
-  }, [dashboard?.widgets]);
+  }, [widgets]);
+
+  const isValidBack = (back) => {
+    if (!back || typeof back !== "string") {
+      return false;
+    }
+
+    // Allow root-relative paths like `/...`
+    if (back.startsWith("/")) {
+      return true;
+    }
+
+    // Allow same-origin absolute URLs only
+    try {
+      const parsed = new URL(back);
+      return parsed.origin === window.location.origin;
+    } catch (e) {
+      return false;
+    }
+  };
+
+  const handleBackToOverview = () => {
+    const params = location.search || {};
+    const back = params.back;
+
+    if (isValidBack(back)) {
+      // Use app's `location.setPath` for same-origin or relative navigation
+      try {
+        const parsed = new URL(back, window.location.origin);
+        const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        location.setPath(path);
+        return;
+      } catch (e) {
+        // fallthrough to history.back()
+      }
+    }
+
+    // If no valid `back` param, fall back to history
+    window.history.back();
+  };
 
   // Hydrate dashboard parameters that are declared as `fixed-from-url` from URL querystring.
   // This runs on load and when the URL search changes (popstate).
@@ -192,8 +234,9 @@ function DashboardComponent(props) {
             disabled={refreshing}
           >
             {fixedFromUrlParamNames &&
-              fixedFromUrlParamNames.length > 0 &&
-              fixedFromUrlParamNames.map((name) => {
+                fixedFromUrlParamNames.length > 0 && (
+                  <>
+                    {fixedFromUrlParamNames.map((name) => {
                 const gp = (globalParameters || []).find((g) => g.name === name);
                 const label = (gp && (gp.title || gp.name)) || name;
 
@@ -227,6 +270,14 @@ function DashboardComponent(props) {
                   </div>
                 );
               })}
+
+                  <div className="m-t-10">
+                    <Button type="link" onClick={handleBackToOverview} data-test="BackToOverviewButton">
+                      {t("Back to overview")}
+                    </Button>
+                  </div>
+                </>
+              )}
           </Parameters>
         </div>
       )}
