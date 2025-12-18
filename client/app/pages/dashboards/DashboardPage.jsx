@@ -5,6 +5,7 @@ import cx from "classnames";
 
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
+import Typography from "antd/lib/typography";
 
 import { useTranslation } from "react-i18next";
 
@@ -12,7 +13,6 @@ import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSess
 import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
-import ParameterValueInput from "@/components/ParameterValueInput";
 import Filters from "@/components/Filters";
 
 import { Dashboard } from "@/services/dashboard";
@@ -25,8 +25,11 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
+import {formatFixedValue} from "./helpers.js";
 
 import "./DashboardPage.less";
+
+const { Text } = Typography;
 
 function DashboardSettings({ dashboardConfiguration }) {
   const { t } = useTranslation("Dashboards");
@@ -231,53 +234,46 @@ function DashboardComponent(props) {
             onValuesChange={refreshDashboard}
             sortable={editingLayout}
             onParametersEdit={onParametersEdit}
-            disabled={refreshing}
-          >
-            {fixedFromUrlParamNames &&
-                fixedFromUrlParamNames.length > 0 && (
-                  <>
-                    {fixedFromUrlParamNames.map((name) => {
-                const gp = (globalParameters || []).find((g) => g.name === name);
-                const label = (gp && (gp.title || gp.name)) || name;
+            disabled={refreshing}>
+            {fixedFromUrlParamNames && fixedFromUrlParamNames.length > 0 && (
+              <>
+                {fixedFromUrlParamNames.map((name) => {
+                  const gp = (globalParameters || []).find((g) => g.name === name);
+                  const label = (gp && (gp.title || gp.name)) || name;
 
-                const params = location.search || {};
-                const key = `p_${name}`;
-                const rawValue = Object.prototype.hasOwnProperty.call(params, key)
-                  ? params[key]
-                  : gp
-                  ? gp.normalizedValue
-                  : null;
-                const value = rawValue == null || rawValue === "" ? "(missing)" : rawValue;
+                  const params = location.search || {};
+                  const key = `p_${name}`;
+                  const rawValue = Object.prototype.hasOwnProperty.call(params, key)
+                    ? params[key]
+                    : gp
+                      ? gp.normalizedValue
+                      : null;
 
-                return (
-                  <div key={name} className="parameter-block" data-test={`FixedFromUrlParam-${name}`}>
-                    <div className="di-block">
-                      <div className="parameter-heading">
-                        <label>{label} (Fixed)</label>
-                      </div>
+                  const displayValue = formatFixedValue(rawValue);
 
-                      <div className="parameter-input">
-                        <ParameterValueInput
-                          type={(gp && gp.type) || "text"}
-                          value={gp ? gp.normalizedValue : value}
-                          parameter={gp}
-                          enumOptions={gp ? gp.enumOptions : ""}
-                          queryId={gp ? gp.queryId : undefined}
-                          disabled
-                        />
+                  return (
+                    <div key={name} className="parameter-block" data-test={`FixedFromUrlParam-${name}`}>
+                      <div className="di-block">
+                        <div className="parameter-heading">
+                          <label>{label} (Fixed)</label>
+                        </div>
+
+                        <div className="parameter-input">
+                          {/* Display-only (no ParameterValueInput) to avoid rendering dropdown UI for query-based params */}
+                          <Text data-test={`FixedFromUrlValue-${name}`}>{displayValue}</Text>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
 
-                  <div className="m-t-10">
-                    <Button type="link" onClick={handleBackToOverview} data-test="BackToOverviewButton">
-                      {t("Back to overview")}
-                    </Button>
-                  </div>
-                </>
-              )}
+                <div className="m-t-10">
+                  <Button type="link" onClick={handleBackToOverview} data-test="BackToOverviewButton">
+                    {t("Back to overview")}
+                  </Button>
+                </div>
+              </>
+            )}
           </Parameters>
         </div>
       )}
