@@ -97,6 +97,5 @@
   "Sort by notification status.": "Nach Alarmstatus sortieren.",
   "State": "Status",
   "Get notified on certain events": "Benachrichtigt werden bei bestimmten Ereignissen",
-  "Alerts": "Alarme",
-  "Value column": "Wertspalte"
+  "Alerts": "Alarme"
 }
