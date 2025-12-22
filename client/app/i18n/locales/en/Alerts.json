@@ -22,8 +22,8 @@
   "Status": "Status",
   "Alert condition has not been evaluated.": "Alert condition has not been evaluated.",
   "Last triggered": "Last triggered",
-  "You do not have sufficient permissions to edit this alert": "You do not have sufficient permissions to edit this alert",
   "Edit": "Edit",
+  "You do not have sufficient permissions to edit this alert": "You do not have sufficient permissions to edit this alert",
   "Notifications": "Notifications",
   "set_notification_template": "Set to {{ template }} notification template.",
   "Notifications are muted": "Notifications are muted",
@@ -45,7 +45,11 @@
   "Value column type doesn't match threshold type.": "Value column type doesn't match threshold type.",
   "Value column isn't supported by condition type.": "Value column isn't supported by condition type.",
   "Top row value is": "Top row value is",
-  "Value column": "Value column",
+  "Max column value is": "Max column value is",
+  "Min column value is": "Min column value is",
+  "first": "first",
+  "min": "min",
+  "max": "max",
   "Condition": "Condition",
   "greater than": "greater than",
   "greater than or equals": "greater than or equals",
@@ -93,5 +97,6 @@
   "Sort by notification status.": "Sort by notification status.",
   "State": "State",
   "Get notified on certain events": "Get notified on certain events",
-  "Alerts": "Alerts"
+  "Alerts": "Alerts",
+  "Value column": "Value column"
 }

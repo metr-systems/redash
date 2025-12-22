@@ -22,8 +22,8 @@
   "Status": "Status",
   "Alert condition has not been evaluated.": "Die Alarmbedingung wurde noch nicht bewertet.",
   "Last triggered": "Zuletzt ausgelöst",
-  "You do not have sufficient permissions to edit this alert": "Sie haben nicht genügend Berechtigungen, um diesen Alarm zu bearbeiten.",
   "Edit": "Bearbeiten",
+  "You do not have sufficient permissions to edit this alert": "Sie haben nicht genügend Berechtigungen, um diesen Alarm zu bearbeiten.",
   "Notifications": "Alarme",
   "set_notification_template": "Auf {{ template }}-Alarmvorlage setzen.",
   "Notifications are muted": "Alarme sind stummgeschaltet",
@@ -45,7 +45,11 @@
   "Value column type doesn't match threshold type.": "Der Wertspaltentyp stimmt nicht mit dem Schwellenwerttyp überein.",
   "Value column isn't supported by condition type.": "Der Wertspaltentyp wird vom Bedingungstyp nicht unterstützt.",
   "Top row value is": "Der Wert in der obersten Zeile ist",
-  "Value column": "Wertspalte",
+  "Max column value is": "Maximaler Spaltenwert ist",
+  "Min column value is": "Minimaler Spaltenwert ist",
+  "first": "erste",
+  "min": "min",
+  "max": "max",
   "Condition": "Bedingung",
   "greater than": "größer als",
   "greater than or equals": "größer als oder gleich",
@@ -93,5 +97,6 @@
   "Sort by notification status.": "Nach Alarmstatus sortieren.",
   "State": "Status",
   "Get notified on certain events": "Benachrichtigt werden bei bestimmten Ereignissen",
-  "Alerts": "Alarme"
+  "Alerts": "Alarme",
+  "Value column": "Wertspalte"
 }
