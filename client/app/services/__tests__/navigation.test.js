@@ -55,6 +55,36 @@ describe("navigation service", () => {
     it("should return false for invalid URLs", () => {
       expect(isValidBackUrl("not-a-url")).toBe(false);
     });
+
+    it("should return false for path traversal attacks", () => {
+      expect(isValidBackUrl("/dashboard/../../../etc/passwd")).toBe(false);
+      expect(isValidBackUrl("/dashboard/..")).toBe(false);
+      expect(isValidBackUrl("/../admin")).toBe(false);
+    });
+
+    it("should return false for double slash attacks", () => {
+      expect(isValidBackUrl("//malicious.com/dashboard")).toBe(false);
+      expect(isValidBackUrl("/dashboard//redirect")).toBe(false);
+    });
+
+    it("should return false for backslash attacks", () => {
+      expect(isValidBackUrl("/dashboard\\..\\admin")).toBe(false);
+    });
+
+    it("should return false for data URLs and other schemes", () => {
+      expect(isValidBackUrl("/javascript:alert(1)")).toBe(false);
+      expect(isValidBackUrl("/data:text/html,<script>alert(1)</script>")).toBe(false);
+    });
+
+    it("should return false for overly long URLs", () => {
+      const longUrl = "/" + "a".repeat(2001);
+      expect(isValidBackUrl(longUrl)).toBe(false);
+    });
+
+    it("should return true for valid query strings and hash fragments", () => {
+      expect(isValidBackUrl("/?tab=overview")).toBe(true);
+      expect(isValidBackUrl("/#dashboard")).toBe(true);
+    });
   });
 
   describe("handleBackNavigation", () => {

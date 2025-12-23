@@ -12,6 +12,21 @@ export function isValidBackUrl(back) {
 
   // Allow root-relative paths like `/...`
   if (back.startsWith("/")) {
+    // Prevent path traversal attacks
+    if (back.includes("..") || back.includes("//") || back.includes("\\")) {
+      return false;
+    }
+    
+    // Prevent data URLs and other dangerous schemes
+    if (back.includes(":") && !back.startsWith("/?") && !back.startsWith("/#")) {
+      return false;
+    }
+    
+    // Ensure it's a valid path format
+    if (back.length > 2000) { // Reasonable URL length limit
+      return false;
+    }
+    
     return true;
   }
 
