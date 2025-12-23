@@ -14,6 +14,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
+import BackToOverviewButton from "@/components/BackToOverviewButton";
 
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
@@ -119,45 +120,6 @@ function DashboardComponent(props) {
     });
     return Array.from(names);
   }, [widgets]);
-
-  const isValidBack = (back) => {
-    if (!back || typeof back !== "string") {
-      return false;
-    }
-
-    // Allow root-relative paths like `/...`
-    if (back.startsWith("/")) {
-      return true;
-    }
-
-    // Allow same-origin absolute URLs only
-    try {
-      const parsed = new URL(back);
-      return parsed.origin === window.location.origin;
-    } catch (e) {
-      return false;
-    }
-  };
-
-  const handleBackToOverview = () => {
-    const params = location.search || {};
-    const back = params.back;
-
-    if (isValidBack(back)) {
-      // Use app's `location.setPath` for same-origin or relative navigation
-      try {
-        const parsed = new URL(back, window.location.origin);
-        const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
-        location.setPath(path);
-        return;
-      } catch (e) {
-        // fallthrough to history.back()
-      }
-    }
-
-    // If no valid `back` param, fall back to history
-    window.history.back();
-  };
 
   // Hydrate dashboard parameters that are declared as `fixed-from-url` from URL querystring.
   // This runs on load and when the URL search changes (popstate).
@@ -267,11 +229,7 @@ function DashboardComponent(props) {
                   );
                 })}
 
-                <div className="m-t-10">
-                  <Button type="link" onClick={handleBackToOverview} data-test="BackToOverviewButton">
-                    {t("Back to overview")}
-                  </Button>
-                </div>
+                <BackToOverviewButton />
               </>
             )}
           </Parameters>
