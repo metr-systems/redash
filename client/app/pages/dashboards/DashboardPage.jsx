@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { isEmpty, map } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
@@ -18,6 +18,7 @@ import FixedParametersList from "@/components/FixedParametersList";
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
+import location from "@/services/location";
 import routes from "@/services/routes";
 import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
@@ -79,8 +80,7 @@ AddWidgetContainer.propTypes = {
 };
 
 function DashboardComponent(props) {
-  const dashboardConfiguration = useDashboard(props.dashboard);
-  const { t } = useTranslation("Dashboards");
+  const dashboardConfiguration = useDashboard(props.dashboard)
   const {
     dashboard,
     filters,
@@ -108,7 +108,6 @@ function DashboardComponent(props) {
     parameterNames: fixedFromUrlParamNames,
     parameters: fixedFromUrlParameters,
     hasFixedParameters,
-    manualHydrate,
   } = useFixedFromUrlParameters(widgets, globalParameters);
 
   const [pageContainer, setPageContainer] = useState(null);
