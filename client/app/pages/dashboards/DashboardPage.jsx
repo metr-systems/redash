@@ -23,6 +23,7 @@ import routes from "@/services/routes";
 import location from "@/services/location";
 import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
+import { useFixedFromUrlParameterHydration } from "@/services/parameterHydration";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
@@ -123,30 +124,7 @@ function DashboardComponent(props) {
 
   // Hydrate dashboard parameters that are declared as `fixed-from-url` from URL querystring.
   // This runs on load and when the URL search changes (popstate).
-  useEffect(() => {
-    if (!globalParameters || !fixedFromUrlParamNames || fixedFromUrlParamNames.length === 0) {
-      return undefined;
-    }
-
-    const hydrate = () => {
-      // Use the app's location service parsing instead of URLSearchParams
-      const params = location.search || {};
-      fixedFromUrlParamNames.forEach((name) => {
-        const key = `p_${name}`;
-        if (Object.prototype.hasOwnProperty.call(params, key)) {
-          const v = params[key];
-          const p = globalParameters.find((gp) => gp.name === name);
-          if (p) {
-            p.setValue(v);
-          }
-        }
-      });
-    };
-
-    hydrate();
-    window.addEventListener("popstate", hydrate);
-    return () => window.removeEventListener("popstate", hydrate);
-  }, [fixedFromUrlParamNames, globalParameters]);
+  const manualHydrate = useFixedFromUrlParameterHydration(globalParameters, fixedFromUrlParamNames);
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
