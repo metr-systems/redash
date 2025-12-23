@@ -570,7 +570,7 @@ export class ParameterMappingListInput extends React.Component {
     let { param } = mapping;
 
     // if mapped to another param, swap 'em
-    if (type === MappingType.DashboardMapToExisting && mapTo !== name) {
+    if ((type === MappingType.DashboardMapToExisting || type === MappingType.FixedFromUrlMapToExisting) && mapTo !== name) {
       const mappedTo = find(existingParams, { name: mapTo });
       if (mappedTo) {
         // just being safe
