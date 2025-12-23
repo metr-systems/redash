@@ -1,24 +1,51 @@
 import { useMemo } from "react";
 
 /**
- * Extracts parameter names that are configured as "fixed-from-url" from widget parameter mappings
- * @param {Object} dashboard - Dashboard object with widgets array
- * @returns {Array} - Array of parameter names that should be fixed from URL
+ * Optimized extraction of fixed-from-url parameter names from widgets
+ * @param {Array} widgets - Dashboard widgets array
+ * @returns {Array} - Array of unique parameter names that should be fixed from URL
  */
-export function extractFixedFromUrlParameterNames(dashboard) {
-  const names = new Set();
-  const widgets = dashboard?.widgets || [];
+function extractFixedParameterNames(widgets) {
+  if (!widgets || widgets.length === 0) {
+    return [];
+  }
+
+  const namesSet = new Set();
   
-  widgets.forEach((widget) => {
-    const mappings = (widget?.options && widget.options.parameterMappings) || {};
-    Object.values(mappings).forEach((mapping) => {
-      if (mapping && mapping.type === "fixed-from-url" && mapping.mapTo) {
-        names.add(mapping.mapTo);
+  for (let i = 0; i < widgets.length; i++) {
+    const mappings = widgets[i]?.options?.parameterMappings;
+    if (!mappings) continue;
+    
+    // Use for...in for better performance than Object.values()
+    for (const key in mappings) {
+      const mapping = mappings[key];
+      if (mapping?.type === "fixed-from-url" && mapping.mapTo) {
+        namesSet.add(mapping.mapTo);
       }
-    });
-  });
+    }
+  }
   
-  return Array.from(names);
+  return namesSet.size > 0 ? Array.from(namesSet) : [];
+}
+
+/**
+ * Create parameter lookup map for O(1) access
+ * @param {Array} globalParameters - Global dashboard parameters
+ * @returns {Map} - Map of parameter name to parameter object
+ */
+function createParameterLookup(globalParameters) {
+  if (!globalParameters || globalParameters.length === 0) {
+    return new Map();
+  }
+  
+  const lookup = new Map();
+  for (let i = 0; i < globalParameters.length; i++) {
+    const param = globalParameters[i];
+    if (param?.name) {
+      lookup.set(param.name, param);
+    }
+  }
+  return lookup;
 }
 
 /**
@@ -28,29 +55,44 @@ export function extractFixedFromUrlParameterNames(dashboard) {
  * @returns {Object} - Object containing parameter names and utility properties
  */
 export function useFixedFromUrlParameters(widgets, globalParameters) {
-  // Extract parameter names that should be fixed from URL
-  const parameterNames = useMemo(() => {
-    return extractFixedFromUrlParameterNames({ widgets });
-  }, [widgets]);
-
-  // Get actual parameter objects for the fixed parameters
-  const parameters = useMemo(() => {
-    if (!globalParameters || parameterNames.length === 0) {
-      return [];
-    }
+  // Single memoized computation that handles both extraction and parameter lookup
+  const result = useMemo(() => {
+    // Extract parameter names
+    const parameterNames = extractFixedParameterNames(widgets);
     
-    return parameterNames
-      .map(name => globalParameters.find(param => param.name === name))
-      .filter(Boolean);
-  }, [globalParameters, parameterNames]);
+    if (parameterNames.length === 0) {
+      return {
+        parameterNames: [],
+        parameters: [],
+        hasFixedParameters: false,
+        count: 0,
+      };
+    }
 
-  return {
-    // Array of parameter names that are fixed from URL
-    parameterNames,
-    // Array of actual parameter objects
-    parameters,
-    // Helper properties
-    hasFixedParameters: parameterNames.length > 0,
-    count: parameterNames.length,
-  };
+    // Create lookup map for efficient parameter finding
+    const paramLookup = createParameterLookup(globalParameters);
+    
+    // Find matching parameters efficiently
+    const parameters = [];
+    for (let i = 0; i < parameterNames.length; i++) {
+      const param = paramLookup.get(parameterNames[i]);
+      if (param) {
+        parameters.push(param);
+      }
+    }
+
+    return {
+      parameterNames,
+      parameters,
+      hasFixedParameters: true,
+      count: parameterNames.length,
+    };
+  }, [widgets, globalParameters]);
+
+  return result;
+}
+
+// For backward compatibility - keep the old function but make it more efficient
+export function extractFixedFromUrlParameterNames(dashboard) {
+  return extractFixedParameterNames(dashboard?.widgets || []);
 }
