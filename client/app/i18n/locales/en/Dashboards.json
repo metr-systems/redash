@@ -1,4 +1,5 @@
 {
+  "Back to overview": "Back to overview",
   "Choose Visualization": "Choose Visualization",
   "Widget could not be added": "Widget could not be added",
   "Add Widget": "Add Widget",
@@ -70,7 +71,6 @@
   "Dashboards": "Dashboards",
   "Use Dashboard Level Filters": "Use Dashboard Level Filters",
   "Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.": "Widgets are individual query visualizations or text boxes you can place on your dashboard in various arrangements.",
-  "Back to overview": "Back to overview",
   "Dashboard update failed": "Dashboard update failed",
   "Permission Denied.": "Permission Denied.",
   "It seems like the dashboard has been modified by another user. ": "It seems like the dashboard has been modified by another user. ",
