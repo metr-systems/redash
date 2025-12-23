@@ -2,15 +2,15 @@ import { useMemo } from "react";
 
 /**
  * Extracts parameter names that are configured as "fixed-from-url" from widget parameter mappings
- * @param {Array} widgets - Array of dashboard widgets
+ * @param {Object} dashboard - Dashboard object with widgets array
  * @returns {Array} - Array of parameter names that should be fixed from URL
  */
-function extractFixedFromUrlParameterNames(widgets) {
+export function extractFixedFromUrlParameterNames(dashboard) {
   const names = new Set();
-  const widgetsToScan = widgets || [];
+  const widgets = dashboard?.widgets || [];
   
-  widgetsToScan.forEach((widget) => {
-    const mappings = (widget.options && widget.options.parameterMappings) || {};
+  widgets.forEach((widget) => {
+    const mappings = (widget?.options && widget.options.parameterMappings) || {};
     Object.values(mappings).forEach((mapping) => {
       if (mapping && mapping.type === "fixed-from-url" && mapping.mapTo) {
         names.add(mapping.mapTo);
@@ -30,7 +30,7 @@ function extractFixedFromUrlParameterNames(widgets) {
 export function useFixedFromUrlParameters(widgets, globalParameters) {
   // Extract parameter names that should be fixed from URL
   const parameterNames = useMemo(() => {
-    return extractFixedFromUrlParameterNames(widgets);
+    return extractFixedFromUrlParameterNames({ widgets });
   }, [widgets]);
 
   // Get actual parameter objects for the fixed parameters
