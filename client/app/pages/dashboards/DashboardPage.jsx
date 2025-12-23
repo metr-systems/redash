@@ -5,7 +5,6 @@ import cx from "classnames";
 
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
-import Typography from "antd/lib/typography";
 
 import { useTranslation } from "react-i18next";
 
@@ -14,24 +13,20 @@ import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
-import BackToOverviewButton from "@/components/BackToOverviewButton";
+import FixedParametersList from "@/components/FixedParametersList";
 
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
 import resizeObserver from "@/services/resizeObserver";
 import routes from "@/services/routes";
-import location from "@/services/location";
 import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
-import { useFixedFromUrlParameterHydration } from "@/services/parameterHydration";
+import { useFixedFromUrlParameters } from "@/hooks/useFixedFromUrlParameters";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
-import {formatFixedValue} from "./helpers.js";
 
 import "./DashboardPage.less";
-
-const { Text } = Typography;
 
 function DashboardSettings({ dashboardConfiguration }) {
   const { t } = useTranslation("Dashboards");
@@ -108,23 +103,13 @@ function DashboardComponent(props) {
 
   const widgets = dashboard ? dashboard.widgets : [];
 
-  const fixedFromUrlParamNames = useMemo(() => {
-    const names = new Set();
-    const widgetsToScan = widgets || [];
-    widgetsToScan.forEach((w) => {
-      const mappings = (w.options && w.options.parameterMappings) || {};
-      Object.values(mappings).forEach((m) => {
-        if (m && m.type === "fixed-from-url" && m.mapTo) {
-          names.add(m.mapTo);
-        }
-      });
-    });
-    return Array.from(names);
-  }, [widgets]);
-
-  // Hydrate dashboard parameters that are declared as `fixed-from-url` from URL querystring.
-  // This runs on load and when the URL search changes (popstate).
-  const manualHydrate = useFixedFromUrlParameterHydration(globalParameters, fixedFromUrlParamNames);
+  // Handle fixed-from-url parameters
+  const {
+    parameterNames: fixedFromUrlParamNames,
+    parameters: fixedFromUrlParameters,
+    hasFixedParameters,
+    manualHydrate,
+  } = useFixedFromUrlParameters(widgets, globalParameters);
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
@@ -175,40 +160,11 @@ function DashboardComponent(props) {
             sortable={editingLayout}
             onParametersEdit={onParametersEdit}
             disabled={refreshing}>
-            {fixedFromUrlParamNames && fixedFromUrlParamNames.length > 0 && (
-              <>
-                {fixedFromUrlParamNames.map((name) => {
-                  const gp = (globalParameters || []).find((g) => g.name === name);
-                  const label = (gp && (gp.title || gp.name)) || name;
-
-                  const params = location.search || {};
-                  const key = `p_${name}`;
-                  const rawValue = Object.prototype.hasOwnProperty.call(params, key)
-                    ? params[key]
-                    : gp
-                      ? gp.normalizedValue
-                      : null;
-
-                  const displayValue = formatFixedValue(rawValue);
-
-                  return (
-                    <div key={name} className="parameter-block" data-test={`FixedFromUrlParam-${name}`}>
-                      <div className="di-block">
-                        <div className="parameter-heading">
-                          <label>{label} (Fixed)</label>
-                        </div>
-
-                        <div className="parameter-input">
-                          {/* Display-only (no ParameterValueInput) to avoid rendering dropdown UI for query-based params */}
-                          <Text data-test={`FixedFromUrlValue-${name}`}>{displayValue}</Text>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-
-                <BackToOverviewButton />
-              </>
+            {hasFixedParameters && (
+              <FixedParametersList 
+                parameterNames={fixedFromUrlParamNames}
+                parameters={fixedFromUrlParameters}
+              />
             )}
           </Parameters>
         </div>
