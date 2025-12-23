@@ -1,5 +1,4 @@
 import { useMemo } from "react";
-import { useFixedFromUrlParameterHydration } from "@/services/parameterHydration";
 
 /**
  * Extracts parameter names that are configured as "fixed-from-url" from widget parameter mappings
@@ -26,16 +25,13 @@ function extractFixedFromUrlParameterNames(widgets) {
  * Custom hook for managing fixed-from-url parameters in dashboard
  * @param {Array} widgets - Dashboard widgets array
  * @param {Array} globalParameters - Global dashboard parameters
- * @returns {Object} - Object containing parameter names, hydration function, and utility properties
+ * @returns {Object} - Object containing parameter names and utility properties
  */
 export function useFixedFromUrlParameters(widgets, globalParameters) {
   // Extract parameter names that should be fixed from URL
   const parameterNames = useMemo(() => {
     return extractFixedFromUrlParameterNames(widgets);
   }, [widgets]);
-
-  // Set up automatic hydration
-  const manualHydrate = useFixedFromUrlParameterHydration(globalParameters, parameterNames);
 
   // Get actual parameter objects for the fixed parameters
   const parameters = useMemo(() => {
@@ -53,8 +49,6 @@ export function useFixedFromUrlParameters(widgets, globalParameters) {
     parameterNames,
     // Array of actual parameter objects
     parameters,
-    // Manual hydration function
-    manualHydrate,
     // Helper properties
     hasFixedParameters: parameterNames.length > 0,
     count: parameterNames.length,

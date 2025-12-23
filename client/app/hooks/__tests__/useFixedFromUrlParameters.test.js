@@ -2,11 +2,6 @@ import React from "react";
 import { mount } from "enzyme";
 import { useFixedFromUrlParameters } from "../useFixedFromUrlParameters";
 
-// Mock the parameter hydration service
-jest.mock("@/services/parameterHydration", () => ({
-  useFixedFromUrlParameterHydration: jest.fn(() => jest.fn()),
-}));
-
 // Test component that uses the hook
 function TestComponent({ widgets, globalParameters }) {
   const result = useFixedFromUrlParameters(widgets, globalParameters);
@@ -46,10 +41,6 @@ describe("useFixedFromUrlParameters", () => {
       },
     },
   ];
-
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
 
   it("should extract fixed-from-url parameter names correctly", () => {
     const wrapper = mount(
