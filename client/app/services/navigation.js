@@ -10,27 +10,7 @@ export function isValidBackUrl(back) {
     return false;
   }
 
-  // Allow root-relative paths like `/...`
-  if (back.startsWith("/")) {
-    // Prevent path traversal attacks
-    if (back.includes("..") || back.includes("//") || back.includes("\\")) {
-      return false;
-    }
-    
-    // Prevent data URLs and other dangerous schemes
-    if (back.includes(":") && !back.startsWith("/?") && !back.startsWith("/#")) {
-      return false;
-    }
-    
-    // Ensure it's a valid path format
-    if (back.length > 2000) { // Reasonable URL length limit
-      return false;
-    }
-    
-    return true;
-  }
-
-  // Allow same-origin absolute URLs only
+  // Only allow same-origin absolute URLs - no relative paths at all
   try {
     const parsed = new URL(back);
     return parsed.origin === window.location.origin;
@@ -48,9 +28,9 @@ export function handleBackNavigation(backUrl = null) {
   const back = backUrl || (location.search && location.search.back);
 
   if (isValidBackUrl(back)) {
-    // Use app's `location.setPath` for same-origin or relative navigation
+    // Use app's `location.setPath` for same-origin absolute URLs only
     try {
-      const parsed = new URL(back, window.location.origin);
+      const parsed = new URL(back);
       const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
       location.setPath(path);
       return;
