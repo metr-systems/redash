@@ -80,7 +80,7 @@ AddWidgetContainer.propTypes = {
 };
 
 function DashboardComponent(props) {
-  const dashboardConfiguration = useDashboard(props.dashboard)
+  const dashboardConfiguration = useDashboard(props.dashboard);
   const {
     dashboard,
     filters,
