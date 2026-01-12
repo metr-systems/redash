@@ -49,6 +49,10 @@ export default function FixedParametersList({ parameterNames, parameters = [] })
     return null;
   }
 
+  // Check if there's a back URL parameter in the current location
+  const params = location.search || {};
+  const hasBackUrl = params.back && typeof params.back === 'string';
+
   return (
     <>
       {parameterNames.map((parameterName) => {
@@ -61,7 +65,7 @@ export default function FixedParametersList({ parameterNames, parameters = [] })
           />
         );
       })}
-      <BackToOverviewButton />
+      {hasBackUrl && <BackToOverviewButton />}
     </>
   );
 }
