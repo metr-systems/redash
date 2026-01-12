@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Typography from "antd/lib/typography";
+import { find } from "lodash";
 import location from "@/services/location";
 import { formatFixedValue } from "../pages/dashboards/helpers";
 import BackToOverviewButton from "./BackToOverviewButton";
@@ -12,15 +13,34 @@ const { Text } = Typography;
  */
 function FixedParameterDisplay({ parameterName, parameter }) {
   const label = (parameter && (parameter.title || parameter.name)) || parameterName;
+  const [dropdownOptions, setDropdownOptions] = useState([]);
 
-  // Get the current value from URL or parameter
+  // Get the current value from URL parameters
   const params = location.search || {};
   const key = `p_${parameterName}`;
   const rawValue = Object.prototype.hasOwnProperty.call(params, key)
     ? params[key]
     : parameter?.normalizedValue ?? null;
 
-  const displayValue = formatFixedValue(rawValue);
+  // Load dropdown options for query-based parameters
+  useEffect(() => {
+    if (parameter?.type === 'query' && parameter?.loadDropdownValues) {
+      parameter.loadDropdownValues().then((options) => {
+        setDropdownOptions(options || []);
+      }).catch(() => {
+        setDropdownOptions([]);
+      });
+    }
+  }, [parameter?.type, parameter?.queryId]);
+
+  // Resolve display value
+  let displayValue = formatFixedValue(rawValue);
+  if (parameter?.type === 'query' && dropdownOptions.length > 0 && rawValue != null) {
+    const matchingOption = find(dropdownOptions, option => String(option.value) === String(rawValue));
+    if (matchingOption) {
+      displayValue = matchingOption.name;
+    }
+  }
 
   return (
     <div key={parameterName} className="parameter-block" data-test={`FixedFromUrlParam-${parameterName}`}>
