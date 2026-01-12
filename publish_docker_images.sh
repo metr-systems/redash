@@ -64,7 +64,7 @@ fi
 
 set -e
 
-docker build $DOCKER_CACHE_FLAG --build-arg install_groups="main,metr" --platform linux/amd64 -t redash-metr .
+docker buildx build $DOCKER_CACHE_FLAG --build-arg install_groups="main,metr" --platform linux/amd64 -t redash-metr .
 
 
 function tag_and_push_image() {
