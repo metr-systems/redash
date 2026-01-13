@@ -10,10 +10,26 @@ export function isValidBackUrl(back) {
     return false;
   }
 
+  // Check for overly long URLs (security measure against DoS attacks)
+  if (back.length > 2000) {
+    return false;
+  }
+
+  // Check for path traversal attacks in the original URL string before parsing
+  if (back.includes("../")) {
+    return false;
+  }
+
   // Only allow same-origin absolute URLs - no relative paths at all
   try {
     const parsed = new URL(back);
-    return parsed.origin === window.location.origin;
+    
+    // Check origin
+    if (parsed.origin !== window.location.origin) {
+      return false;
+    }
+    
+    return true;
   } catch (e) {
     return false;
   }
