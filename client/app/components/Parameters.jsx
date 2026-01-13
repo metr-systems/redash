@@ -199,6 +199,7 @@ export default class Parameters extends React.Component {
           className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
         }}>
+        {this.props.children}
         {parameters &&
           parameters.map((param, index) => (
             <SortableElement key={param.name} index={index}>
@@ -211,7 +212,6 @@ export default class Parameters extends React.Component {
               </div>
             </SortableElement>
           ))}
-        {this.props.children}
         <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
       </SortableContainer>
     );
