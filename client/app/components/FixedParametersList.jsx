@@ -46,7 +46,7 @@ function FixedParameterDisplay({ parameterName, parameter }) {
     <div key={parameterName} className="parameter-block" data-test={`FixedFromUrlParam-${parameterName}`}>
       <div className="di-block">
         <div className="parameter-heading">
-          <label>{label} (Fixed)</label>
+          <label>{label}</label>
         </div>
         <div className="parameter-input">
           <Text data-test={`FixedFromUrlValue-${parameterName}`}>{displayValue}</Text>
