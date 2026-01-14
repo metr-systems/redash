@@ -1,4 +1,7 @@
-FROM node:18-bookworm AS frontend-builder
+# Enable native platform builds for frontend (faster on ARM Macs)
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+FROM --platform=$BUILDPLATFORM node:18-bookworm AS frontend-builder
 
 RUN npm install --global --force yarn@1.22.22
 
@@ -15,15 +18,15 @@ WORKDIR /frontend
 COPY --chown=redash package.json yarn.lock .yarnrc /frontend/
 COPY --chown=redash viz-lib /frontend/viz-lib
 COPY --chown=redash scripts /frontend/scripts
-
 # Controls whether to instrument code for coverage information
 ARG code_coverage
 ENV BABEL_ENV=${code_coverage:+test}
 
-# Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
+# Increase timeout for slower connections
 RUN yarn config set network-timeout 300000
+# Now building on native platform, so we can use parallel downloads
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile; fi
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
@@ -73,7 +76,7 @@ RUN apt-get update && \
   rm -rf /var/lib/apt/lists/*
 
 
-ARG TARGETPLATFORM
+
 ARG databricks_odbc_driver_url=https://databricks-bi-artifacts.s3.us-east-2.amazonaws.com/simbaspark-drivers/odbc/2.6.26/SimbaSparkODBC-2.6.26.1045-Debian-64bit.zip
 RUN <<EOF
   if [ "$TARGETPLATFORM" = "linux/amd64" ]; then
