@@ -1,6 +1,29 @@
 import location from "@/services/location";
 
 /**
+ * Validates if a backText parameter is safe to display
+ * @param {string} backText - The back text to validate
+ * @returns {boolean} - Whether the text is safe for display
+ */
+export function isValidBackText(backText) {
+  if (!backText || typeof backText !== "string") {
+    return false;
+  }
+
+  // Check for overly long text (security measure)
+  if (backText.length > 200) {
+    return false;
+  }
+
+  // Basic XSS protection - no HTML tags allowed
+  if (/<[^>]*>/.test(backText)) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Validates if a back URL is safe to navigate to
  * @param {string} back - The back URL to validate
  * @returns {boolean} - Whether the URL is safe for navigation
@@ -38,6 +61,7 @@ export function isValidBackUrl(back) {
 /**
  * Handles back navigation with support for URL parameter-based routing
  * @param {string} backUrl - Optional back URL from search params
+ * Note: backText parameter is handled separately in components for display
  */
 export function handleBackNavigation(backUrl = null) {
   // If no backUrl provided, try to get it from current location search params

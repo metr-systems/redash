@@ -1,4 +1,4 @@
-import { isValidBackUrl, handleBackNavigation } from "../navigation";
+import { isValidBackUrl, isValidBackText, handleBackNavigation } from "../navigation";
 import location from "../location";
 
 // Mock the location service
@@ -85,6 +85,45 @@ describe("navigation service", () => {
     it("should return true for valid absolute URLs with query strings and hash fragments", () => {
       expect(isValidBackUrl("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard?tab=overview")).toBe(true);
       expect(isValidBackUrl("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard#dashboard")).toBe(true);
+    });
+  });
+
+  describe("isValidBackText", () => {
+    it("should return false for null or undefined", () => {
+      expect(isValidBackText(null)).toBe(false);
+      expect(isValidBackText(undefined)).toBe(false);
+    });
+
+    it("should return false for non-string values", () => {
+      expect(isValidBackText(123)).toBe(false);
+      expect(isValidBackText({})).toBe(false);
+    });
+
+    it("should return true for valid text", () => {
+      expect(isValidBackText("Back to Main Dashboard")).toBe(true);
+      expect(isValidBackText("Return to Overview")).toBe(true);
+      expect(isValidBackText("← Go Back")).toBe(true);
+    });
+
+    it("should return false for overly long text", () => {
+      const longText = "a".repeat(201);
+      expect(isValidBackText(longText)).toBe(false);
+    });
+
+    it("should return false for text containing HTML tags", () => {
+      expect(isValidBackText("<script>alert('xss')</script>")).toBe(false);
+      expect(isValidBackText("Click <a href=''>here</a>")).toBe(false);
+      expect(isValidBackText("<b>Bold text</b>")).toBe(false);
+    });
+
+    it("should return true for text with special characters (non-HTML)", () => {
+      expect(isValidBackText("← Back to Dashboard")).toBe(true);
+      expect(isValidBackText("Back → Main")).toBe(true);
+      expect(isValidBackText("Return & Continue")).toBe(true);
+    });
+
+    it("should return true for empty string", () => {
+      expect(isValidBackText("")).toBe(false);
     });
   });
 
