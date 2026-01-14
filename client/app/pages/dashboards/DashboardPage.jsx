@@ -14,6 +14,7 @@ import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 import FixedParametersList from "@/components/FixedParametersList";
+import BackToOverviewButton from "@/components/BackToOverviewButton";
 
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
@@ -28,6 +29,16 @@ import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";
+
+// Helper component to render back button when there are fixed parameters
+function DashboardBackButton({ className }) {
+  const params = location.search || {};
+  const hasBackUrl = params.back && typeof params.back === 'string';
+  
+  if (!hasBackUrl) return null;
+  
+  return <BackToOverviewButton className={className} />;
+}
 
 function DashboardSettings({ dashboardConfiguration }) {
   const { t } = useTranslation("Dashboards");
@@ -152,20 +163,27 @@ function DashboardComponent(props) {
       />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
-          <Parameters
-            parameters={globalParameters}
-            hiddenParameterNames={fixedFromUrlParamNames}
-            onValuesChange={refreshDashboard}
-            sortable={editingLayout}
-            onParametersEdit={onParametersEdit}
-            disabled={refreshing}>
-            {hasFixedParameters && (
-              <FixedParametersList 
-                parameterNames={fixedFromUrlParamNames}
-                parameters={fixedFromUrlParameters}
+          <div className="dashboard-parameters-container">
+            <div className="dashboard-parameters-main">
+              {hasFixedParameters && (
+                <FixedParametersList 
+                  parameterNames={fixedFromUrlParamNames}
+                  parameters={fixedFromUrlParameters}
+                />
+              )}
+              <Parameters
+                parameters={globalParameters}
+                hiddenParameterNames={fixedFromUrlParamNames}
+                onValuesChange={refreshDashboard}
+                sortable={editingLayout}
+                onParametersEdit={onParametersEdit}
+                disabled={refreshing}
               />
+            </div>
+            {hasFixedParameters && (
+              <DashboardBackButton className="dashboard-back-button" />
             )}
-          </Parameters>
+          </div>
         </div>
       )}
       {!isEmpty(filters) && (

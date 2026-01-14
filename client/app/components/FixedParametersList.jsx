@@ -3,9 +3,7 @@ import PropTypes from "prop-types";
 import Typography from "antd/lib/typography";
 import { find } from "lodash";
 import location from "@/services/location";
-import { isValidBackText } from "@/services/navigation";
 import { formatFixedValue } from "../pages/dashboards/helpers";
-import BackToOverviewButton from "./BackToOverviewButton";
 
 const { Text } = Typography;
 
@@ -63,18 +61,12 @@ FixedParameterDisplay.propTypes = {
 };
 
 /**
- * Renders the list of fixed-from-url parameters with a back to overview button
+ * Renders the list of fixed-from-url parameters
  */
 export default function FixedParametersList({ parameterNames, parameters = [] }) {
   if (!parameterNames || parameterNames.length === 0) {
     return null;
   }
-
-  // Check if there's a back URL parameter in the current location
-  const params = location.search || {};
-  const hasBackUrl = params.back && typeof params.back === 'string';
-  const rawBackText = params.backText && typeof params.backText === 'string' ? params.backText : null;
-  const backText = rawBackText && isValidBackText(rawBackText) ? rawBackText : null;
 
   return (
     <>
@@ -88,7 +80,6 @@ export default function FixedParametersList({ parameterNames, parameters = [] })
           />
         );
       })}
-      {hasBackUrl && <BackToOverviewButton backText={backText} />}
     </>
   );
 }
