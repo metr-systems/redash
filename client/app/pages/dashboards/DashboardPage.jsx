@@ -18,6 +18,7 @@ import BackToOverviewButton from "@/components/BackToOverviewButton";
 
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
+import { isValidBackText } from "@/services/navigation";
 import resizeObserver from "@/services/resizeObserver";
 import location from "@/services/location";
 import routes from "@/services/routes";
@@ -37,7 +38,15 @@ function DashboardBackButton({ className }) {
   
   if (!hasBackUrl) return null;
   
-  return <BackToOverviewButton className={className} />;
+  // Extract backText from URL parameters and validate it
+  let backText = null;
+  if (params.backText && typeof params.backText === 'string') {
+    if (isValidBackText(params.backText)) {
+      backText = params.backText;
+    }
+  }
+  
+  return <BackToOverviewButton className={className} backText={backText} />;
 }
 
 function DashboardSettings({ dashboardConfiguration }) {
