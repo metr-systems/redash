@@ -5,7 +5,7 @@ import { useMemo } from "react";
  * @param {Array} widgets - Dashboard widgets array
  * @returns {Array} - Array of unique parameter names that should be fixed from URL
  */
-function extractFixedParameterNames(widgets) {
+export function extractFixedParameterNames(widgets) {
   if (!widgets || widgets.length === 0) {
     return [];
   }
@@ -90,9 +90,4 @@ export function useFixedFromUrlParameters(widgets, globalParameters) {
   }, [widgets, globalParameters]);
 
   return result;
-}
-
-// For backward compatibility - keep the old function but make it more efficient
-export function extractFixedFromUrlParameterNames(dashboard) {
-  return extractFixedParameterNames(dashboard?.widgets || []);
 }
