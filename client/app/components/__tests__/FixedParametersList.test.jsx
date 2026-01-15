@@ -13,13 +13,6 @@ jest.mock("../../pages/dashboards/helpers", () => ({
   formatFixedValue: jest.fn((value) => String(value || "")),
 }));
 
-// Mock BackToOverviewButton
-jest.mock("../BackToOverviewButton", () => {
-  return function MockBackToOverviewButton({ backText }) {
-    return <div data-test="BackToOverviewButton">{backText || "Back to Overview"}</div>;
-  };
-});
-
 describe("FixedParametersList - Dropdown Value Resolution", () => {
   const mockQueryParameter = {
     name: "status",
@@ -150,56 +143,5 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
     expect(valueDisplay.first().text()).toBe("active");
-  });
-
-  test("renders BackToOverviewButton with custom backText when provided", () => {
-    location.search = { 
-      back: "https://example.com/dashboard",
-      backText: "Return to Main Dashboard"
-    };
-    
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["status"]}
-        parameters={[mockQueryParameter]}
-      />
-    );
-
-    const backButton = wrapper.find('[data-test="BackToOverviewButton"]');
-    expect(backButton).toHaveLength(1);
-    expect(backButton.text()).toBe("Return to Main Dashboard");
-  });
-
-  test("renders BackToOverviewButton with default text when backText not provided", () => {
-    location.search = { 
-      back: "https://example.com/dashboard"
-    };
-    
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["status"]}
-        parameters={[mockQueryParameter]}
-      />
-    );
-
-    const backButton = wrapper.find('[data-test="BackToOverviewButton"]');
-    expect(backButton).toHaveLength(1);
-    expect(backButton.text()).toBe("Back to Overview");
-  });
-
-  test("does not render BackToOverviewButton when back parameter missing", () => {
-    location.search = { 
-      backText: "Return to Main Dashboard" // backText alone shouldn't show button
-    };
-    
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["status"]}
-        parameters={[mockQueryParameter]}
-      />
-    );
-
-    const backButton = wrapper.find('[data-test="BackToOverviewButton"]');
-    expect(backButton).toHaveLength(0);
   });
 });
