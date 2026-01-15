@@ -33,9 +33,9 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
     ]);
   });
 
-  test("resolves dropdown display value from normalizedValue when URL param missing", async () => {
+test("shows empty value when URL param missing", async () => {
     location.search = {}; // No URL parameter
-    
+
     const wrapper = mount(
       <FixedParametersList
         parameterNames={["status"]}
@@ -47,7 +47,7 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
-    expect(valueDisplay.first().text()).toBe("Active Status");
+    expect(valueDisplay.first().text()).toBe(""); // Should be empty when no URL param
   });
 
   test("falls back to raw value when dropdown option not found", async () => {

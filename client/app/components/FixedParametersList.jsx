@@ -19,7 +19,7 @@ function FixedParameterDisplay({ parameterName, parameter }) {
   const key = `p_${parameterName}`;
   const rawValue = Object.prototype.hasOwnProperty.call(params, key)
     ? params[key]
-    : parameter?.normalizedValue ?? null;
+    : null;
 
   // Load dropdown options for query-based parameters
   useEffect(() => {
