@@ -161,7 +161,8 @@ export default class Parameters extends React.Component {
               aria-label={i18next.t("Edit")}
               onClick={() => this.showParameterSettings(param, index)}
               data-test={`ParameterSettings-${param.name}`}
-              type="button">
+              type="button"
+            >
               <i className="fa fa-cog" aria-hidden="true" />
             </PlainButton>
           )}
@@ -198,7 +199,8 @@ export default class Parameters extends React.Component {
         containerProps={{
           className: "parameter-container",
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
-        }}>
+        }}
+      >
         {this.props.children}
         {parameters &&
           parameters.map((param, index) => (
@@ -206,7 +208,8 @@ export default class Parameters extends React.Component {
               <div
                 className="parameter-block"
                 data-editable={sortable || null}
-                data-test={`ParameterBlock-${param.name}`}>
+                data-test={`ParameterBlock-${param.name}`}
+              >
                 {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
                 {this.renderParameter(param, index)}
               </div>

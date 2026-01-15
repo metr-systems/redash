@@ -39,15 +39,15 @@ describe("navigation service", () => {
       expect(isValidBackUrl({})).toBe(false);
     });
 
-
-
     it("should return false for root-relative paths", () => {
       expect(isValidBackUrl("/dashboard")).toBe(false);
       expect(isValidBackUrl("/queries/123")).toBe(false);
     });
 
     it("should return true for same-origin absolute URLs", () => {
-      expect(isValidBackUrl("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard")).toBe(true);
+      expect(
+        isValidBackUrl("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard")
+      ).toBe(true);
     });
 
     it("should support the required metr.systems dashboard URL format", () => {
@@ -83,8 +83,14 @@ describe("navigation service", () => {
     });
 
     it("should return true for valid absolute URLs with query strings and hash fragments", () => {
-      expect(isValidBackUrl("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard?tab=overview")).toBe(true);
-      expect(isValidBackUrl("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard#dashboard")).toBe(true);
+      expect(
+        isValidBackUrl(
+          "https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard?tab=overview"
+        )
+      ).toBe(true);
+      expect(
+        isValidBackUrl("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard#dashboard")
+      ).toBe(true);
     });
   });
 
@@ -135,7 +141,9 @@ describe("navigation service", () => {
     });
 
     it("should use location.setPath for valid same-origin absolute URLs with query params", () => {
-      handleBackNavigation("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard?tab=overview");
+      handleBackNavigation(
+        "https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard?tab=overview"
+      );
       expect(location.setPath).toHaveBeenCalledWith("/staging/dashboards/61-overview-test-dashboard?tab=overview");
       expect(window.history.back).not.toHaveBeenCalled();
     });
@@ -158,7 +166,9 @@ describe("navigation service", () => {
     });
 
     it("should get back URL from location.search when no parameter provided", () => {
-      location.search = { back: "https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard" };
+      location.search = {
+        back: "https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard",
+      };
       handleBackNavigation();
       expect(location.setPath).toHaveBeenCalledWith("/staging/dashboards/61-overview-test-dashboard");
     });

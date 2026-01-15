@@ -33,17 +33,12 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
     ]);
   });
 
-test("shows empty value when URL param missing", async () => {
+  test("shows empty value when URL param missing", async () => {
     location.search = {}; // No URL parameter
 
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["status"]}
-        parameters={[mockQueryParameter]}
-      />
-    );
+    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
@@ -53,21 +48,14 @@ test("shows empty value when URL param missing", async () => {
   test("falls back to raw value when dropdown option not found", async () => {
     location.search = { p_status: "unknown_status" };
 
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["status"]}
-        parameters={[mockQueryParameter]}
-      />
-    );
+    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
     expect(valueDisplay.first().text()).toBe("unknown_status");
   });
-
-
 
   test("handles numeric dropdown values correctly", async () => {
     mockQueryParameter.loadDropdownValues.mockResolvedValue([
@@ -76,14 +64,9 @@ test("shows empty value when URL param missing", async () => {
     ]);
     location.search = { p_status: "1" };
 
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["status"]}
-        parameters={[mockQueryParameter]}
-      />
-    );
+    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
@@ -98,12 +81,7 @@ test("shows empty value when URL param missing", async () => {
       normalizedValue: "default_user",
     };
 
-    mount(
-      <FixedParametersList
-        parameterNames={["user_id"]}
-        parameters={[textParameter]}
-      />
-    );
+    mount(<FixedParametersList parameterNames={["user_id"]} parameters={[textParameter]} />);
 
     expect(mockQueryParameter.loadDropdownValues).not.toHaveBeenCalled();
   });
@@ -111,19 +89,14 @@ test("shows empty value when URL param missing", async () => {
   test("handles parameters without loadDropdownValues method", () => {
     const invalidQueryParam = {
       name: "status",
-      title: "Status", 
+      title: "Status",
       type: "query",
       normalizedValue: "active",
       // missing loadDropdownValues
     };
 
     expect(() => {
-      mount(
-        <FixedParametersList
-          parameterNames={["status"]}
-          parameters={[invalidQueryParam]}
-        />
-      );
+      mount(<FixedParametersList parameterNames={["status"]} parameters={[invalidQueryParam]} />);
     }).not.toThrow();
   });
 
@@ -131,14 +104,9 @@ test("shows empty value when URL param missing", async () => {
     mockQueryParameter.loadDropdownValues.mockResolvedValue([]);
     location.search = { p_status: "active" };
 
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["status"]}
-        parameters={[mockQueryParameter]}
-      />
-    );
+    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');

@@ -11,11 +11,11 @@ export function extractFixedParameterNames(widgets) {
   }
 
   const namesSet = new Set();
-  
+
   for (let i = 0; i < widgets.length; i++) {
     const mappings = widgets[i]?.options?.parameterMappings;
     if (!mappings) continue;
-    
+
     // Use for...in for better performance than Object.values()
     for (const key in mappings) {
       const mapping = mappings[key];
@@ -24,7 +24,7 @@ export function extractFixedParameterNames(widgets) {
       }
     }
   }
-  
+
   return namesSet.size > 0 ? Array.from(namesSet) : [];
 }
 
@@ -37,7 +37,7 @@ function createParameterLookup(globalParameters) {
   if (!globalParameters || globalParameters.length === 0) {
     return new Map();
   }
-  
+
   const lookup = new Map();
   for (let i = 0; i < globalParameters.length; i++) {
     const param = globalParameters[i];
@@ -59,7 +59,7 @@ export function useFixedFromUrlParameters(widgets, globalParameters) {
   const result = useMemo(() => {
     // Extract parameter names
     const parameterNames = extractFixedParameterNames(widgets);
-    
+
     if (parameterNames.length === 0) {
       return {
         parameterNames: [],
@@ -71,7 +71,7 @@ export function useFixedFromUrlParameters(widgets, globalParameters) {
 
     // Create lookup map for efficient parameter finding
     const paramLookup = createParameterLookup(globalParameters);
-    
+
     // Find matching parameters efficiently
     const parameters = [];
     for (let i = 0; i < parameterNames.length; i++) {

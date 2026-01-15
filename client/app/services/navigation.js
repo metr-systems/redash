@@ -46,12 +46,12 @@ export function isValidBackUrl(back) {
   // Only allow same-origin absolute URLs - no relative paths at all
   try {
     const parsed = new URL(back);
-    
+
     // Check origin
     if (parsed.origin !== window.location.origin) {
       return false;
     }
-    
+
     return true;
   } catch (e) {
     return false;

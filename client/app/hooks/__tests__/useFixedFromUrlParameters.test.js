@@ -10,7 +10,7 @@ function TestComponent({ widgets, globalParameters }) {
       <div data-test="parameterNames">{JSON.stringify(result.parameterNames)}</div>
       <div data-test="hasFixedParameters">{result.hasFixedParameters.toString()}</div>
       <div data-test="count">{result.count}</div>
-      <div data-test="parameters">{JSON.stringify(result.parameters.map(p => p?.name))}</div>
+      <div data-test="parameters">{JSON.stringify(result.parameters.map((p) => p?.name))}</div>
     </div>
   );
 }
@@ -43,9 +43,7 @@ describe("useFixedFromUrlParameters", () => {
   ];
 
   it("should extract fixed-from-url parameter names correctly", () => {
-    const wrapper = mount(
-      <TestComponent widgets={mockWidgets} globalParameters={mockGlobalParameters} />
-    );
+    const wrapper = mount(<TestComponent widgets={mockWidgets} globalParameters={mockGlobalParameters} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const hasFixedParameters = wrapper.find('[data-test="hasFixedParameters"]').text() === "true";
@@ -57,18 +55,14 @@ describe("useFixedFromUrlParameters", () => {
   });
 
   it("should return matching parameter objects", () => {
-    const wrapper = mount(
-      <TestComponent widgets={mockWidgets} globalParameters={mockGlobalParameters} />
-    );
+    const wrapper = mount(<TestComponent widgets={mockWidgets} globalParameters={mockGlobalParameters} />);
 
     const parameters = JSON.parse(wrapper.find('[data-test="parameters"]').text());
     expect(parameters).toEqual(["user_id", "status", "date_range"]);
   });
 
   it("should handle empty widgets array", () => {
-    const wrapper = mount(
-      <TestComponent widgets={[]} globalParameters={mockGlobalParameters} />
-    );
+    const wrapper = mount(<TestComponent widgets={[]} globalParameters={mockGlobalParameters} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const hasFixedParameters = wrapper.find('[data-test="hasFixedParameters"]').text() === "true";
@@ -80,9 +74,7 @@ describe("useFixedFromUrlParameters", () => {
   });
 
   it("should handle null/undefined widgets", () => {
-    const wrapper = mount(
-      <TestComponent widgets={null} globalParameters={mockGlobalParameters} />
-    );
+    const wrapper = mount(<TestComponent widgets={null} globalParameters={mockGlobalParameters} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const hasFixedParameters = wrapper.find('[data-test="hasFixedParameters"]').text() === "true";
@@ -92,15 +84,9 @@ describe("useFixedFromUrlParameters", () => {
   });
 
   it("should handle widgets without parameter mappings", () => {
-    const widgetsWithoutMappings = [
-      { options: {} },
-      { options: { parameterMappings: {} } },
-      {},
-    ];
+    const widgetsWithoutMappings = [{ options: {} }, { options: { parameterMappings: {} } }, {}];
 
-    const wrapper = mount(
-      <TestComponent widgets={widgetsWithoutMappings} globalParameters={mockGlobalParameters} />
-    );
+    const wrapper = mount(<TestComponent widgets={widgetsWithoutMappings} globalParameters={mockGlobalParameters} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const hasFixedParameters = wrapper.find('[data-test="hasFixedParameters"]').text() === "true";
@@ -110,9 +96,7 @@ describe("useFixedFromUrlParameters", () => {
   });
 
   it("should handle missing global parameters", () => {
-    const wrapper = mount(
-      <TestComponent widgets={mockWidgets} globalParameters={null} />
-    );
+    const wrapper = mount(<TestComponent widgets={mockWidgets} globalParameters={null} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const parameters = JSON.parse(wrapper.find('[data-test="parameters"]').text());
@@ -126,9 +110,7 @@ describe("useFixedFromUrlParameters", () => {
   it("should filter out parameters not found in global parameters", () => {
     const limitedGlobalParams = [{ name: "user_id", title: "User ID" }];
 
-    const wrapper = mount(
-      <TestComponent widgets={mockWidgets} globalParameters={limitedGlobalParams} />
-    );
+    const wrapper = mount(<TestComponent widgets={mockWidgets} globalParameters={limitedGlobalParams} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const parameters = JSON.parse(wrapper.find('[data-test="parameters"]').text());
@@ -149,9 +131,7 @@ describe("useFixedFromUrlParameters", () => {
       },
     ];
 
-    const wrapper = mount(
-      <TestComponent widgets={widgetsWithDuplicates} globalParameters={mockGlobalParameters} />
-    );
+    const wrapper = mount(<TestComponent widgets={widgetsWithDuplicates} globalParameters={mockGlobalParameters} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const count = parseInt(wrapper.find('[data-test="count"]').text());

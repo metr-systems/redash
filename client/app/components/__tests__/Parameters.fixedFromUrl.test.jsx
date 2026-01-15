@@ -11,11 +11,7 @@ describe("Parameters component fixed-from-url hide", () => {
     const onValuesChange = jest.fn();
 
     const wrapper = mount(
-      <Parameters
-        parameters={[foo, bar]}
-        onValuesChange={onValuesChange}
-        hiddenParameterNames={["foo"]}
-      />
+      <Parameters parameters={[foo, bar]} onValuesChange={onValuesChange} hiddenParameterNames={["foo"]} />
     );
 
     // foo should be hidden, bar should be rendered

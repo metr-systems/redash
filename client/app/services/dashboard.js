@@ -202,10 +202,7 @@ Dashboard.prototype.getParametersDefs = function getParametersDefs() {
         .forEach((param) => {
           const mapping = mappings[param.name];
           // Treat fixed-from-url as a dashboard-level parameter as well
-          if (
-            mapping.type === Widget.MappingType.DashboardLevel ||
-            mapping.type === Widget.MappingType.FixedFromUrl
-          ) {
+          if (mapping.type === Widget.MappingType.DashboardLevel || mapping.type === Widget.MappingType.FixedFromUrl) {
             // create global param
             if (!globalParams[mapping.mapTo]) {
               globalParams[mapping.mapTo] = cloneParameter(param);

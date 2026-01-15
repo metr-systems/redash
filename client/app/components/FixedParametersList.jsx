@@ -17,25 +17,26 @@ function FixedParameterDisplay({ parameterName, parameter }) {
   // Get the current value from URL parameters
   const params = location.search || {};
   const key = `p_${parameterName}`;
-  const rawValue = Object.prototype.hasOwnProperty.call(params, key)
-    ? params[key]
-    : null;
+  const rawValue = Object.prototype.hasOwnProperty.call(params, key) ? params[key] : null;
 
   // Load dropdown options for query-based parameters
   useEffect(() => {
-    if (parameter?.type === 'query' && parameter?.loadDropdownValues) {
-      parameter.loadDropdownValues().then((options) => {
-        setDropdownOptions(options || []);
-      }).catch(() => {
-        setDropdownOptions([]);
-      });
+    if (parameter?.type === "query" && parameter?.loadDropdownValues) {
+      parameter
+        .loadDropdownValues()
+        .then((options) => {
+          setDropdownOptions(options || []);
+        })
+        .catch(() => {
+          setDropdownOptions([]);
+        });
     }
   }, [parameter?.type, parameter?.queryId]);
 
   // Resolve display value
   let displayValue = formatFixedValue(rawValue);
-  if (parameter?.type === 'query' && dropdownOptions.length > 0 && rawValue != null) {
-    const matchingOption = find(dropdownOptions, option => String(option.value) === String(rawValue));
+  if (parameter?.type === "query" && dropdownOptions.length > 0 && rawValue != null) {
+    const matchingOption = find(dropdownOptions, (option) => String(option.value) === String(rawValue));
     if (matchingOption) {
       displayValue = matchingOption.name;
     }
@@ -71,14 +72,8 @@ export default function FixedParametersList({ parameterNames, parameters = [] })
   return (
     <>
       {parameterNames.map((parameterName) => {
-        const parameter = parameters.find(p => p?.name === parameterName);
-        return (
-          <FixedParameterDisplay
-            key={parameterName}
-            parameterName={parameterName}
-            parameter={parameter}
-          />
-        );
+        const parameter = parameters.find((p) => p?.name === parameterName);
+        return <FixedParameterDisplay key={parameterName} parameterName={parameterName} parameter={parameter} />;
       })}
     </>
   );

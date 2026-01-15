@@ -22,7 +22,6 @@ import dashboardGridOptions from "@/config/dashboard-grid-options";
 import { registeredVisualizations } from "@redash/viz/lib";
 import { Query } from "./query";
 
-
 export const WidgetTypeEnum = {
   TEXTBOX: "textbox",
   VISUALIZATION: "visualization",
@@ -227,10 +226,7 @@ class Widget {
 
     const queryParams = location.search;
 
-    const localTypes = [
-      Widget.MappingType.WidgetLevel,
-      Widget.MappingType.StaticValue,
-    ];
+    const localTypes = [Widget.MappingType.WidgetLevel, Widget.MappingType.StaticValue];
     const localParameters = map(
       filter(params, (param) => localTypes.indexOf(mappings[param.name].type) >= 0),
       (param) => {

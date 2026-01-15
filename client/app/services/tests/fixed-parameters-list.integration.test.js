@@ -36,12 +36,7 @@ describe("FixedParametersList URL Integration", () => {
       p_status: "active",
     };
 
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={["user_id", "status"]}
-        parameters={mockParameters}
-      />
-    );
+    const wrapper = mount(<FixedParametersList parameterNames={["user_id", "status"]} parameters={mockParameters} />);
 
     // Just check that it renders
     expect(wrapper).toBeDefined();
@@ -49,23 +44,13 @@ describe("FixedParametersList URL Integration", () => {
   });
 
   test("should work with empty parameters", () => {
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={[]}
-        parameters={[]}
-      />
-    );
+    const wrapper = mount(<FixedParametersList parameterNames={[]} parameters={[]} />);
 
     expect(wrapper).toBeDefined();
   });
 
   test("should work with null props", () => {
-    const wrapper = mount(
-      <FixedParametersList
-        parameterNames={null}
-        parameters={null}
-      />
-    );
+    const wrapper = mount(<FixedParametersList parameterNames={null} parameters={null} />);
 
     expect(wrapper).toBeDefined();
   });

@@ -112,9 +112,7 @@ describe("Fixed From URL Parameters Integration", () => {
       ];
 
       const result = extractFixedParameterNames(widgets);
-      expect(result).toEqual(
-        expect.arrayContaining(["current_user_id", "report_date", "user_region"])
-      );
+      expect(result).toEqual(expect.arrayContaining(["current_user_id", "report_date", "user_region"]));
       expect(result).not.toContain("status_selector");
       expect(result).not.toContain("overview_mode");
       expect(result).toHaveLength(3);
@@ -184,9 +182,9 @@ describe("Fixed From URL Parameters Integration", () => {
       const result = extractFixedParameterNames(widgets);
       expect(result).toEqual(expect.arrayContaining(["param_z", "param_a", "param_m", "param_b"]));
       expect(result).toHaveLength(4); // Should not have duplicates
-      
+
       // Check that param_a only appears once despite being in two widgets
-      const paramACount = result.filter(p => p === "param_a").length;
+      const paramACount = result.filter((p) => p === "param_a").length;
       expect(paramACount).toBe(1);
     });
   });

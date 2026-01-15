@@ -34,18 +34,18 @@ import "./DashboardPage.less";
 // Helper component to render back button when there are fixed parameters
 function DashboardBackButton({ className }) {
   const params = location.search || {};
-  const hasBackUrl = params.back && typeof params.back === 'string';
-  
+  const hasBackUrl = params.back && typeof params.back === "string";
+
   if (!hasBackUrl) return null;
-  
+
   // Extract backText from URL parameters and validate it
   let backText = null;
-  if (params.backText && typeof params.backText === 'string') {
+  if (params.backText && typeof params.backText === "string") {
     if (isValidBackText(params.backText)) {
       backText = params.backText;
     }
   }
-  
+
   return <BackToOverviewButton className={className} backText={backText} />;
 }
 
@@ -175,10 +175,7 @@ function DashboardComponent(props) {
           <div className="dashboard-parameters-container">
             <div className="dashboard-parameters-main">
               {hasFixedParameters && (
-                <FixedParametersList 
-                  parameterNames={fixedFromUrlParamNames}
-                  parameters={fixedFromUrlParameters}
-                />
+                <FixedParametersList parameterNames={fixedFromUrlParamNames} parameters={fixedFromUrlParameters} />
               )}
               <Parameters
                 parameters={globalParameters}
@@ -189,9 +186,7 @@ function DashboardComponent(props) {
                 disabled={refreshing}
               />
             </div>
-            {hasFixedParameters && (
-              <DashboardBackButton className="dashboard-back-button" />
-            )}
+            {hasFixedParameters && <DashboardBackButton className="dashboard-back-button" />}
           </div>
         </div>
       )}
