@@ -13,7 +13,7 @@ import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
-import FixedParametersList from "@/components/FixedParametersList";
+import FixedParameters from "@/components/FixedParameters";
 import BackButton from "@/components/backButton";
 
 import { Dashboard } from "@/services/dashboard";
@@ -158,7 +158,7 @@ function DashboardComponent(props) {
           <div className="dashboard-parameters-container">
             <div className="dashboard-parameters-main">
               {hasFixedParameters && (
-                <FixedParametersList parameterNames={fixedFromUrlParamNames} parameters={fixedFromUrlParameters} />
+                <FixedParameters parameterNames={fixedFromUrlParamNames} parameters={fixedFromUrlParameters} />
               )}
               <Parameters
                 parameters={globalParameters}

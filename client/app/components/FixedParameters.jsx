@@ -64,7 +64,7 @@ FixedParameterDisplay.propTypes = {
 /**
  * Renders the list of fixed-from-url parameters
  */
-export default function FixedParametersList({ parameterNames, parameters = [] }) {
+export default function FixedParameters({ parameterNames, parameters = [] }) {
   if (!parameterNames || parameterNames.length === 0) {
     return null;
   }
@@ -79,7 +79,7 @@ export default function FixedParametersList({ parameterNames, parameters = [] })
   );
 }
 
-FixedParametersList.propTypes = {
+FixedParameters.propTypes = {
   parameterNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   parameters: PropTypes.arrayOf(PropTypes.object),
 };

@@ -1,6 +1,6 @@
 import React from "react";
 import { mount } from "enzyme";
-import FixedParametersList from "../FixedParametersList";
+import FixedParameters from "../FixedParameters";
 import location from "@/services/location";
 
 // Mock the location service
@@ -13,7 +13,7 @@ jest.mock("../../pages/dashboards/helpers", () => ({
   formatFixedValue: jest.fn((value) => String(value || "")),
 }));
 
-describe("FixedParametersList - Dropdown Value Resolution", () => {
+describe("FixedParameters - Dropdown Value Resolution", () => {
   const mockQueryParameter = {
     name: "status",
     title: "Status",
@@ -36,7 +36,7 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
   test("shows empty value when URL param missing", async () => {
     location.search = {}; // No URL parameter
 
-    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
+    const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
     await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
@@ -48,7 +48,7 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
   test("falls back to raw value when dropdown option not found", async () => {
     location.search = { p_status: "unknown_status" };
 
-    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
+    const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
     await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
@@ -64,7 +64,7 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
     ]);
     location.search = { p_status: "1" };
 
-    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
+    const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
     await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
@@ -81,7 +81,7 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
       normalizedValue: "default_user",
     };
 
-    mount(<FixedParametersList parameterNames={["user_id"]} parameters={[textParameter]} />);
+    mount(<FixedParameters parameterNames={["user_id"]} parameters={[textParameter]} />);
 
     expect(mockQueryParameter.loadDropdownValues).not.toHaveBeenCalled();
   });
@@ -96,7 +96,7 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
     };
 
     expect(() => {
-      mount(<FixedParametersList parameterNames={["status"]} parameters={[invalidQueryParam]} />);
+      mount(<FixedParameters parameterNames={["status"]} parameters={[invalidQueryParam]} />);
     }).not.toThrow();
   });
 
@@ -104,7 +104,7 @@ describe("FixedParametersList - Dropdown Value Resolution", () => {
     mockQueryParameter.loadDropdownValues.mockResolvedValue([]);
     location.search = { p_status: "active" };
 
-    const wrapper = mount(<FixedParametersList parameterNames={["status"]} parameters={[mockQueryParameter]} />);
+    const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
     await new Promise((resolve) => setTimeout(resolve, 0));
     wrapper.update();
