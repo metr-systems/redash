@@ -85,9 +85,9 @@ describe("FixedParameters URL Integration", () => {
     const wrapper = mount(<FixedParameters parameterNames={parameterNames} parameters={parameters} />);
 
     expect(wrapper).toBeDefined();
-    
+
     // Check that the correct number of parameter displays are rendered
-    const parameterDisplays = wrapper.find('.parameter-block');
+    const parameterDisplays = wrapper.find(".parameter-block");
     expect(parameterDisplays).toHaveLength(expectedParameterCount);
   });
 });

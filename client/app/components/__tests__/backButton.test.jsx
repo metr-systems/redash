@@ -47,8 +47,6 @@ describe("BackButton", () => {
     expect(mockHandler).toHaveBeenCalledTimes(1);
   });
 
-
-
   test("passes through additional button props", () => {
     const wrapper = mount(<BackButton disabled size="small" />);
 
