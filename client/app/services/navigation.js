@@ -68,14 +68,11 @@ export function handleBackNavigation() {
 
   if (isValidBackUrl(back)) {
     // Use app's `location.setPath` for same-origin absolute URLs only
-    try {
-      const parsed = new URL(back);
-      const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
-      location.setPath(path);
-      return;
-    } catch (e) {
-      // fallthrough to history.back()
-    }
+    // URL is already validated by isValidBackUrl, so parsing won't fail
+    const parsed = new URL(back);
+    const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+    location.setPath(path);
+    return;
   }
 
   // If no valid `back` param, fall back to browser history
