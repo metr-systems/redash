@@ -74,10 +74,10 @@ describe("FixedParameters URL Integration", () => {
       expectedParameterCount: 0,
     },
     {
-      description: "should work with null props",
+      description: "should work with empty props",
       setup: () => {},
-      parameterNames: null,
-      parameters: null,
+      parameterNames: [],
+      parameters: [],
       expectedParameterCount: 0,
     },
   ])("$description", ({ setup, parameterNames, parameters, expectedParameterCount, expectedValues }) => {

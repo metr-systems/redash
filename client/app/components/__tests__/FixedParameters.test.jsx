@@ -1,4 +1,5 @@
 import React from "react";
+import { act } from "react-dom/test-utils";
 import { mount } from "enzyme";
 import FixedParameters from "../FixedParameters";
 import location from "@/services/location";
@@ -69,7 +70,9 @@ describe("FixedParameters - Dropdown Value Resolution", () => {
 
     const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
@@ -109,7 +112,9 @@ describe("FixedParameters - Dropdown Value Resolution", () => {
 
     const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await act(async () => {
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
