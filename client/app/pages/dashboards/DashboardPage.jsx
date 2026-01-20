@@ -154,6 +154,7 @@ function DashboardComponent(props) {
                   parameterNames={fixedFromUrlParamNames}
                   parameters={fixedFromUrlParameters}
                   isEditing={editingLayout}
+                  sortable={editingLayout}
                 />
               )}
               <Parameters

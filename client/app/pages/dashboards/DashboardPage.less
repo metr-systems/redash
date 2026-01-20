@@ -67,6 +67,31 @@
   flex-wrap: wrap;
   align-items: flex-start;
   flex: 1;
+
+  // Ensure consistent alignment between fixed and regular parameters
+  .parameter-block {
+    .parameter-heading {
+      min-height: 22px; // Consistent label height
+      margin-bottom: 6px; // Consistent spacing
+    }
+
+    .parameter-input {
+      min-height: 32px; // Match input component height
+      display: flex;
+      align-items: center; // Vertically center text content
+
+      .ant-typography {
+        line-height: 1.5715; // Match Ant Design input line height
+        font-size: 14px; // Match Ant Design input font size
+        margin: 0; // Remove default text margins
+      }
+    }
+
+    // Ensure drag handles don't affect text alignment
+    .drag-handle {
+      align-self: flex-start;
+    }
+  }
 }
 
 .dashboard-back-button {

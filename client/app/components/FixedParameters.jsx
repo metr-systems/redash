@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Typography from "antd/lib/typography";
 import { find } from "lodash";
-import { DragHandle } from "@redash/viz/lib/components/sortable";
+import { SortableContainer, SortableElement, DragHandle } from "@redash/viz/lib/components/sortable";
 import location from "@/services/location";
 import { formatFixedValue } from "../pages/dashboards/helpers";
 
@@ -44,15 +44,12 @@ function FixedParameterDisplay({ parameterName, parameter, isEditing }) {
   }
 
   return (
-    <div key={parameterName} className="parameter-block" data-test={`FixedFromUrlParam-${parameterName}`}>
-      {isEditing && <DragHandle data-test={`DragHandle-${parameterName}`} />}
-      <div className="di-block">
-        <div className="parameter-heading">
-          <label>{label}</label>
-        </div>
-        <div className="parameter-input">
-          <Text data-test={`FixedFromUrlValue-${parameterName}`}>{displayValue}</Text>
-        </div>
+    <div className="di-block">
+      <div className="parameter-heading">
+        <label>{label}</label>
+      </div>
+      <div className="parameter-input">
+        <Text data-test={`FixedFromUrlValue-${parameterName}`}>{displayValue}</Text>
       </div>
     </div>
   );
@@ -67,25 +64,38 @@ FixedParameterDisplay.propTypes = {
 /**
  * Renders the list of fixed-from-url parameters
  */
-export default function FixedParameters({ parameterNames, parameters = [], isEditing = false }) {
+export default function FixedParameters({ parameterNames, parameters = [], isEditing = false, sortable = false }) {
   if (!parameterNames || parameterNames.length === 0) {
     return null;
   }
 
   return (
-    <>
-      {parameterNames.map((parameterName) => {
+    <SortableContainer
+      disabled={!sortable}
+      axis="xy"
+      useDragHandle
+      lockToContainerEdges
+      helperClass="parameter-dragged"
+      containerProps={{
+        className: "parameter-container",
+      }}
+    >
+      {parameterNames.map((parameterName, index) => {
         const parameter = parameters.find((p) => p?.name === parameterName);
         return (
-          <FixedParameterDisplay
-            key={parameterName}
-            parameterName={parameterName}
-            parameter={parameter}
-            isEditing={isEditing}
-          />
+          <SortableElement key={parameterName} index={index}>
+            <div
+              className="parameter-block"
+              data-editable={isEditing || null}
+              data-test={`FixedFromUrlParam-${parameterName}`}
+            >
+              {sortable && <DragHandle data-test={`DragHandle-${parameterName}`} />}
+              <FixedParameterDisplay parameterName={parameterName} parameter={parameter} isEditing={isEditing} />
+            </div>
+          </SortableElement>
         );
       })}
-    </>
+    </SortableContainer>
   );
 }
 
@@ -93,4 +103,5 @@ FixedParameters.propTypes = {
   parameterNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   parameters: PropTypes.arrayOf(PropTypes.object),
   isEditing: PropTypes.bool,
+  sortable: PropTypes.bool,
 };
