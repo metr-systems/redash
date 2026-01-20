@@ -104,7 +104,7 @@ function DashboardComponent(props) {
     visibleWidgets,
   } = dashboardConfiguration;
 
-  const fixedFromUrlParamNames = fixedFromUrlParameters.map(param => param.name);
+  const fixedFromUrlParamNames = fixedFromUrlParameters.map((param) => param.name);
   const hasFixedParameters = fixedFromUrlParameters.length > 0;
 
   const [pageContainer, setPageContainer] = useState(null);
@@ -152,10 +152,10 @@ function DashboardComponent(props) {
           <div className="dashboard-parameters-container">
             <div className="dashboard-parameters-main">
               {hasFixedParameters && (
-                <FixedParameters 
-                  parameterNames={fixedFromUrlParamNames} 
-                  parameters={fixedFromUrlParameters} 
-                  isEditing={editingLayout} 
+                <FixedParameters
+                  parameterNames={fixedFromUrlParamNames}
+                  parameters={fixedFromUrlParameters}
+                  isEditing={editingLayout}
                 />
               )}
               <Parameters
@@ -167,9 +167,7 @@ function DashboardComponent(props) {
                 disabled={refreshing}
               />
             </div>
-            {shouldDisplayButton(hasFixedParameters) && (
-              <BackButton className="dashboard-back-button" />
-            )}
+            {shouldDisplayButton(hasFixedParameters) && <BackButton className="dashboard-back-button" />}
           </div>
         </div>
       )}

@@ -42,7 +42,7 @@ describe("BackButton", () => {
 
     const wrapper = mount(<BackButton />);
     wrapper.find("Button").simulate("click");
-    
+
     expect(createBackToOverviewHandler).toHaveBeenCalled();
     expect(mockHandler).toHaveBeenCalledTimes(1);
   });
@@ -64,7 +64,7 @@ describe("BackButton", () => {
   test("extracts backText from URL parameters", () => {
     const { isValidBackText } = require("@/services/navigation");
     const location = require("@/services/location");
-    
+
     // Mock URL parameters
     location.search = { backText: "Return to Overview" };
     isValidBackText.mockReturnValue(true);
@@ -78,7 +78,7 @@ describe("BackButton", () => {
   test("uses default text when URL backText is invalid", () => {
     const { isValidBackText } = require("@/services/navigation");
     const location = require("@/services/location");
-    
+
     // Mock URL parameters with invalid backText
     location.search = { backText: "<script>alert('xss')</script>" };
     isValidBackText.mockReturnValue(false);
@@ -91,7 +91,7 @@ describe("BackButton", () => {
 
   test("uses default text when URL backText is not a string", () => {
     const location = require("@/services/location");
-    
+
     // Mock URL parameters with non-string backText
     location.search = { backText: 123 };
 
@@ -99,5 +99,4 @@ describe("BackButton", () => {
 
     expect(wrapper.find("Button").text()).toBe("Back");
   });
-
 });

@@ -45,9 +45,7 @@ function FixedParameterDisplay({ parameterName, parameter, isEditing }) {
 
   return (
     <div key={parameterName} className="parameter-block" data-test={`FixedFromUrlParam-${parameterName}`}>
-      {isEditing && (
-        <DragHandle data-test={`DragHandle-${parameterName}`} />
-      )}
+      {isEditing && <DragHandle data-test={`DragHandle-${parameterName}`} />}
       <div className="di-block">
         <div className="parameter-heading">
           <label>{label}</label>

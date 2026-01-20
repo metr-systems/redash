@@ -48,11 +48,11 @@ function useDashboard(dashboardData) {
   const [refreshing, setRefreshing] = useState(false);
   const [gridDisabled, setGridDisabled] = useState(false);
   const globalParameters = useMemo(() => dashboard.getParametersDefs(), [dashboard]);
-  const widgets = useMemo(() => dashboard ? dashboard.widgets : [], [dashboard]);
-  
+  const widgets = useMemo(() => (dashboard ? dashboard.widgets : []), [dashboard]);
+
   // Handle fixed-from-url parameters
   const fixedFromUrlParameters = useFixedFromUrlParameters(widgets, globalParameters);
-  
+
   const canEditDashboard = !dashboard.is_archived && policy.canEdit(dashboard);
   const isDashboardOwnerOrAdmin = useMemo(
     () =>

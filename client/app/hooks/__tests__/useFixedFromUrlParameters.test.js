@@ -5,15 +5,15 @@ import { useFixedFromUrlParameters } from "../useFixedFromUrlParameters";
 // Test component that uses the hook
 function TestComponent({ widgets, globalParameters }) {
   const parameters = useFixedFromUrlParameters(widgets, globalParameters);
-  
+
   // Derive values for backwards compatibility with tests
   const result = {
-    parameterNames: parameters.map(p => p.name),
+    parameterNames: parameters.map((p) => p.name),
     parameters: parameters,
     hasFixedParameters: parameters.length > 0,
-    count: parameters.length
+    count: parameters.length,
   };
-  
+
   return (
     <div>
       <div data-test="parameterNames">{JSON.stringify(result.parameterNames)}</div>

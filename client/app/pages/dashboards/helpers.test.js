@@ -44,7 +44,7 @@ describe("shouldDisplayButton", () => {
   test("should handle null/undefined location.search", () => {
     mockLocation.search = null;
     expect(shouldDisplayButton(true)).toBe(false);
-    
+
     mockLocation.search = undefined;
     expect(shouldDisplayButton(true)).toBe(false);
   });
