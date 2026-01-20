@@ -1,4 +1,10 @@
-import { formatFixedValue } from "./helpers";
+// Mock the location service
+jest.mock("@/services/location", () => ({
+  search: {},
+}));
+
+import { formatFixedValue, shouldDisplayButton } from "./helpers";
+import mockLocation from "@/services/location";
 
 describe("formatFixedValue", () => {
   test("returns '(missing)' for null, undefined and empty string", () => {
@@ -12,5 +18,34 @@ describe("formatFixedValue", () => {
     expect(formatFixedValue(42)).toBe("42");
     expect(formatFixedValue(true)).toBe("true");
     expect(formatFixedValue(false)).toBe("false");
+  });
+});
+
+describe("shouldDisplayButton", () => {
+  beforeEach(() => {
+    mockLocation.search = {};
+  });
+
+  test.each([
+    [false, false, undefined],
+    [false, false, "some-url"],
+    [false, true, undefined],
+    [false, true, ""],
+    [false, true, null],
+    [true, true, "https://example.com"],
+    [true, true, "/path"],
+  ])("should return %s when hasFixedParameters=%s and back=%s", (expected, hasFixed, back) => {
+    if (back !== undefined) {
+      mockLocation.search = { back };
+    }
+    expect(shouldDisplayButton(hasFixed)).toBe(expected);
+  });
+
+  test("should handle null/undefined location.search", () => {
+    mockLocation.search = null;
+    expect(shouldDisplayButton(true)).toBe(false);
+    
+    mockLocation.search = undefined;
+    expect(shouldDisplayButton(true)).toBe(false);
   });
 });

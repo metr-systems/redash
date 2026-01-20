@@ -28,18 +28,9 @@ import { useFixedFromUrlParameters } from "@/hooks/useFixedFromUrlParameters";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
+import { shouldDisplayButton } from "./helpers";
 
 import "./DashboardPage.less";
-
-// Helper function to determine if back button should be displayed
-function shouldDisplayButton(hasFixedParameters) {
-  if (!hasFixedParameters) return false;
-  
-  const params = location.search || {};
-  const hasBackUrl = params.back && typeof params.back === "string";
-  
-  return hasBackUrl;
-}
 
 function DashboardSettings({ dashboardConfiguration }) {
   const { t } = useTranslation("Dashboards");
