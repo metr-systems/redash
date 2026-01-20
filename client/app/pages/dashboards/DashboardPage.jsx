@@ -14,7 +14,7 @@ import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 import FixedParametersList from "@/components/FixedParametersList";
-import BackToOverviewButton from "@/components/BackToOverviewButton";
+import BackButton from "@/components/backButton";
 
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
@@ -46,7 +46,7 @@ function DashboardBackButton({ className }) {
     }
   }
 
-  return <BackToOverviewButton className={className} backText={backText} />;
+  return <BackButton className={className} backText={backText} />;
 }
 
 function DashboardSettings({ dashboardConfiguration }) {

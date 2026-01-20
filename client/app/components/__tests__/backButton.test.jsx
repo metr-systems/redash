@@ -1,6 +1,6 @@
 import React from "react";
 import { mount } from "enzyme";
-import BackToOverviewButton from "../BackToOverviewButton";
+import BackButton from "../backButton";
 
 // Mock the navigation service
 jest.mock("@/services/navigation", () => ({
@@ -10,33 +10,33 @@ jest.mock("@/services/navigation", () => ({
 // Mock react-i18next
 jest.mock("react-i18next", () => ({
   useTranslation: () => ({
-    t: (key) => (key === "Back to overview" ? "Back to overview" : key),
+    t: (key) => key,
   }),
 }));
 
-describe("BackToOverviewButton", () => {
+describe("BackButton", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   test("renders with custom backText when provided", () => {
-    const wrapper = mount(<BackToOverviewButton backText="Return to Main Dashboard" />);
+    const wrapper = mount(<BackButton backText="Return to Main Dashboard" />);
 
     expect(wrapper.find("Button").text()).toBe("Return to Main Dashboard");
     expect(wrapper.find("Button")).toHaveLength(1);
   });
 
   test("renders with default text when backText not provided", () => {
-    const wrapper = mount(<BackToOverviewButton />);
+    const wrapper = mount(<BackButton />);
 
-    expect(wrapper.find("Button").text()).toBe("Back to overview");
+    expect(wrapper.find("Button").text()).toBe("Back");
     expect(wrapper.find("Button")).toHaveLength(1);
   });
 
   test("renders with default text when backText is null", () => {
-    const wrapper = mount(<BackToOverviewButton backText={null} />);
+    const wrapper = mount(<BackButton backText={null} />);
 
-    expect(wrapper.find("Button").text()).toBe("Back to overview");
+    expect(wrapper.find("Button").text()).toBe("Back");
     expect(wrapper.find("Button")).toHaveLength(1);
   });
 
@@ -45,7 +45,7 @@ describe("BackToOverviewButton", () => {
     const mockHandler = jest.fn();
     createBackToOverviewHandler.mockReturnValue(mockHandler);
 
-    const wrapper = mount(<BackToOverviewButton />);
+    const wrapper = mount(<BackButton />);
     wrapper.find("Button").simulate("click");
     
     expect(createBackToOverviewHandler).toHaveBeenCalled();
@@ -53,13 +53,13 @@ describe("BackToOverviewButton", () => {
   });
 
   test("uses custom className on container div", () => {
-    const wrapper = mount(<BackToOverviewButton className="custom-class" />);
+    const wrapper = mount(<BackButton className="custom-class" />);
 
     expect(wrapper.find("div.custom-class")).toHaveLength(1);
   });
 
   test("passes through additional button props", () => {
-    const wrapper = mount(<BackToOverviewButton disabled size="small" />);
+    const wrapper = mount(<BackButton disabled size="small" />);
 
     const button = wrapper.find("Button");
     expect(button.prop("disabled")).toBe(true);

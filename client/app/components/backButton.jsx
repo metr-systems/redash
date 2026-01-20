@@ -4,14 +4,14 @@ import Button from "antd/lib/button";
 import { useTranslation } from "react-i18next";
 import { createBackToOverviewHandler } from "@/services/navigation";
 
-export default function BackToOverviewButton({
+export default function BackButton({
   className = "m-t-10",
   backText = null,
   ...buttonProps
 }) {
   const { t } = useTranslation("Dashboards");
   const handleClick = createBackToOverviewHandler();
-  const displayText = backText || t("Back to overview");
+  const displayText = backText || t("Back");
 
   return (
     <div className={className}>
@@ -22,7 +22,7 @@ export default function BackToOverviewButton({
   );
 }
 
-BackToOverviewButton.propTypes = {
+BackButton.propTypes = {
   className: PropTypes.string,
   backText: PropTypes.string,
 };
