@@ -41,18 +41,6 @@ function shouldDisplayButton(hasFixedParameters) {
   return hasBackUrl;
 }
 
-// Helper function to extract back text from URL parameters
-function getBackText() {
-  const params = location.search || {};
-  let backText = null;
-  if (params.backText && typeof params.backText === "string") {
-    if (isValidBackText(params.backText)) {
-      backText = params.backText;
-    }
-  }
-  return backText;
-}
-
 function DashboardSettings({ dashboardConfiguration }) {
   const { t } = useTranslation("Dashboards");
   const { dashboard, updateDashboard } = dashboardConfiguration;
@@ -191,7 +179,7 @@ function DashboardComponent(props) {
               />
             </div>
             {shouldDisplayButton(hasFixedParameters) && (
-              <BackButton className="dashboard-back-button" backText={getBackText()} />
+              <BackButton className="dashboard-back-button" />
             )}
           </div>
         </div>
