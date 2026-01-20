@@ -41,12 +41,16 @@ describe("BackToOverviewButton", () => {
     expect(wrapper.find('Button[data-test="BackToOverviewButton"]')).toHaveLength(1);
   });
 
-  test("handles custom onClick handler", () => {
-    const customHandler = jest.fn();
-    const wrapper = mount(<BackToOverviewButton onClick={customHandler} />);
+  test("uses default navigation handler", () => {
+    const { createBackToOverviewHandler } = require("@/services/navigation");
+    const mockHandler = jest.fn();
+    createBackToOverviewHandler.mockReturnValue(mockHandler);
 
+    const wrapper = mount(<BackToOverviewButton />);
     wrapper.find("Button").simulate("click");
-    expect(customHandler).toHaveBeenCalledTimes(1);
+    
+    expect(createBackToOverviewHandler).toHaveBeenCalled();
+    expect(mockHandler).toHaveBeenCalledTimes(1);
   });
 
   test("uses custom className on container div", () => {

@@ -6,15 +6,12 @@ import { createBackToOverviewHandler } from "@/services/navigation";
 
 export default function BackToOverviewButton({
   className = "m-t-10",
-  onClick = null,
   dataTest = "BackToOverviewButton",
   backText = null,
   ...buttonProps
 }) {
   const { t } = useTranslation("Dashboards");
-  const defaultHandler = createBackToOverviewHandler();
-
-  const handleClick = onClick || defaultHandler;
+  const handleClick = createBackToOverviewHandler();
   const displayText = backText || t("Back to overview");
 
   return (
@@ -28,7 +25,6 @@ export default function BackToOverviewButton({
 
 BackToOverviewButton.propTypes = {
   className: PropTypes.string,
-  onClick: PropTypes.func,
   dataTest: PropTypes.string,
   backText: PropTypes.string,
 };
