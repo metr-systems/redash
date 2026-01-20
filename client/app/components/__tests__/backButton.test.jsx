@@ -47,11 +47,7 @@ describe("BackButton", () => {
     expect(mockHandler).toHaveBeenCalledTimes(1);
   });
 
-  test("uses custom className on container div", () => {
-    const wrapper = mount(<BackButton className="custom-class" />);
 
-    expect(wrapper.find("div.custom-class")).toHaveLength(1);
-  });
 
   test("passes through additional button props", () => {
     const wrapper = mount(<BackButton disabled size="small" />);

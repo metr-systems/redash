@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { createBackToOverviewHandler, isValidBackText } from "@/services/navigation";
 import location from "@/services/location";
 
-export default function BackButton({ className = "m-t-10", ...buttonProps }) {
+export default function BackButton(buttonProps) {
   const { t } = useTranslation("Dashboards");
   const handleClick = createBackToOverviewHandler();
 
@@ -20,7 +20,7 @@ export default function BackButton({ className = "m-t-10", ...buttonProps }) {
   displayText = displayText || t("Back");
 
   return (
-    <div className={className}>
+    <div className="dashboard-back-button">
       <Button type="link" onClick={handleClick} {...buttonProps}>
         {displayText}
       </Button>
@@ -28,6 +28,4 @@ export default function BackButton({ className = "m-t-10", ...buttonProps }) {
   );
 }
 
-BackButton.propTypes = {
-  className: PropTypes.string,
-};
+BackButton.propTypes = {};

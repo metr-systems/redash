@@ -167,7 +167,7 @@ function DashboardComponent(props) {
                 disabled={refreshing}
               />
             </div>
-            {shouldDisplayButton(hasFixedParameters) && <BackButton className="dashboard-back-button" />}
+            {shouldDisplayButton(hasFixedParameters) && <BackButton />}
           </div>
         </div>
       )}
