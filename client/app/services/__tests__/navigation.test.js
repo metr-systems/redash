@@ -26,6 +26,7 @@ Object.defineProperty(window, "location", {
 describe("navigation service", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    location.search = {}; // Reset location.search between tests
   });
 
   describe("isValidBackUrl", () => {
@@ -135,32 +136,43 @@ describe("navigation service", () => {
 
   describe("handleBackNavigation", () => {
     it("should use location.setPath for valid same-origin absolute URLs", () => {
-      handleBackNavigation("https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard");
+      location.search = {
+        back: "https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard",
+      };
+      handleBackNavigation();
       expect(location.setPath).toHaveBeenCalledWith("/staging/dashboards/61-overview-test-dashboard");
       expect(window.history.back).not.toHaveBeenCalled();
     });
 
     it("should use location.setPath for valid same-origin absolute URLs with query params", () => {
-      handleBackNavigation(
-        "https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard?tab=overview"
-      );
+      location.search = {
+        back: "https://dashboard.staging.metr.systems/staging/dashboards/61-overview-test-dashboard?tab=overview",
+      };
+      handleBackNavigation();
       expect(location.setPath).toHaveBeenCalledWith("/staging/dashboards/61-overview-test-dashboard?tab=overview");
       expect(window.history.back).not.toHaveBeenCalled();
     });
 
     it("should fallback to history.back() for relative paths (not supported)", () => {
-      handleBackNavigation("/dashboard");
+      location.search = {
+        back: "/dashboard",
+      };
+      handleBackNavigation();
       expect(location.setPath).not.toHaveBeenCalled();
       expect(window.history.back).toHaveBeenCalled();
     });
 
     it("should fallback to history.back() for invalid URLs", () => {
-      handleBackNavigation("https://malicious.com/dashboard");
+      location.search = {
+        back: "https://malicious.com/dashboard",
+      };
+      handleBackNavigation();
       expect(location.setPath).not.toHaveBeenCalled();
       expect(window.history.back).toHaveBeenCalled();
     });
 
     it("should fallback to history.back() when no URL provided", () => {
+      location.search = {};
       handleBackNavigation();
       expect(window.history.back).toHaveBeenCalled();
     });

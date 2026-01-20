@@ -60,12 +60,11 @@ export function isValidBackUrl(back) {
 
 /**
  * Handles back navigation with support for URL parameter-based routing
- * @param {string} backUrl - Optional back URL from search params
  * Note: backText parameter is handled separately in components for display
  */
-export function handleBackNavigation(backUrl = null) {
-  // If no backUrl provided, try to get it from current location search params
-  const back = backUrl || (location.search && location.search.back);
+export function handleBackNavigation() {
+  // Get back URL from current location search params
+  const back = location.search && location.search.back;
 
   if (isValidBackUrl(back)) {
     // Use app's `location.setPath` for same-origin absolute URLs only
