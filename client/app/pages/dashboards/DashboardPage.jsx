@@ -31,22 +31,26 @@ import DashboardHeader from "./components/DashboardHeader";
 
 import "./DashboardPage.less";
 
-// Helper component to render back button when there are fixed parameters
-function DashboardBackButton({ className }) {
+// Helper function to determine if back button should be displayed
+function shouldDisplayButton(hasFixedParameters) {
+  if (!hasFixedParameters) return false;
+  
   const params = location.search || {};
   const hasBackUrl = params.back && typeof params.back === "string";
+  
+  return hasBackUrl;
+}
 
-  if (!hasBackUrl) return null;
-
-  // Extract backText from URL parameters and validate it
+// Helper function to extract back text from URL parameters
+function getBackText() {
+  const params = location.search || {};
   let backText = null;
   if (params.backText && typeof params.backText === "string") {
     if (isValidBackText(params.backText)) {
       backText = params.backText;
     }
   }
-
-  return <BackButton className={className} backText={backText} />;
+  return backText;
 }
 
 function DashboardSettings({ dashboardConfiguration }) {
@@ -186,7 +190,9 @@ function DashboardComponent(props) {
                 disabled={refreshing}
               />
             </div>
-            {hasFixedParameters && <DashboardBackButton className="dashboard-back-button" />}
+            {shouldDisplayButton(hasFixedParameters) && (
+              <BackButton className="dashboard-back-button" backText={getBackText()} />
+            )}
           </div>
         </div>
       )}
