@@ -6,7 +6,6 @@ import { createBackToOverviewHandler } from "@/services/navigation";
 
 export default function BackToOverviewButton({
   className = "m-t-10",
-  dataTest = "BackToOverviewButton",
   backText = null,
   ...buttonProps
 }) {
@@ -16,7 +15,7 @@ export default function BackToOverviewButton({
 
   return (
     <div className={className}>
-      <Button type="link" onClick={handleClick} data-test={dataTest} {...buttonProps}>
+      <Button type="link" onClick={handleClick} {...buttonProps}>
         {displayText}
       </Button>
     </div>
@@ -25,6 +24,5 @@ export default function BackToOverviewButton({
 
 BackToOverviewButton.propTypes = {
   className: PropTypes.string,
-  dataTest: PropTypes.string,
   backText: PropTypes.string,
 };

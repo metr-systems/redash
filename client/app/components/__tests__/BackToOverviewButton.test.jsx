@@ -23,22 +23,21 @@ describe("BackToOverviewButton", () => {
     const wrapper = mount(<BackToOverviewButton backText="Return to Main Dashboard" />);
 
     expect(wrapper.find("Button").text()).toBe("Return to Main Dashboard");
-    // The button itself has the data-test attribute
-    expect(wrapper.find('Button[data-test="BackToOverviewButton"]')).toHaveLength(1);
+    expect(wrapper.find("Button")).toHaveLength(1);
   });
 
   test("renders with default text when backText not provided", () => {
     const wrapper = mount(<BackToOverviewButton />);
 
     expect(wrapper.find("Button").text()).toBe("Back to overview");
-    expect(wrapper.find('Button[data-test="BackToOverviewButton"]')).toHaveLength(1);
+    expect(wrapper.find("Button")).toHaveLength(1);
   });
 
   test("renders with default text when backText is null", () => {
     const wrapper = mount(<BackToOverviewButton backText={null} />);
 
     expect(wrapper.find("Button").text()).toBe("Back to overview");
-    expect(wrapper.find('Button[data-test="BackToOverviewButton"]')).toHaveLength(1);
+    expect(wrapper.find("Button")).toHaveLength(1);
   });
 
   test("uses default navigation handler", () => {
@@ -65,11 +64,5 @@ describe("BackToOverviewButton", () => {
     const button = wrapper.find("Button");
     expect(button.prop("disabled")).toBe(true);
     expect(button.prop("size")).toBe("small");
-  });
-
-  test("uses custom dataTest prop", () => {
-    const wrapper = mount(<BackToOverviewButton dataTest="CustomTestId" />);
-
-    expect(wrapper.find('Button[data-test="CustomTestId"]')).toHaveLength(1);
   });
 });
