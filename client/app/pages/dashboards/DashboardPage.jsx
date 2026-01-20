@@ -27,7 +27,6 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
-import { shouldDisplayButton } from "./helpers";
 
 import "./DashboardPage.less";
 
@@ -105,7 +104,6 @@ function DashboardComponent(props) {
   } = dashboardConfiguration;
 
   const fixedFromUrlParamNames = fixedFromUrlParameters.map((param) => param.name);
-  const hasFixedParameters = fixedFromUrlParameters.length > 0;
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
@@ -151,7 +149,7 @@ function DashboardComponent(props) {
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
           <div className="dashboard-parameters-container">
             <div className="dashboard-parameters-main">
-              {hasFixedParameters && (
+              {fixedFromUrlParameters.length > 0 && (
                 <FixedParameters
                   parameterNames={fixedFromUrlParamNames}
                   parameters={fixedFromUrlParameters}
@@ -167,7 +165,7 @@ function DashboardComponent(props) {
                 disabled={refreshing}
               />
             </div>
-            {shouldDisplayButton(hasFixedParameters) && <BackButton />}
+            {fixedFromUrlParameters.length > 0 && !!location.search?.back && <BackButton />}
           </div>
         </div>
       )}
