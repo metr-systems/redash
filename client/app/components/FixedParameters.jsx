@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Typography from "antd/lib/typography";
 import { find } from "lodash";
+import { DragHandle } from "@redash/viz/lib/components/sortable";
 import location from "@/services/location";
 import { formatFixedValue } from "../pages/dashboards/helpers";
 
@@ -10,7 +11,7 @@ const { Text } = Typography;
 /**
  * Displays a single fixed parameter with its current value
  */
-function FixedParameterDisplay({ parameterName, parameter }) {
+function FixedParameterDisplay({ parameterName, parameter, isEditing }) {
   const label = (parameter && (parameter.title || parameter.name)) || parameterName;
   const [dropdownOptions, setDropdownOptions] = useState([]);
 
@@ -44,6 +45,9 @@ function FixedParameterDisplay({ parameterName, parameter }) {
 
   return (
     <div key={parameterName} className="parameter-block" data-test={`FixedFromUrlParam-${parameterName}`}>
+      {isEditing && (
+        <DragHandle data-test={`DragHandle-${parameterName}`} />
+      )}
       <div className="di-block">
         <div className="parameter-heading">
           <label>{label}</label>
@@ -59,12 +63,13 @@ function FixedParameterDisplay({ parameterName, parameter }) {
 FixedParameterDisplay.propTypes = {
   parameterName: PropTypes.string.isRequired,
   parameter: PropTypes.object,
+  isEditing: PropTypes.bool,
 };
 
 /**
  * Renders the list of fixed-from-url parameters
  */
-export default function FixedParameters({ parameterNames, parameters = [] }) {
+export default function FixedParameters({ parameterNames, parameters = [], isEditing = false }) {
   if (!parameterNames || parameterNames.length === 0) {
     return null;
   }
@@ -73,7 +78,14 @@ export default function FixedParameters({ parameterNames, parameters = [] }) {
     <>
       {parameterNames.map((parameterName) => {
         const parameter = parameters.find((p) => p?.name === parameterName);
-        return <FixedParameterDisplay key={parameterName} parameterName={parameterName} parameter={parameter} />;
+        return (
+          <FixedParameterDisplay
+            key={parameterName}
+            parameterName={parameterName}
+            parameter={parameter}
+            isEditing={isEditing}
+          />
+        );
       })}
     </>
   );
@@ -82,4 +94,5 @@ export default function FixedParameters({ parameterNames, parameters = [] }) {
 FixedParameters.propTypes = {
   parameterNames: PropTypes.arrayOf(PropTypes.string).isRequired,
   parameters: PropTypes.arrayOf(PropTypes.object),
+  isEditing: PropTypes.bool,
 };

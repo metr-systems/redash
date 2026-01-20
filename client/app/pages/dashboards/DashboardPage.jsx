@@ -152,7 +152,11 @@ function DashboardComponent(props) {
           <div className="dashboard-parameters-container">
             <div className="dashboard-parameters-main">
               {hasFixedParameters && (
-                <FixedParameters parameterNames={fixedFromUrlParamNames} parameters={fixedFromUrlParameters} />
+                <FixedParameters 
+                  parameterNames={fixedFromUrlParamNames} 
+                  parameters={fixedFromUrlParameters} 
+                  isEditing={editingLayout} 
+                />
               )}
               <Parameters
                 parameters={globalParameters}
