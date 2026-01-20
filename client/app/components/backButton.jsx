@@ -15,10 +15,8 @@ export default function BackButton({
   // Extract backText from URL parameters
   let displayText = null;
   const params = location.search || {};
-  if (params.backText && typeof params.backText === "string") {
-    if (isValidBackText(params.backText)) {
-      displayText = params.backText;
-    }
+  if (params.backText && isValidBackText(params.backText)) {
+    displayText = params.backText;
   }
   
   // Fallback to default text
