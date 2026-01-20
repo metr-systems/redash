@@ -70,29 +70,43 @@ describe("useFixedFromUrlParameters", () => {
     expect(parameters).toEqual(["user_id", "status", "date_range"]);
   });
 
-  it("should handle empty widgets array", () => {
-    const wrapper = mount(<TestComponent widgets={[]} globalParameters={mockGlobalParameters} />);
+  it.each([
+    {
+      description: "should handle empty widgets array",
+      widgets: [],
+      expectedParameters: [],
+      expectedHasFixed: false,
+      expectedCount: 0,
+    },
+    {
+      description: "should handle null/undefined widgets",
+      widgets: null,
+      expectedParameters: [],
+      expectedHasFixed: false,
+      expectedCount: 0,
+    },
+    {
+      description: "should handle widgets without parameter mappings",
+      widgets: [{ options: {} }, { options: { parameterMappings: {} } }, {}],
+      expectedParameters: [],
+      expectedHasFixed: false,
+      expectedCount: 0,
+    },
+  ])("$description", ({ widgets, expectedParameters, expectedHasFixed, expectedCount }) => {
+    const wrapper = mount(<TestComponent widgets={widgets} globalParameters={mockGlobalParameters} />);
 
     const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
     const hasFixedParameters = wrapper.find('[data-test="hasFixedParameters"]').text() === "true";
     const count = parseInt(wrapper.find('[data-test="count"]').text());
 
-    expect(parameterNames).toEqual([]);
-    expect(hasFixedParameters).toBe(false);
-    expect(count).toBe(0);
+    expect(parameterNames).toEqual(expectedParameters);
+    expect(hasFixedParameters).toBe(expectedHasFixed);
+    if (expectedCount !== undefined) {
+      expect(count).toBe(expectedCount);
+    }
   });
 
-  it("should handle null/undefined widgets", () => {
-    const wrapper = mount(<TestComponent widgets={null} globalParameters={mockGlobalParameters} />);
-
-    const parameterNames = JSON.parse(wrapper.find('[data-test="parameterNames"]').text());
-    const hasFixedParameters = wrapper.find('[data-test="hasFixedParameters"]').text() === "true";
-
-    expect(parameterNames).toEqual([]);
-    expect(hasFixedParameters).toBe(false);
-  });
-
-  it("should handle widgets without parameter mappings", () => {
+  it("should handle widgets without parameter mappings (continuation)", () => {
     const widgetsWithoutMappings = [{ options: {} }, { options: { parameterMappings: {} } }, {}];
 
     const wrapper = mount(<TestComponent widgets={widgetsWithoutMappings} globalParameters={mockGlobalParameters} />);

@@ -30,19 +30,15 @@ describe("navigation service", () => {
   });
 
   describe("isValidBackUrl", () => {
-    it("should return false for null or undefined", () => {
-      expect(isValidBackUrl(null)).toBe(false);
-      expect(isValidBackUrl(undefined)).toBe(false);
-    });
-
-    it("should return false for non-string values", () => {
-      expect(isValidBackUrl(123)).toBe(false);
-      expect(isValidBackUrl({})).toBe(false);
-    });
-
-    it("should return false for root-relative paths", () => {
-      expect(isValidBackUrl("/dashboard")).toBe(false);
-      expect(isValidBackUrl("/queries/123")).toBe(false);
+    it.each([
+      { description: "null or undefined", input: null, expected: false },
+      { description: "undefined", input: undefined, expected: false },
+      { description: "non-string number", input: 123, expected: false },
+      { description: "non-string object", input: {}, expected: false },
+      { description: "root-relative path /dashboard", input: "/dashboard", expected: false },
+      { description: "root-relative path /queries/123", input: "/queries/123", expected: false },
+    ])("should return false for $description", ({ input, expected }) => {
+      expect(isValidBackUrl(input)).toBe(expected);
     });
 
     it("should return true for same-origin absolute URLs", () => {
@@ -56,26 +52,22 @@ describe("navigation service", () => {
       expect(isValidBackUrl(backUrl)).toBe(true);
     });
 
-    it("should return false for different-origin URLs", () => {
-      expect(isValidBackUrl("https://malicious.com/dashboard")).toBe(false);
-      expect(isValidBackUrl("https://example.com/dashboard")).toBe(false);
-    });
-
-    it("should return false for invalid URLs", () => {
-      expect(isValidBackUrl("not-a-url")).toBe(false);
-    });
-
-    it("should return false for path traversal attacks", () => {
-      expect(isValidBackUrl("https://dashboard.staging.metr.systems/../../../etc/passwd")).toBe(false);
-    });
-
-    it("should return false for double slash redirect attacks", () => {
-      expect(isValidBackUrl("//malicious.com/dashboard")).toBe(false);
-    });
-
-    it("should return false for data URLs and other schemes", () => {
-      expect(isValidBackUrl("javascript:alert(1)")).toBe(false);
-      expect(isValidBackUrl("data:text/html,<script>alert(1)</script>")).toBe(false);
+    it.each([
+      {
+        description: "different-origin URLs",
+        inputs: ["https://malicious.com/dashboard", "https://example.com/dashboard"],
+      },
+      { description: "invalid URLs", inputs: ["not-a-url"] },
+      { description: "path traversal attacks", inputs: ["https://dashboard.staging.metr.systems/../../../etc/passwd"] },
+      { description: "double slash redirect attacks", inputs: ["//malicious.com/dashboard"] },
+      {
+        description: "data URLs and other schemes",
+        inputs: ["javascript:alert(1)", "data:text/html,<script>alert(1)</script>"],
+      },
+    ])("should return false for $description", ({ inputs }) => {
+      inputs.forEach((input) => {
+        expect(isValidBackUrl(input)).toBe(false);
+      });
     });
 
     it("should return false for overly long URLs", () => {
@@ -96,41 +88,30 @@ describe("navigation service", () => {
   });
 
   describe("isValidBackText", () => {
-    it("should return false for null or undefined", () => {
-      expect(isValidBackText(null)).toBe(false);
-      expect(isValidBackText(undefined)).toBe(false);
+    it.each([
+      { description: "null", input: null, expected: false },
+      { description: "undefined", input: undefined, expected: false },
+      { description: "non-string number", input: 123, expected: false },
+      { description: "non-string object", input: {}, expected: false },
+      { description: "valid text 'Back to Main Dashboard'", input: "Back to Main Dashboard", expected: true },
+      { description: "valid text 'Return to Overview'", input: "Return to Overview", expected: true },
+      { description: "valid text '← Go Back'", input: "← Go Back", expected: true },
+    ])("should return $expected for $description", ({ input, expected }) => {
+      expect(isValidBackText(input)).toBe(expected);
     });
 
-    it("should return false for non-string values", () => {
-      expect(isValidBackText(123)).toBe(false);
-      expect(isValidBackText({})).toBe(false);
-    });
-
-    it("should return true for valid text", () => {
-      expect(isValidBackText("Back to Main Dashboard")).toBe(true);
-      expect(isValidBackText("Return to Overview")).toBe(true);
-      expect(isValidBackText("← Go Back")).toBe(true);
-    });
-
-    it("should return false for overly long text", () => {
-      const longText = "a".repeat(201);
-      expect(isValidBackText(longText)).toBe(false);
-    });
-
-    it("should return false for text containing HTML tags", () => {
-      expect(isValidBackText("<script>alert('xss')</script>")).toBe(false);
-      expect(isValidBackText("Click <a href=''>here</a>")).toBe(false);
-      expect(isValidBackText("<b>Bold text</b>")).toBe(false);
-    });
-
-    it("should return true for text with special characters (non-HTML)", () => {
-      expect(isValidBackText("← Back to Dashboard")).toBe(true);
-      expect(isValidBackText("Back → Main")).toBe(true);
-      expect(isValidBackText("Return & Continue")).toBe(true);
-    });
-
-    it("should return true for empty string", () => {
-      expect(isValidBackText("")).toBe(false);
+    it.each([
+      { description: "overly long text", input: () => "a".repeat(201), expected: false },
+      { description: "text containing HTML script tags", input: "<script>alert('xss')</script>", expected: false },
+      { description: "text containing HTML anchor tags", input: "Click <a href=''>here</a>", expected: false },
+      { description: "text containing HTML bold tags", input: "<b>Bold text</b>", expected: false },
+      { description: "text with special characters (non-HTML) ← Back", input: "← Back to Dashboard", expected: true },
+      { description: "text with special characters (non-HTML) Back →", input: "Back → Main", expected: true },
+      { description: "text with ampersand", input: "Return & Continue", expected: true },
+      { description: "empty string", input: "", expected: false },
+    ])("should return $expected for $description", ({ input, expected }) => {
+      const testInput = typeof input === "function" ? input() : input;
+      expect(isValidBackText(testInput)).toBe(expected);
     });
   });
 

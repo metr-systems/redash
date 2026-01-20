@@ -48,27 +48,36 @@ describe("Fixed From URL Parameters Integration", () => {
       expect(result).toHaveLength(3); // Should deduplicate user_id
     });
 
-    test("should handle widgets with no parameter mappings", () => {
-      const widgets = [
-        { options: {} },
-        { options: { parameterMappings: null } },
-        { options: { parameterMappings: {} } },
-        {
-          options: {
-            parameterMappings: {
-              widget_param1: { type: "fixed-from-url", mapTo: "user_id" },
+    test.each([
+      {
+        description: "should handle widgets with no parameter mappings",
+        widgets: [
+          { options: {} },
+          { options: { parameterMappings: null } },
+          { options: { parameterMappings: {} } },
+          {
+            options: {
+              parameterMappings: {
+                widget_param1: { type: "fixed-from-url", mapTo: "user_id" },
+              },
             },
           },
-        },
-      ];
-
+        ],
+        expected: ["user_id"],
+      },
+      {
+        description: "should handle empty or malformed dashboard (null)",
+        widgets: null,
+        expected: [],
+      },
+      {
+        description: "should handle empty or malformed dashboard (empty array)",
+        widgets: [],
+        expected: [],
+      },
+    ])("$description", ({ widgets, expected }) => {
       const result = extractFixedParameterNames(widgets);
-      expect(result).toEqual(["user_id"]);
-    });
-
-    test("should handle empty or malformed dashboard", () => {
-      expect(extractFixedParameterNames(null)).toEqual([]);
-      expect(extractFixedParameterNames([])).toEqual([]);
+      expect(result).toEqual(expected);
     });
 
     test("should handle complex real-world scenario", () => {

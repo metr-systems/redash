@@ -29,29 +29,65 @@ describe("FixedParameters URL Integration", () => {
     location.search = {};
   });
 
-  test("should render without crashing", () => {
-    // Setup URL parameters
-    location.search = {
-      p_user_id: "john_doe",
-      p_status: "active",
-    };
+  test.each([
+    {
+      description: "should render fixed parameters with URL values",
+      setup: () => {
+        location.search = {
+          p_user_id: "john_doe",
+          p_status: "active",
+        };
+      },
+      parameterNames: ["user_id", "status"],
+      parameters: [
+        { name: "user_id", title: "User ID", type: "text", normalizedValue: "default_user" },
+        { name: "status", title: "Status", type: "select", normalizedValue: "default_status" },
+        { name: "date_range", title: "Date Range", type: "date", normalizedValue: null },
+      ],
+      expectedParameterCount: 2,
+      expectedValues: {
+        user_id: "john_doe",
+        status: "active",
+      },
+    },
+    {
+      description: "should render with missing URL values",
+      setup: () => {
+        location.search = {};
+      },
+      parameterNames: ["user_id", "status"],
+      parameters: [
+        { name: "user_id", title: "User ID", type: "text", normalizedValue: "default_user" },
+        { name: "status", title: "Status", type: "select", normalizedValue: "default_status" },
+      ],
+      expectedParameterCount: 2,
+      expectedValues: {
+        user_id: "(missing)",
+        status: "(missing)",
+      },
+    },
+    {
+      description: "should work with empty parameters",
+      setup: () => {},
+      parameterNames: [],
+      parameters: [],
+      expectedParameterCount: 0,
+    },
+    {
+      description: "should work with null props",
+      setup: () => {},
+      parameterNames: null,
+      parameters: null,
+      expectedParameterCount: 0,
+    },
+  ])("$description", ({ setup, parameterNames, parameters, expectedParameterCount, expectedValues }) => {
+    setup();
+    const wrapper = mount(<FixedParameters parameterNames={parameterNames} parameters={parameters} />);
 
-    const wrapper = mount(<FixedParameters parameterNames={["user_id", "status"]} parameters={mockParameters} />);
-
-    // Just check that it renders
     expect(wrapper).toBeDefined();
-    expect(wrapper.length).toBe(1);
-  });
-
-  test("should work with empty parameters", () => {
-    const wrapper = mount(<FixedParameters parameterNames={[]} parameters={[]} />);
-
-    expect(wrapper).toBeDefined();
-  });
-
-  test("should work with null props", () => {
-    const wrapper = mount(<FixedParameters parameterNames={null} parameters={null} />);
-
-    expect(wrapper).toBeDefined();
+    
+    // Check that the correct number of parameter displays are rendered
+    const parameterDisplays = wrapper.find('.parameter-block');
+    expect(parameterDisplays).toHaveLength(expectedParameterCount);
   });
 });

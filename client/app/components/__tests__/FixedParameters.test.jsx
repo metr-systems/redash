@@ -33,8 +33,39 @@ describe("FixedParameters - Dropdown Value Resolution", () => {
     ]);
   });
 
-  test("shows empty value when URL param missing", async () => {
-    location.search = {}; // No URL parameter
+  test.each([
+    {
+      description: "shows empty value when URL param missing",
+      urlSearch: {},
+      dropdownValues: [
+        { value: "active", name: "Active Status" },
+        { value: "inactive", name: "Inactive Status" },
+        { value: "pending", name: "Pending Approval" },
+      ],
+      expectedText: "",
+    },
+    {
+      description: "falls back to raw value when dropdown option not found",
+      urlSearch: { p_status: "unknown_status" },
+      dropdownValues: [
+        { value: "active", name: "Active Status" },
+        { value: "inactive", name: "Inactive Status" },
+        { value: "pending", name: "Pending Approval" },
+      ],
+      expectedText: "unknown_status",
+    },
+    {
+      description: "handles numeric dropdown values correctly",
+      urlSearch: { p_status: "1" },
+      dropdownValues: [
+        { value: 1, name: "First Option" },
+        { value: 2, name: "Second Option" },
+      ],
+      expectedText: "First Option",
+    },
+  ])("$description", async ({ urlSearch, dropdownValues, expectedText }) => {
+    mockQueryParameter.loadDropdownValues.mockResolvedValue(dropdownValues);
+    location.search = urlSearch;
 
     const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
 
@@ -42,35 +73,7 @@ describe("FixedParameters - Dropdown Value Resolution", () => {
     wrapper.update();
 
     const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
-    expect(valueDisplay.first().text()).toBe(""); // Should be empty when no URL param
-  });
-
-  test("falls back to raw value when dropdown option not found", async () => {
-    location.search = { p_status: "unknown_status" };
-
-    const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
-
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    wrapper.update();
-
-    const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
-    expect(valueDisplay.first().text()).toBe("unknown_status");
-  });
-
-  test("handles numeric dropdown values correctly", async () => {
-    mockQueryParameter.loadDropdownValues.mockResolvedValue([
-      { value: 1, name: "First Option" },
-      { value: 2, name: "Second Option" },
-    ]);
-    location.search = { p_status: "1" };
-
-    const wrapper = mount(<FixedParameters parameterNames={["status"]} parameters={[mockQueryParameter]} />);
-
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    wrapper.update();
-
-    const valueDisplay = wrapper.find('[data-test="FixedFromUrlValue-status"]');
-    expect(valueDisplay.first().text()).toBe("First Option");
+    expect(valueDisplay.first().text()).toBe(expectedText);
   });
 
   test("does not load dropdown options for non-query parameters", () => {
