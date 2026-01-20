@@ -52,42 +52,32 @@ function createParameterLookup(globalParameters) {
  * Custom hook for managing fixed-from-url parameters in dashboard
  * @param {Array} widgets - Dashboard widgets array
  * @param {Array} globalParameters - Global dashboard parameters
- * @returns {Object} - Object containing parameter names and utility properties
+ * @returns {Array} - Array of parameters that are fixed from URL
  */
 export function useFixedFromUrlParameters(widgets, globalParameters) {
-  // Single memoized computation that handles both extraction and parameter lookup
-  const result = useMemo(() => {
+  // Single memoized computation that extracts and finds matching parameters
+  const parameters = useMemo(() => {
     // Extract parameter names
     const parameterNames = extractFixedParameterNames(widgets);
 
     if (parameterNames.length === 0) {
-      return {
-        parameterNames: [],
-        parameters: [],
-        hasFixedParameters: false,
-        count: 0,
-      };
+      return [];
     }
 
     // Create lookup map for efficient parameter finding
     const paramLookup = createParameterLookup(globalParameters);
 
     // Find matching parameters efficiently
-    const parameters = [];
+    const result = [];
     for (let i = 0; i < parameterNames.length; i++) {
       const param = paramLookup.get(parameterNames[i]);
       if (param) {
-        parameters.push(param);
+        result.push(param);
       }
     }
 
-    return {
-      parameterNames,
-      parameters,
-      hasFixedParameters: true,
-      count: parameterNames.length,
-    };
+    return result;
   }, [widgets, globalParameters]);
 
-  return result;
+  return parameters;
 }

@@ -24,7 +24,6 @@ import location from "@/services/location";
 import routes from "@/services/routes";
 import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
-import { useFixedFromUrlParameters } from "@/hooks/useFixedFromUrlParameters";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
@@ -86,6 +85,7 @@ function DashboardComponent(props) {
   const dashboardConfiguration = useDashboard(props.dashboard);
   const {
     dashboard,
+    fixedFromUrlParameters,
     filters,
     setFilters,
     refreshing,
@@ -104,14 +104,8 @@ function DashboardComponent(props) {
     visibleWidgets,
   } = dashboardConfiguration;
 
-  const widgets = dashboard ? dashboard.widgets : [];
-
-  // Handle fixed-from-url parameters
-  const {
-    parameterNames: fixedFromUrlParamNames,
-    parameters: fixedFromUrlParameters,
-    hasFixedParameters,
-  } = useFixedFromUrlParameters(widgets, globalParameters);
+  const fixedFromUrlParamNames = fixedFromUrlParameters.map(param => param.name);
+  const hasFixedParameters = fixedFromUrlParameters.length > 0;
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
