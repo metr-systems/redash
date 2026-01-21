@@ -1,5 +1,5 @@
-import { isEmpty, map } from "lodash";
 import React, { useState, useEffect } from "react";
+import { isEmpty, map } from "lodash";
 import PropTypes from "prop-types";
 import cx from "classnames";
 
@@ -13,12 +13,15 @@ import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
+import FixedParameters from "@/components/FixedParameters";
+import BackButton from "@/components/backButton";
 
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
+import { isValidBackText } from "@/services/navigation";
 import resizeObserver from "@/services/resizeObserver";
-import routes from "@/services/routes";
 import location from "@/services/location";
+import routes from "@/services/routes";
 import url from "@/services/url";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
@@ -81,6 +84,7 @@ function DashboardComponent(props) {
   const dashboardConfiguration = useDashboard(props.dashboard);
   const {
     dashboard,
+    fixedFromUrlParameters,
     filters,
     setFilters,
     refreshing,
@@ -98,6 +102,8 @@ function DashboardComponent(props) {
     setGridDisabled,
     visibleWidgets,
   } = dashboardConfiguration;
+
+  const fixedFromUrlParamNames = fixedFromUrlParameters.map((param) => param.name);
 
   const [pageContainer, setPageContainer] = useState(null);
   const [bottomPanelStyles, setBottomPanelStyles] = useState({});
@@ -141,13 +147,27 @@ function DashboardComponent(props) {
       />
       {!isEmpty(globalParameters) && (
         <div className="dashboard-parameters m-b-10 p-15 bg-white tiled" data-test="DashboardParameters">
-          <Parameters
-            parameters={globalParameters}
-            onValuesChange={refreshDashboard}
-            sortable={editingLayout}
-            onParametersEdit={onParametersEdit}
-            disabled={refreshing} // Disable parameters when refreshing
-          />
+          <div className="dashboard-parameters-container">
+            <div className="dashboard-parameters-main">
+              {fixedFromUrlParameters.length > 0 && (
+                <FixedParameters
+                  parameterNames={fixedFromUrlParamNames}
+                  parameters={fixedFromUrlParameters}
+                  isEditing={editingLayout}
+                  sortable={editingLayout}
+                />
+              )}
+              <Parameters
+                parameters={globalParameters}
+                hiddenParameterNames={fixedFromUrlParamNames}
+                onValuesChange={refreshDashboard}
+                sortable={editingLayout}
+                onParametersEdit={onParametersEdit}
+                disabled={refreshing}
+              />
+            </div>
+            {fixedFromUrlParameters.length > 0 && !!location.search?.back && <BackButton />}
+          </div>
         </div>
       )}
       {!isEmpty(filters) && (

@@ -33,6 +33,8 @@ export const MappingType = {
   DashboardMapToExisting: "dashboard-map-to-existing",
   WidgetLevel: "widget-level",
   StaticValue: "static-value",
+  FixedFromUrlAddNew: "fixed-from-url",
+  FixedFromUrlMapToExisting: "fixed-from-url-map-to-existing",
 };
 
 export function parameterMappingsToEditableMappings(mappings, parameters, existingParameterNames = []) {
@@ -52,6 +54,10 @@ export function parameterMappingsToEditableMappings(mappings, parameters, existi
         break;
       case ParameterMappingType.WidgetLevel:
         result.type = MappingType.WidgetLevel;
+        result.value = null;
+        break;
+      case ParameterMappingType.FixedFromUrl:
+        result.type = alreadyExists ? MappingType.FixedFromUrlMapToExisting : MappingType.FixedFromUrlAddNew;
         result.value = null;
         break;
       // no default
@@ -86,6 +92,13 @@ export function editableMappingsToParameterMappings(mappings) {
             result.type = ParameterMappingType.WidgetLevel;
             result.value = null;
             break;
+          case MappingType.FixedFromUrlAddNew:
+            result.type = ParameterMappingType.FixedFromUrl;
+            result.value = null;
+            break;
+          case MappingType.FixedFromUrlMapToExisting:
+            result.type = ParameterMappingType.FixedFromUrl;
+            result.value = null;
           // no default
         }
         delete result.param;
@@ -99,13 +112,17 @@ export function synchronizeWidgetTitles(sourceMappings, widgets) {
   const affectedWidgets = [];
 
   each(sourceMappings, (sourceMapping) => {
-    if (sourceMapping.type === ParameterMappingType.DashboardLevel) {
+    if (
+      sourceMapping.type === ParameterMappingType.DashboardLevel ||
+      sourceMapping.type === ParameterMappingType.FixedFromUrl
+    ) {
       each(widgets, (widget) => {
         const widgetMappings = widget.options.parameterMappings;
         each(widgetMappings, (widgetMapping) => {
           // check if mapped to the same dashboard-level parameter
           if (
-            widgetMapping.type === ParameterMappingType.DashboardLevel &&
+            (widgetMapping.type === ParameterMappingType.DashboardLevel ||
+              widgetMapping.type === ParameterMappingType.FixedFromUrl) &&
             widgetMapping.mapTo === sourceMapping.mapTo
           ) {
             // dirty check - update only when needed
@@ -143,16 +160,24 @@ export class ParameterMappingInput extends React.Component {
     className: "form-item",
   };
 
+  isCreateDashboardParamType(type) {
+    return type === MappingType.DashboardAddNew || type === MappingType.FixedFromUrlAddNew;
+  }
+
   updateSourceType = (type) => {
-    let {
-      mapping: { mapTo },
-    } = this.props;
-    const { existingParamNames } = this.props;
+    const { mapping, existingParamNames } = this.props;
+    let { mapTo } = mapping;
 
     // if mapped name doesn't already exists
     // default to first select option
     if (type === MappingType.DashboardMapToExisting && !includes(existingParamNames, mapTo)) {
       mapTo = existingParamNames[0];
+    }
+
+    // when switching to a type that creates a dashboard param, default the name
+    // to the query param name if user hasn't typed one yet
+    if (this.isCreateDashboardParamType(type) && !mapTo) {
+      mapTo = mapping.name;
     }
 
     this.updateParamMapping({ type, mapTo });
@@ -195,6 +220,17 @@ export class ParameterMappingInput extends React.Component {
         </Radio>
         <Radio className="radio" value={MappingType.StaticValue} data-test="StaticValueOption">
           {i18next.t("Params:Static value")}
+        </Radio>
+        <Radio className="radio" value={MappingType.FixedFromUrlAddNew} data-test="FixedFromUrlOption">
+          {i18next.t("Params:Fixed from URL parameter")}
+        </Radio>
+        <Radio className="radio" value={MappingType.FixedFromUrlMapToExisting} disabled={noExisting}>
+          {i18next.t("Params:Existing fixed from URL parameter")}{" "}
+          {noExisting ? (
+            <Tooltip title={i18next.t("Params:There are no dashboard parameters corresponding to this data type")}>
+              <QuestionCircleFilledIcon />
+            </Tooltip>
+          ) : null}
         </Radio>
       </Radio.Group>
     );
@@ -241,6 +277,7 @@ export class ParameterMappingInput extends React.Component {
       case MappingType.DashboardAddNew:
         return ["Key", i18next.t("Params:Enter a new parameter keyword"), this.renderDashboardAddNew()];
       case MappingType.DashboardMapToExisting:
+      case MappingType.FixedFromUrlMapToExisting:
         return [
           "Key",
           i18next.t("Params:Select from a list of existing parameters"),
@@ -248,6 +285,9 @@ export class ParameterMappingInput extends React.Component {
         ];
       case MappingType.StaticValue:
         return ["Value", null, this.renderStaticValue()];
+      case MappingType.FixedFromUrlAddNew:
+        // Treat FixedFromUrlAddNew like creating a new dashboard parameter for the key input
+        return ["Key", i18next.t("Params:Value is fixed from URL"), this.renderDashboardAddNew()];
       default:
         return [];
     }
@@ -300,7 +340,7 @@ class MappingEditor extends React.Component {
   onChange = (mapping) => {
     let inputError = null;
 
-    if (mapping.type === MappingType.DashboardAddNew) {
+    if (mapping.type === MappingType.DashboardAddNew || mapping.type === MappingType.FixedFromUrlAddNew) {
       if (isEmpty(mapping.mapTo)) {
         inputError = i18next.t("Params:Keyword must have a value");
       } else if (includes(this.props.existingParamNames, mapping.mapTo)) {
@@ -404,7 +444,7 @@ class TitleEditor extends React.Component {
     }
 
     // if mapped to dashboard, find source param and return it's title
-    if (mapping.type === MappingType.DashboardMapToExisting) {
+    if (mapping.type === MappingType.DashboardMapToExisting || mapping.type === MappingType.FixedFromUrlMapToExisting) {
       const source = find(this.props.existingParams, { name: mapping.mapTo });
       if (source) {
         mapping = source;
@@ -530,7 +570,10 @@ export class ParameterMappingListInput extends React.Component {
     let { param } = mapping;
 
     // if mapped to another param, swap 'em
-    if (type === MappingType.DashboardMapToExisting && mapTo !== name) {
+    if (
+      (type === MappingType.DashboardMapToExisting || type === MappingType.FixedFromUrlMapToExisting) &&
+      mapTo !== name
+    ) {
       const mappedTo = find(existingParams, { name: mapTo });
       if (mappedTo) {
         // just being safe
@@ -565,6 +608,13 @@ export class ParameterMappingListInput extends React.Component {
         return i18next.t("Params:Widget parameter");
       case MappingType.StaticValue:
         return i18next.t("Params:Static value");
+      case MappingType.FixedFromUrlAddNew:
+      case MappingType.FixedFromUrlMapToExisting:
+        return (
+          <Fragment>
+            {i18next.t("Params:Fixed from URL")} <Tag className="tag">{mapTo}</Tag>
+          </Fragment>
+        );
       default:
         return ""; // won't happen (typescript-ftw)
     }

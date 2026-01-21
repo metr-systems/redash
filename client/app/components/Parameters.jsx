@@ -26,6 +26,8 @@ function updateUrl(parameters) {
 export default class Parameters extends React.Component {
   static propTypes = {
     parameters: PropTypes.arrayOf(PropTypes.instanceOf(Parameter)),
+    hiddenParameterNames: PropTypes.arrayOf(PropTypes.string),
+    children: PropTypes.node,
     editable: PropTypes.bool,
     sortable: PropTypes.bool,
     disabled: PropTypes.bool,
@@ -45,6 +47,8 @@ export default class Parameters extends React.Component {
     onPendingValuesChange: () => {},
     onParametersEdit: () => {},
     appendSortableToParent: true,
+    hiddenParameterNames: [],
+    children: null,
   };
 
   toCamelCase = (str) => {
@@ -135,14 +139,21 @@ export default class Parameters extends React.Component {
     });
   };
 
-  renderParameter(param, index) {
+  isParameterHidden(param) {
     if (this.hideValues.some((value) => this.toCamelCase(value) === this.toCamelCase(param.name))) {
+      return true;
+    }
+    if (this.props.hiddenParameterNames && this.props.hiddenParameterNames.indexOf(param.name) >= 0) {
+      return true;
+    }
+    return param.hidden;
+  }
+
+  renderParameter(param, index) {
+    if (this.isParameterHidden(param)) {
       return null;
     }
     const { editable, disabled } = this.props;
-    if (param.hidden) {
-      return null;
-    }
     return (
       <div key={param.name} className="di-block" data-test={`ParameterName-${param.name}`}>
         <div className="parameter-heading">
@@ -193,19 +204,22 @@ export default class Parameters extends React.Component {
           onKeyDown: dirtyParamCount ? this.handleKeyDown : null,
         }}
       >
+        {this.props.children}
         {parameters &&
-          parameters.map((param, index) => (
-            <SortableElement key={param.name} index={index}>
-              <div
-                className="parameter-block"
-                data-editable={sortable || null}
-                data-test={`ParameterBlock-${param.name}`}
-              >
-                {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
-                {this.renderParameter(param, index)}
-              </div>
-            </SortableElement>
-          ))}
+          parameters
+            .filter((param) => !this.isParameterHidden(param))
+            .map((param, index) => (
+              <SortableElement key={param.name} index={index}>
+                <div
+                  className="parameter-block"
+                  data-editable={sortable || null}
+                  data-test={`ParameterBlock-${param.name}`}
+                >
+                  {sortable && <DragHandle data-test={`DragHandle-${param.name}`} />}
+                  {this.renderParameter(param, index)}
+                </div>
+              </SortableElement>
+            ))}
         <ParameterApplyButton onClick={this.applyChanges} paramCount={dirtyParamCount} />
       </SortableContainer>
     );
