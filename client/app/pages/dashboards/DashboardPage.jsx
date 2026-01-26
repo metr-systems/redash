@@ -15,6 +15,7 @@ import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 import FixedParameters from "@/components/FixedParameters";
 import BackButton from "@/components/backButton";
+import BigMessage from "@/components/BigMessage";
 
 import { Dashboard } from "@/services/dashboard";
 import recordEvent from "@/services/recordEvent";
@@ -205,9 +206,12 @@ DashboardComponent.propTypes = {
 
 function DashboardPage({ dashboardSlug, dashboardId, onError }) {
   const [dashboard, setDashboard] = useState(null);
+  const [loading, setLoading] = useState(true);
   const handleError = useImmutableCallback(onError);
+  const { t } = useTranslation();
 
   useEffect(() => {
+    setLoading(true);
     Dashboard.get({ id: dashboardId, slug: dashboardSlug })
       .then((dashboardData) => {
         recordEvent("view", "dashboard", dashboardData.id);
@@ -218,10 +222,21 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
           location.setPath(url.parse(dashboardData.url).pathname, true);
         }
       })
-      .catch(handleError);
+      .catch(handleError)
+      .finally(() => setLoading(false));
   }, [dashboardId, dashboardSlug, handleError]);
 
-  return <div className="dashboard-page">{dashboard && <DashboardComponent dashboard={dashboard} />}</div>;
+  return (
+    <div className="dashboard-page">
+      {loading ? (
+        <div className="container text-center p-t-10">
+          <BigMessage icon="fa-spinner fa-2x fa-pulse" message={t("Loading...")} />
+        </div>
+      ) : (
+        dashboard && <DashboardComponent dashboard={dashboard} />
+      )}
+    </div>
+  );
 }
 
 DashboardPage.propTypes = {
