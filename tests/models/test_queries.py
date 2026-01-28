@@ -464,7 +464,7 @@ class TestQueryFork(BaseTestCase):
 
         forked_query = query.fork(self.factory.user)
 
-        self.assertEqual(query.schedule, forked_query.schedule)
+        self.assertDictEqual(query.schedule, forked_query.schedule)
         self.assertEqual(forked_query.schedule["interval"], 3600)
 
 
