@@ -458,6 +458,15 @@ class TestQueryFork(BaseTestCase):
 
         self.assertEqual(query.tags, forked_query.tags)
 
+    def test_fork_keeps_query_schedule(self):
+        schedule = {"interval": 3600, "until": None, "time": None, "day_of_week": None}
+        query = self.factory.create_query(schedule=schedule)
+
+        forked_query = query.fork(self.factory.user)
+
+        self.assertDictEqual(query.schedule, forked_query.schedule)
+        self.assertEqual(forked_query.schedule["interval"], 3600)
+
 
 class TestQueryUpdateLatestResult(BaseTestCase):
     def setUp(self):
