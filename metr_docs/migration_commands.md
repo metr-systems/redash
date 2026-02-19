@@ -17,7 +17,11 @@ with upstream, see the [metr_head Migration Branch design record](./design_recor
 ## Inspecting State
 
 ```bash
-# Show all current heads (should list both upstream Redash and metr_head):
+# Show all current heads 
+# Will list both upstream Redash and metr_head only when the migration
+# history has diverged (e.g., immediately after pulling upstream).
+# After the divergence is resolved via a merge revision, it should show
+# only a single head.
 ./manage.py db heads
 
 # Show the revision currently applied to the database:
@@ -33,7 +37,7 @@ with upstream, see the [metr_head Migration Branch design record](./design_recor
 ---
 
 ## Creating Migrations
----
+
 
 ## Model-First Development Pattern
 
@@ -67,9 +71,6 @@ The `--branch-label` flag is only for creating a **new** branch root from scratc
 # Apply only the metr_head branch:
 ./manage.py db upgrade metr_head@head
 
-# Apply ALL pending migrations across ALL branches:
-./manage.py db upgrade heads          # ← plural "heads", not "head"
-
 # Roll back the metr_head branch by one step:
 ./manage.py db downgrade metr_head@-1
 
@@ -77,9 +78,11 @@ The `--branch-label` flag is only for creating a **new** branch root from scratc
 ./manage.py db downgrade metr_head@base
 ```
 
-> **Gotcha:** the bare `./manage.py db upgrade` with no argument defaults to
-> `head` (singular) and will **fail** when multiple heads exist. Always use
-> `heads` (plural) or name the branch explicitly.
+> **Gotcha:** `./manage.py db upgrade` with no argument defaults to `head` (singular).
+> If multiple heads exist (for example, immediately after pulling upstream),
+> it will fail. In this repository, the correct workflow is to create a merge
+> revision first so the migration graph returns to a single head, then run
+> `./manage.py db upgrade head`. (details in next paragraph)
 
 ---
 
@@ -98,7 +101,7 @@ Run this procedure every time you pull upstream Redash and it includes new migra
 #      abc123def456 (head)          ← new upstream head
 #      a1b2c3d4e5f6 (metr_head) (head)
 
-# 3. Create a merge revision that makes metr_head depend on the new upstream:
+# 3. Create a merge revision that reconciles the upstream head and metr_head into a single head:
 ./manage.py db merge \
   -m "merge_upstream_into_metr_head" \
   abc123def456 metr_head@head
@@ -107,7 +110,7 @@ Run this procedure every time you pull upstream Redash and it includes new migra
 #      branch_labels = None   ← intentional, it's just a merge point
 
 # 4. Apply it:
-./manage.py db upgrade heads
+./manage.py db upgrade head #  ← single head after merge
 
 # 5. Resume normal metr development by stacking on top of metr_head:
 ./manage.py db revision \
@@ -126,6 +129,6 @@ Run this procedure every time you pull upstream Redash and it includes new migra
 | Create new migration on metr_head | `./manage.py db revision --head metr_head@head --autogenerate -m "..."` |
 | Merge after upstream pull | `./manage.py db merge -m "merge_upstream_into_metr_head" <upstream_head> metr_head@head` |
 | Apply metr branch only | `./manage.py db upgrade metr_head@head` |
-| Apply everything (deploy) | `./manage.py db upgrade heads` |
+| Deploy the one head | `./manage.py db upgrade` |
 | Roll back one step | `./manage.py db downgrade metr_head@-1` |
 | Roll back entire metr branch | `./manage.py db downgrade metr_head@base` |

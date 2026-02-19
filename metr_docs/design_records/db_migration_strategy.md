@@ -42,7 +42,7 @@ Both states are valid. The steady state depends on whether the most recent opera
 
 - METR migrations must always target `metr_head@head` to maintain branch continuity
 - Upstream pulls require creating a merge revision before new METR work can continue
-- Deployments must use `./manage.py db upgrade heads` (plural) to handle both single-head and multi-head states
+- Deployments must use `./manage.py db upgrade head` (single head) because upstream pulls may temporarily create multiple heads, but these are always merged before release. Production deployments must occur with exactly one head. — see the [Migration Command Reference](../migration_commands.md) under "Merging After an Upstream Pull" for more information about that.
 - The branch provides clear traceability: `./manage.py db history --rev-range metr_head@base:metr_head@head` shows only METR changes
 
 ---
