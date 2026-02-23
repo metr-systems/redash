@@ -1,4 +1,11 @@
-from redash.models import AccessPermission, ApiKey, Dashboard, DashboardGroup, db
+from redash.models import (
+    AccessPermission,
+    ApiKey,
+    Dashboard,
+    DashboardGroup,
+    MetrDashboard,
+    db,
+)
 from redash.permissions import ACCESS_TYPE_MODIFY
 from redash.serializers import serialize_dashboard
 from redash.utils import json_loads
@@ -137,6 +144,30 @@ class TestDashboardResourceGetByAdmin(BaseTestCase):
         rv = self.make_request("get", "/api/dashboards/-1", user=admin)
         self.assertEqual(rv.status_code, 404)
 
+    def test_get_dashboard_with_url_identifier_by_admin(self):
+        """Test that admin gets dashboard with url_identifier when metr_dashboard exists."""
+        dashboard = self.factory.create_dashboard()
+        admin = self.factory.create_admin()
+        db.session.flush()
+
+        # Create associated MetrDashboard with url_identifier
+        metr_dashboard = MetrDashboard(dashboard_id=dashboard.id, org_id=dashboard.org_id, url_identifier="details")
+        db.session.add(metr_dashboard)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=admin)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["url_identifier"], "details")
+
+    def test_get_dashboard_without_metr_dashboard_by_admin(self):
+        """Test that admin gets dashboard with None url_identifier when no metr_dashboard exists."""
+        dashboard = self.factory.create_dashboard()
+        admin = self.factory.create_admin()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=admin)
+        self.assertEqual(rv.status_code, 200)
+        self.assertIsNone(rv.json["url_identifier"])
+
 
 class TestDashboardResourceGetByCustom(BaseTestCase):
     def test_get_dashboard_by_custom_requires_group_access(self):
@@ -233,6 +264,37 @@ class TestDashboardResourceGetByCustom(BaseTestCase):
     def test_get_non_existing_dashboard_by_custom(self):
         rv = self.make_request("get", "/api/dashboards/-1")
         self.assertEqual(rv.status_code, 404)
+
+    def test_get_dashboard_with_url_identifier_by_custom(self):
+        """Test that custom user gets dashboard with url_identifier when metr_dashboard exists."""
+        dashboard = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(dashboard, group)
+        db.session.flush()
+
+        # Create associated MetrDashboard with url_identifier
+        metr_dashboard = MetrDashboard(dashboard_id=dashboard.id, org_id=dashboard.org_id, url_identifier="details")
+        db.session.add(metr_dashboard)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["url_identifier"], "details")
+
+    def test_get_dashboard_without_metr_dashboard_by_custom(self):
+        """Test that custom user gets dashboard with None url_identifier when no metr_dashboard exists."""
+        dashboard = self.factory.create_dashboard()
+        group = self.factory.create_group()
+        user = self.factory.create_user()
+        user.group_ids = [group.id]
+        self.factory.create_dashboard_group_permission(dashboard, group)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/{0}".format(dashboard.id), user=user)
+        self.assertEqual(rv.status_code, 200)
+        self.assertIsNone(rv.json["url_identifier"])
 
 
 class TestDashboardResourcePost(BaseTestCase):

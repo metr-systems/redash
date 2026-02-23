@@ -228,6 +228,7 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
     d = {
         "id": obj.id,
         "slug": obj.name_as_slug,
+        "url_identifier": (obj.metr_dashboard.url_identifier if obj.metr_dashboard else None),
         "name": obj.name,
         "user_id": obj.user_id,
         "user": {
