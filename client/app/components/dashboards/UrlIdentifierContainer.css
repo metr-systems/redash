@@ -1,0 +1,21 @@
+.url-identifier-container .url-identifier-input {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  width: 400px;
+}
+
+.url-identifier-input-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.url-identifier-input-container > div:first-child {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.url-identifier-input-container .ant-input {
+  flex: 1;
+}

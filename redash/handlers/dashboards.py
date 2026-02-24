@@ -268,6 +268,7 @@ class DashboardResource(BaseResource):
                 "is_archived",
                 "dashboard_filters_enabled",
                 "options",
+                "url_identifier",
             ),
         )
 
@@ -278,6 +279,18 @@ class DashboardResource(BaseResource):
             abort(409)
 
         updates["changed_by"] = self.current_user
+
+        # Handle url_identifier separately for MetrDashboard
+        if "url_identifier" in updates:
+            url_identifier = updates.pop("url_identifier")
+            # Convert empty string to None for proper database constraint handling
+            url_identifier = url_identifier or None
+            # Get or create MetrDashboard
+            metr_dashboard = dashboard.metr_dashboard
+            if not metr_dashboard:
+                metr_dashboard = models.MetrDashboard(dashboard_id=dashboard.id, org_id=dashboard.org_id)
+            metr_dashboard.url_identifier = url_identifier
+            models.db.session.add(metr_dashboard)
 
         self.update_model(dashboard, updates)
         models.db.session.add(dashboard)

@@ -63,6 +63,11 @@ const listColumns = [
           isDraft={item.is_draft}
           isArchived={item.is_archived}
         />
+        {item.url_identifier && (
+          <div className="url-identifier-display">
+            {i18next.t("Dashboards:URL Identifier")}: {item.url_identifier}
+          </div>
+        )}
       </React.Fragment>
     ),
     {

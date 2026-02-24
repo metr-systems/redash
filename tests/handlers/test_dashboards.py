@@ -360,6 +360,72 @@ class TestDashboardResourcePost(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertEqual(rv.json["name"], new_name)
 
+    def test_update_dashboard_with_url_identifier(self):
+        """Test updating dashboard with URL identifier."""
+        dashboard = self.factory.create_dashboard()
+        new_name = "New Name"
+        url_identifier = "my-custom-slug"
+
+        rv = self.make_request(
+            "post",
+            "/api/dashboards/{0}".format(dashboard.id),
+            data={"name": new_name, "layout": [], "url_identifier": url_identifier},
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["name"], new_name)
+
+        # Check that MetrDashboard was created/updated
+        metr_dashboard = MetrDashboard.query.filter_by(dashboard_id=dashboard.id).first()
+        self.assertIsNotNone(metr_dashboard)
+        self.assertEqual(metr_dashboard.url_identifier, url_identifier)
+
+    def test_update_dashboard_with_empty_url_identifier(self):
+        """Test updating dashboard with empty URL identifier (should be allowed)."""
+        dashboard = self.factory.create_dashboard()
+
+        # First set a URL identifier
+        metr_dashboard = MetrDashboard(
+            dashboard_id=dashboard.id, org_id=dashboard.org_id, url_identifier="existing-slug"
+        )
+        db.session.add(metr_dashboard)
+        db.session.commit()
+
+        # Now update with empty URL identifier
+        rv = self.make_request(
+            "post",
+            "/api/dashboards/{0}".format(dashboard.id),
+            data={"name": "Updated Name", "layout": [], "url_identifier": ""},
+        )
+
+        self.assertEqual(rv.status_code, 200)
+
+        # Check that MetrDashboard url_identifier was updated to None
+        db.session.refresh(metr_dashboard)
+        self.assertIsNone(metr_dashboard.url_identifier)
+
+    def test_update_dashboard_creates_metr_dashboard_if_not_exists(self):
+        """Test that updating dashboard creates MetrDashboard record if it doesn't exist."""
+        dashboard = self.factory.create_dashboard()
+
+        # Ensure no MetrDashboard exists
+        existing = MetrDashboard.query.filter_by(dashboard_id=dashboard.id).first()
+        self.assertIsNone(existing)
+
+        rv = self.make_request(
+            "post",
+            "/api/dashboards/{0}".format(dashboard.id),
+            data={"name": "Updated Name", "layout": [], "url_identifier": "new-slug"},
+        )
+
+        self.assertEqual(rv.status_code, 200)
+
+        # Check that MetrDashboard was created
+        metr_dashboard = MetrDashboard.query.filter_by(dashboard_id=dashboard.id).first()
+        self.assertIsNotNone(metr_dashboard)
+        self.assertEqual(metr_dashboard.url_identifier, "new-slug")
+        self.assertEqual(metr_dashboard.org_id, dashboard.org_id)
+
 
 class TestDashboardForkResourcePost(BaseTestCase):
     def test_forks_a_dashboard(self):
