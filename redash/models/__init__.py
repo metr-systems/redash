@@ -5,7 +5,7 @@ import numbers
 import time
 
 import pytz
-from sqlalchemy import UniqueConstraint, and_, cast, distinct, func, or_
+from sqlalchemy import Index, UniqueConstraint, and_, cast, distinct, func, or_
 from sqlalchemy.dialects.postgresql import ARRAY, DOUBLE_PRECISION, JSONB
 from sqlalchemy.event import listens_for
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -1227,6 +1227,45 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def remove_group(self, group):
         DashboardGroup.query.filter(DashboardGroup.group == group, DashboardGroup.dashboard == self).delete()
         db.session.commit()
+
+
+@generic_repr("id", "dashboard_id", "org_id", "url_identifier")
+class MetrDashboard(db.Model):
+    """
+    Extends Dashboard with METR-specific fields.
+    """
+
+    id = primary_key("MetrDashboard")
+    dashboard_id = Column(
+        key_type("Dashboard"),
+        db.ForeignKey("dashboards.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    org_id = Column(key_type("Organization"), nullable=False, index=True)
+    url_identifier = Column(db.String(100), nullable=True)
+    dashboard = db.relationship(
+        "Dashboard",
+        backref=db.backref("metr_dashboard", cascade="delete", uselist=False),
+    )
+
+    __tablename__ = "metr_dashboard"
+
+    __table_args__ = (
+        # Partial unique index: enforces uniqueness on (org_id, url_identifier)
+        # only when url_identifier IS NOT NULL.
+        # This allows multiple dashboards in the same org to have NULL url_identifier
+        # (unassigned), while preventing duplicate assigned identifiers within an org.
+        # https://docs.sqlalchemy.org/en/13/dialects/postgresql.html#partial-indexes
+        Index(
+            "uq_metr_dashboard_org_url_identifier",
+            "org_id",
+            "url_identifier",
+            unique=True,
+            postgresql_where=Column("url_identifier").isnot(None),
+        ),
+    )
 
 
 @generic_repr("id", "dashboard_id", "group_id")
