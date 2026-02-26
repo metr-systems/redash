@@ -1,7 +1,7 @@
 .url-identifier-container .url-identifier-input {
   background-color: #f5f5f5;
   cursor: not-allowed;
-  width: auto;
+  width: fit-content;
 }
 
 .url-identifier-input-container {

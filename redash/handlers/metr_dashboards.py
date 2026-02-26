@@ -11,7 +11,7 @@ class MetrDashboardUrlIdentifierValidationResource(BaseResource):
 
     @require_permission("edit_dashboard")
     def post(self, dashboard_id):
-        url_identifier = request.get_json().get("url_identifier", "")
+        url_identifier = request.get_json().get("url_identifier", None)
 
         # Validate format and uniqueness
         if not url_identifier:
