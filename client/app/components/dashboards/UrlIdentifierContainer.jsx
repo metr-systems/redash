@@ -10,7 +10,7 @@ import InputWithCopy from "@/components/InputWithCopy";
 import "./UrlIdentifierContainer.css";
 
 // Component for managing dashboard URL identifiers - allows setting custom URLs for easier sharing
-function UrlIdentifierContainer({ dashboardConfiguration, style}) {
+function UrlIdentifierContainer({ dashboardConfiguration, style }) {
   const { t } = useTranslation("Dashboards");
   const [urlIdentifier, setUrlIdentifier] = useState("");
   const [saving, setSaving] = useState(false);
@@ -27,16 +27,16 @@ function UrlIdentifierContainer({ dashboardConfiguration, style}) {
   // Validates and sets the new URL identifier for the dashboard
   const handleSetUrlIdentifier = async () => {
     if (!urlIdentifier.trim()) return;
-    
+
     setSaving(true);
-    
+
     try {
       const response = await axios.post(`api/dashboards/${dashboard.id}/url_identifier/validate`, {
         url_identifier: urlIdentifier,
       });
 
       if (!response.valid) {
-        void response.errors?.forEach(error => {
+        void response.errors?.forEach((error) => {
           notification.error(error);
         });
         return;
@@ -46,7 +46,6 @@ function UrlIdentifierContainer({ dashboardConfiguration, style}) {
       setJustUpdatedIdentifier(urlIdentifier);
       setUrlIdentifier("");
       notification.success(t("URL identifier set successfully!"));
-      
     } catch (error) {
       const errorMessage = get(error, "response.data.message") || t("Failed to save URL identifier. Please try again.");
       notification.error(errorMessage);
@@ -83,21 +82,21 @@ function UrlIdentifierContainer({ dashboardConfiguration, style}) {
         </span>
       </h2>
       <div className="url-identifier-input-container">
-          <Input
-            size="small"
-            placeholder={t("Enter URL identifier")}
-            value={urlIdentifier}
-            onChange={(e) => setUrlIdentifier(e.target.value)}
-            onPressEnter={handleSetUrlIdentifier}
-          />
-          <Button 
-            type="primary" 
-            onClick={handleSetUrlIdentifier} 
-            loading={saving} 
-            disabled={!urlIdentifier.trim() || saving}
-          >
-            {t("Set Identifier")}
-          </Button>
+        <Input
+          size="small"
+          placeholder={t("Enter URL identifier")}
+          value={urlIdentifier}
+          onChange={(e) => setUrlIdentifier(e.target.value)}
+          onPressEnter={handleSetUrlIdentifier}
+        />
+        <Button
+          type="primary"
+          onClick={handleSetUrlIdentifier}
+          loading={saving}
+          disabled={!urlIdentifier.trim() || saving}
+        >
+          {t("Set Identifier")}
+        </Button>
       </div>
     </div>
   );

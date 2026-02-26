@@ -197,14 +197,14 @@ function DashboardComponent(props) {
       </div>
       {editingLayout && (
         <>
-          <UrlIdentifierContainer 
-            dashboardConfiguration={dashboardConfiguration} 
-            style={{ 
-              ...bottomPanelStyles, 
-              position: 'fixed', 
-              bottom: '95px', 
-              zIndex: 1000 
-            }} 
+          <UrlIdentifierContainer
+            dashboardConfiguration={dashboardConfiguration}
+            style={{
+              ...bottomPanelStyles,
+              position: "fixed",
+              bottom: "95px",
+              zIndex: 1000,
+            }}
           />
           <AddWidgetContainer dashboardConfiguration={dashboardConfiguration} style={bottomPanelStyles} />
         </>
