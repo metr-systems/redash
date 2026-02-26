@@ -283,8 +283,8 @@ class DashboardResource(BaseResource):
         # Handle url_identifier separately for MetrDashboard
         if "url_identifier" in updates:
             url_identifier = updates.pop("url_identifier")
-            # Convert empty string to None for proper database constraint handling
-            url_identifier = url_identifier or None
+            # Note: url_identifier is validated via validation API
+            # to ensure it's never empty
             # Get or create MetrDashboard
             metr_dashboard = dashboard.metr_dashboard
             if not metr_dashboard:

@@ -1,60 +1,71 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import Button from "antd/lib/button";
 import Input from "antd/lib/input";
 import { useTranslation } from "react-i18next";
+import { get } from "lodash";
 import { axios } from "@/services/axios";
 import notification from "@/services/notification";
 import InputWithCopy from "@/components/InputWithCopy";
 import "./UrlIdentifierContainer.css";
 
-function UrlIdentifierContainer({ dashboardConfiguration, style, ...props }) {
+// Component for managing dashboard URL identifiers - allows setting custom URLs for easier sharing
+function UrlIdentifierContainer({ dashboardConfiguration, style}) {
   const { t } = useTranslation("Dashboards");
   const [urlIdentifier, setUrlIdentifier] = useState("");
   const [saving, setSaving] = useState(false);
-  const [localUrlIdentifier, setLocalUrlIdentifier] = useState(null); // Track locally set URL identifier
+  const [justUpdatedIdentifier, setJustUpdatedIdentifier] = useState("");
   const { dashboard, updateDashboard } = dashboardConfiguration;
 
+  // Reset temporary state when backend confirms the URL identifier update
+  useEffect(() => {
+    if (dashboard.url_identifier && justUpdatedIdentifier) {
+      setJustUpdatedIdentifier("");
+    }
+  }, [dashboard.url_identifier, justUpdatedIdentifier]);
+
+  // Validates and sets the new URL identifier for the dashboard
   const handleSetUrlIdentifier = async () => {
     if (!urlIdentifier.trim()) return;
+    
     setSaving(true);
-
+    
     try {
       const response = await axios.post(`api/dashboards/${dashboard.id}/url_identifier/validate`, {
         url_identifier: urlIdentifier,
       });
 
       if (!response.valid) {
-        if (response.errors) {
-          response.errors.forEach(error => {
-            notification.error(error);
-          });
-        }
+        void response.errors?.forEach(error => {
+          notification.error(error);
+        });
         return;
       }
 
       await updateDashboard({ url_identifier: urlIdentifier });
-      setLocalUrlIdentifier(urlIdentifier); // Set local state to immediately show readonly view
+      setJustUpdatedIdentifier(urlIdentifier);
       setUrlIdentifier("");
       notification.success(t("URL identifier set successfully!"));
+      
     } catch (error) {
-      const errorMessage = error.response?.data?.error || t("Failed to save URL identifier. Please try again.");
+      const errorMessage = get(error, "response.data.message") || t("Failed to save URL identifier. Please try again.");
       notification.error(errorMessage);
     } finally {
       setSaving(false);
     }
   };
 
-  const currentUrlIdentifier = dashboard.url_identifier || localUrlIdentifier;
-  if (currentUrlIdentifier) {
+  // Display the shareable URL when identifier exists
+  if (dashboard.url_identifier || justUpdatedIdentifier) {
+    const displayUrlIdentifier = dashboard.url_identifier || justUpdatedIdentifier;
     return (
-      <div className="add-widget-container url-identifier-container" style={style} {...props}>
+      <div className="add-widget-container url-identifier-container" style={style}>
         <h2>
           <i className="zmdi zmdi-widgets" aria-hidden="true" />
           <span className="hidden-xs hidden-sm">{t("This dashboard has a URL identifier")}.</span>
         </h2>
         <InputWithCopy
-          value={`https://${window.location.host}/dashboards/by_url_identifier/${currentUrlIdentifier}`}
+          value={`${window.location.origin}/dashboards/by_url_identifier/${displayUrlIdentifier}`}
           readOnly
           className="url-identifier-input"
         />
@@ -62,8 +73,9 @@ function UrlIdentifierContainer({ dashboardConfiguration, style, ...props }) {
     );
   }
 
+  // Show input form for creating new URL identifier
   return (
-    <div className="add-widget-container" style={style} {...props}>
+    <div className="add-widget-container" style={style}>
       <h2>
         <i className="zmdi zmdi-widgets" aria-hidden="true" />
         <span className="hidden-xs hidden-sm">
@@ -71,7 +83,6 @@ function UrlIdentifierContainer({ dashboardConfiguration, style, ...props }) {
         </span>
       </h2>
       <div className="url-identifier-input-container">
-        <div>
           <Input
             size="small"
             placeholder={t("Enter URL identifier")}
@@ -87,7 +98,6 @@ function UrlIdentifierContainer({ dashboardConfiguration, style, ...props }) {
           >
             {t("Set Identifier")}
           </Button>
-        </div>
       </div>
     </div>
   );

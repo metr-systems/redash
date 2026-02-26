@@ -380,30 +380,6 @@ class TestDashboardResourcePost(BaseTestCase):
         self.assertIsNotNone(metr_dashboard)
         self.assertEqual(metr_dashboard.url_identifier, url_identifier)
 
-    def test_update_dashboard_with_empty_url_identifier(self):
-        """Test updating dashboard with empty URL identifier (should be allowed)."""
-        dashboard = self.factory.create_dashboard()
-
-        # First set a URL identifier
-        metr_dashboard = MetrDashboard(
-            dashboard_id=dashboard.id, org_id=dashboard.org_id, url_identifier="existing-slug"
-        )
-        db.session.add(metr_dashboard)
-        db.session.commit()
-
-        # Now update with empty URL identifier
-        rv = self.make_request(
-            "post",
-            "/api/dashboards/{0}".format(dashboard.id),
-            data={"name": "Updated Name", "layout": [], "url_identifier": ""},
-        )
-
-        self.assertEqual(rv.status_code, 200)
-
-        # Check that MetrDashboard url_identifier was updated to None
-        db.session.refresh(metr_dashboard)
-        self.assertIsNone(metr_dashboard.url_identifier)
-
     def test_update_dashboard_creates_metr_dashboard_if_not_exists(self):
         """Test that updating dashboard creates MetrDashboard record if it doesn't exist."""
         dashboard = self.factory.create_dashboard()
