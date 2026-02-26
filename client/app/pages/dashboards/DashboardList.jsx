@@ -63,7 +63,7 @@ const listColumns = [
           isDraft={item.is_draft}
           isArchived={item.is_archived}
         />
-        {item.url_identifier && (
+        {item.url_identifier && (currentUser.isAdmin || currentUser.id === item.user_id) && (
           <div className="url-identifier-display">
             {i18next.t("Dashboards:URL Identifier")}: {item.url_identifier}
           </div>
