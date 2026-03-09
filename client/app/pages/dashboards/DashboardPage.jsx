@@ -28,6 +28,7 @@ import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useDashboard from "./hooks/useDashboard";
 import DashboardHeader from "./components/DashboardHeader";
+import UrlIdentifierContainer from "@/components/dashboards/UrlIdentifierContainer";
 
 import "./DashboardPage.less";
 
@@ -102,6 +103,7 @@ function DashboardComponent(props) {
     setEditedlayoutsOrder,
     setGridDisabled,
     visibleWidgets,
+    canEditDashboard,
   } = dashboardConfiguration;
 
   const fixedFromUrlParamNames = fixedFromUrlParameters.map((param) => param.name);
@@ -194,7 +196,18 @@ function DashboardComponent(props) {
         />
       </div>
       {editingLayout && (
-        <AddWidgetContainer dashboardConfiguration={dashboardConfiguration} style={bottomPanelStyles} />
+        <>
+          <UrlIdentifierContainer
+            dashboardConfiguration={dashboardConfiguration}
+            style={{
+              ...bottomPanelStyles,
+              position: "fixed",
+              bottom: "95px",
+              zIndex: 1000,
+            }}
+          />
+          <AddWidgetContainer dashboardConfiguration={dashboardConfiguration} style={bottomPanelStyles} />
+        </>
       )}
     </div>
   );

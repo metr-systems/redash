@@ -5,7 +5,11 @@ div.tags-list {
   -khtml-user-select: none; /* webkit (konqueror) browsers */
   -ms-user-select: none; /* IE10+ */
 }
-
+.url-identifier-display {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
 /* same rule as for sidebar */
 @media (max-width: 990px) {
   .page-dashboard-list .page-header-actions {

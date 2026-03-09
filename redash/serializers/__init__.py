@@ -11,7 +11,7 @@ from rq.timeouts import JobTimeoutException
 
 from redash import models
 from redash.models.parameterized_query import ParameterizedQuery
-from redash.permissions import has_access, view_only
+from redash.permissions import has_access, is_admin_or_owner, view_only
 from redash.serializers.query_result import (
     serialize_query_result,
     serialize_query_result_to_dsv,
@@ -247,6 +247,10 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         "created_at": obj.created_at,
         "version": obj.version,
     }
+
+    # Only include url_identifier for admin users or dashboard owners
+    if current_user and is_admin_or_owner(obj.user_id):
+        d["url_identifier"] = obj.metr_dashboard.url_identifier if obj.metr_dashboard else None
 
     return d
 
