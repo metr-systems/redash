@@ -1187,6 +1187,15 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
     def get_by_slug_and_org(cls, slug, org):
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
 
+    @classmethod
+    def get_by_url_identifier_and_org(cls, url_identifier, org):
+        """Get dashboard by URL identifier and organization."""
+        return (
+            cls.query.join(MetrDashboard, cls.id == MetrDashboard.dashboard_id)
+            .filter(MetrDashboard.url_identifier == url_identifier, MetrDashboard.org_id == org.id)
+            .one()
+        )
+
     def fork(self, user):
         forked_list = ["org", "layout", "dashboard_filters_enabled", "tags"]
 
