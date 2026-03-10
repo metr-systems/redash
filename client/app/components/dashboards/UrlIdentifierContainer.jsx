@@ -57,6 +57,9 @@ function UrlIdentifierContainer({ dashboardConfiguration, style }) {
   // Display the shareable URL when identifier exists
   if (dashboard.url_identifier || justUpdatedIdentifier) {
     const displayUrlIdentifier = dashboard.url_identifier || justUpdatedIdentifier;
+    const basePath = window.location.pathname.split('/dashboards')[0];
+    const urlPath = `${basePath}/dashboards/by_url_identifier/${displayUrlIdentifier}`;
+    
     return (
       <div className="add-widget-container url-identifier-container" style={style}>
         <h2>
@@ -64,7 +67,7 @@ function UrlIdentifierContainer({ dashboardConfiguration, style }) {
           <span className="hidden-xs hidden-sm">{t("This dashboard has a URL identifier")}.</span>
         </h2>
         <InputWithCopy
-          value={`${window.location.origin}/dashboards/by_url_identifier/${displayUrlIdentifier}`}
+          value={`${window.location.origin}${urlPath}`}
           readOnly
           className="url-identifier-input"
         />
