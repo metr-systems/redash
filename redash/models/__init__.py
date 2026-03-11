@@ -21,6 +21,7 @@ from sqlalchemy_utils import generic_relationship
 from sqlalchemy_utils.models import generic_repr
 from sqlalchemy_utils.types import TSVectorType
 from sqlalchemy_utils.types.encrypted.encrypted_type import FernetEngine
+from werkzeug.exceptions import NotFound
 
 from redash import redis_connection, settings, utils
 from redash.destinations import (
@@ -1188,13 +1189,16 @@ class Dashboard(ChangeTrackingMixin, TimestampMixin, BelongsToOrgMixin, db.Model
         return cls.query.filter(cls.slug == slug, cls.org == org).one()
 
     @classmethod
-    def get_by_url_identifier_and_org(cls, url_identifier, org):
-        """Get dashboard by URL identifier and organization."""
-        return (
+    def get_by_url_identifier_and_org_or_404(cls, url_identifier, org):
+        """Get dashboard by URL identifier and organization, or raise 404."""
+        dashboard = (
             cls.query.join(MetrDashboard, cls.id == MetrDashboard.dashboard_id)
             .filter(MetrDashboard.url_identifier == url_identifier, MetrDashboard.org_id == org.id)
-            .one()
+            .first()
         )
+        if not dashboard:
+            raise NotFound()
+        return dashboard
 
     def fork(self, user):
         forked_list = ["org", "layout", "dashboard_filters_enabled", "tags"]
