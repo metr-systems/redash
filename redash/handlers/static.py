@@ -1,8 +1,9 @@
-from flask import render_template, send_file
+from flask import redirect, render_template, send_file
 from flask_login import login_required
 from werkzeug.utils import safe_join
 
-from redash import settings
+from redash import models, settings
+from redash.authentication.org_resolving import current_org
 from redash.handlers import routes
 from redash.handlers.authentication import base_href
 from redash.handlers.base import org_scoped_rule
@@ -24,6 +25,19 @@ def render_index():
 @csp_allows_embeding
 def dashboard(slug, org_slug=None):
     return render_index()
+
+
+@routes.route(org_scoped_rule("/dashboards/by_url_identifier/<url_identifier>"), methods=["GET"])
+@login_required
+@csp_allows_embeding
+def dashboard_by_url_identifier(url_identifier, org_slug):
+    current_org_obj = current_org._get_current_object()
+    dashboard = models.Dashboard.get_by_url_identifier_and_org_or_404(url_identifier, current_org_obj)
+
+    # Redirect to canonical dashboard URL with org prefix
+    canonical_path = f"/{org_slug}/dashboards/{dashboard.id}-{dashboard.slug}"
+
+    return redirect(canonical_path, code=302)
 
 
 @routes.route(org_scoped_rule("/<path:path>"))
