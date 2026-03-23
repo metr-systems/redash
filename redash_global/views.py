@@ -54,8 +54,7 @@ def create_organization_view():
         return jsonify({"error": str(e)}), 400
 
     except Exception as e:
-        # Log the error for debugging
         import logging
 
         logging.error(f"Error creating organization: {e}", exc_info=True)
-        return jsonify({"error": "Internal server error"}), 500
+        return jsonify({"error": str(e)}), 500
