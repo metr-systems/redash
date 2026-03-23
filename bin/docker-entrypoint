@@ -42,7 +42,7 @@ dev_worker() {
 }
 
 server() {
-  # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
+  # Recycle gunicorn workers every n-th request. See https://gunicorn.org/reference/settings/#max_requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
   TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
@@ -50,7 +50,7 @@ server() {
 }
 
 global_server() {
-  # Recycle gunicorn workers every n-th request. See http://docs.gunicorn.org/en/stable/settings.html#max-requests for more details.
+  # Recycle gunicorn workers every n-th request. See https://gunicorn.org/reference/settings/#max-requests for more details.
   MAX_REQUESTS=${MAX_REQUESTS:-1000}
   MAX_REQUESTS_JITTER=${MAX_REQUESTS_JITTER:-100}
   TIMEOUT=${REDASH_GUNICORN_TIMEOUT:-60}
