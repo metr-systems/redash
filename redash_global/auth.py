@@ -23,7 +23,7 @@ def require_global_token(f):
         provided_token = request.headers.get("X-Global-Api-Token")
 
         if not provided_token:
-            return jsonify({"error": "Missing X-Global-Api-Token header"}), 403
+            return jsonify({"error": "Missing X-Global-Api-Token header"}), 401
 
         if provided_token != expected_token:
             return jsonify({"error": "Invalid global API token"}), 403
