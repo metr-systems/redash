@@ -17,10 +17,8 @@ def require_global_token(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
-        expected_token = os.environ.get("REDASH_GLOBAL_API_TOKEN")
-
-        if not expected_token:
-            return jsonify({"error": "Global API token not configured"}), 500
+        # Token existence is guaranteed before app creation
+        expected_token = os.environ["REDASH_GLOBAL_API_TOKEN"]
 
         provided_token = request.headers.get("X-Global-Api-Token")
 
