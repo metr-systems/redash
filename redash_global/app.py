@@ -35,6 +35,9 @@ def create_global_app():
     # Initialize database with the app
     db.init_app(app)
 
+    # Import models to register them with SQLAlchemy metadata
+    from redash_global.models import GlobalAdminUser  # noqa: F401
+
     # Import and register routes
     from redash_global.routes import api_blueprint
 
