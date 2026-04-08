@@ -1,6 +1,8 @@
-from flask import flash, redirect, render_template, request, url_for
+from flask import flash, redirect, render_template, request, send_file, url_for
 from flask_login import current_user, login_user, logout_user
+from werkzeug.utils import safe_join
 
+from redash import settings
 from redash_global.models import GlobalAdminUser
 
 
@@ -31,4 +33,5 @@ def logout_view():
 def admin_ui_view():
     if not current_user.is_authenticated:
         return redirect(url_for("api.login_page"))
-    return render_template("admin.html", user=current_user)
+    full_path = safe_join(settings.STATIC_ASSETS_PATH, "global.html")
+    return send_file(full_path, max_age=0, conditional=True)
