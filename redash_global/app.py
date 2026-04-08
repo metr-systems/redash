@@ -28,7 +28,12 @@ def create_global_app():
     """Create and configure the Redash Global Flask application."""
     _validate_required_config()
 
-    app = Flask(__name__, template_folder="templates")
+    app = Flask(
+        __name__,
+        template_folder="templates",
+        static_folder=settings.STATIC_ASSETS_PATH,
+        static_url_path="/static",
+    )
 
     # Also load Redash templates (for layouts/signed_out.html etc.)
     redash_templates_path = os.path.join(os.path.dirname(__file__), "..", "redash", "templates")
