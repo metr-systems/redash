@@ -1,5 +1,6 @@
 """Models for Redash Global dashboard management system."""
 
+from flask_login import UserMixin
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
@@ -9,7 +10,7 @@ from redash.models.mixins import TimestampMixin
 
 
 @generic_repr("id", "username", "email")
-class GlobalAdminUser(TimestampMixin, db.Model):
+class GlobalAdminUser(UserMixin, TimestampMixin, db.Model):
     """Admin user for global dashboard management system.
 
     Separate from regular Redash users to maintain isolation between
