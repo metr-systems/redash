@@ -1,0 +1,14 @@
+{% extends "layouts/signed_out.html" %}
+
+{% block title %}Global Admin{% endblock %}
+
+{% block content %}
+<div class="fixed-width-page">
+  <div class="bg-white tiled p-15">
+    <h4>Global Admin</h4>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <a href="{{ url_for('api.logout') }}" class="btn btn-default">Logout</a>
+  </div>
+</div>
+{% endblock %}

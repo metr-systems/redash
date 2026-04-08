@@ -2,6 +2,7 @@
 
 import os
 
+import jinja2
 from flask import Flask
 from flask_login import LoginManager
 
@@ -27,6 +28,14 @@ def create_global_app():
     _validate_required_config()
 
     app = Flask(__name__, template_folder="templates")
+
+    # Also load Redash templates (for layouts/signed_out.html etc.)
+    app.jinja_loader = jinja2.ChoiceLoader(
+        [
+            app.jinja_loader,
+            jinja2.FileSystemLoader(settings.FLASK_TEMPLATE_PATH),
+        ]
+    )
 
     # Essential database configuration (reuse Redash settings)
     app.config["SQLALCHEMY_DATABASE_URI"] = settings.SQLALCHEMY_DATABASE_URI
