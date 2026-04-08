@@ -3,8 +3,8 @@
 import os
 
 from flask import Flask
+from flask_login import LoginManager
 
-# Import models to ensure they are registered with SQLAlchemy
 # Import Redash database and models
 from redash import settings
 from redash.models.base import db
@@ -26,17 +26,27 @@ def create_global_app():
     """Create and configure the Redash Global Flask application."""
     _validate_required_config()
 
-    app = Flask(__name__)
+    app = Flask(__name__, template_folder="templates")
 
     # Essential database configuration (reuse Redash settings)
     app.config["SQLALCHEMY_DATABASE_URI"] = settings.SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SECRET_KEY"] = settings.SECRET_KEY
 
     # Initialize database with the app
     db.init_app(app)
 
     # Import models to register them with SQLAlchemy metadata
     from redash_global.models import GlobalAdminUser  # noqa: F401
+
+    # Setup Flask-Login
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+    login_manager.login_view = "api.login_page"
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return GlobalAdminUser.query.get(int(user_id))
 
     # Import and register routes
     from redash_global.routes import api_blueprint
