@@ -8,6 +8,7 @@ from flask_login import LoginManager
 
 # Import Redash database and models
 from redash import settings
+from redash.handlers.webpack import configure_webpack
 from redash.models.base import db
 
 
@@ -30,9 +31,11 @@ def create_global_app():
     app = Flask(__name__, template_folder="templates")
 
     # Also load Redash templates (for layouts/signed_out.html etc.)
+    redash_templates_path = os.path.join(os.path.dirname(__file__), "..", "redash", "templates")
     app.jinja_loader = jinja2.ChoiceLoader(
         [
             app.jinja_loader,
+            jinja2.FileSystemLoader(os.path.normpath(redash_templates_path)),
             jinja2.FileSystemLoader(settings.FLASK_TEMPLATE_PATH),
         ]
     )
@@ -44,6 +47,9 @@ def create_global_app():
 
     # Initialize database with the app
     db.init_app(app)
+
+    # Register webpack asset_url context processor (used by redash templates)
+    configure_webpack(app)
 
     # Import models to register them with SQLAlchemy metadata
     from redash_global.models import GlobalAdminUser  # noqa: F401
