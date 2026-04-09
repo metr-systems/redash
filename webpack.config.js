@@ -35,6 +35,7 @@ const isHotReloadingEnabled =
   isDevelopment && process.env.HOT_RELOAD === "true";
 
 const redashBackend = process.env.REDASH_BACKEND || "http://localhost:5001";
+const redashGlobalBackend = process.env.REDASH_GLOBAL_BACKEND || "http://localhost:5002";
 const baseHref = CONFIG.baseHref || "/";
 const staticPath = CONFIG.staticPath || "/static/";
 const htmlTitle = CONFIG.title || "Redash";
@@ -68,6 +69,10 @@ const config = {
       "./client/app/assets/less/main.less",
       "./client/app/assets/less/ant.less"
     ],
+    global_app: [
+      "./redash_global/client/index.js",
+      "./client/app/assets/less/ant.less"
+    ],
     server: ["./client/app/assets/less/server.less"]
   },
   output: {
@@ -99,6 +104,14 @@ const config = {
       staticPath,
       baseHref,
       title: htmlTitle
+    }),
+    new HtmlWebpackPlugin({
+      template: "./redash_global/client/global.html",
+      filename: "global.html",
+      chunks: ["global_app"],
+      staticPath,
+      baseHref,
+      title: "Global Admin"
     }),
     new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",
@@ -145,6 +158,7 @@ const config = {
           {
             loader: require.resolve("babel-loader"),
             options: {
+              configFile: path.resolve(__dirname, "client/.babelrc"),
               plugins: [
                 isHotReloadingEnabled && require.resolve("react-refresh/babel")
               ].filter(Boolean)
@@ -155,7 +169,7 @@ const config = {
       },
       {
         test: /\.html$/,
-        exclude: [/node_modules/, /index\.html/, /multi_org\.html/],
+        exclude: [/node_modules/, /index\.html/, /multi_org\.html/, /global\.html/],
         use: [
           {
             loader: "raw-loader"
@@ -246,6 +260,8 @@ const config = {
     devMiddleware: {
       index: "/static/index.html",
       publicPath: staticPath,
+      // Write global_app bundle to disk so the global Flask server can serve global.html
+      writeToDisk: filePath => /global/.test(filePath),
       stats: {
         modules: false,
         chunkModules: false
@@ -256,6 +272,12 @@ const config = {
       rewrites: [{ from: /./, to: "/static/index.html" }]
     },
     proxy: [
+      {
+        context: ["/global-api"],
+        target: redashGlobalBackend + "/",
+        changeOrigin: false,
+        secure: false
+      },
       {
         context: [
           "/login",
