@@ -1,4 +1,4 @@
-"""Models for Redash Global dashboard management system."""
+"""Models for the Redash composed-dashboard management system."""
 
 from flask_login import UserMixin
 from passlib.apps import custom_app_context as pwd_context
@@ -11,10 +11,10 @@ from redash.models.mixins import TimestampMixin
 
 @generic_repr("id", "username", "email")
 class GlobalAdminUser(UserMixin, TimestampMixin, db.Model):
-    """Admin user for global dashboard management system.
+    """Admin user for the composed-dashboard management system.
 
     Separate from regular Redash users to maintain isolation between
-    global admin operations and cross-organizations-specific user management.
+    admin operations and cross-organisations-specific user management.
     """
 
     id = primary_key("GlobalAdminUser")
@@ -60,12 +60,12 @@ class GlobalAdminUser(UserMixin, TimestampMixin, db.Model):
 
 
 @generic_repr("id", "name")
-class GlobalDashboard(TimestampMixin, db.Model):
+class ComposedDashboard(TimestampMixin, db.Model):
     """A composed dashboard managed globally, made up of Redash Dashboard entries."""
 
-    __tablename__ = "global_dashboards"
+    __tablename__ = "composed_dashboards"
 
-    id = primary_key("GlobalDashboard")
+    id = primary_key("ComposedDashboard")
     name = Column(db.String(255), nullable=False)
     description = Column(db.Text, nullable=True)
     admin_user_id = Column(
@@ -86,30 +86,32 @@ class GlobalDashboard(TimestampMixin, db.Model):
         }
 
 
-@generic_repr("id", "global_dashboard_id", "dashboard_id")
-class GlobalDashboardEntry(db.Model):
-    """Through table linking a GlobalDashboard to a Redash Dashboard, with ordering."""
+@generic_repr("id", "composed_dashboard_id", "dashboard_id")
+class ComposedDashboardEntry(db.Model):
+    """Through table linking a ComposedDashboard to a Redash Dashboard, with ordering."""
 
-    __tablename__ = "global_dashboard_entries"
-    __table_args__ = (db.UniqueConstraint("global_dashboard_id", "dashboard_id", name="uq_global_dashboard_entry"),)
+    __tablename__ = "composed_dashboard_entries"
+    __table_args__ = (
+        db.UniqueConstraint("composed_dashboard_id", "dashboard_id", name="uq_composed_dashboard_entry"),
+    )
 
-    id = primary_key("GlobalDashboardEntry")
-    global_dashboard_id = Column(
+    id = primary_key("ComposedDashboardEntry")
+    composed_dashboard_id = Column(
         db.Integer,
-        db.ForeignKey("global_dashboards.id", ondelete="CASCADE"),
+        db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"),
         nullable=False,
     )
     dashboard_id = Column(db.Integer, nullable=False)
     order_index = Column(db.Integer, nullable=False, default=0)
 
-    global_dashboard = db.relationship(
-        "GlobalDashboard", backref=db.backref("entries", order_by="GlobalDashboardEntry.order_index")
+    composed_dashboard = db.relationship(
+        "ComposedDashboard", backref=db.backref("entries", order_by="ComposedDashboardEntry.order_index")
     )
 
     def to_dict(self):
         return {
             "id": self.id,
-            "global_dashboard_id": self.global_dashboard_id,
+            "composed_dashboard_id": self.composed_dashboard_id,
             "dashboard_id": self.dashboard_id,
             "order_index": self.order_index,
         }

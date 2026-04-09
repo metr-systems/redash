@@ -7,19 +7,19 @@ import handleNavigationIntent from "@/components/ApplicationArea/handleNavigatio
 import ErrorMessage from "@/components/ApplicationArea/ErrorMessage";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
-import GlobalDashboardList from "./GlobalDashboardList";
+import ComposedDashboardList from "./ComposedDashboardList";
 
 registerComponent("ApplicationDesktopNavbar", GlobalDesktopNavbar);
 
 const routes = [
   {
-    id: "GlobalDashboards.List",
+    id: "ComposedDashboards.List",
     path: "/dashboards",
     title: "Dashboards",
-    render: () => <GlobalDashboardList />,
+    render: () => <ComposedDashboardList />,
   },
   {
-    id: "GlobalDashboards.View",
+    id: "ComposedDashboards.View",
     path: "/dashboards/:id",
     title: "Dashboard",
     render: () => <div className="container" style={{ paddingTop: 30 }}><p className="text-muted">Dashboard editor coming soon.</p></div>,
@@ -28,7 +28,7 @@ const routes = [
     id: "GlobalHome",
     path: "/",
     title: "Global Admin",
-    render: () => <GlobalDashboardList />,
+    render: () => <ComposedDashboardList />,
   },
 ];
 

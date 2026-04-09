@@ -13,11 +13,11 @@ import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
 import Layout from "@/components/layouts/ContentWithSidebar";
 
-import { GlobalDashboard } from "../../services/globalDashboard";
+import { ComposedDashboard } from "../../services/composedDashboard";
 
 import "@/pages/dashboards/dashboard-list.css";
 
-function CreateGlobalDashboardDialog({ visible, onClose, onCreate }) {
+function CreateComposedDashboardDialog({ visible, onClose, onCreate }) {
   const [name, setName] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -25,7 +25,7 @@ function CreateGlobalDashboardDialog({ visible, onClose, onCreate }) {
     const trimmed = trim(name);
     if (!trimmed) return;
     setSaving(true);
-    GlobalDashboard.create({ name: trimmed })
+    ComposedDashboard.create({ name: trimmed })
       .then((data) => {
         onCreate(data);
         setName("");
@@ -42,7 +42,7 @@ function CreateGlobalDashboardDialog({ visible, onClose, onCreate }) {
   return (
     <Modal
       visible={visible}
-      title="New Global Dashboard"
+      title="New Composed Dashboard"
       okText="Save"
       cancelText="Close"
       okButtonProps={{ disabled: !trim(name) || saving, loading: saving }}
@@ -65,7 +65,7 @@ function CreateGlobalDashboardDialog({ visible, onClose, onCreate }) {
 const listColumns = [
   Columns.custom.sortable(
     (text, item) => (
-      <a href={`dashboards/${item.id}`} data-test={`GlobalDashboardId${item.id}`}>
+      <a href={`dashboards/${item.id}`} data-test={`ComposedDashboardId${item.id}`}>
         {item.name}
       </a>
     ),
@@ -75,7 +75,7 @@ const listColumns = [
   Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
 ];
 
-function GlobalDashboardListComponent({ controller }) {
+function ComposedDashboardListComponent({ controller }) {
   const [showCreate, setShowCreate] = useState(false);
 
   function handleCreated() {
@@ -94,7 +94,7 @@ function GlobalDashboardListComponent({ controller }) {
             </Button>
           }
         />
-        <CreateGlobalDashboardDialog
+        <CreateComposedDashboardDialog
           visible={showCreate}
           onClose={() => setShowCreate(false)}
           onCreate={handleCreated}
@@ -112,7 +112,7 @@ function GlobalDashboardListComponent({ controller }) {
             <div data-test="DashboardLayoutContent">
               {controller.isLoaded && controller.isEmpty ? (
                 <div className="text-center p-15">
-                  <p className="text-muted">No global dashboards found.</p>
+                  <p className="text-muted">No Composed dashboards found.</p>
                 </div>
               ) : (
                 <div className="bg-white tiled table-responsive">
@@ -142,28 +142,28 @@ function GlobalDashboardListComponent({ controller }) {
   );
 }
 
-GlobalDashboardListComponent.propTypes = {
+ComposedDashboardListComponent.propTypes = {
   controller: ControllerType.isRequired,
 };
 
-const GlobalDashboardListPage = itemsList(
-  GlobalDashboardListComponent,
+const ComposedDashboardListPage = itemsList(
+  ComposedDashboardListComponent,
   () =>
     new ResourceItemsSource({
       getResource() {
-        return GlobalDashboard.query.bind(GlobalDashboard);
+        return ComposedDashboard.query.bind(ComposedDashboard);
       },
       getItemProcessor() {
-        return (item) => new GlobalDashboard(item);
+        return (item) => new ComposedDashboard(item);
       },
     }),
   () => new UrlStateStorage({ orderByField: "created_at", orderByReverse: true })
 );
 
 function handleListError(error) {
-  console.error("GlobalDashboardList error:", error);
+  console.error("ComposedDashboardList error:", error);
 }
 
-export default function GlobalDashboardList() {
-  return <GlobalDashboardListPage pageTitle="Global Dashboards" onError={handleListError} />;
+export default function ComposedDashboardList() {
+  return <ComposedDashboardListPage pageTitle="Composed Dashboards" onError={handleListError} />;
 }

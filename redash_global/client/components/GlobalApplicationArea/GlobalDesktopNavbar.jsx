@@ -20,7 +20,7 @@ function NavbarSection({ children, ...props }) {
 
 export default function GlobalDesktopNavbar() {
   const currentRoute = useCurrentRoute();
-  const isDashboardsActive = includes(["GlobalDashboards.List", "GlobalHome"], currentRoute && currentRoute.id);
+  const isDashboardsActive = includes(["ComposedDashboards.List", "GlobalHome"], currentRoute && currentRoute.id);
 
   return (
     <nav className="desktop-navbar">
@@ -36,7 +36,7 @@ export default function GlobalDesktopNavbar() {
         <Menu.Item key="dashboards" className={isDashboardsActive ? "navbar-active-item" : null}>
           <Link href="dashboards">
             <DesktopOutlinedIcon />
-            <span className="desktop-navbar-label">Dashboards</span>
+            <span className="desktop-navbar-label">Composed<br />Dashboards</span>
           </Link>
         </Menu.Item>
       </NavbarSection>

@@ -9,8 +9,8 @@ from redash_global.views.auth import (
     logout_view,
 )
 from redash_global.views.dashboards import (
-    global_dashboards_create,
-    global_dashboards_list,
+    composed_dashboards_create,
+    composed_dashboards_list,
 )
 
 # Create API blueprint
@@ -26,8 +26,8 @@ api_blueprint.add_url_rule(
 
 # Dashboard API endpoints
 api_blueprint.add_url_rule(
-    "/global-dashboards", methods=["GET"], view_func=global_dashboards_list, endpoint="global_dashboards_list"
+    "/global-dashboards", methods=["GET"], view_func=composed_dashboards_list, endpoint="composed_dashboards_list"
 )
 api_blueprint.add_url_rule(
-    "/global-dashboards", methods=["POST"], view_func=global_dashboards_create, endpoint="global_dashboards_create"
+    "/global-dashboards", methods=["POST"], view_func=composed_dashboards_create, endpoint="composed_dashboards_create"
 )
