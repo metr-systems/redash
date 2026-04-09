@@ -34,7 +34,7 @@ export default function GlobalDesktopNavbar() {
 
       <NavbarSection>
         <Menu.Item key="dashboards" className={isDashboardsActive ? "navbar-active-item" : null}>
-          <Link href="dashboards">
+          <Link href="composed-dashboards">
             <DesktopOutlinedIcon />
             <span className="desktop-navbar-label">Composed<br />Dashboards</span>
           </Link>

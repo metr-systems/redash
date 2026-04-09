@@ -65,7 +65,7 @@ function CreateComposedDashboardDialog({ visible, onClose, onCreate }) {
 const listColumns = [
   Columns.custom.sortable(
     (text, item) => (
-      <a href={`dashboards/${item.id}`} data-test={`ComposedDashboardId${item.id}`}>
+      <a href={`composed-dashboards/${item.id}`} data-test={`ComposedDashboardId${item.id}`}>
         {item.name}
       </a>
     ),

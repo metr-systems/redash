@@ -14,13 +14,13 @@ registerComponent("ApplicationDesktopNavbar", GlobalDesktopNavbar);
 const routes = [
   {
     id: "ComposedDashboards.List",
-    path: "/dashboards",
+    path: "/composed-dashboards",
     title: "Dashboards",
     render: () => <ComposedDashboardList />,
   },
   {
     id: "ComposedDashboards.View",
-    path: "/dashboards/:id",
+    path: "/composed-dashboards/:id",
     title: "Dashboard",
     render: () => <div className="container" style={{ paddingTop: 30 }}><p className="text-muted">Dashboard editor coming soon.</p></div>,
   },
