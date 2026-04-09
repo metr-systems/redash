@@ -19,6 +19,12 @@ const routes = [
     render: () => <GlobalDashboardList />,
   },
   {
+    id: "GlobalDashboards.View",
+    path: "/dashboards/:id",
+    title: "Dashboard",
+    render: () => <div className="container" style={{ paddingTop: 30 }}><p className="text-muted">Dashboard editor coming soon.</p></div>,
+  },
+  {
     id: "GlobalHome",
     path: "/",
     title: "Global Admin",
