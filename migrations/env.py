@@ -23,6 +23,11 @@ db_url_escaped = current_app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", 
 config.set_main_option("sqlalchemy.url", db_url_escaped)
 target_metadata = current_app.extensions["migrate"].db.metadata
 
+# Import redash_global models so Alembic autogenerate can detect them.
+# They share the same db instance (redash.models.base.db) so importing
+# them here registers their tables into the shared metadata.
+import redash_global.models  # noqa: F401
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

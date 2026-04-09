@@ -57,3 +57,59 @@ class GlobalAdminUser(UserMixin, TimestampMixin, db.Model):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
+
+
+@generic_repr("id", "name")
+class GlobalDashboard(TimestampMixin, db.Model):
+    """A composed dashboard managed globally, made up of Redash Dashboard entries."""
+
+    __tablename__ = "global_dashboards"
+
+    id = primary_key("GlobalDashboard")
+    name = Column(db.String(255), nullable=False)
+    description = Column(db.Text, nullable=True)
+    admin_user_id = Column(
+        db.Integer,
+        db.ForeignKey("global_admin_users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    admin_user = db.relationship("GlobalAdminUser", backref="dashboards")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "admin_user_id": self.admin_user_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+        }
+
+
+@generic_repr("id", "global_dashboard_id", "dashboard_id")
+class GlobalDashboardEntry(db.Model):
+    """Through table linking a GlobalDashboard to a Redash Dashboard, with ordering."""
+
+    __tablename__ = "global_dashboard_entries"
+    __table_args__ = (db.UniqueConstraint("global_dashboard_id", "dashboard_id", name="uq_global_dashboard_entry"),)
+
+    id = primary_key("GlobalDashboardEntry")
+    global_dashboard_id = Column(
+        db.Integer,
+        db.ForeignKey("global_dashboards.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    dashboard_id = Column(db.Integer, nullable=False)
+    order_index = Column(db.Integer, nullable=False, default=0)
+
+    global_dashboard = db.relationship(
+        "GlobalDashboard", backref=db.backref("entries", order_by="GlobalDashboardEntry.order_index")
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "global_dashboard_id": self.global_dashboard_id,
+            "dashboard_id": self.dashboard_id,
+            "order_index": self.order_index,
+        }

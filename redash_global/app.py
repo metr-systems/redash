@@ -57,7 +57,7 @@ def create_global_app():
     configure_webpack(app)
 
     # Import models to register them with SQLAlchemy metadata
-    from redash_global.models import GlobalAdminUser  # noqa: F401
+    from redash_global import models as _global_models  # noqa: F401
 
     # Setup Flask-Login
     login_manager = LoginManager()
@@ -66,7 +66,7 @@ def create_global_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return GlobalAdminUser.query.get(int(user_id))
+        return _global_models.GlobalAdminUser.query.get(int(user_id))
 
     # Import and register routes
     from redash_global.routes import api_blueprint
