@@ -71,7 +71,6 @@ const listColumns = [
     ),
     { title: "Name", field: "name", width: null }
   ),
-  Columns.custom((text, item) => item.description || "—", { title: "Description", width: "30%" }),
   Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
 ];
 
