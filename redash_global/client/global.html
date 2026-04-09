@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <base href="<%= htmlWebpackPlugin.options.baseHref %>" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="<%= htmlWebpackPlugin.options.staticPath %>images/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="96x96"
+      href="<%= htmlWebpackPlugin.options.staticPath %>images/favicon-96x96.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="<%= htmlWebpackPlugin.options.staticPath %>images/favicon-16x16.png"
+    />
+  </head>
+
+  <body>
+    <section>
+      <div id="application-root"></div>
+    </section>
+  </body>
+</html>
