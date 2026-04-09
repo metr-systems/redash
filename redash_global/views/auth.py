@@ -1,5 +1,5 @@
 from flask import flash, redirect, render_template, request, send_file, url_for
-from flask_login import current_user, login_user, logout_user
+from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.utils import safe_join
 
 from redash import settings
@@ -30,15 +30,13 @@ def logout_view():
     return redirect(url_for("api.login_page"))
 
 
+@login_required
 def admin_ui_view():
-    if not current_user.is_authenticated:
-        return redirect(url_for("api.login_page"))
     full_path = safe_join(settings.STATIC_ASSETS_PATH, "global.html")
     return send_file(full_path, max_age=0, conditional=True)
 
 
+@login_required
 def admin_ui_catchall(path=""):
-    if not current_user.is_authenticated:
-        return redirect(url_for("api.login_page"))
     full_path = safe_join(settings.STATIC_ASSETS_PATH, "global.html")
     return send_file(full_path, max_age=0, conditional=True)
