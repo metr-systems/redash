@@ -35,3 +35,10 @@ def admin_ui_view():
         return redirect(url_for("api.login_page"))
     full_path = safe_join(settings.STATIC_ASSETS_PATH, "global.html")
     return send_file(full_path, max_age=0, conditional=True)
+
+
+def admin_ui_catchall(path=""):
+    if not current_user.is_authenticated:
+        return redirect(url_for("api.login_page"))
+    full_path = safe_join(settings.STATIC_ASSETS_PATH, "global.html")
+    return send_file(full_path, max_age=0, conditional=True)

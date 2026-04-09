@@ -21,7 +21,7 @@ export default function GlobalDesktopNavbar() {
     <nav className="desktop-navbar">
       <NavbarSection className="desktop-navbar-logo">
         <div role="menuitem">
-          <Link href="/">
+          <Link href=".">
             <img src={logoUrl} alt="Redash" />
           </Link>
         </div>
@@ -29,7 +29,7 @@ export default function GlobalDesktopNavbar() {
 
       <NavbarSection>
         <Menu.Item key="dashboards">
-          <Link href="/dashboards">
+          <Link href="dashboards">
             <DesktopOutlinedIcon />
             <span className="desktop-navbar-label">Dashboards</span>
           </Link>
@@ -40,7 +40,7 @@ export default function GlobalDesktopNavbar() {
 
       <NavbarSection>
         <Menu.Item key="logout">
-          <a href="/global-api/admin/logout">
+          <a href="/global-api/admin/logout" data-skip-router>
             <PoweroffOutlinedIcon />
             <span className="desktop-navbar-label">Logout</span>
           </a>
