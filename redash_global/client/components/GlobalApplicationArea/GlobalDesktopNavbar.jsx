@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { includes } from "lodash";
 import Menu from "antd/lib/menu";
 
@@ -8,6 +8,7 @@ import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
 import AppstoreOutlinedIcon from "@ant-design/icons/AppstoreOutlined";
 import PoweroffOutlinedIcon from "@ant-design/icons/PoweroffOutlined";
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
+import { axios } from "@/services/axios";
 
 import "@/components/ApplicationArea/ApplicationLayout/DesktopNavbar.less";
 
@@ -22,7 +23,11 @@ function NavbarSection({ children, ...props }) {
 export default function GlobalDesktopNavbar() {
   const currentRoute = useCurrentRoute();
   const isComposedActive = includes(["ComposedDashboards.List", "GlobalHome"], currentRoute && currentRoute.id);
-  const isDashboardsActive = includes(["SubDashboards.List", "SubDashboards.Edit"], currentRoute && currentRoute.id);
+  const [redashUrl, setRedashUrl] = useState("");
+
+  useEffect(() => {
+    axios.get("/global-api/config").then((data) => setRedashUrl(data.redash_url || ""));
+  }, []);
 
   return (
     <nav className="desktop-navbar">
@@ -41,12 +46,14 @@ export default function GlobalDesktopNavbar() {
             <span className="desktop-navbar-label">Composed<br />Dashboards</span>
           </Link>
         </Menu.Item>
-        <Menu.Item key="dashboards" className={isDashboardsActive ? "navbar-active-item" : null}>
-          <Link href="dashboards">
-            <AppstoreOutlinedIcon />
-            <span className="desktop-navbar-label">Dashboards</span>
-          </Link>
-        </Menu.Item>
+        {redashUrl && (
+          <Menu.Item key="dashboards">
+            <a href={`${redashUrl}/dashboards`} target="_blank" rel="noopener noreferrer" data-skip-router>
+              <AppstoreOutlinedIcon />
+              <span className="desktop-navbar-label">Dashboards</span>
+            </a>
+          </Menu.Item>
+        )}
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-spacer" />

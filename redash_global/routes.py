@@ -11,10 +11,7 @@ from redash_global.views.auth import (
 from redash_global.views.dashboards import (
     composed_dashboards_create,
     composed_dashboards_list,
-    sub_dashboard_get,
-    sub_dashboard_update,
-    sub_dashboards_create,
-    sub_dashboards_list,
+    config_view,
 )
 
 # Create API blueprint
@@ -35,17 +32,4 @@ api_blueprint.add_url_rule(
 api_blueprint.add_url_rule(
     "/global-dashboards", methods=["POST"], view_func=composed_dashboards_create, endpoint="composed_dashboards_create"
 )
-
-# SubDashboard (template dashboards, org-independent)
-api_blueprint.add_url_rule(
-    "/dashboards", methods=["GET"], view_func=sub_dashboards_list, endpoint="sub_dashboards_list"
-)
-api_blueprint.add_url_rule(
-    "/dashboards", methods=["POST"], view_func=sub_dashboards_create, endpoint="sub_dashboards_create"
-)
-api_blueprint.add_url_rule(
-    "/dashboards/<int:dashboard_id>", methods=["GET"], view_func=sub_dashboard_get, endpoint="sub_dashboard_get"
-)
-api_blueprint.add_url_rule(
-    "/dashboards/<int:dashboard_id>", methods=["POST"], view_func=sub_dashboard_update, endpoint="sub_dashboard_update"
-)
+api_blueprint.add_url_rule("/config", methods=["GET"], view_func=config_view, endpoint="config")
