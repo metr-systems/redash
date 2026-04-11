@@ -1,14 +1,14 @@
 import { axios } from "@/services/axios";
 
-export function GlobalDashboard(dashboard) {
+export function SubDashboard(dashboard) {
   Object.assign(this, dashboard);
 }
 
-const GlobalDashboardService = {
+const SubDashboardService = {
   query: (params) => axios.get("/global-api/dashboards", { params }),
   create: (data) => axios.post("/global-api/dashboards", data),
   get: (id) => axios.get(`/global-api/dashboards/${id}`),
   save: (id, data) => axios.post(`/global-api/dashboards/${id}`, data),
 };
 
-Object.assign(GlobalDashboard, GlobalDashboardService);
+Object.assign(SubDashboard, SubDashboardService);

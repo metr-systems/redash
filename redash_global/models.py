@@ -5,6 +5,7 @@ from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy_utils import EmailType
 from sqlalchemy_utils.models import generic_repr
 
+from redash import utils
 from redash.models.base import Column, db, primary_key
 from redash.models.mixins import TimestampMixin
 
@@ -101,12 +102,13 @@ class ComposedDashboardEntry(db.Model):
         db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"),
         nullable=False,
     )
-    dashboard_id = Column(db.Integer, nullable=False)
+    dashboard_id = Column(db.Integer, db.ForeignKey("sub_dashboards.id", ondelete="CASCADE"), nullable=False)
     order_index = Column(db.Integer, nullable=False, default=0)
 
     composed_dashboard = db.relationship(
         "ComposedDashboard", backref=db.backref("entries", order_by="ComposedDashboardEntry.order_index")
     )
+    dashboard = db.relationship("SubDashboard", backref="composed_entries")
 
     def to_dict(self):
         return {
@@ -114,4 +116,44 @@ class ComposedDashboardEntry(db.Model):
             "composed_dashboard_id": self.composed_dashboard_id,
             "dashboard_id": self.dashboard_id,
             "order_index": self.order_index,
+        }
+
+
+def _generate_sub_slug(ctx):
+    slug = utils.slugify(ctx.current_parameters["name"])
+    tries = 1
+    while SubDashboard.query.filter(SubDashboard.slug == slug).first() is not None:
+        slug = utils.slugify(ctx.current_parameters["name"]) + "_" + str(tries)
+        tries += 1
+    return slug
+
+
+@generic_repr("id", "name", "slug")
+class SubDashboard(TimestampMixin, db.Model):
+    """An org-independent template dashboard used to compose customer deployments."""
+
+    __tablename__ = "sub_dashboards"
+
+    id = primary_key("SubDashboard")
+    name = Column(db.String(255), nullable=False)
+    description = Column(db.Text, nullable=True)
+    slug = Column(db.String(140), index=True, unique=True, default=_generate_sub_slug)
+    is_archived = Column(db.Boolean, default=False, index=True)
+    admin_user_id = Column(
+        db.Integer,
+        db.ForeignKey("global_admin_users.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    admin_user = db.relationship("GlobalAdminUser", backref="sub_dashboards")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "slug": self.slug,
+            "description": self.description,
+            "is_archived": self.is_archived,
+            "admin_user_id": self.admin_user_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }

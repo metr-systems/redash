@@ -8,6 +8,8 @@ import ErrorMessage from "@/components/ApplicationArea/ErrorMessage";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
 import ComposedDashboardList from "./ComposedDashboardList";
+import SubDashboardList from "./SubDashboardList";
+import SubDashboardEdit from "./SubDashboardEdit";
 
 registerComponent("ApplicationDesktopNavbar", GlobalDesktopNavbar);
 
@@ -15,14 +17,26 @@ const routes = [
   {
     id: "ComposedDashboards.List",
     path: "/composed-dashboards",
-    title: "Dashboards",
+    title: "Composed Dashboards",
     render: () => <ComposedDashboardList />,
   },
   {
     id: "ComposedDashboards.View",
     path: "/composed-dashboards/:id",
-    title: "Dashboard",
+    title: "Composed Dashboard",
     render: () => <div className="container" style={{ paddingTop: 30 }}><p className="text-muted">Dashboard editor coming soon.</p></div>,
+  },
+  {
+    id: "SubDashboards.List",
+    path: "/dashboards",
+    title: "Dashboards",
+    render: () => <SubDashboardList />,
+  },
+  {
+    id: "SubDashboards.Edit",
+    path: "/dashboards/:id",
+    title: "Edit Dashboard",
+    render: (currentRoute) => <SubDashboardEdit dashboardId={currentRoute.routeParams.id} />,
   },
   {
     id: "GlobalHome",
