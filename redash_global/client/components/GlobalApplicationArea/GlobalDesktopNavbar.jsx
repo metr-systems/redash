@@ -5,6 +5,7 @@ import Menu from "antd/lib/menu";
 import Link from "@/components/Link";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
+import AppstoreOutlinedIcon from "@ant-design/icons/AppstoreOutlined";
 import PoweroffOutlinedIcon from "@ant-design/icons/PoweroffOutlined";
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
 
@@ -21,6 +22,7 @@ function NavbarSection({ children, ...props }) {
 export default function GlobalDesktopNavbar() {
   const currentRoute = useCurrentRoute();
   const isComposedActive = includes(["ComposedDashboards.List", "GlobalHome"], currentRoute && currentRoute.id);
+  const isDashboardsActive = includes(["Dashboards.List"], currentRoute && currentRoute.id);
 
   return (
     <nav className="desktop-navbar">
@@ -37,6 +39,12 @@ export default function GlobalDesktopNavbar() {
           <Link href="composed-dashboards">
             <DesktopOutlinedIcon />
             <span className="desktop-navbar-label">Composed<br />Dashboards</span>
+          </Link>
+        </Menu.Item>
+        <Menu.Item key="dashboards" className={isDashboardsActive ? "navbar-active-item" : null}>
+          <Link href="dashboards">
+            <AppstoreOutlinedIcon />
+            <span className="desktop-navbar-label">Dashboards</span>
           </Link>
         </Menu.Item>
       </NavbarSection>

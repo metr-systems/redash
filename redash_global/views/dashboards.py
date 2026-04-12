@@ -34,6 +34,57 @@ def composed_dashboards_create():
 
 
 @login_required
+def template_dashboards_list():
+    """List dashboards from the _template organization, paginated, with optional search."""
+    from redash import models
+
+    TEMPLATE_ORG_SLUG = "_template"
+    org = models.Organization.get_by_slug(TEMPLATE_ORG_SLUG)
+    if not org:
+        return jsonify({"count": 0, "page": 1, "page_size": 25, "results": []}), 200
+
+    page = int(request.args.get("page", 1))
+    page_size = int(request.args.get("page_size", 25))
+    search_term = request.args.get("q", "").strip()
+
+    redash_url = os.environ.get("REDASH_URL", "").rstrip("/")
+
+    query = models.Dashboard.query.filter(
+        models.Dashboard.org == org,
+        models.Dashboard.is_archived.is_(False),
+        models.Dashboard.is_draft.is_(False),
+    )
+
+    if search_term:
+        query = query.filter(models.Dashboard.name.ilike(f"%{search_term}%"))
+
+    order = request.args.get("order", "-created_at")
+    if order.startswith("-"):
+        field = order[1:]
+        query = query.order_by(getattr(models.Dashboard, field, models.Dashboard.created_at).desc())
+    else:
+        query = query.order_by(getattr(models.Dashboard, order, models.Dashboard.created_at).asc())
+
+    total_count = query.count()
+    dashboards = query.offset((page - 1) * page_size).limit(page_size).all()
+
+    results = []
+    for d in dashboards:
+        d_dict = d.to_dict()
+        d_dict["url"] = f"{redash_url}/_template/dashboard/{d.slug}"
+        results.append(d_dict)
+
+    return jsonify(
+        {
+            "count": total_count,
+            "page": page,
+            "page_size": page_size,
+            "results": results,
+        }
+    )
+
+
+@login_required
 def composed_dashboards_list():
     """List all composed dashboards, paginated, with optional search."""
     page = int(request.args.get("page", 1))

@@ -5,10 +5,7 @@ export function GlobalDashboard(dashboard) {
 }
 
 const GlobalDashboardService = {
-  query: (params) => axios.get("/global-api/dashboards", { params }),
-  create: (data) => axios.post("/global-api/dashboards", data),
-  get: (id) => axios.get(`/global-api/dashboards/${id}`),
-  save: (id, data) => axios.post(`/global-api/dashboards/${id}`, data),
+  query: (params) => axios.get("/global-api/template-dashboards", { params }),
 };
 
 Object.assign(GlobalDashboard, GlobalDashboardService);

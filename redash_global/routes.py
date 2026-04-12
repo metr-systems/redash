@@ -12,6 +12,7 @@ from redash_global.views.dashboards import (
     composed_dashboards_create,
     composed_dashboards_list,
     config_view,
+    template_dashboards_list,
 )
 
 # Create API blueprint
@@ -33,3 +34,6 @@ api_blueprint.add_url_rule(
     "/global-dashboards", methods=["POST"], view_func=composed_dashboards_create, endpoint="composed_dashboards_create"
 )
 api_blueprint.add_url_rule("/config", methods=["GET"], view_func=config_view, endpoint="config")
+api_blueprint.add_url_rule(
+    "/template-dashboards", methods=["GET"], view_func=template_dashboards_list, endpoint="template_dashboards_list"
+)
