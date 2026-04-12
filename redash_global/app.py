@@ -49,6 +49,8 @@ def create_global_app():
     app.config["SQLALCHEMY_DATABASE_URI"] = settings.SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SECRET_KEY"] = settings.SECRET_KEY
+    # Use a distinct cookie name to avoid session conflicts with the main Redash app
+    app.config["SESSION_COOKIE_NAME"] = "global_admin_session"
 
     # Initialize database with the app
     db.init_app(app)
@@ -66,7 +68,10 @@ def create_global_app():
 
     @login_manager.user_loader
     def load_user(user_id):
-        return _global_models.GlobalAdminUser.query.get(int(user_id))
+        try:
+            return _global_models.GlobalAdminUser.query.get(int(user_id))
+        except (ValueError, TypeError):
+            return None
 
     # Import and register routes
     from redash_global.routes import api_blueprint

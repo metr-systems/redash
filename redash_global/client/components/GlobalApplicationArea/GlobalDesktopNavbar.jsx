@@ -1,14 +1,12 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { includes } from "lodash";
 import Menu from "antd/lib/menu";
 
 import Link from "@/components/Link";
 import logoUrl from "@/assets/images/redash_icon_small.png";
 import DesktopOutlinedIcon from "@ant-design/icons/DesktopOutlined";
-import AppstoreOutlinedIcon from "@ant-design/icons/AppstoreOutlined";
 import PoweroffOutlinedIcon from "@ant-design/icons/PoweroffOutlined";
 import { useCurrentRoute } from "@/components/ApplicationArea/Router";
-import { axios } from "@/services/axios";
 
 import "@/components/ApplicationArea/ApplicationLayout/DesktopNavbar.less";
 
@@ -23,17 +21,6 @@ function NavbarSection({ children, ...props }) {
 export default function GlobalDesktopNavbar() {
   const currentRoute = useCurrentRoute();
   const isComposedActive = includes(["ComposedDashboards.List", "GlobalHome"], currentRoute && currentRoute.id);
-  const [dashboardsHref, setDashboardsHref] = useState("/dashboards");
-
-  useEffect(() => {
-    axios
-      .get("/global-api/config")
-      .then((data) => {
-        const base = (data.redash_url || "").replace(/\/$/, "");
-        setDashboardsHref(base ? `${base}/dashboards` : "/dashboards");
-      })
-      .catch(() => {}); // keep the fallback href on error
-  }, []);
 
   return (
     <nav className="desktop-navbar">
@@ -52,12 +39,6 @@ export default function GlobalDesktopNavbar() {
             <span className="desktop-navbar-label">Composed<br />Dashboards</span>
           </Link>
         </Menu.Item>
-        <Menu.Item key="dashboards">
-            <a href={dashboardsHref} target="_blank" rel="noopener noreferrer" data-skip-router>
-              <AppstoreOutlinedIcon />
-              <span className="desktop-navbar-label">Dashboards</span>
-            </a>
-          </Menu.Item>
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-spacer" />

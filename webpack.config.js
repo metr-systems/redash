@@ -100,7 +100,7 @@ const config = {
     new HtmlWebpackPlugin({
       template: "./client/app/index.html",
       filename: "index.html",
-      excludeChunks: ["server"],
+      excludeChunks: ["server", "global_app"],
       release: process.env.BUILD_VERSION || "dev",
       staticPath,
       baseHref,
@@ -117,7 +117,7 @@ const config = {
     new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",
       filename: "multi_org.html",
-      excludeChunks: ["server"]
+      chunks: ["app"]
     }),
     isProduction &&
       new MiniCssExtractPlugin({
@@ -292,6 +292,13 @@ const config = {
         target: redashBackend + "/",
         changeOrigin: false,
         secure: false
+      },
+      {
+        context: path => /^\/_template(\/|$)/.test(path),
+        target: redashBackend + "/",
+        changeOrigin: false,
+        secure: false,
+        followRedirects: false
       },
       {
         context: path => {
