@@ -6,7 +6,7 @@ from flask import jsonify, request
 from flask_login import current_user, login_required
 
 from redash.models.base import db
-from redash_global.models import ComposedDashboard
+from redash_global.models import ComposedDashboard, ComposedDashboardEntry
 
 
 @login_required
@@ -114,3 +114,136 @@ def composed_dashboards_list():
             "results": [d.to_dict() for d in dashboards],
         }
     )
+
+
+@login_required
+def composed_dashboard_get(dashboard_id):
+    """Get a single composed dashboard."""
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+    return jsonify(dashboard.to_dict())
+
+
+@login_required
+def composed_dashboard_entries_list(dashboard_id):
+    """List entries for a composed dashboard, ordered, with sub-dashboard details."""
+    from redash import models
+
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    redash_url = os.environ.get("REDASH_URL", "").rstrip("/")
+
+    results = []
+    for entry in dashboard.entries:
+        sub = models.Dashboard.query.get(entry.dashboard_id)
+        if sub is None:
+            continue
+        results.append(
+            {
+                "entry_id": entry.id,
+                "order_index": entry.order_index,
+                "dashboard_id": entry.dashboard_id,
+                "name": sub.name,
+                "slug": sub.slug,
+                "url": f"{redash_url}/_template/dashboard/{sub.slug}",
+            }
+        )
+
+    return jsonify(results)
+
+
+@login_required
+def composed_dashboard_entries_reorder(dashboard_id):
+    """Reorder entries for a composed dashboard.
+
+    Expects JSON body: {"entry_ids": [<id>, <id>, ...]}
+    The position in the list determines the new order_index (0-based).
+    """
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    data = request.get_json(force=True) or {}
+    entry_ids = data.get("entry_ids")
+    if not isinstance(entry_ids, list):
+        return jsonify({"error": "entry_ids must be a list"}), 400
+
+    entries_by_id = {e.id: e for e in dashboard.entries}
+    for new_index, entry_id in enumerate(entry_ids):
+        entry = entries_by_id.get(entry_id)
+        if entry is None:
+            return jsonify({"error": f"Entry {entry_id} not found in this dashboard"}), 400
+        entry.order_index = new_index
+
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+@login_required
+def composed_dashboard_entries_add(dashboard_id):
+    """Add a sub-dashboard entry to a composed dashboard.
+
+    Expects JSON body: {"dashboard_id": <int>}
+    The new entry is appended at the end (highest order_index + 1).
+    """
+    from redash import models
+
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    data = request.get_json(force=True) or {}
+    sub_id = data.get("dashboard_id")
+    if not sub_id:
+        return jsonify({"error": "dashboard_id is required"}), 400
+
+    sub = models.Dashboard.query.get(sub_id)
+    if sub is None:
+        return jsonify({"error": "Dashboard not found"}), 404
+
+    existing_ids = {e.dashboard_id for e in dashboard.entries}
+    if sub_id in existing_ids:
+        return jsonify({"error": "Already added"}), 409
+
+    next_index = max((e.order_index for e in dashboard.entries), default=-1) + 1
+    entry = ComposedDashboardEntry(
+        composed_dashboard_id=dashboard_id,
+        dashboard_id=sub_id,
+        order_index=next_index,
+    )
+    db.session.add(entry)
+    db.session.commit()
+
+    redash_url = os.environ.get("REDASH_URL", "").rstrip("/")
+    return (
+        jsonify(
+            {
+                "entry_id": entry.id,
+                "order_index": entry.order_index,
+                "dashboard_id": entry.dashboard_id,
+                "name": sub.name,
+                "slug": sub.slug,
+                "url": f"{redash_url}/_template/dashboard/{sub.slug}",
+            }
+        ),
+        201,
+    )
+
+
+@login_required
+def composed_dashboard_entry_delete(dashboard_id, entry_id):
+    """Remove a single entry from a composed dashboard."""
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    entry = ComposedDashboardEntry.query.filter_by(id=entry_id, composed_dashboard_id=dashboard_id).first()
+    if entry is None:
+        return jsonify({"error": "Entry not found"}), 404
+
+    db.session.delete(entry)
+    db.session.commit()
+    return jsonify({"ok": True})

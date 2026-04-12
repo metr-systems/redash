@@ -8,6 +8,7 @@ import ErrorMessage from "@/components/ApplicationArea/ErrorMessage";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
 import ComposedDashboardList from "./ComposedDashboardList";
+import ComposedDashboardEdit from "./ComposedDashboardEdit";
 import TemplateDashboardList from "./TemplateDashboardList";
 
 registerComponent("ApplicationDesktopNavbar", GlobalDesktopNavbar);
@@ -23,7 +24,7 @@ const routes = [
     id: "ComposedDashboards.View",
     path: "/composed-dashboards/:id",
     title: "Composed Dashboard",
-    render: () => <div className="container" style={{ paddingTop: 30 }}><p className="text-muted">Dashboard editor coming soon.</p></div>,
+    render: (currentRoute) => <ComposedDashboardEdit dashboardId={parseInt(currentRoute.routeParams.id, 10)} />,
   },
   {
     id: "Dashboards.List",
