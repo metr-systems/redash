@@ -23,10 +23,16 @@ function NavbarSection({ children, ...props }) {
 export default function GlobalDesktopNavbar() {
   const currentRoute = useCurrentRoute();
   const isComposedActive = includes(["ComposedDashboards.List", "GlobalHome"], currentRoute && currentRoute.id);
-  const [redashUrl, setRedashUrl] = useState("");
+  const [dashboardsHref, setDashboardsHref] = useState("/dashboards");
 
   useEffect(() => {
-    axios.get("/global-api/config").then((data) => setRedashUrl(data.redash_url || ""));
+    axios
+      .get("/global-api/config")
+      .then((data) => {
+        const base = (data.redash_url || "").replace(/\/$/, "");
+        setDashboardsHref(base ? `${base}/dashboards` : "/dashboards");
+      })
+      .catch(() => {}); // keep the fallback href on error
   }, []);
 
   return (
@@ -46,14 +52,12 @@ export default function GlobalDesktopNavbar() {
             <span className="desktop-navbar-label">Composed<br />Dashboards</span>
           </Link>
         </Menu.Item>
-        {redashUrl && (
-          <Menu.Item key="dashboards">
-            <a href={`${redashUrl}/dashboards`} target="_blank" rel="noopener noreferrer" data-skip-router>
+        <Menu.Item key="dashboards">
+            <a href={dashboardsHref} target="_blank" rel="noopener noreferrer" data-skip-router>
               <AppstoreOutlinedIcon />
               <span className="desktop-navbar-label">Dashboards</span>
             </a>
           </Menu.Item>
-        )}
       </NavbarSection>
 
       <NavbarSection className="desktop-navbar-spacer" />
