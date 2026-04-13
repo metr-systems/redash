@@ -12,6 +12,15 @@ const ComposedDashboardService = {
   addEntry: (id, dashboardId) => axios.post(`/global-api/global-dashboards/${id}/entries`, { dashboard_id: dashboardId }),
   removeEntry: (id, entryId) => axios.delete(`/global-api/global-dashboards/${id}/entries/${entryId}`),
   reorderEntries: (id, entryIds) => axios.post(`/global-api/global-dashboards/${id}/entries/reorder`, { entry_ids: entryIds }),
+  getAssignments: (id) => axios.get(`/global-api/global-dashboards/${id}/assignments`),
+  addAssignment: (id, organizationId) =>
+    axios.post(`/global-api/global-dashboards/${id}/assignments`, { organization_id: organizationId }),
+  removeAssignment: (id, assignmentId) =>
+    axios.delete(`/global-api/global-dashboards/${id}/assignments/${assignmentId}`),
 };
 
 Object.assign(ComposedDashboard, ComposedDashboardService);
+
+export const OrganizationService = {
+  list: () => axios.get("/global-api/organizations"),
+};

@@ -115,3 +115,33 @@ class ComposedDashboardEntry(db.Model):
             "dashboard_id": self.dashboard_id,
             "order_index": self.order_index,
         }
+
+
+@generic_repr("id", "composed_dashboard_id", "organization_id")
+class ComposedDashboardAssignment(TimestampMixin, db.Model):
+    """Assignment of a ComposedDashboard to a client organization."""
+
+    __tablename__ = "composed_dashboard_assignments"
+    __table_args__ = (
+        db.UniqueConstraint("composed_dashboard_id", "organization_id", name="uq_composed_dashboard_assignment"),
+    )
+
+    id = primary_key("ComposedDashboardAssignment")
+    composed_dashboard_id = Column(
+        db.Integer,
+        db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+
+    composed_dashboard = db.relationship(
+        "ComposedDashboard", backref=db.backref("assignments", cascade="all, delete-orphan")
+    )
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "composed_dashboard_id": self.composed_dashboard_id,
+            "organization_id": self.organization_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }

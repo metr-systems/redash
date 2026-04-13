@@ -6,7 +6,11 @@ from flask import jsonify, request
 from flask_login import current_user, login_required
 
 from redash.models.base import db
-from redash_global.models import ComposedDashboard, ComposedDashboardEntry
+from redash_global.models import (
+    ComposedDashboard,
+    ComposedDashboardAssignment,
+    ComposedDashboardEntry,
+)
 
 
 @login_required
@@ -245,5 +249,112 @@ def composed_dashboard_entry_delete(dashboard_id, entry_id):
         return jsonify({"error": "Entry not found"}), 404
 
     db.session.delete(entry)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+# ─── Assignment endpoints ─────────────────────────────────────────────────────
+
+
+@login_required
+def organizations_list():
+    """List all organizations available for assignment."""
+    from redash import models
+
+    orgs = models.Organization.query.order_by(models.Organization.name).all()
+    return jsonify([{"id": o.id, "name": o.name, "slug": o.slug} for o in orgs])
+
+
+@login_required
+def composed_dashboard_assignments_list(dashboard_id):
+    """List organizations this composed dashboard is assigned to."""
+    from redash import models
+
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    results = []
+    for assignment in dashboard.assignments:
+        org = models.Organization.query.get(assignment.organization_id)
+        if org is None:
+            continue
+        results.append(
+            {
+                "assignment_id": assignment.id,
+                "organization_id": org.id,
+                "organization_name": org.name,
+                "organization_slug": org.slug,
+            }
+        )
+
+    return jsonify(results)
+
+
+@login_required
+def composed_dashboard_assignments_add(dashboard_id):
+    """Assign a composed dashboard to an organization.
+
+    Expects JSON body: {"organization_id": <int>}
+    The actual deployment logic (copying layouts into the client org) is a stub.
+    """
+    from redash import models
+
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    data = request.get_json(force=True) or {}
+    org_id = data.get("organization_id")
+    if not org_id:
+        return jsonify({"error": "organization_id is required"}), 400
+
+    org = models.Organization.query.get(org_id)
+    if org is None:
+        return jsonify({"error": "Organization not found"}), 404
+
+    existing = ComposedDashboardAssignment.query.filter_by(
+        composed_dashboard_id=dashboard_id, organization_id=org_id
+    ).first()
+    if existing:
+        return jsonify({"error": "Already assigned"}), 409
+
+    assignment = ComposedDashboardAssignment(
+        composed_dashboard_id=dashboard_id,
+        organization_id=org_id,
+    )
+    db.session.add(assignment)
+    db.session.commit()
+
+    # TODO: deployment logic — copy layouts from sub-dashboards into client org
+    print(f"[STUB] Deploying composed dashboard {dashboard_id} ({dashboard.name}) to org {org_id} ({org.slug})")
+
+    return (
+        jsonify(
+            {
+                "assignment_id": assignment.id,
+                "organization_id": org.id,
+                "organization_name": org.name,
+                "organization_slug": org.slug,
+            }
+        ),
+        201,
+    )
+
+
+@login_required
+def composed_dashboard_assignment_delete(dashboard_id, assignment_id):
+    """Remove the assignment of a composed dashboard from an organization."""
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    assignment = ComposedDashboardAssignment.query.filter_by(
+        id=assignment_id, composed_dashboard_id=dashboard_id
+    ).first()
+    if assignment is None:
+        return jsonify({"error": "Assignment not found"}), 404
+
+    db.session.delete(assignment)
     db.session.commit()
     return jsonify({"ok": True})

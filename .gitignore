@@ -30,3 +30,5 @@ client/cypress/screenshots
 client/cypress/videos
 
 redash/translations/de/LC_MESSAGES/messages.mo
+
+.python-version
