@@ -21,6 +21,10 @@ from redash_global.views.dashboards import (
     composed_dashboards_list,
     config_view,
     organizations_list,
+    sub_dashboard_assignment_delete,
+    sub_dashboard_assignments_add,
+    sub_dashboard_assignments_list,
+    template_dashboard_get,
     template_dashboards_list,
 )
 
@@ -77,6 +81,12 @@ api_blueprint.add_url_rule(
     "/template-dashboards", methods=["GET"], view_func=template_dashboards_list, endpoint="template_dashboards_list"
 )
 api_blueprint.add_url_rule(
+    "/template-dashboards/<int:dashboard_id>",
+    methods=["GET"],
+    view_func=template_dashboard_get,
+    endpoint="template_dashboard_get",
+)
+api_blueprint.add_url_rule(
     "/organizations", methods=["GET"], view_func=organizations_list, endpoint="organizations_list"
 )
 api_blueprint.add_url_rule(
@@ -96,4 +106,22 @@ api_blueprint.add_url_rule(
     methods=["DELETE"],
     view_func=composed_dashboard_assignment_delete,
     endpoint="composed_dashboard_assignment_delete",
+)
+api_blueprint.add_url_rule(
+    "/sub-dashboards/<int:dashboard_id>/assignments",
+    methods=["GET"],
+    view_func=sub_dashboard_assignments_list,
+    endpoint="sub_dashboard_assignments_list",
+)
+api_blueprint.add_url_rule(
+    "/sub-dashboards/<int:dashboard_id>/assignments",
+    methods=["POST"],
+    view_func=sub_dashboard_assignments_add,
+    endpoint="sub_dashboard_assignments_add",
+)
+api_blueprint.add_url_rule(
+    "/sub-dashboards/<int:dashboard_id>/assignments/<int:assignment_id>",
+    methods=["DELETE"],
+    view_func=sub_dashboard_assignment_delete,
+    endpoint="sub_dashboard_assignment_delete",
 )

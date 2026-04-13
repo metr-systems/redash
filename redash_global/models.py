@@ -145,3 +145,23 @@ class ComposedDashboardAssignment(TimestampMixin, db.Model):
             "organization_id": self.organization_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
+
+
+@generic_repr("id", "dashboard_id", "organization_id")
+class SubDashboardAssignment(TimestampMixin, db.Model):
+    """Assignment of a sub-dashboard (template dashboard) to a client organization."""
+
+    __tablename__ = "sub_dashboard_assignments"
+    __table_args__ = (db.UniqueConstraint("dashboard_id", "organization_id", name="uq_sub_dashboard_assignment"),)
+
+    id = primary_key("SubDashboardAssignment")
+    dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id", ondelete="CASCADE"), nullable=False)
+    organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "dashboard_id": self.dashboard_id,
+            "organization_id": self.organization_id,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }

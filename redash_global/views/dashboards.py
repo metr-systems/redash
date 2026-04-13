@@ -10,6 +10,7 @@ from redash_global.models import (
     ComposedDashboard,
     ComposedDashboardAssignment,
     ComposedDashboardEntry,
+    SubDashboardAssignment,
 )
 
 
@@ -35,6 +36,21 @@ def composed_dashboards_create():
     db.session.add(dashboard)
     db.session.commit()
     return jsonify(dashboard.to_dict()), 201
+
+
+@login_required
+def template_dashboard_get(dashboard_id):
+    """Get a single dashboard from the _template organization by id."""
+    from redash import models
+
+    redash_url = os.environ.get("REDASH_URL", "").rstrip("/")
+    sub = models.Dashboard.query.get(dashboard_id)
+    if sub is None:
+        return jsonify({"error": "Not found"}), 404
+
+    d_dict = sub.to_dict()
+    d_dict["url"] = f"{redash_url}/_template/dashboard/{sub.slug}"
+    return jsonify(d_dict)
 
 
 @login_required
@@ -352,6 +368,98 @@ def composed_dashboard_assignment_delete(dashboard_id, assignment_id):
     assignment = ComposedDashboardAssignment.query.filter_by(
         id=assignment_id, composed_dashboard_id=dashboard_id
     ).first()
+    if assignment is None:
+        return jsonify({"error": "Assignment not found"}), 404
+
+    db.session.delete(assignment)
+    db.session.commit()
+    return jsonify({"ok": True})
+
+
+# ─── Sub-dashboard assignment endpoints ──────────────────────────────────────
+
+
+@login_required
+def sub_dashboard_assignments_list(dashboard_id):
+    """List organizations this sub-dashboard is assigned to."""
+    from redash import models
+
+    sub = models.Dashboard.query.get(dashboard_id)
+    if sub is None:
+        return jsonify({"error": "Not found"}), 404
+
+    assignments = SubDashboardAssignment.query.filter_by(dashboard_id=dashboard_id).all()
+    results = []
+    for assignment in assignments:
+        org = models.Organization.query.get(assignment.organization_id)
+        if org is None:
+            continue
+        results.append(
+            {
+                "assignment_id": assignment.id,
+                "organization_id": org.id,
+                "organization_name": org.name,
+                "organization_slug": org.slug,
+            }
+        )
+    return jsonify(results)
+
+
+@login_required
+def sub_dashboard_assignments_add(dashboard_id):
+    """Assign a sub-dashboard to an organization.
+
+    Expects JSON body: {"organization_id": <int>}
+    """
+    from redash import models
+
+    sub = models.Dashboard.query.get(dashboard_id)
+    if sub is None:
+        return jsonify({"error": "Not found"}), 404
+
+    data = request.get_json(force=True) or {}
+    org_id = data.get("organization_id")
+    if not org_id:
+        return jsonify({"error": "organization_id is required"}), 400
+
+    org = models.Organization.query.get(org_id)
+    if org is None:
+        return jsonify({"error": "Organization not found"}), 404
+
+    existing = SubDashboardAssignment.query.filter_by(dashboard_id=dashboard_id, organization_id=org_id).first()
+    if existing:
+        return jsonify({"error": "Already assigned"}), 409
+
+    assignment = SubDashboardAssignment(
+        dashboard_id=dashboard_id,
+        organization_id=org_id,
+    )
+    db.session.add(assignment)
+    db.session.commit()
+
+    return (
+        jsonify(
+            {
+                "assignment_id": assignment.id,
+                "organization_id": org.id,
+                "organization_name": org.name,
+                "organization_slug": org.slug,
+            }
+        ),
+        201,
+    )
+
+
+@login_required
+def sub_dashboard_assignment_delete(dashboard_id, assignment_id):
+    """Remove the assignment of a sub-dashboard from an organization."""
+    from redash import models
+
+    sub = models.Dashboard.query.get(dashboard_id)
+    if sub is None:
+        return jsonify({"error": "Not found"}), 404
+
+    assignment = SubDashboardAssignment.query.filter_by(id=assignment_id, dashboard_id=dashboard_id).first()
     if assignment is None:
         return jsonify({"error": "Assignment not found"}), 404
 

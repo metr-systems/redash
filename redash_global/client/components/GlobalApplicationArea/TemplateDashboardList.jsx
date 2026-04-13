@@ -23,6 +23,14 @@ const listColumns = [
     { title: "Name", field: "name", width: null }
   ),
   Columns.dateTime.sortable({ title: "Created At", field: "created_at", width: "1%" }),
+  Columns.custom(
+    (text, item) => (
+      <a href={`dashboards/${item.id}/assignments`} data-test={`SubDashboardAssignments${item.id}`}>
+        Manage
+      </a>
+    ),
+    { title: "Client Assignment", width: "1%" }
+  ),
 ];
 
 function TemplateDashboardListComponent({ controller }) {

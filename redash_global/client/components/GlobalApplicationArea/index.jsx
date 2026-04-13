@@ -11,6 +11,7 @@ import ComposedDashboardList from "./ComposedDashboardList";
 import ComposedDashboardEdit from "./ComposedDashboardEdit";
 import ComposedDashboardAssignments from "./ComposedDashboardAssignments";
 import TemplateDashboardList from "./TemplateDashboardList";
+import SubDashboardAssignments from "./SubDashboardAssignments";
 
 registerComponent("ApplicationDesktopNavbar", GlobalDesktopNavbar);
 
@@ -38,6 +39,12 @@ const routes = [
     path: "/dashboards",
     title: "Dashboards",
     render: () => <TemplateDashboardList />,
+  },
+  {
+    id: "Dashboards.Assignments",
+    path: "/dashboards/:id/assignments",
+    title: "Client Assignment",
+    render: (currentRoute) => <SubDashboardAssignments dashboardId={parseInt(currentRoute.routeParams.id, 10)} />,
   },
   {
     id: "GlobalHome",
