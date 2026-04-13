@@ -91,9 +91,14 @@ def create_global_app():
     app.register_blueprint(api_blueprint)
 
     # Register CLI commands
-    from redash_global.cli import create_global_admin, setup_template_org
+    from redash_global.cli import (
+        create_global_admin,
+        setup_template_org,
+        update_global_admin_password,
+    )
 
     app.cli.add_command(create_global_admin)
+    app.cli.add_command(update_global_admin_password)
     app.cli.add_command(setup_template_org)
 
     return app

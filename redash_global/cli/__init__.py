@@ -21,6 +21,24 @@ def create_global_admin(username, email, password):
     click.echo(f"Admin user '{username}' created.")
 
 
+@click.command("update_global_admin_password")
+@click.argument("username")
+@click.password_option(prompt="New password", confirmation_prompt="Confirm new password")
+@with_appcontext
+def update_global_admin_password(username, password):
+    """Update the password of an existing global admin user."""
+    from redash.models.base import db
+    from redash_global.models import GlobalAdminUser
+
+    user = GlobalAdminUser.get_by_username(username)
+    if not user:
+        raise click.ClickException(f"No global admin user found with username '{username}'.")
+
+    user.hash_password(password)
+    db.session.commit()
+    click.echo(f"Password updated for '{username}'.")
+
+
 @click.command("setup_template_org")
 @click.option("--admin-email", required=True, help="Email for the system user in the template org.")
 @click.option("--admin-name", default="Template Admin", show_default=True)
