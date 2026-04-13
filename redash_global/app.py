@@ -4,6 +4,8 @@ import os
 
 import jinja2
 from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_login import LoginManager
 from flask_wtf.csrf import CSRFProtect
 
@@ -11,6 +13,8 @@ from flask_wtf.csrf import CSRFProtect
 from redash import settings
 from redash.handlers.webpack import configure_webpack
 from redash.models.base import db
+
+limiter = Limiter(key_func=get_remote_address, storage_uri=settings.LIMITER_STORAGE)
 
 
 def _validate_required_config():
@@ -58,6 +62,7 @@ def create_global_app():
     app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour
 
     CSRFProtect(app)
+    limiter.init_app(app)
 
     # Initialize database with the app
     db.init_app(app)

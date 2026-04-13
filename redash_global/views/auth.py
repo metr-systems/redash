@@ -3,9 +3,11 @@ from flask_login import current_user, login_required, login_user, logout_user
 from werkzeug.utils import safe_join
 
 from redash import settings
+from redash_global.app import limiter
 from redash_global.models import GlobalAdminUser
 
 
+@limiter.limit("10 per minute; 50 per hour")
 def login_page():
     if current_user.is_authenticated:
         return redirect(url_for("api.admin_ui"))
