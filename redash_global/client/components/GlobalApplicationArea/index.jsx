@@ -9,6 +9,7 @@ import ErrorMessage from "@/components/ApplicationArea/ErrorMessage";
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
 import ComposedDashboardList from "./ComposedDashboardList";
 import ComposedDashboardEdit from "./ComposedDashboardEdit";
+import ComposedDashboardAssignments from "./ComposedDashboardAssignments";
 import TemplateDashboardList from "./TemplateDashboardList";
 
 registerComponent("ApplicationDesktopNavbar", GlobalDesktopNavbar);
@@ -25,6 +26,12 @@ const routes = [
     path: "/composed-dashboards/:id",
     title: "Composed Dashboard",
     render: (currentRoute) => <ComposedDashboardEdit dashboardId={parseInt(currentRoute.routeParams.id, 10)} />,
+  },
+  {
+    id: "ComposedDashboards.Assignments",
+    path: "/composed-dashboards/:id/assignments",
+    title: "Client Assignment",
+    render: (currentRoute) => <ComposedDashboardAssignments dashboardId={parseInt(currentRoute.routeParams.id, 10)} />,
   },
   {
     id: "Dashboards.List",
