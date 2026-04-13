@@ -91,13 +91,21 @@ export default function SubDashboardAssignments({ dashboardId }) {
                   {a.organization_slug}
                 </Tag>
               </span>
-              <Button
-                size="small"
-                type="danger"
-                loading={removingId === a.assignment_id}
-                onClick={() => handleRemove(a)}>
-                Remove
-              </Button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <Button
+                  size="small"
+                  onClick={() => {}}
+                >
+                  Redeploy
+                </Button>
+                <Button
+                  size="small"
+                  type="danger"
+                  loading={removingId === a.assignment_id}
+                  onClick={() => handleRemove(a)}>
+                  Remove
+                </Button>
+              </div>
             </div>
           ))}
         </div>
