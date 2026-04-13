@@ -14,7 +14,10 @@ from redash.models.base import db
 
 def _validate_required_config():
     """Validate required environment variables at startup."""
-    required_env_vars = {"REDASH_GLOBAL_API_TOKEN": "Global API token for authentication"}
+    required_env_vars = {
+        "REDASH_GLOBAL_API_TOKEN": "Global API token for authentication",
+        "GLOBAL_SECRET_KEY": "Secret key for the global admin app session signing (must differ from REDASH_SECRET_KEY)",
+    }
 
     for var_name, description in required_env_vars.items():
         if not os.environ.get(var_name):
@@ -48,7 +51,7 @@ def create_global_app():
     # Essential database configuration (reuse Redash settings)
     app.config["SQLALCHEMY_DATABASE_URI"] = settings.SQLALCHEMY_DATABASE_URI
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SECRET_KEY"] = settings.SECRET_KEY
+    app.config["SECRET_KEY"] = os.environ["GLOBAL_SECRET_KEY"]
     # Use a distinct cookie name to avoid session conflicts with the main Redash app
     app.config["SESSION_COOKIE_NAME"] = "global_admin_session"
 
