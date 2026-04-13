@@ -5,6 +5,7 @@ import os
 import jinja2
 from flask import Flask
 from flask_login import LoginManager
+from flask_wtf.csrf import CSRFProtect
 
 # Import Redash database and models
 from redash import settings
@@ -54,6 +55,9 @@ def create_global_app():
     app.config["SECRET_KEY"] = os.environ["GLOBAL_SECRET_KEY"]
     # Use a distinct cookie name to avoid session conflicts with the main Redash app
     app.config["SESSION_COOKIE_NAME"] = "global_admin_session"
+    app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour
+
+    CSRFProtect(app)
 
     # Initialize database with the app
     db.init_app(app)
