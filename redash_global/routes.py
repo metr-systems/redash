@@ -10,6 +10,7 @@ from redash_global.views.auth import (
 )
 from redash_global.views.dashboards import (
     composed_dashboard_assignment_delete,
+    composed_dashboard_assignment_redeploy,
     composed_dashboard_assignments_add,
     composed_dashboard_assignments_list,
     composed_dashboard_entries_add,
@@ -106,6 +107,12 @@ api_blueprint.add_url_rule(
     methods=["DELETE"],
     view_func=composed_dashboard_assignment_delete,
     endpoint="composed_dashboard_assignment_delete",
+)
+api_blueprint.add_url_rule(
+    "/global-dashboards/<int:dashboard_id>/assignments/<int:assignment_id>/redeploy",
+    methods=["POST"],
+    view_func=composed_dashboard_assignment_redeploy,
+    endpoint="composed_dashboard_assignment_redeploy",
 )
 api_blueprint.add_url_rule(
     "/sub-dashboards/<int:dashboard_id>/assignments",

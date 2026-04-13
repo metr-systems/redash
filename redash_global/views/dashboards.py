@@ -1,6 +1,7 @@
 """Dashboard views for Redash Global service."""
 
 import os
+from datetime import datetime, timezone
 
 from flask import jsonify, request
 from flask_login import current_user, login_required
@@ -338,6 +339,7 @@ def composed_dashboard_assignments_add(dashboard_id):
     assignment = ComposedDashboardAssignment(
         composed_dashboard_id=dashboard_id,
         organization_id=org_id,
+        last_deployed_at=datetime.now(timezone.utc),
     )
     db.session.add(assignment)
     db.session.commit()
@@ -352,9 +354,49 @@ def composed_dashboard_assignments_add(dashboard_id):
                 "organization_id": org.id,
                 "organization_name": org.name,
                 "organization_slug": org.slug,
+                "last_deployed_at": assignment.last_deployed_at.isoformat() if assignment.last_deployed_at else None,
             }
         ),
         201,
+    )
+
+
+@login_required
+def composed_dashboard_assignment_redeploy(dashboard_id, assignment_id):
+    """Trigger a redeployment of a composed dashboard to an assigned organization.
+
+    Sets last_deployed_at to now. Deployment logic (widget recreation) is not yet implemented.
+    """
+    from redash import models
+
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    assignment = ComposedDashboardAssignment.query.filter_by(
+        id=assignment_id, composed_dashboard_id=dashboard_id
+    ).first()
+    if assignment is None:
+        return jsonify({"error": "Assignment not found"}), 404
+
+    org = models.Organization.query.get(assignment.organization_id)
+
+    # TODO: deployment logic — copy layouts from sub-dashboards into client org
+    print(
+        f"[STUB] Redeploying composed dashboard {dashboard_id} ({dashboard.name}) to org {assignment.organization_id}"
+    )
+
+    assignment.last_deployed_at = datetime.now(timezone.utc)
+    db.session.commit()
+
+    return jsonify(
+        {
+            "assignment_id": assignment.id,
+            "organization_id": assignment.organization_id,
+            "organization_name": org.name if org else None,
+            "organization_slug": org.slug if org else None,
+            "last_deployed_at": assignment.last_deployed_at.isoformat(),
+        }
     )
 
 

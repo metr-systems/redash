@@ -133,6 +133,7 @@ class ComposedDashboardAssignment(TimestampMixin, db.Model):
         nullable=False,
     )
     organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    last_deployed_at = Column(db.DateTime(timezone=True), nullable=True)
 
     composed_dashboard = db.relationship(
         "ComposedDashboard", backref=db.backref("assignments", cascade="all, delete-orphan")
@@ -144,6 +145,7 @@ class ComposedDashboardAssignment(TimestampMixin, db.Model):
             "composed_dashboard_id": self.composed_dashboard_id,
             "organization_id": self.organization_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
+            "last_deployed_at": self.last_deployed_at.isoformat() if self.last_deployed_at else None,
         }
 
 
