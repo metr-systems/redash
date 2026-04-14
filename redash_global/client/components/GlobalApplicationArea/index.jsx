@@ -31,7 +31,7 @@ const routes = [
   {
     id: "ComposedDashboards.Assignments",
     path: "/composed-dashboards/:id/assignments",
-    title: "Client Assignment",
+    title: "Client Deployment",
     render: (currentRoute) => <ComposedDashboardAssignments dashboardId={parseInt(currentRoute.routeParams.id, 10)} />,
   },
   {
@@ -43,7 +43,7 @@ const routes = [
   {
     id: "Dashboards.Assignments",
     path: "/dashboards/:id/assignments",
-    title: "Client Assignment",
+    title: "Client Deployment",
     render: (currentRoute) => <SubDashboardAssignments dashboardId={parseInt(currentRoute.routeParams.id, 10)} />,
   },
   {

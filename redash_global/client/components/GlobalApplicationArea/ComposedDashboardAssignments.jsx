@@ -60,13 +60,13 @@ export default function ComposedDashboardAssignments({ dashboardId }) {
       <div style={{ display: "flex", alignItems: "center", marginBottom: 24, gap: 12 }}>
         <h3 style={{ margin: 0 }}>{dashboard ? dashboard.name : "…"}</h3>
         <span className="text-muted" style={{ fontSize: 13 }}>
-          — Client Assignments
+          — Client Deployments
         </span>
       </div>
 
       <div style={{ display: "flex", alignItems: "center", marginBottom: 12, gap: 12 }}>
         <Button type="primary" size="small" onClick={openModal} disabled={availableOrgs.length === 0}>
-          Assign to client
+          Deploy to client
         </Button>
       </div>
 
@@ -111,7 +111,7 @@ export default function ComposedDashboardAssignments({ dashboardId }) {
       )}
 
       <Modal
-        title="Assign to client"
+        title="Deploy to client"
         visible={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleAssign}
