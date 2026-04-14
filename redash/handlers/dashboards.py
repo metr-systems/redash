@@ -142,13 +142,16 @@ class MyDashboardsResource(BaseResource):
         return paginate(ordered_results, page, page_size, DashboardSerializer)
 
 
-def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name):
+def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, org):
     """This function adds allowed_widgets info to the data to return to frontend
     if we have a query named as follow f"allowed_widgets_{dashboard_id}".
     It returns an empty dictionary if the query does not exist"""
     # get the query having the allowed widgets information for the current dashboard
     query_name = f"allowed_widgets_{dashboard_id}"
-    query = models.Query.query.filter(models.Query.name == query_name).first()
+    query = models.Query.query.filter(
+        models.Query.name == query_name,
+        models.Query.org == org,
+    ).first()
 
     # construct the allowed_widgets dictionary from the query data
     allowed_widgets = {}
@@ -168,7 +171,7 @@ def add_allowed_widgets_info(method):
         # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
         parameter_col_name = "main_parameter"
         widgets_col_name = "widgets"
-        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name)
+        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, self.current_org)
         if allowed_widgets:
             result["allowed_widgets"] = allowed_widgets
         return result

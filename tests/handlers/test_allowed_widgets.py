@@ -18,7 +18,11 @@ class TestAddAllowedWidgetsInfo(BaseTestCase):
         query_data_result = self.factory.create_query_result(data=data)
         self.factory.create_query(name=f"allowed_widgets_{dashboard_id}", latest_query_data=query_data_result)
 
+        org = self.factory.org
+
         class ClassToTest:
+            current_org = org
+
             @add_allowed_widgets_info
             def test_method(self, dashboard_id):
                 return {"info": "info detail"}
@@ -45,7 +49,7 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
         self.factory.create_query(name=f"allowed_widgets_{dashboard_id}", latest_query_data=query_data_result)
 
         # call function to test
-        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name)
+        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, self.factory.org)
 
         # assertions
         assert {"controller1234": ["firstQueryViz", "secondQueryViz"]} == allowed_widgets
@@ -66,7 +70,7 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
         self.factory.create_query(name=f"allowed_widgets_{dashboard_id}", latest_query_data=query_data_result)
 
         # assertions
-        assert get_allowed_widgets_info(dashboard_id, "main_parameter", widgets_col_name) == {}
+        assert get_allowed_widgets_info(dashboard_id, "main_parameter", widgets_col_name, self.factory.org) == {}
 
     def test_allowed_widgets_is_empty_if_the_query_doesnt_exists(self):
         dashboard_id = 1
@@ -74,4 +78,26 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
         widgets_col_name = "widgets"
 
         # call function to test and assert its result
-        assert get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name) == {}
+        assert get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, self.factory.org) == {}
+
+    def test_does_not_return_data_from_a_different_org(self):
+        dashboard_id = 1
+        parameter_col_name = "main_parameter"
+        widgets_col_name = "widgets"
+
+        # create a query with the same name in a different org
+        other_org = self.factory.create_org()
+        data = {
+            "rows": [{parameter_col_name: "other_org_controller", widgets_col_name: ["otherViz"]}],
+            "columns": [{"name": parameter_col_name}, {"name": widgets_col_name}],
+        }
+        query_data_result = self.factory.create_query_result(data=data)
+        self.factory.create_query(
+            name=f"allowed_widgets_{dashboard_id}",
+            latest_query_data=query_data_result,
+            org=other_org,
+        )
+
+        # querying for the current org should return nothing
+        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, self.factory.org)
+        assert allowed_widgets == {}
