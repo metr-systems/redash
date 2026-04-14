@@ -23,7 +23,6 @@ from datetime import datetime, timezone
 from redash.models import Dashboard, DataSource, Query, Visualization, Widget
 from redash.models.base import db
 from redash.models.users import User
-from redash_global.models import SubDashboardAssignment
 
 logger = logging.getLogger(__name__)
 
@@ -226,18 +225,12 @@ def _get_admin_user(org):
 
 
 def _get_assigned_sub_dashboards(composed_dashboard, target_org):
-    """Return template Dashboard objects that are both in the composed dashboard
-    and assigned to the target org, in entry order."""
-    assigned_ids = {
-        row.dashboard_id for row in SubDashboardAssignment.query.filter_by(organization_id=target_org.id).all()
-    }
-
+    """Return template Dashboard objects in the composed dashboard, in entry order."""
     result = []
     for entry in composed_dashboard.entries:  # already ordered by order_index
-        if entry.dashboard_id in assigned_ids:
-            sub = Dashboard.query.get(entry.dashboard_id)
-            if sub is not None:
-                result.append(sub)
+        sub = Dashboard.query.get(entry.dashboard_id)
+        if sub is not None:
+            result.append(sub)
     return result
 
 
@@ -326,15 +319,31 @@ def _build_data_source_map(sub_dashboards, target_org):
 
 
 def _get_or_copy_query(template_query, target_org, admin_user, data_source_map, query_cache):
-    """Return (or create) the equivalent of *template_query* in *target_org*.
+    """Return (or update) the equivalent of *template_query* in *target_org*.
 
-    A single template query is only ever copied once per deployment call
-    (query_cache prevents duplicates when multiple widgets share the same query).
+    Lookup order:
+    1. query_cache – avoids duplicate work when multiple widgets share the same
+       template query within a single deployment call.
+    2. Existing query in target_org with the same name – reuses it on redeploy
+       rather than creating a new copy every time.
+    3. Create – only when no match exists yet.
     """
     if template_query.id in query_cache:
         return query_cache[template_query.id]
 
     target_ds_id = data_source_map.get(template_query.data_source_id)
+
+    existing = Query.query.filter_by(org_id=target_org.id, name=template_query.name, is_archived=False).first()
+    if existing is not None:
+        existing.query_text = template_query.query_text
+        existing.description = template_query.description or ""
+        existing.data_source_id = target_ds_id
+        existing.schedule = template_query.schedule
+        existing.options = template_query.options or {}
+        existing.tags = list(template_query.tags or [])
+        db.session.flush()
+        query_cache[template_query.id] = existing
+        return existing
 
     new_query = Query.create(
         name=template_query.name,
