@@ -98,6 +98,7 @@ def create_global_app():
     # Register CLI commands
     from redash_global.cli import (
         create_global_admin,
+        purge_org_data,
         setup_template_org,
         update_global_admin_password,
     )
@@ -105,5 +106,6 @@ def create_global_app():
     app.cli.add_command(create_global_admin)
     app.cli.add_command(update_global_admin_password)
     app.cli.add_command(setup_template_org)
+    app.cli.add_command(purge_org_data)
 
     return app

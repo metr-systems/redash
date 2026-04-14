@@ -101,3 +101,57 @@ def setup_template_org(admin_email, admin_name, admin_password):
 
     db.session.commit()
     click.echo("Done. Sub-dashboards should be created in the '_template' org via the Redash UI.")
+
+
+@click.command("purge_org_data")
+@click.argument("org_slug")
+@click.option("--yes", is_flag=True, help="Skip confirmation prompt.")
+@with_appcontext
+def purge_org_data(org_slug, yes):
+    """Delete all dashboards, queries, visualizations, and data sources from an org.
+
+    Useful for resetting a test organisation before re-running deployment tests.
+    Does NOT delete the organisation itself, its users, or its groups.
+    """
+    from redash import models
+    from redash.models.base import db
+
+    org = models.Organization.get_by_slug(org_slug)
+    if org is None:
+        raise click.ClickException(f"Organisation '{org_slug}' not found.")
+
+    dashboards = models.Dashboard.query.filter(models.Dashboard.org == org).all()
+    queries = models.Query.query.filter(models.Query.org_id == org.id).all()
+    data_sources = models.DataSource.query.filter(models.DataSource.org == org).all()
+
+    click.echo(f"Organisation: {org.name} (slug={org.slug}, id={org.id})")
+    click.echo(f"  Dashboards:   {len(dashboards)}")
+    click.echo(f"  Queries:      {len(queries)}")
+    click.echo(f"  Data sources: {len(data_sources)}")
+
+    if not yes:
+        click.confirm("Permanently delete all of the above?", abort=True)
+
+    # Widgets must be deleted explicitly first: the relationship has no cascade="delete",
+    # so SQLAlchemy would otherwise attempt to SET dashboard_id=NULL before deleting the
+    # dashboard, which violates the NOT NULL constraint on widgets.dashboard_id.
+    for dashboard in dashboards:
+        for widget in dashboard.widgets:
+            db.session.delete(widget)
+        db.session.delete(dashboard)
+    db.session.flush()
+
+    # Visualizations are cascade-deleted with each Query.
+    for query in queries:
+        db.session.delete(query)
+    db.session.flush()
+
+    # QueryResult.data_source_id is NOT NULL with no cascade delete on the relationship,
+    # so SQLAlchemy would attempt SET data_source_id=NULL before deleting the DataSource.
+    # Mirror what DataSource.delete() does: remove query results first.
+    for ds in data_sources:
+        models.QueryResult.query.filter(models.QueryResult.data_source == ds).delete()
+        db.session.delete(ds)
+
+    db.session.commit()
+    click.echo("Done.")
