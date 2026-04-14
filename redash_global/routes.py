@@ -9,15 +9,17 @@ from redash_global.views.auth import (
     logout_view,
 )
 from redash_global.views.dashboards import (
-    composed_dashboard_assignment_delete,
-    composed_dashboard_assignment_redeploy,
-    composed_dashboard_assignments_add,
-    composed_dashboard_assignments_list,
+    composed_dashboard_deploy_stream,
+    composed_dashboard_deployment_delete,
+    composed_dashboard_deployment_redeploy,
+    composed_dashboard_deployments_add,
+    composed_dashboard_deployments_list,
     composed_dashboard_entries_add,
     composed_dashboard_entries_list,
     composed_dashboard_entries_reorder,
     composed_dashboard_entry_delete,
     composed_dashboard_get,
+    composed_dashboard_redeploy_stream,
     composed_dashboards_create,
     composed_dashboards_list,
     config_view,
@@ -91,28 +93,40 @@ api_blueprint.add_url_rule(
     "/organizations", methods=["GET"], view_func=organizations_list, endpoint="organizations_list"
 )
 api_blueprint.add_url_rule(
-    "/global-dashboards/<int:dashboard_id>/assignments",
+    "/global-dashboards/<int:dashboard_id>/deployments",
     methods=["GET"],
-    view_func=composed_dashboard_assignments_list,
-    endpoint="composed_dashboard_assignments_list",
+    view_func=composed_dashboard_deployments_list,
+    endpoint="composed_dashboard_deployments_list",
 )
 api_blueprint.add_url_rule(
-    "/global-dashboards/<int:dashboard_id>/assignments",
+    "/global-dashboards/<int:dashboard_id>/deployments",
     methods=["POST"],
-    view_func=composed_dashboard_assignments_add,
-    endpoint="composed_dashboard_assignments_add",
+    view_func=composed_dashboard_deployments_add,
+    endpoint="composed_dashboard_deployments_add",
 )
 api_blueprint.add_url_rule(
-    "/global-dashboards/<int:dashboard_id>/assignments/<int:assignment_id>",
+    "/global-dashboards/<int:dashboard_id>/deployments/<int:deployment_id>",
     methods=["DELETE"],
-    view_func=composed_dashboard_assignment_delete,
-    endpoint="composed_dashboard_assignment_delete",
+    view_func=composed_dashboard_deployment_delete,
+    endpoint="composed_dashboard_deployment_delete",
 )
 api_blueprint.add_url_rule(
-    "/global-dashboards/<int:dashboard_id>/assignments/<int:assignment_id>/redeploy",
+    "/global-dashboards/<int:dashboard_id>/deployments/<int:deployment_id>/redeploy",
     methods=["POST"],
-    view_func=composed_dashboard_assignment_redeploy,
-    endpoint="composed_dashboard_assignment_redeploy",
+    view_func=composed_dashboard_deployment_redeploy,
+    endpoint="composed_dashboard_deployment_redeploy",
+)
+api_blueprint.add_url_rule(
+    "/global-dashboards/<int:dashboard_id>/deployments/stream",
+    methods=["POST"],
+    view_func=composed_dashboard_deploy_stream,
+    endpoint="composed_dashboard_deploy_stream",
+)
+api_blueprint.add_url_rule(
+    "/global-dashboards/<int:dashboard_id>/deployments/<int:deployment_id>/redeploy-stream",
+    methods=["POST"],
+    view_func=composed_dashboard_redeploy_stream,
+    endpoint="composed_dashboard_redeploy_stream",
 )
 api_blueprint.add_url_rule(
     "/sub-dashboards/<int:dashboard_id>/assignments",

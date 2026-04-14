@@ -118,15 +118,15 @@ class ComposedDashboardEntry(db.Model):
 
 
 @generic_repr("id", "composed_dashboard_id", "organization_id")
-class ComposedDashboardAssignment(TimestampMixin, db.Model):
-    """Assignment of a ComposedDashboard to a client organization."""
+class ComposedDashboardDeployment(TimestampMixin, db.Model):
+    """Deployment of a ComposedDashboard to a client organization."""
 
-    __tablename__ = "composed_dashboard_assignments"
+    __tablename__ = "composed_dashboard_deployments"
     __table_args__ = (
-        db.UniqueConstraint("composed_dashboard_id", "organization_id", name="uq_composed_dashboard_assignment"),
+        db.UniqueConstraint("composed_dashboard_id", "organization_id", name="uq_composed_dashboard_deployment"),
     )
 
-    id = primary_key("ComposedDashboardAssignment")
+    id = primary_key("ComposedDashboardDeployment")
     composed_dashboard_id = Column(
         db.Integer,
         db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"),
@@ -134,9 +134,14 @@ class ComposedDashboardAssignment(TimestampMixin, db.Model):
     )
     organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
     last_deployed_at = Column(db.DateTime(timezone=True), nullable=True)
+    deployed_dashboard_id = Column(
+        db.Integer,
+        db.ForeignKey("dashboards.id", ondelete="SET NULL"),
+        nullable=True,
+    )
 
     composed_dashboard = db.relationship(
-        "ComposedDashboard", backref=db.backref("assignments", cascade="all, delete-orphan")
+        "ComposedDashboard", backref=db.backref("deployments", cascade="all, delete-orphan")
     )
 
     def to_dict(self):
@@ -144,6 +149,7 @@ class ComposedDashboardAssignment(TimestampMixin, db.Model):
             "id": self.id,
             "composed_dashboard_id": self.composed_dashboard_id,
             "organization_id": self.organization_id,
+            "deployed_dashboard_id": self.deployed_dashboard_id,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "last_deployed_at": self.last_deployed_at.isoformat() if self.last_deployed_at else None,
         }

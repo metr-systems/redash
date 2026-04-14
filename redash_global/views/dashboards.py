@@ -1,18 +1,22 @@
 """Dashboard views for Redash Global service."""
 
+import logging
 import os
 from datetime import datetime, timezone
 
-from flask import jsonify, request
+from flask import Response, jsonify, request, stream_with_context
 from flask_login import current_user, login_required
 
 from redash.models.base import db
 from redash_global.models import (
     ComposedDashboard,
-    ComposedDashboardAssignment,
+    ComposedDashboardDeployment,
     ComposedDashboardEntry,
     SubDashboardAssignment,
 )
+from redash_global.services.deployment import DeploymentError, deploy, deploy_streaming
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -283,8 +287,8 @@ def organizations_list():
 
 
 @login_required
-def composed_dashboard_assignments_list(dashboard_id):
-    """List organizations this composed dashboard is assigned to."""
+def composed_dashboard_deployments_list(dashboard_id):
+    """List organizations this composed dashboard is deployed to."""
     from redash import models
 
     dashboard = ComposedDashboard.query.get(dashboard_id)
@@ -292,13 +296,13 @@ def composed_dashboard_assignments_list(dashboard_id):
         return jsonify({"error": "Not found"}), 404
 
     results = []
-    for assignment in dashboard.assignments:
-        org = models.Organization.query.get(assignment.organization_id)
+    for deployment in dashboard.deployments:
+        org = models.Organization.query.get(deployment.organization_id)
         if org is None:
             continue
         results.append(
             {
-                "assignment_id": assignment.id,
+                "deployment_id": deployment.id,
                 "organization_id": org.id,
                 "organization_name": org.name,
                 "organization_slug": org.slug,
@@ -309,8 +313,8 @@ def composed_dashboard_assignments_list(dashboard_id):
 
 
 @login_required
-def composed_dashboard_assignments_add(dashboard_id):
-    """Assign a composed dashboard to an organization.
+def composed_dashboard_deployments_add(dashboard_id):
+    """Deploy a composed dashboard to an organization.
 
     Expects JSON body: {"organization_id": <int>}
     The actual deployment logic (copying layouts into the client org) is a stub.
@@ -330,31 +334,42 @@ def composed_dashboard_assignments_add(dashboard_id):
     if org is None:
         return jsonify({"error": "Organization not found"}), 404
 
-    existing = ComposedDashboardAssignment.query.filter_by(
+    existing = ComposedDashboardDeployment.query.filter_by(
         composed_dashboard_id=dashboard_id, organization_id=org_id
     ).first()
     if existing:
-        return jsonify({"error": "Already assigned"}), 409
+        return jsonify({"error": "Already deployed"}), 409
 
-    assignment = ComposedDashboardAssignment(
+    deployment = ComposedDashboardDeployment(
         composed_dashboard_id=dashboard_id,
         organization_id=org_id,
-        last_deployed_at=datetime.now(timezone.utc),
     )
-    db.session.add(assignment)
-    db.session.commit()
+    db.session.add(deployment)
+    db.session.flush()  # get deployment.id before running deploy()
 
-    # TODO: deployment logic — copy layouts from sub-dashboards into client org
-    print(f"[STUB] Deploying composed dashboard {dashboard_id} ({dashboard.name}) to org {org_id} ({org.slug})")
+    try:
+        deployed_dashboard = deploy(dashboard, org)
+    except DeploymentError as exc:
+        db.session.rollback()
+        return jsonify({"error": str(exc)}), 422
+    except Exception:
+        db.session.rollback()
+        logger.exception("Unexpected error deploying dashboard %d to org %d", dashboard_id, org_id)
+        return jsonify({"error": "Deployment failed"}), 500
+
+    deployment.deployed_dashboard_id = deployed_dashboard.id
+    deployment.last_deployed_at = datetime.now(timezone.utc)
+    db.session.commit()
 
     return (
         jsonify(
             {
-                "assignment_id": assignment.id,
+                "deployment_id": deployment.id,
                 "organization_id": org.id,
                 "organization_name": org.name,
                 "organization_slug": org.slug,
-                "last_deployed_at": assignment.last_deployed_at.isoformat() if assignment.last_deployed_at else None,
+                "deployed_dashboard_id": deployed_dashboard.id,
+                "last_deployed_at": deployment.last_deployed_at.isoformat(),
             }
         ),
         201,
@@ -362,8 +377,8 @@ def composed_dashboard_assignments_add(dashboard_id):
 
 
 @login_required
-def composed_dashboard_assignment_redeploy(dashboard_id, assignment_id):
-    """Trigger a redeployment of a composed dashboard to an assigned organization.
+def composed_dashboard_deployment_redeploy(dashboard_id, deployment_id):
+    """Trigger a redeployment of a composed dashboard to an organization.
 
     Sets last_deployed_at to now. Deployment logic (widget recreation) is not yet implemented.
     """
@@ -373,47 +388,62 @@ def composed_dashboard_assignment_redeploy(dashboard_id, assignment_id):
     if not dashboard:
         return jsonify({"error": "Not found"}), 404
 
-    assignment = ComposedDashboardAssignment.query.filter_by(
-        id=assignment_id, composed_dashboard_id=dashboard_id
+    deployment = ComposedDashboardDeployment.query.filter_by(
+        id=deployment_id, composed_dashboard_id=dashboard_id
     ).first()
-    if assignment is None:
-        return jsonify({"error": "Assignment not found"}), 404
+    if deployment is None:
+        return jsonify({"error": "Deployment not found"}), 404
 
-    org = models.Organization.query.get(assignment.organization_id)
+    org = models.Organization.query.get(deployment.organization_id)
+    if org is None:
+        return jsonify({"error": "Organization not found"}), 404
 
-    # TODO: deployment logic — copy layouts from sub-dashboards into client org
-    print(
-        f"[STUB] Redeploying composed dashboard {dashboard_id} ({dashboard.name}) to org {assignment.organization_id}"
-    )
+    existing_dashboard = None
+    if deployment.deployed_dashboard_id is not None:
+        existing_dashboard = models.Dashboard.query.get(deployment.deployed_dashboard_id)
 
-    assignment.last_deployed_at = datetime.now(timezone.utc)
+    try:
+        deployed_dashboard = deploy(dashboard, org, existing_dashboard=existing_dashboard)
+    except DeploymentError as exc:
+        db.session.rollback()
+        return jsonify({"error": str(exc)}), 422
+    except Exception:
+        db.session.rollback()
+        logger.exception(
+            "Unexpected error redeploying dashboard %d to org %d", dashboard_id, deployment.organization_id
+        )
+        return jsonify({"error": "Deployment failed"}), 500
+
+    deployment.deployed_dashboard_id = deployed_dashboard.id
+    deployment.last_deployed_at = datetime.now(timezone.utc)
     db.session.commit()
 
     return jsonify(
         {
-            "assignment_id": assignment.id,
-            "organization_id": assignment.organization_id,
-            "organization_name": org.name if org else None,
-            "organization_slug": org.slug if org else None,
-            "last_deployed_at": assignment.last_deployed_at.isoformat(),
+            "deployment_id": deployment.id,
+            "organization_id": org.id,
+            "organization_name": org.name,
+            "organization_slug": org.slug,
+            "deployed_dashboard_id": deployed_dashboard.id,
+            "last_deployed_at": deployment.last_deployed_at.isoformat(),
         }
     )
 
 
 @login_required
-def composed_dashboard_assignment_delete(dashboard_id, assignment_id):
-    """Remove the assignment of a composed dashboard from an organization."""
+def composed_dashboard_deployment_delete(dashboard_id, deployment_id):
+    """Remove the deployment of a composed dashboard from an organization."""
     dashboard = ComposedDashboard.query.get(dashboard_id)
     if not dashboard:
         return jsonify({"error": "Not found"}), 404
 
-    assignment = ComposedDashboardAssignment.query.filter_by(
-        id=assignment_id, composed_dashboard_id=dashboard_id
+    deployment = ComposedDashboardDeployment.query.filter_by(
+        id=deployment_id, composed_dashboard_id=dashboard_id
     ).first()
-    if assignment is None:
-        return jsonify({"error": "Assignment not found"}), 404
+    if deployment is None:
+        return jsonify({"error": "Deployment not found"}), 404
 
-    db.session.delete(assignment)
+    db.session.delete(deployment)
     db.session.commit()
     return jsonify({"ok": True})
 
@@ -508,3 +538,86 @@ def sub_dashboard_assignment_delete(dashboard_id, assignment_id):
     db.session.delete(assignment)
     db.session.commit()
     return jsonify({"ok": True})
+
+
+# ─── Streaming deployment endpoints ──────────────────────────────────────────
+
+_SSE_HEADERS = {
+    "Cache-Control": "no-cache",
+    "X-Accel-Buffering": "no",  # disable nginx proxy buffering
+}
+
+
+@login_required
+def composed_dashboard_deploy_stream(dashboard_id):
+    """Stream a new deployment of a composed dashboard to an organization.
+
+    Expects JSON body: {"organization_id": <int>}
+    Returns a text/event-stream response where each event is a JSON object:
+      {"step": "…", "status": "running"|"ok"|"error", "detail": "…"}
+    The final event is: {"done": true, "deployment_id": …, "deployed_dashboard_id": …}
+    """
+    from redash import models
+
+    data = request.get_json(force=True) or {}
+    org_id = data.get("organization_id")
+    if not org_id:
+        return jsonify({"error": "organization_id is required"}), 400
+
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    org = models.Organization.query.get(org_id)
+    if org is None:
+        return jsonify({"error": "Organization not found"}), 404
+
+    existing = ComposedDashboardDeployment.query.filter_by(
+        composed_dashboard_id=dashboard_id, organization_id=org_id
+    ).first()
+    if existing:
+        return jsonify({"error": "Already deployed"}), 409
+
+    deployment = ComposedDashboardDeployment(
+        composed_dashboard_id=dashboard_id,
+        organization_id=org_id,
+    )
+    db.session.add(deployment)
+    db.session.flush()
+
+    def generate():
+        yield from deploy_streaming(dashboard, org, deployment)
+
+    return Response(stream_with_context(generate()), mimetype="text/event-stream", headers=_SSE_HEADERS)
+
+
+@login_required
+def composed_dashboard_redeploy_stream(dashboard_id, deployment_id):
+    """Stream a redeployment of an already-deployed composed dashboard.
+
+    Returns a text/event-stream response in the same format as the deploy stream.
+    """
+    from redash import models
+
+    dashboard = ComposedDashboard.query.get(dashboard_id)
+    if not dashboard:
+        return jsonify({"error": "Not found"}), 404
+
+    deployment = ComposedDashboardDeployment.query.filter_by(
+        id=deployment_id, composed_dashboard_id=dashboard_id
+    ).first()
+    if deployment is None:
+        return jsonify({"error": "Deployment not found"}), 404
+
+    org = models.Organization.query.get(deployment.organization_id)
+    if org is None:
+        return jsonify({"error": "Organization not found"}), 404
+
+    existing_dashboard = None
+    if deployment.deployed_dashboard_id is not None:
+        existing_dashboard = models.Dashboard.query.get(deployment.deployed_dashboard_id)
+
+    def generate():
+        yield from deploy_streaming(dashboard, org, deployment, existing_dashboard=existing_dashboard)
+
+    return Response(stream_with_context(generate()), mimetype="text/event-stream", headers=_SSE_HEADERS)

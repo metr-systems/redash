@@ -12,11 +12,11 @@ const ComposedDashboardService = {
   addEntry: (id, dashboardId) => axios.post(`/global-api/global-dashboards/${id}/entries`, { dashboard_id: dashboardId }),
   removeEntry: (id, entryId) => axios.delete(`/global-api/global-dashboards/${id}/entries/${entryId}`),
   reorderEntries: (id, entryIds) => axios.post(`/global-api/global-dashboards/${id}/entries/reorder`, { entry_ids: entryIds }),
-  getAssignments: (id) => axios.get(`/global-api/global-dashboards/${id}/assignments`),
-  addAssignment: (id, organizationId) =>
-    axios.post(`/global-api/global-dashboards/${id}/assignments`, { organization_id: organizationId }),
-  removeAssignment: (id, assignmentId) =>
-    axios.delete(`/global-api/global-dashboards/${id}/assignments/${assignmentId}`),
+  getDeployments: (id) => axios.get(`/global-api/global-dashboards/${id}/deployments`),
+  removeDeployment: (id, deploymentId) => axios.delete(`/global-api/global-dashboards/${id}/deployments/${deploymentId}`),
+  // Stream URLs are consumed directly via fetch() in DeploymentProgressModal.
+  deployStreamUrl: (id) => `/global-api/global-dashboards/${id}/deployments/stream`,
+  redeployStreamUrl: (id, deploymentId) => `/global-api/global-dashboards/${id}/deployments/${deploymentId}/redeploy-stream`,
 };
 
 Object.assign(ComposedDashboard, ComposedDashboardService);
