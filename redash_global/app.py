@@ -61,7 +61,7 @@ def create_global_app():
     app.config["SESSION_COOKIE_NAME"] = "global_admin_session"
     app.config["WTF_CSRF_TIME_LIMIT"] = 3600  # 1 hour
 
-    CSRFProtect(app)
+    csrf = CSRFProtect(app)
     limiter.init_app(app)
 
     # Initialize database with the app
@@ -87,6 +87,11 @@ def create_global_app():
 
     # Import and register routes
     from redash_global.routes import api_blueprint
+
+    # The SPA uses session-cookie auth and sends JSON — exempt the API
+    # blueprint from CSRF so the React frontend doesn't need a CSRF token.
+    # The login form (login.html) still carries a CSRF token via the template.
+    csrf.exempt(api_blueprint)
 
     app.register_blueprint(api_blueprint)
 
