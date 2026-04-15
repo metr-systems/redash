@@ -29,7 +29,7 @@ const listColumns = [
         Manage
       </a>
     ),
-    { title: "Client Deployment", width: "1%" }
+    { title: "Client Assignments", width: "1%" }
   ),
 ];
 

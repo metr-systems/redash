@@ -58,23 +58,48 @@ export default function SubDashboardAssignments({ dashboardId }) {
         </a>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 24, gap: 12 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 24,
+          gap: 12,
+        }}
+      >
         <h3 style={{ margin: 0 }}>{dashboard ? dashboard.name : "…"}</h3>
         <span className="text-muted" style={{ fontSize: 13 }}>
-          — Client Deployments
+          — Client Assigments
         </span>
       </div>
 
-      <div style={{ display: "flex", alignItems: "center", marginBottom: 12, gap: 12 }}>
-        <Button type="primary" size="small" onClick={openModal} disabled={availableOrgs.length === 0}>
-          Deploy to client
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginBottom: 12,
+          gap: 12,
+        }}
+      >
+        <Button
+          type="primary"
+          size="small"
+          onClick={openModal}
+          disabled={availableOrgs.length === 0}
+        >
+          Assign to client
         </Button>
       </div>
 
       {assignments.length === 0 ? (
         <p className="text-muted">Not assigned to any client yet.</p>
       ) : (
-        <div style={{ border: "1px solid #e8e8e8", borderRadius: 4, overflow: "hidden" }}>
+        <div
+          style={{
+            border: "1px solid #e8e8e8",
+            borderRadius: 4,
+            overflow: "hidden",
+          }}
+        >
           {assignments.map((a) => (
             <div
               key={a.assignment_id}
@@ -84,7 +109,8 @@ export default function SubDashboardAssignments({ dashboardId }) {
                 padding: "10px 14px",
                 background: "#fff",
                 borderBottom: "1px solid #f0f0f0",
-              }}>
+              }}
+            >
               <span style={{ flex: 1 }}>
                 {a.organization_name}
                 <Tag color="default" style={{ marginLeft: 8, fontSize: 11 }}>
@@ -94,15 +120,10 @@ export default function SubDashboardAssignments({ dashboardId }) {
               <div style={{ display: "flex", gap: 8 }}>
                 <Button
                   size="small"
-                  onClick={() => {}}
-                >
-                  Redeploy
-                </Button>
-                <Button
-                  size="small"
                   type="danger"
                   loading={removingId === a.assignment_id}
-                  onClick={() => handleRemove(a)}>
+                  onClick={() => handleRemove(a)}
+                >
                   Remove
                 </Button>
               </div>
@@ -112,20 +133,26 @@ export default function SubDashboardAssignments({ dashboardId }) {
       )}
 
       <Modal
-        title="Deploy to client"
+        title="Assign to client"
         visible={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={handleAssign}
         okText="Assign"
-        okButtonProps={{ disabled: !selectedOrgId, loading: assigning }}>
-        <p style={{ marginBottom: 8 }}>Select the client organization to assign this dashboard to.</p>
+        okButtonProps={{ disabled: !selectedOrgId, loading: assigning }}
+      >
+        <p style={{ marginBottom: 8 }}>
+          Select the client organization to assign this dashboard to.
+        </p>
         <Select
           style={{ width: "100%" }}
           placeholder="Select a client…"
           value={selectedOrgId}
           onChange={setSelectedOrgId}
           showSearch
-          filterOption={(input, option) => option.children.toLowerCase().includes(input.toLowerCase())}>
+          filterOption={(input, option) =>
+            option.children.toLowerCase().includes(input.toLowerCase())
+          }
+        >
           {availableOrgs.map((o) => (
             <Select.Option key={o.id} value={o.id}>
               {o.name} ({o.slug})
