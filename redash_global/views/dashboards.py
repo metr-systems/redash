@@ -20,12 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 @login_required
-def config_view():
-    """Return frontend configuration including the Redash base URL."""
-    return jsonify({"redash_url": os.environ.get("REDASH_URL", "").rstrip("/")})
-
-
-@login_required
 def composed_dashboards_create():
     """Create a new composed dashboard."""
     data = request.get_json(force=True) or {}

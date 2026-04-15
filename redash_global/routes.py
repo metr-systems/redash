@@ -22,7 +22,6 @@ from redash_global.views.dashboards import (
     composed_dashboard_redeploy_stream,
     composed_dashboards_create,
     composed_dashboards_list,
-    config_view,
     organizations_list,
     sub_dashboard_assignment_delete,
     sub_dashboard_assignments_add,
@@ -79,7 +78,6 @@ api_blueprint.add_url_rule(
     view_func=composed_dashboard_entries_reorder,
     endpoint="composed_dashboard_entries_reorder",
 )
-api_blueprint.add_url_rule("/config", methods=["GET"], view_func=config_view, endpoint="config")
 api_blueprint.add_url_rule(
     "/template-dashboards", methods=["GET"], view_func=template_dashboards_list, endpoint="template_dashboards_list"
 )
