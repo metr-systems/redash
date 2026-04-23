@@ -1245,6 +1245,7 @@ class MetrDashboard(db.Model):
     )
     org_id = Column(key_type("Organization"), nullable=False, index=True)
     url_identifier = Column(db.String(100), nullable=True)
+    template_dashboard_id = Column(db.Integer, nullable=True)
     dashboard = db.relationship(
         "Dashboard",
         backref=db.backref("metr_dashboard", cascade="delete", uselist=False),
@@ -1266,6 +1267,54 @@ class MetrDashboard(db.Model):
             postgresql_where=Column("url_identifier").isnot(None),
         ),
     )
+
+
+@generic_repr("id", "data_source_id", "org_id")
+class MetrDataSource(db.Model):
+    """
+    Extends DataSource with METR-specific fields.
+    """
+
+    id = primary_key("MetrDataSource")
+    data_source_id = Column(
+        key_type("DataSource"),
+        db.ForeignKey("data_sources.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    org_id = Column(key_type("Organization"), nullable=False, index=True)
+    template_ds_id = Column(db.Integer, nullable=True)
+    data_source = db.relationship(
+        "DataSource",
+        backref=db.backref("metr_data_source", cascade="delete", uselist=False),
+    )
+
+    __tablename__ = "metr_data_source"
+
+
+@generic_repr("id", "query_id", "org_id")
+class MetrQuery(db.Model):
+    """
+    Extends Query with METR-specific fields.
+    """
+
+    id = primary_key("MetrQuery")
+    query_id = Column(
+        key_type("Query"),
+        db.ForeignKey("queries.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    org_id = Column(key_type("Organization"), nullable=False, index=True)
+    template_query_id = Column(db.Integer, nullable=True)
+    query = db.relationship(
+        "Query",
+        backref=db.backref("metr_query", cascade="delete", uselist=False),
+    )
+
+    __tablename__ = "metr_query"
 
 
 @generic_repr("id", "dashboard_id", "group_id")
