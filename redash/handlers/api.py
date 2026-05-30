@@ -57,6 +57,7 @@ from redash.handlers.groups import (
 from redash.handlers.metr_dashboards import (
     MetrDashboardUrlIdentifierValidationResource,
 )
+from redash.handlers.metr_queries import MetrQueryIdentifierValidationResource
 from redash.handlers.metr_widgets import MetrWidgetTagsResource
 from redash.handlers.permissions import (
     CheckPermissionResource,
@@ -221,6 +222,11 @@ api.add_org_resource(
     MetrDashboardUrlIdentifierValidationResource,
     "/api/dashboards/<dashboard_id>/url_identifier/validate",
     endpoint="dashboard_url_identifier_validate",
+)
+api.add_org_resource(
+    MetrQueryIdentifierValidationResource,
+    "/api/queries/<query_id>/query_identifier/validate",
+    endpoint="query_query_identifier_validate",
 )
 
 api.add_org_resource(QuerySearchResource, "/api/queries/search", endpoint="queries_search")
