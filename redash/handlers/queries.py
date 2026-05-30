@@ -350,6 +350,20 @@ class QueryResource(BaseResource):
         if "tags" in query_def:
             query_def["tags"] = [tag for tag in query_def["tags"] if tag]
 
+        if "query_identifier" in query_def:
+            # Route query_identifier to the MetrQuery, mirroring how
+            # url_identifier is routed to MetrDashboard in the dashboard handler.
+            # "" is coerced to NULL so the partial unique index applies.
+            # Pass query=query so the backref is populated immediately —
+            # otherwise the cached query.metr_query = None survives the commit
+            # (session uses expire_on_commit=False) and the serializer reads stale.
+            query_identifier = query_def.pop("query_identifier") or None
+            metr_query = query.metr_query
+            if not metr_query:
+                metr_query = models.MetrQuery(query=query, org_id=query.org_id)
+            metr_query.query_identifier = query_identifier
+            models.db.session.add(metr_query)
+
         if "data_source_id" in query_def:
             data_source = models.DataSource.get_by_id_and_org(query_def["data_source_id"], self.current_org)
             require_access(data_source, self.current_user, not_view_only)

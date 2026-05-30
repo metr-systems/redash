@@ -114,6 +114,7 @@ def serialize_query(
         "version": query.version,
         "tags": query.tags or [],
         "is_safe": query.parameterized.is_safe,
+        "query_identifier": query.metr_query.query_identifier if query.metr_query else None,
     }
 
     if with_user:
