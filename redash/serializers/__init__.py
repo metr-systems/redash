@@ -249,9 +249,12 @@ def serialize_dashboard(obj, with_widgets=False, user=None, with_favorite_state=
         "version": obj.version,
     }
 
-    # Only include url_identifier for admin users or dashboard owners
+    # Only include identifier fields for admin users or dashboard owners
     if current_user and is_admin_or_owner(obj.user_id):
         d["url_identifier"] = obj.metr_dashboard.url_identifier if obj.metr_dashboard else None
+        d["allowed_widget_query_identifier"] = (
+            obj.metr_dashboard.allowed_widget_query_identifier if obj.metr_dashboard else None
+        )
 
     return d
 

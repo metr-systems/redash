@@ -299,6 +299,7 @@ class DashboardResource(BaseResource):
                 "dashboard_filters_enabled",
                 "options",
                 "url_identifier",
+                "allowed_widget_query_identifier",
             ),
         )
 
@@ -310,16 +311,29 @@ class DashboardResource(BaseResource):
 
         updates["changed_by"] = self.current_user
 
-        # Handle url_identifier separately for MetrDashboard
+        # Handle url_identifier separately for MetrDashboard.
+        # Pass dashboard=dashboard so the backref is populated immediately;
+        # session uses expire_on_commit=False so a cached metr_dashboard=None
+        # would otherwise survive commit and be read by the serializer / the
+        # allowed_widget_query_identifier block below.
         if "url_identifier" in updates:
             url_identifier = updates.pop("url_identifier")
             # Note: url_identifier is validated via validation API
             # to ensure it's never empty
-            # Get or create MetrDashboard
             metr_dashboard = dashboard.metr_dashboard
             if not metr_dashboard:
-                metr_dashboard = models.MetrDashboard(dashboard_id=dashboard.id, org_id=dashboard.org_id)
+                metr_dashboard = models.MetrDashboard(dashboard=dashboard, org_id=dashboard.org_id)
             metr_dashboard.url_identifier = url_identifier
+            models.db.session.add(metr_dashboard)
+
+        if "allowed_widget_query_identifier" in updates:
+            query_identifier = updates.pop("allowed_widget_query_identifier") or None
+
+            metr_dashboard = dashboard.metr_dashboard
+            if not metr_dashboard:
+                metr_dashboard = models.MetrDashboard(dashboard=dashboard, org_id=dashboard.org_id)
+
+            metr_dashboard.allowed_widget_query_identifier = query_identifier
             models.db.session.add(metr_dashboard)
 
         self.update_model(dashboard, updates)
