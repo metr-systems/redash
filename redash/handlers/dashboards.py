@@ -143,15 +143,40 @@ class MyDashboardsResource(BaseResource):
 
 
 def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, org):
-    """This function adds allowed_widgets info to the data to return to frontend
-    if we have a query named as follow f"allowed_widgets_{dashboard_id}".
-    It returns an empty dictionary if the query does not exist"""
-    # get the query having the allowed widgets information for the current dashboard
-    query_name = f"allowed_widgets_{dashboard_id}"
-    query = models.Query.query.filter(
-        models.Query.name == query_name,
-        models.Query.org == org,
+    """Resolve the query holding the allowed_widgets info for a dashboard and
+    build the {parameter_value: [widget_ids]} mapping from its latest result.
+
+    Resolution order:
+      1. MetrDashboard.allowed_widget_query_identifier -> MetrQuery -> Query
+      2. Fallback: a query named f"allowed_widgets_{dashboard_id}" in the org
+
+    Returns an empty dict if no query is found.
+    """
+    query = None
+
+    # 1) MetrDashboard.allowed_widget_query_identifier -> MetrQuery -> Query
+    metr_dashboard = models.MetrDashboard.query.filter(
+        models.MetrDashboard.dashboard_id == dashboard_id,
+        models.MetrDashboard.org_id == org.id,
     ).first()
+    if metr_dashboard and metr_dashboard.allowed_widget_query_identifier:
+        metr_query = (
+            models.db.session.query(models.MetrQuery)
+            .filter(
+                models.MetrQuery.org_id == org.id,
+                models.MetrQuery.query_identifier == metr_dashboard.allowed_widget_query_identifier,
+            )
+            .first()
+        )
+        if metr_query:
+            query = metr_query.query
+
+    # 2) Fallback: legacy naming convention
+    if query is None:
+        query = models.Query.query.filter(
+            models.Query.name == f"allowed_widgets_{dashboard_id}",
+            models.Query.org == org,
+        ).first()
 
     # construct the allowed_widgets dictionary from the query data
     allowed_widgets = {}
@@ -171,7 +196,9 @@ def add_allowed_widgets_info(method):
         # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
         parameter_col_name = "main_parameter"
         widgets_col_name = "widgets"
-        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, self.current_org)
+        allowed_widgets = get_allowed_widgets_info(
+            dashboard_id, parameter_col_name, widgets_col_name, self.current_org
+        )
         if allowed_widgets:
             result["allowed_widgets"] = allowed_widgets
         return result
