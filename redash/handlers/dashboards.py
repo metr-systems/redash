@@ -190,14 +190,21 @@ def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name,
 
 
 def add_allowed_widgets_info(method):
+    """Decorator that adds the ``allowed_widgets`` mapping to the serialized
+    dashboard when an allowed-widgets query exists and
+    yields a non-empty mapping. Nothings otherwise.
+    """
+
     def wrapper(self, dashboard_id):
         result = method(self, dashboard_id)
 
-        # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
         parameter_col_name = "main_parameter"
         widgets_col_name = "widgets"
+
+        # Use result["id"] from the serialized dashboard — the URL param may be a slug
+        # when ?legacy is used, which would break integer-column comparisons.
         allowed_widgets = get_allowed_widgets_info(
-            dashboard_id, parameter_col_name, widgets_col_name, self.current_org
+            result["id"], parameter_col_name, widgets_col_name, self.current_org
         )
         if allowed_widgets:
             result["allowed_widgets"] = allowed_widgets

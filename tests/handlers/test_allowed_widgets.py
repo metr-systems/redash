@@ -26,10 +26,10 @@ class TestAddAllowedWidgetsInfo(BaseTestCase):
 
             @add_allowed_widgets_info
             def test_method(self, dashboard_id):
-                return {"info": "info detail"}
+                return {"id": dashboard_id, "info": "info detail"}
 
         instance = ClassToTest()
-        result = instance.test_method(1)
+        result = instance.test_method(dashboard_id)
 
         assert "allowed_widgets" in result
         assert result["allowed_widgets"] == {"controller1234": ["firstQueryViz", "secondQueryViz"]}
@@ -204,3 +204,60 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
             dashboard.id, parameter_col_name, widgets_col_name, self.factory.org
         )
         assert allowed_widgets == {}
+
+
+class TestAllowedWidgetsViaDashboardEndpoint(BaseTestCase):
+    """Regression tests for the GET /api/dashboards/<dashboard_id> handler.
+
+    The URL placeholder <dashboard_id> is a raw string captured by Flask. It can be:
+      - an integer id, e.g. /api/dashboards/5
+      - a slug, when ?legacy is set, e.g. /api/dashboards/test?legacy
+
+    The add_allowed_widgets_info decorator forwards this value to
+    get_allowed_widgets_info, which filters MetrDashboard.dashboard_id — an Integer
+    column. If the slug form is forwarded as-is, Postgres raises
+    'invalid input syntax for type integer'. These tests pin both URL shapes so the
+    decorator can never regress to passing a non-integer downstream.
+    """
+
+    def test_legacy_slug_url_resolves_allowed_widgets(self):
+        """GET /api/dashboards/<slug>?legacy must serialize allowed_widgets without
+        crashing on the MetrDashboard integer-id filter."""
+        dashboard = self.factory.create_dashboard()
+        data = {
+            "rows": [{"main_parameter": "controller1234", "widgets": ["vizA", "vizB"]}],
+            "columns": [{"name": "main_parameter"}, {"name": "widgets"}],
+        }
+        query_data_result = self.factory.create_query_result(data=data)
+        self.factory.create_query(
+            name=f"allowed_widgets_{dashboard.id}",
+            latest_query_data=query_data_result,
+        )
+        admin = self.factory.create_admin()
+        db.session.commit()
+
+        rv = self.make_request("get", f"/api/dashboards/{dashboard.slug}?legacy", user=admin)
+
+        assert rv.status_code == 200
+        assert rv.json["allowed_widgets"] == {"controller1234": ["vizA", "vizB"]}
+
+    def test_id_url_resolves_allowed_widgets(self):
+        """GET /api/dashboards/<id> must serialize allowed_widgets — sibling case to
+        the legacy test, ensuring the non-legacy path still works after the fix."""
+        dashboard = self.factory.create_dashboard()
+        data = {
+            "rows": [{"main_parameter": "controller1234", "widgets": ["vizA", "vizB"]}],
+            "columns": [{"name": "main_parameter"}, {"name": "widgets"}],
+        }
+        query_data_result = self.factory.create_query_result(data=data)
+        self.factory.create_query(
+            name=f"allowed_widgets_{dashboard.id}",
+            latest_query_data=query_data_result,
+        )
+        admin = self.factory.create_admin()
+        db.session.commit()
+
+        rv = self.make_request("get", f"/api/dashboards/{dashboard.id}", user=admin)
+
+        assert rv.status_code == 200
+        assert rv.json["allowed_widgets"] == {"controller1234": ["vizA", "vizB"]}
