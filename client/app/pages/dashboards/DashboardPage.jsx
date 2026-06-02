@@ -11,6 +11,7 @@ import { useTranslation } from "react-i18next";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
+import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 import FixedParameters from "@/components/FixedParameters";
@@ -44,6 +45,15 @@ function DashboardSettings({ dashboardConfiguration }) {
       >
         {t("Use Dashboard Level Filters")}
       </Checkbox>
+      <div className="m-t-10">
+        <span className="m-r-5">{t("Allowed widgets query identifier:")}</span>
+        <EditInPlace
+          isEditable
+          onDone={(allowed_widget_query_identifier) => updateDashboard({ allowed_widget_query_identifier })}
+          value={dashboard.allowed_widget_query_identifier || ""}
+          placeholder={t("Set identifier")}
+        />
+      </div>
     </div>
   );
 }
