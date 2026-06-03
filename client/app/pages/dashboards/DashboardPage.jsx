@@ -5,13 +5,15 @@ import cx from "classnames";
 
 import Button from "antd/lib/button";
 import Checkbox from "antd/lib/checkbox";
+import Select from "antd/lib/select";
 
 import { useTranslation } from "react-i18next";
+
+import { axios } from "@/services/axios";
 
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
 import DynamicComponent from "@/components/DynamicComponent";
 import DashboardGrid from "@/components/dashboards/DashboardGrid";
-import EditInPlace from "@/components/EditInPlace";
 import Parameters from "@/components/Parameters";
 import Filters from "@/components/Filters";
 import FixedParameters from "@/components/FixedParameters";
@@ -36,6 +38,27 @@ import "./DashboardPage.less";
 function DashboardSettings({ dashboardConfiguration }) {
   const { t } = useTranslation("Dashboards");
   const { dashboard, updateDashboard } = dashboardConfiguration;
+  const [queryIdentifiers, setQueryIdentifiers] = useState([]);
+
+  useEffect(() => {
+    let isCancelled = false;
+    axios
+      .get("api/queries/query_identifiers")
+      .then((rows) => {
+        if (!isCancelled) {
+          setQueryIdentifiers(rows);
+        }
+      })
+      .catch(() => {
+        if (!isCancelled) {
+          setQueryIdentifiers([]);
+        }
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
   return (
     <div className="m-b-10 p-15 bg-white tiled">
       <Checkbox
@@ -47,12 +70,21 @@ function DashboardSettings({ dashboardConfiguration }) {
       </Checkbox>
       <div className="m-t-10">
         <span className="m-r-5">{t("Allowed widgets query identifier:")}</span>
-        <EditInPlace
-          isEditable
-          onDone={(allowed_widget_query_identifier) => updateDashboard({ allowed_widget_query_identifier })}
-          value={dashboard.allowed_widget_query_identifier || ""}
-          placeholder={t("Set identifier")}
-        />
+        <Select
+          showSearch
+          allowClear
+          style={{ minWidth: 240 }}
+          optionFilterProp="children"
+          placeholder={t("Select identifier")}
+          value={dashboard.allowed_widget_query_identifier || undefined}
+          onChange={(value) => updateDashboard({ allowed_widget_query_identifier: value || "" })}
+        >
+          {map(queryIdentifiers, ({ query_identifier, name }) => (
+            <Select.Option key={query_identifier} value={query_identifier}>
+              {`${query_identifier} (${name})`}
+            </Select.Option>
+          ))}
+        </Select>
       </div>
     </div>
   );
