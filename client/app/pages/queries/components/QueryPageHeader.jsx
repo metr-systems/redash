@@ -174,11 +174,11 @@ export default function QueryPageHeader({
             tagsExtra={tagsExtra}
           />
         </div>
-        {(query.query_identifier || queryFlags.canEdit) && (
+        {sourceMode && (query.query_identifier || queryFlags.canEdit) && (
           <div className="query-identifier">
             <span className="query-identifier-label">{t("Identifier:")}</span>
             <EditInPlace
-              isEditable={queryFlags.canEdit}
+              isEditable={queryFlags.canEdit && !query.query_identifier}
               onDone={updateQueryIdentifier}
               value={query.query_identifier || ""}
               placeholder={t("Set query identifier")}
