@@ -61,3 +61,29 @@ class TestMetrQueryIdentifierValidationResource(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertFalse(rv.json["valid"])
         self.assertIn("Already used query identifier", rv.json["errors"][0])
+
+
+class TestMetrQueryIdentifierListResource(BaseTestCase):
+    def test_list_query_identifiers_is_org_scoped(self):
+        """The list endpoint returns only the current org's non-null identifiers."""
+        # Identifier in the current (request) org.
+        own_query = self.factory.create_query()
+        db.session.add(MetrQuery(query_id=own_query.id, org_id=own_query.org_id, query_identifier="own-id"))
+
+        # An identifier in a different org must never appear.
+        other_org = self.factory.create_org()
+        other_query = self.factory.create_query(org=other_org)
+        db.session.add(MetrQuery(query_id=other_query.id, org_id=other_org.id, query_identifier="other-org-id"))
+
+        # A MetrQuery with a NULL identifier must be excluded.
+        null_query = self.factory.create_query()
+        db.session.add(MetrQuery(query_id=null_query.id, org_id=null_query.org_id))
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/queries/query_identifiers")
+
+        self.assertEqual(rv.status_code, 200)
+        identifiers = [row["query_identifier"] for row in rv.json]
+        self.assertEqual(identifiers, ["own-id"])
+        self.assertEqual(rv.json[0]["query_id"], own_query.id)
+        self.assertEqual(rv.json[0]["name"], own_query.name)

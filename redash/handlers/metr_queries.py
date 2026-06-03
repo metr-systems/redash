@@ -32,3 +32,26 @@ class MetrQueryIdentifierValidationResource(BaseResource):
             errors = []
 
         return jsonify({"valid": not errors, "errors": errors})
+
+
+class MetrQueryIdentifierListResource(BaseResource):
+    """Lists the current org's non-null query identifiers (for the dashboard dropdown)."""
+
+    @require_permission("list_dashboards")
+    def get(self):
+        rows = (
+            models.db.session.query(models.MetrQuery)
+            .filter(
+                models.MetrQuery.org_id == self.current_org.id,
+                models.MetrQuery.query_identifier.isnot(None),
+            )
+            .all()
+        )
+        return [
+            {
+                "query_identifier": row.query_identifier,
+                "query_id": row.query_id,
+                "name": row.query.name,
+            }
+            for row in rows
+        ]
