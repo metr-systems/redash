@@ -1,4 +1,4 @@
-from flask import redirect, render_template, send_file
+from flask import redirect, render_template, request, send_file
 from flask_login import login_required
 from werkzeug.utils import safe_join
 
@@ -34,8 +34,12 @@ def dashboard_by_url_identifier(url_identifier, org_slug):
     current_org_obj = current_org._get_current_object()
     dashboard = models.Dashboard.get_by_url_identifier_and_org_or_404(url_identifier, current_org_obj)
 
-    # Redirect to canonical dashboard URL with org prefix
+    # Redirect to canonical dashboard URL with org prefix, preserving query params
+    # (e.g. ?p_Liegenschaft=...) since linked dashboards rely on them.
     canonical_path = f"/{org_slug}/dashboards/{dashboard.id}-{dashboard.slug}"
+    query_string = request.query_string.decode("utf-8")
+    if query_string:
+        canonical_path = f"{canonical_path}?{query_string}"
 
     return redirect(canonical_path, code=302)
 
