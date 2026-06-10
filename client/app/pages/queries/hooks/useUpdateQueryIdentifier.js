@@ -12,7 +12,7 @@ export default function useUpdateQueryIdentifier(query, onChange) {
     async (query_identifier) => {
       recordEvent("edit_query_identifier", "query", query.id);
 
-      // skip validation if empty value 
+      // skip validation if empty value
       if (query_identifier) {
         try {
           const response = await axios.post(`api/queries/${query.id}/query_identifier/validate`, { query_identifier });
