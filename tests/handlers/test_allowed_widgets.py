@@ -142,6 +142,51 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
         )
         assert allowed_widgets == {"controller42": ["vizA"]}
 
+    def test_identifier_resolves_to_the_linked_query_not_another(self):
+        """With several queries in the org, the identifier must resolve through
+        the MetrQuery.query_id -> Query.id join to the exact linked query.
+        """
+        parameter_col_name = "main_parameter"
+        widgets_col_name = "widgets"
+
+        dashboard = self.factory.create_dashboard()
+        db.session.add(
+            MetrDashboard(
+                dashboard_id=dashboard.id,
+                org_id=dashboard.org_id,
+                allowed_widget_query_identifier="the-aw-query",
+            )
+        )
+
+        # Decoy query in the same org, with different data and no MetrQuery link.
+        decoy_data = {
+            "rows": [{parameter_col_name: "decoy", widgets_col_name: ["decoyViz"]}],
+            "columns": [{"name": parameter_col_name}, {"name": widgets_col_name}],
+        }
+        decoy_qr = self.factory.create_query_result(data=decoy_data)
+        self.factory.create_query(name="decoy-query", latest_query_data=decoy_qr)
+
+        # The query actually linked to the identifier.
+        data = {
+            "rows": [{parameter_col_name: "controller42", widgets_col_name: ["vizA"]}],
+            "columns": [{"name": parameter_col_name}, {"name": widgets_col_name}],
+        }
+        query_data_result = self.factory.create_query_result(data=data)
+        query = self.factory.create_query(name="linked-query", latest_query_data=query_data_result)
+        db.session.add(
+            MetrQuery(
+                query_id=query.id,
+                org_id=query.org_id,
+                query_identifier="the-aw-query",
+            )
+        )
+        db.session.flush()
+
+        allowed_widgets = get_allowed_widgets_info(
+            dashboard.id, parameter_col_name, widgets_col_name, self.factory.org
+        )
+        assert allowed_widgets == {"controller42": ["vizA"]}
+
     def test_falls_back_to_legacy_query_name_when_identifier_null(self):
         parameter_col_name = "main_parameter"
         widgets_col_name = "widgets"

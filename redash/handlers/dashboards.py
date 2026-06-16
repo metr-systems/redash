@@ -159,17 +159,20 @@ def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name,
         models.MetrDashboard.dashboard_id == dashboard_id,
         models.MetrDashboard.org_id == org.id,
     ).first()
+
     if metr_dashboard and metr_dashboard.allowed_widget_query_identifier:
-        metr_query = (
-            models.db.session.query(models.MetrQuery)
+        query = (
+            models.db.session.query(models.Query)
+            .join(
+                models.MetrQuery,
+                models.MetrQuery.query_id == models.Query.id,
+            )
             .filter(
                 models.MetrQuery.org_id == org.id,
                 models.MetrQuery.query_identifier == metr_dashboard.allowed_widget_query_identifier,
             )
             .first()
         )
-        if metr_query:
-            query = metr_query.query
 
     # 2) Fallback: legacy naming convention
     if query is None:
