@@ -239,13 +239,13 @@ class DashboardGrid extends React.Component {
 
   applyLayoutsOrder(layouts) {
     const { editedlayoutsOrder, widgets, setEditedlayoutsOrder } = this.props;
-    const { layoutsOrder } = this.state;
+    const orderToUse = editedlayoutsOrder.length > 0 ? editedlayoutsOrder : this.state.layoutsOrder;
 
     if (editedlayoutsOrder.length > 0) {
       this.setLayoutsOrder(editedlayoutsOrder);
       setEditedlayoutsOrder([]);
     }
-    return keepLayoutsOrder(layoutsOrder, layouts[MULTI], widgets);
+    return keepLayoutsOrder(orderToUse, layouts[MULTI], widgets);
   }
 
   normalizeTo = (layout) => ({
