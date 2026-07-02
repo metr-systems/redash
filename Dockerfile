@@ -29,6 +29,7 @@ RUN yarn config set network-timeout 300000
 RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile; fi
 
 COPY --chown=redash client /frontend/client
+COPY --chown=redash redash_global /frontend/redash_global
 COPY --chown=redash webpack.config.js /frontend/
 RUN <<EOF
   if [ "x$skip_frontend_build" = "x" ]; then
