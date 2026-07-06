@@ -68,6 +68,7 @@ const config = {
       "./client/app/assets/less/main.less",
       "./client/app/assets/less/ant.less"
     ],
+    global_app: ["./redash_global/client/index.js"],
     server: ["./client/app/assets/less/server.less"]
   },
   output: {
@@ -94,16 +95,22 @@ const config = {
     new HtmlWebpackPlugin({
       template: "./client/app/index.html",
       filename: "index.html",
-      excludeChunks: ["server"],
+      excludeChunks: ["server", "global_app"],
       release: process.env.BUILD_VERSION || "dev",
       staticPath,
       baseHref,
       title: htmlTitle
     }),
     new HtmlWebpackPlugin({
+      template: "./redash_global/client/global.html",
+      filename: "global.html",
+      chunks: ["global_app"],
+      title: "Global Admin"
+    }),
+    new HtmlWebpackPlugin({
       template: "./client/app/multi_org.html",
       filename: "multi_org.html",
-      excludeChunks: ["server"]
+      excludeChunks: ["server", "global_app"]
     }),
     isProduction &&
       new MiniCssExtractPlugin({
@@ -145,6 +152,9 @@ const config = {
           {
             loader: require.resolve("babel-loader"),
             options: {
+              // redash_global/client lives outside client/, so .babelrc isn't
+              // found by the default upward search — point at it explicitly.
+              configFile: path.resolve(__dirname, "client/.babelrc"),
               plugins: [
                 isHotReloadingEnabled && require.resolve("react-refresh/babel")
               ].filter(Boolean)
@@ -155,7 +165,7 @@ const config = {
       },
       {
         test: /\.html$/,
-        exclude: [/node_modules/, /index\.html/, /multi_org\.html/],
+        exclude: [/node_modules/, /index\.html/, /multi_org\.html/, /global\.html/],
         use: [
           {
             loader: "raw-loader"
@@ -246,6 +256,9 @@ const config = {
     devMiddleware: {
       index: "/static/index.html",
       publicPath: staticPath,
+      // Write the global bundle to disk so the standalone global Flask server
+      // (on its own port) can serve global.html + global_app.js directly.
+      writeToDisk: filePath => /global/.test(filePath),
       stats: {
         modules: false,
         chunkModules: false
