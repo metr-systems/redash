@@ -162,7 +162,10 @@ function transformResponse(data) {
 
 const saveOrCreateUrl = (data) => (data.id ? `api/dashboards/${data.id}` : "api/dashboards");
 const DashboardService = {
-  get: ({ id, slug }) => {
+  get: ({ id, slug, urlIdentifier }) => {
+    if (urlIdentifier) {
+      return axios.get(`api/dashboards/by_url_identifier/${urlIdentifier}`).then(transformResponse);
+    }
     const params = {};
     if (!id) {
       params.legacy = null;
