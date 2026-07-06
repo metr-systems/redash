@@ -24,7 +24,7 @@ class TestAddAllowedWidgetsInfo(BaseTestCase):
             current_org = org
 
             @add_allowed_widgets_info
-            def test_method(self, dashboard_id):
+            def test_method(self, dashboard_id=None, url_identifier=None):
                 return {"info": "info detail"}
 
         instance = ClassToTest()
@@ -49,7 +49,9 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
         self.factory.create_query(name=f"allowed_widgets_{dashboard_id}", latest_query_data=query_data_result)
 
         # call function to test
-        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, self.factory.org)
+        allowed_widgets = get_allowed_widgets_info(
+            dashboard_id, parameter_col_name, widgets_col_name, self.factory.org
+        )
 
         # assertions
         assert {"controller1234": ["firstQueryViz", "secondQueryViz"]} == allowed_widgets
@@ -99,5 +101,7 @@ class TestAllowedWidgetsDashboardResourceGet(BaseTestCase):
         )
 
         # querying for the current org should return nothing
-        allowed_widgets = get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, self.factory.org)
+        allowed_widgets = get_allowed_widgets_info(
+            dashboard_id, parameter_col_name, widgets_col_name, self.factory.org
+        )
         assert allowed_widgets == {}
