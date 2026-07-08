@@ -194,21 +194,19 @@ def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name,
 
 def add_allowed_widgets_info(method):
     """Decorator that adds the ``allowed_widgets`` mapping to the serialized
-    dashboard when an allowed-widgets query exists and
-    yields a non-empty mapping. Nothings otherwise.
+    dashboard when an allowed-widgets query exists.
     """
 
-    def wrapper(self, dashboard_id):
-        result = method(self, dashboard_id)
+    def wrapper(self, dashboard_id=None, url_identifier=None):
+        result = method(self, dashboard_id=dashboard_id, url_identifier=url_identifier)
 
         parameter_col_name = "main_parameter"
         widgets_col_name = "widgets"
 
-        # Use result["id"] from the serialized dashboard — the URL param may be a slug
-        # when ?legacy is used, which would break integer-column comparisons.
         allowed_widgets = get_allowed_widgets_info(
             result["id"], parameter_col_name, widgets_col_name, self.current_org
         )
+
         if allowed_widgets:
             result["allowed_widgets"] = allowed_widgets
         return result
@@ -219,7 +217,7 @@ def add_allowed_widgets_info(method):
 class DashboardResource(BaseResource):
     @require_permission("list_dashboards")
     @add_allowed_widgets_info
-    def get(self, dashboard_id=None):
+    def get(self, dashboard_id=None, url_identifier=None):
         """
         Retrieves a dashboard.
 
@@ -254,11 +252,14 @@ class DashboardResource(BaseResource):
         :>json string widget.created_at: ISO format timestamp for widget creation
         :>json string widget.updated_at: ISO format timestamp for last widget modification
         """
-        if request.args.get("legacy") is not None:
-            fn = models.Dashboard.get_by_slug_and_org
+        if url_identifier is not None:
+            dashboard = models.Dashboard.get_by_url_identifier_and_org_or_404(url_identifier, self.current_org)
         else:
-            fn = models.Dashboard.get_by_id_and_org
-        dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
+            if request.args.get("legacy") is not None:
+                fn = models.Dashboard.get_by_slug_and_org
+            else:
+                fn = models.Dashboard.get_by_id_and_org
+            dashboard = get_object_or_404(fn, dashboard_id, self.current_org)
 
         require_dashboard_group_access(dashboard, self.current_user)
 

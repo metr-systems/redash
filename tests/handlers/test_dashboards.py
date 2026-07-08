@@ -169,6 +169,27 @@ class TestDashboardResourceGetByAdmin(BaseTestCase):
         self.assertEqual(rv.status_code, 200)
         self.assertIsNone(rv.json["url_identifier"])
 
+    def test_get_dashboard_by_url_identifier(self):
+        """Dashboard can be resolved through the by_url_identifier JSON endpoint."""
+        dashboard = self.factory.create_dashboard()
+        admin = self.factory.create_admin()
+        db.session.flush()
+
+        metr_dashboard = MetrDashboard(dashboard_id=dashboard.id, org_id=dashboard.org_id, url_identifier="details")
+        db.session.add(metr_dashboard)
+        db.session.commit()
+
+        rv = self.make_request("get", "/api/dashboards/by_url_identifier/details", user=admin)
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["id"], dashboard.id)
+        self.assertEqual(rv.json["url_identifier"], "details")
+
+    def test_get_dashboard_by_unknown_url_identifier(self):
+        """An unknown url_identifier returns 404."""
+        admin = self.factory.create_admin()
+        rv = self.make_request("get", "/api/dashboards/by_url_identifier/does-not-exist", user=admin)
+        self.assertEqual(rv.status_code, 404)
+
 
 class TestDashboardResourceGetByCustom(BaseTestCase):
     def test_get_dashboard_by_custom_requires_group_access(self):

@@ -259,7 +259,7 @@ DashboardComponent.propTypes = {
   dashboard: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
 };
 
-function DashboardPage({ dashboardSlug, dashboardId, onError }) {
+function DashboardPage({ dashboardSlug, dashboardId, dashboardUrlIdentifier, onError }) {
   const [dashboard, setDashboard] = useState(null);
   const [loading, setLoading] = useState(true);
   const handleError = useImmutableCallback(onError);
@@ -267,19 +267,19 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
 
   useEffect(() => {
     setLoading(true);
-    Dashboard.get({ id: dashboardId, slug: dashboardSlug })
+    Dashboard.get({ id: dashboardId, slug: dashboardSlug, urlIdentifier: dashboardUrlIdentifier })
       .then((dashboardData) => {
         recordEvent("view", "dashboard", dashboardData.id);
         setDashboard(dashboardData);
 
-        // if loaded by slug, update location url to use the id
+        // if loaded by slug or url identifier, update location url to use the canonical id
         if (!dashboardId) {
           location.setPath(url.parse(dashboardData.url).pathname, true);
         }
       })
       .catch(handleError)
       .finally(() => setLoading(false));
-  }, [dashboardId, dashboardSlug, handleError]);
+  }, [dashboardId, dashboardSlug, dashboardUrlIdentifier, handleError]);
 
   return (
     <div className="dashboard-page">
@@ -297,12 +297,14 @@ function DashboardPage({ dashboardSlug, dashboardId, onError }) {
 DashboardPage.propTypes = {
   dashboardSlug: PropTypes.string,
   dashboardId: PropTypes.string,
+  dashboardUrlIdentifier: PropTypes.string,
   onError: PropTypes.func,
 };
 
 DashboardPage.defaultProps = {
   dashboardSlug: null,
   dashboardId: null,
+  dashboardUrlIdentifier: null,
   onError: PropTypes.func,
 };
 
@@ -311,6 +313,15 @@ routes.register(
   "Dashboards.LegacyViewOrEdit",
   routeWithUserSession({
     path: "/dashboard/:dashboardSlug",
+    render: (pageProps) => <DashboardPage {...pageProps} />,
+  })
+);
+
+// metr dashboard by url identifier
+routes.register(
+  "Dashboards.ByUrlIdentifier",
+  routeWithUserSession({
+    path: "/dashboards/by_url_identifier/:dashboardUrlIdentifier",
     render: (pageProps) => <DashboardPage {...pageProps} />,
   })
 );

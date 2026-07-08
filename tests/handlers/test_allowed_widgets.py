@@ -25,8 +25,8 @@ class TestAddAllowedWidgetsInfo(BaseTestCase):
             current_org = org
 
             @add_allowed_widgets_info
-            def test_method(self, dashboard_id):
-                return {"id": dashboard_id, "info": "info detail"}
+            def test_method(self, dashboard_id=None, url_identifier=None):
+                return {"info": "info detail"}
 
         instance = ClassToTest()
         result = instance.test_method(dashboard_id)
