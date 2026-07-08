@@ -4,6 +4,7 @@ from redash.models import (
     Dashboard,
     DashboardGroup,
     MetrDashboard,
+    MetrQuery,
     db,
 )
 from redash.permissions import ACCESS_TYPE_MODIFY
@@ -423,6 +424,31 @@ class TestDashboardResourcePost(BaseTestCase):
         metr_dashboard = MetrDashboard.query.filter_by(dashboard_id=dashboard.id).first()
         self.assertIsNotNone(metr_dashboard)
         self.assertEqual(metr_dashboard.url_identifier, "new-slug")
+        self.assertEqual(metr_dashboard.org_id, dashboard.org_id)
+
+    def test_post_persists_allowed_widget_query_identifier(self):
+        admin = self.factory.create_admin()
+        dashboard = self.factory.create_dashboard()
+
+        # The identifier must resolve to a MetrQuery in the same org.
+        query = self.factory.create_query()
+        db.session.add(MetrQuery(query=query, org_id=query.org_id, query_identifier="aw-config"))
+        db.session.commit()
+
+        rv = self.make_request(
+            "post",
+            "/api/dashboards/{0}".format(dashboard.id),
+            data={"allowed_widget_query_identifier": "aw-config"},
+            user=admin,
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["allowed_widget_query_identifier"], "aw-config")
+
+        # MetrDashboard row was lazily created with the right value and org
+        metr_dashboard = MetrDashboard.query.filter_by(dashboard_id=dashboard.id).first()
+        self.assertIsNotNone(metr_dashboard)
+        self.assertEqual(metr_dashboard.allowed_widget_query_identifier, "aw-config")
         self.assertEqual(metr_dashboard.org_id, dashboard.org_id)
 
 

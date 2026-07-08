@@ -852,6 +852,45 @@ def query_last_modified_by(target, val, oldval, initiator):
     target.last_modified_by_id = val
 
 
+@generic_repr("id", "query_id", "org_id", "query_identifier")
+class MetrQuery(db.Model):
+    """
+    Extends Query with METR-specific fields.
+    Mirrors MetrDashboard's approach of extending Dashboard
+    with METR-specific fields in metr_dashboard.py,
+    but for queries instead of dashboards.
+    """
+
+    id = primary_key("MetrQuery")
+    query_id = Column(
+        key_type("Query"),
+        db.ForeignKey("queries.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    org_id = Column(key_type("Organization"), nullable=False, index=True)
+    query_identifier = Column(db.String(100), nullable=True)
+    query = db.relationship(
+        Query,
+        backref=db.backref("metr_query", cascade="delete", uselist=False),
+    )
+
+    __tablename__ = "metr_query"
+
+    __table_args__ = (
+        # Partial unique index: enforces uniqueness on (org_id, query_identifier)
+        # only when query_identifier IS NOT NULL.
+        Index(
+            "uq_metr_query_org_query_identifier",
+            "org_id",
+            "query_identifier",
+            unique=True,
+            postgresql_where=Column("query_identifier").isnot(None),
+        ),
+    )
+
+
 @generic_repr("id", "object_type", "object_id", "user_id", "org_id")
 class Favorite(TimestampMixin, db.Model):
     id = primary_key("Favorite")
@@ -1258,6 +1297,7 @@ class MetrDashboard(db.Model):
     )
     org_id = Column(key_type("Organization"), nullable=False, index=True)
     url_identifier = Column(db.String(100), nullable=True)
+    allowed_widget_query_identifier = Column(db.String(100), nullable=True)
     dashboard = db.relationship(
         "Dashboard",
         backref=db.backref("metr_dashboard", cascade="delete", uselist=False),

@@ -143,15 +143,43 @@ class MyDashboardsResource(BaseResource):
 
 
 def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name, org):
-    """This function adds allowed_widgets info to the data to return to frontend
-    if we have a query named as follow f"allowed_widgets_{dashboard_id}".
-    It returns an empty dictionary if the query does not exist"""
-    # get the query having the allowed widgets information for the current dashboard
-    query_name = f"allowed_widgets_{dashboard_id}"
-    query = models.Query.query.filter(
-        models.Query.name == query_name,
-        models.Query.org == org,
+    """Resolve the query holding the allowed_widgets info for a dashboard and
+    build the {parameter_value: [widget_ids]} mapping from its latest result.
+
+    Resolution order:
+      1. MetrDashboard.allowed_widget_query_identifier -> MetrQuery -> Query
+      2. Fallback: a query named f"allowed_widgets_{dashboard_id}" in the org
+
+    Returns an empty dict if no query is found.
+    """
+    query = None
+
+    # 1) MetrDashboard.allowed_widget_query_identifier -> MetrQuery -> Query
+    metr_dashboard = models.MetrDashboard.query.filter(
+        models.MetrDashboard.dashboard_id == dashboard_id,
+        models.MetrDashboard.org_id == org.id,
     ).first()
+
+    if metr_dashboard and metr_dashboard.allowed_widget_query_identifier:
+        query = (
+            models.db.session.query(models.Query)
+            .join(
+                models.MetrQuery,
+                models.MetrQuery.query_id == models.Query.id,
+            )
+            .filter(
+                models.MetrQuery.org_id == org.id,
+                models.MetrQuery.query_identifier == metr_dashboard.allowed_widget_query_identifier,
+            )
+            .first()
+        )
+
+    # 2) Fallback: legacy naming convention
+    if query is None:
+        query = models.Query.query.filter(
+            models.Query.name == f"allowed_widgets_{dashboard_id}",
+            models.Query.org == org,
+        ).first()
 
     # construct the allowed_widgets dictionary from the query data
     allowed_widgets = {}
@@ -165,14 +193,20 @@ def get_allowed_widgets_info(dashboard_id, parameter_col_name, widgets_col_name,
 
 
 def add_allowed_widgets_info(method):
+    """Decorator that adds the ``allowed_widgets`` mapping to the serialized
+    dashboard when an allowed-widgets query exists.
+    """
+
     def wrapper(self, dashboard_id=None, url_identifier=None):
         result = method(self, dashboard_id=dashboard_id, url_identifier=url_identifier)
 
-        # add allowed_widgets to the dashboard information to return in case it exists and it is not empty
-        lookup_id = dashboard_id if dashboard_id is not None else result["id"]
         parameter_col_name = "main_parameter"
         widgets_col_name = "widgets"
-        allowed_widgets = get_allowed_widgets_info(lookup_id, parameter_col_name, widgets_col_name, self.current_org)
+
+        allowed_widgets = get_allowed_widgets_info(
+            result["id"], parameter_col_name, widgets_col_name, self.current_org
+        )
+
         if allowed_widgets:
             result["allowed_widgets"] = allowed_widgets
         return result
@@ -276,6 +310,7 @@ class DashboardResource(BaseResource):
                 "dashboard_filters_enabled",
                 "options",
                 "url_identifier",
+                "allowed_widget_query_identifier",
             ),
         )
 
@@ -287,16 +322,29 @@ class DashboardResource(BaseResource):
 
         updates["changed_by"] = self.current_user
 
-        # Handle url_identifier separately for MetrDashboard
+        # Handle url_identifier separately for MetrDashboard.
+        # Pass dashboard=dashboard so the backref is populated immediately;
+        # session uses expire_on_commit=False so a cached metr_dashboard=None
+        # would otherwise survive commit and be read by the serializer / the
+        # allowed_widget_query_identifier block below.
         if "url_identifier" in updates:
             url_identifier = updates.pop("url_identifier")
             # Note: url_identifier is validated via validation API
             # to ensure it's never empty
-            # Get or create MetrDashboard
             metr_dashboard = dashboard.metr_dashboard
             if not metr_dashboard:
-                metr_dashboard = models.MetrDashboard(dashboard_id=dashboard.id, org_id=dashboard.org_id)
+                metr_dashboard = models.MetrDashboard(dashboard=dashboard, org_id=dashboard.org_id)
             metr_dashboard.url_identifier = url_identifier
+            models.db.session.add(metr_dashboard)
+
+        if "allowed_widget_query_identifier" in updates:
+            query_identifier = updates.pop("allowed_widget_query_identifier") or None
+
+            metr_dashboard = dashboard.metr_dashboard
+            if not metr_dashboard:
+                metr_dashboard = models.MetrDashboard(dashboard=dashboard, org_id=dashboard.org_id)
+
+            metr_dashboard.allowed_widget_query_identifier = query_identifier
             models.db.session.add(metr_dashboard)
 
         self.update_model(dashboard, updates)

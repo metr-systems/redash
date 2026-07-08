@@ -221,6 +221,24 @@ class TestQueryResourcePost(BaseTestCase):
         self.assertEqual(rv.json["name"], "Testing")
         self.assertEqual(rv.json["last_modified_by"]["id"], user.id)
 
+    def test_post_persists_query_identifier(self):
+        query = self.factory.create_query()
+
+        rv = self.make_request(
+            "post",
+            "/api/queries/{0}".format(query.id),
+            data={"query_identifier": "my-query-id"},
+            user=self.factory.user,
+        )
+
+        self.assertEqual(rv.status_code, 200)
+        self.assertEqual(rv.json["query_identifier"], "my-query-id")
+
+        # MetrQuery row was created with the right value and org
+        self.assertIsNotNone(query.metr_query)
+        self.assertEqual(query.metr_query.query_identifier, "my-query-id")
+        self.assertEqual(query.metr_query.org_id, query.org_id)
+
 
 class TestQueryListResourceGet(BaseTestCase):
     def test_returns_queries(self):

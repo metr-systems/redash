@@ -21,6 +21,7 @@ import usePublishQuery from "../hooks/usePublishQuery";
 import useUnpublishQuery from "../hooks/useUnpublishQuery";
 import useUpdateQueryTags from "../hooks/useUpdateQueryTags";
 import useRenameQuery from "../hooks/useRenameQuery";
+import useUpdateQueryIdentifier from "../hooks/useUpdateQueryIdentifier";
 import useDuplicateQuery from "../hooks/useDuplicateQuery";
 import useApiKeyDialog from "../hooks/useApiKeyDialog";
 import usePermissionsEditorDialog from "../hooks/usePermissionsEditorDialog";
@@ -79,6 +80,7 @@ export default function QueryPageHeader({
   const queryFlags = useQueryFlags(query, dataSource);
   const updateName = useRenameQuery(query, onChange);
   const updateTags = useUpdateQueryTags(query, onChange);
+  const updateQueryIdentifier = useUpdateQueryIdentifier(query, onChange);
   const archiveQuery = useArchiveQuery(query, onChange);
   const publishQuery = usePublishQuery(query, onChange);
   const unpublishQuery = useUnpublishQuery(query, onChange);
@@ -172,6 +174,17 @@ export default function QueryPageHeader({
             tagsExtra={tagsExtra}
           />
         </div>
+        {sourceMode && !queryFlags.isNew && (query.query_identifier || queryFlags.canEdit) && (
+          <div className="query-identifier">
+            <span className="query-identifier-label">{t("Identifier:")}</span>
+            <EditInPlace
+              isEditable={queryFlags.canEdit && !query.query_identifier}
+              onDone={updateQueryIdentifier}
+              value={query.query_identifier || ""}
+              placeholder={t("Set query identifier")}
+            />
+          </div>
+        )}
       </div>
       <div className="header-actions">
         {headerExtra}
@@ -219,6 +232,7 @@ QueryPageHeader.propTypes = {
     id: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     name: PropTypes.string,
     tags: PropTypes.arrayOf(PropTypes.string),
+    query_identifier: PropTypes.string,
   }).isRequired,
   dataSource: PropTypes.object,
   sourceMode: PropTypes.bool,
