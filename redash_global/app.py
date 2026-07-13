@@ -22,4 +22,9 @@ def create_global_app():
 
     app.register_blueprint(global_blueprint)
 
+    from redash_global.cli import create_global_admin, update_global_admin_password
+
+    app.cli.add_command(create_global_admin)
+    app.cli.add_command(update_global_admin_password)
+
     return app
