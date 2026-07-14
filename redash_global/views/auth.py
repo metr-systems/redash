@@ -11,6 +11,7 @@ from redash_global.models import GlobalAdminUser
 
 login_manager = LoginManager()
 login_manager.login_view = "global.login"
+login_manager.login_message = None
 
 
 @login_manager.user_loader
