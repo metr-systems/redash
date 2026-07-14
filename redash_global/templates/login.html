@@ -1,0 +1,31 @@
+{% extends "layouts/signed_out.html" %}
+
+{% block title %}Login to Redash Global{% endblock %}
+
+{% block content %}
+<div class="fixed-width-page">
+  <div class="bg-white tiled">
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-danger" role="alert" data-test="ErrorMessage">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form role="form" method="post" name="login">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+      <div class="form-group">
+        <label for="inputUsername">Username</label>
+        <input type="text" class="form-control" id="inputUsername" name="username" value="{{ username }}" data-test="Username">
+      </div>
+      <div class="form-group">
+        <label for="inputPassword">Password</label>
+        <input type="password" class="form-control" id="inputPassword" name="password" data-test="Password">
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-block m-t-25">Log In</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
