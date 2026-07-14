@@ -1,0 +1,43 @@
+import React from "react";
+import Menu from "antd/lib/menu";
+
+import Link from "@/components/Link";
+import logoUrl from "@/assets/images/redash_icon_small.png";
+
+import LogoutOutlinedIcon from "@ant-design/icons/LogoutOutlined";
+
+import "@/components/ApplicationArea/ApplicationLayout/DesktopNavbar.less";
+
+function NavbarSection({ children, ...props }) {
+  return (
+    <Menu selectable={false} mode="vertical" theme="dark" {...props}>
+      {children}
+    </Menu>
+  );
+}
+
+export default function GlobalDesktopNavbar() {
+  return (
+    <nav className="desktop-navbar">
+      <NavbarSection className="desktop-navbar-logo">
+        <div role="menuitem">
+          <Link href="./">
+            <img src={logoUrl} alt="Redash" />
+          </Link>
+        </div>
+      </NavbarSection>
+
+      <NavbarSection className="desktop-navbar-spacer" />
+
+      <NavbarSection>
+        <Menu.Item key="logout">
+          {/* Session logout is handled by the server, so bypass the client-side router. */}
+          <a href="/logout" data-skip-router>
+            <LogoutOutlinedIcon />
+            <span className="desktop-navbar-label">Log out</span>
+          </a>
+        </Menu.Item>
+      </NavbarSection>
+    </nav>
+  );
+}

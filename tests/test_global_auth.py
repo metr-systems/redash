@@ -79,7 +79,7 @@ class GlobalAuthTest(GlobalBaseTestCase):
         self._create_admin("admin", "secret")
         self.global_client.post("/login", data={"username": "admin", "password": "secret"})
 
-        response = self.global_client.post("/logout")
+        response = self.global_client.get("/logout")
 
         self.assertEqual(response.status_code, 302)
         self.assertIn("/login", response.headers["Location"])
