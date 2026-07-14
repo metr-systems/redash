@@ -8,6 +8,7 @@ from flask_login import (
 )
 
 from redash_global.models import GlobalAdminUser
+from redash_global.security import GLOBAL_THROTTLE_LOGIN_PATTERN, limiter
 
 login_manager = LoginManager()
 login_manager.login_view = "global.login"
@@ -19,6 +20,7 @@ def load_user(user_id):
     return GlobalAdminUser.query.get(user_id)
 
 
+@limiter.limit(GLOBAL_THROTTLE_LOGIN_PATTERN, methods=["POST"])
 def login_page():
     if current_user.is_authenticated:
         return redirect(url_for("global.index"))
