@@ -73,3 +73,18 @@ class GlobalAuthTest(GlobalBaseTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(b"Wrong username or password", response.data)
+
+    def test_logout_clears_session_and_redirects_to_login(self):
+        """Logout ends the session so / gates back to /login."""
+        self._create_admin("admin", "secret")
+        self.global_client.post("/login", data={"username": "admin", "password": "secret"})
+
+        response = self.global_client.post("/logout")
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/login", response.headers["Location"])
+
+        # The session is gone, so / redirects to /login again.
+        index = self.global_client.get("/")
+        self.assertEqual(index.status_code, 302)
+        self.assertIn("/login", index.headers["Location"])

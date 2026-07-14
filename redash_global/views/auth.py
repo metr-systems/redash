@@ -1,5 +1,11 @@
 from flask import flash, redirect, render_template, request, url_for
-from flask_login import LoginManager, current_user, login_user
+from flask_login import (
+    LoginManager,
+    current_user,
+    login_required,
+    login_user,
+    logout_user,
+)
 
 from redash_global.models import GlobalAdminUser
 
@@ -26,3 +32,9 @@ def login_page():
         flash("Wrong username or password.")
 
     return render_template("login.html", username=request.form.get("username", ""))
+
+
+@login_required
+def logout_page():
+    logout_user()
+    return redirect(url_for("global.login"))
