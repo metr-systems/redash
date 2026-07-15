@@ -19,6 +19,10 @@ logger = logging.getLogger("alembic.env")
 # target_metadata = mymodel.Base.metadata
 from flask import current_app
 
+# Import redash_global models so their tables are registered on db.metadata
+# and picked up by autogenerate.
+import redash_global.models  # noqa: F401,E402
+
 db_url_escaped = current_app.config.get("SQLALCHEMY_DATABASE_URI").replace("%", "%%")
 config.set_main_option("sqlalchemy.url", db_url_escaped)
 target_metadata = current_app.extensions["migrate"].db.metadata

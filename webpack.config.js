@@ -68,7 +68,11 @@ const config = {
       "./client/app/assets/less/main.less",
       "./client/app/assets/less/ant.less"
     ],
-    global_app: ["./redash_global/client/index.js"],
+    global_app: [
+      "./redash_global/client/index.js",
+      "./client/app/assets/less/main.less",
+      "./client/app/assets/less/ant.less"
+    ],
     server: ["./client/app/assets/less/server.less"]
   },
   output: {
@@ -105,6 +109,8 @@ const config = {
       template: "./redash_global/client/global.html",
       filename: "global.html",
       chunks: ["global_app"],
+      staticPath,
+      baseHref: "/",
       title: "Global Admin"
     }),
     new HtmlWebpackPlugin({
