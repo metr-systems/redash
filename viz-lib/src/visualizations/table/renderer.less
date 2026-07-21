@@ -152,13 +152,33 @@
     width: 100%;
     height: 100%;
 
+    // Resolve the height chain from the absolute container down to .ant-table so
+    // flex-grow can bound the table to the available space. Without this the
+    // table grows to its content, the outer container scrolls instead, and the
+    // sticky <th> header rides away with it.
+    .table-fixed-header,
+    .ant-spin-nested-loading,
+    .ant-spin-container {
+      height: 100%;
+    }
 
     .ant-spin-container {
       display: flex;
       flex-direction: column;
 
+      // Make .ant-table the bounded vertical scroll container so the sticky <th>
+      // header anchors to it and stays pinned while the rows scroll — the same
+      // arrangement the .edit-visualization-dialog block below relies on.
       .ant-table {
         flex-grow: 1;
+        overflow: auto;
+      }
+
+      // Keep the wrappers between the sticky <th> and .ant-table transparent so a
+      // clipping wrapper doesn't break the sticky anchoring.
+      .ant-table-container,
+      .ant-table-content {
+        overflow: visible;
       }
     }
   }
