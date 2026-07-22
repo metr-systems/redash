@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from flask import Flask
 from jinja2 import ChoiceLoader, FileSystemLoader
@@ -10,8 +11,8 @@ from redash.models.base import db
 from redash_global import security
 from redash_global.views.auth import login_manager
 
-GLOBAL_TEMPLATE_PATH = os.path.join(os.path.dirname(__file__), "templates")
-REDASH_TEMPLATE_PATH = os.path.join(os.path.dirname(redash.__file__), "templates")
+GLOBAL_TEMPLATE_PATH = Path(__file__).parent / "templates"
+REDASH_TEMPLATE_PATH = Path(redash.__file__).parent / "templates"
 
 
 def _validate_required_config():
