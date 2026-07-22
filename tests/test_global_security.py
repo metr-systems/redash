@@ -41,3 +41,17 @@ class GlobalTalismanParityTest(GlobalBaseTestCase):
             self.app.config["SESSION_COOKIE_HTTPONLY"],
             self.global_app.config["SESSION_COOKIE_HTTPONLY"],
         )
+
+
+class GlobalCsrfCookieTest(GlobalBaseTestCase):
+    def test_response_sets_readable_csrf_token_cookie(self):
+        self._create_admin("admin", "secret")
+        self.global_client.post("/login", data={"username": "admin", "password": "secret"})
+
+        response = self.global_client.get("/")
+
+        cookies = response.headers.getlist("Set-Cookie")
+        csrf_cookie = next((c for c in cookies if c.startswith("csrf_token=")), None)
+        self.assertIsNotNone(csrf_cookie)
+        # Must stay JS-readable so the SPA can attach it as the X-CSRFToken header.
+        self.assertNotIn("HttpOnly", csrf_cookie)
