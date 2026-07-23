@@ -19,7 +19,7 @@ def _serialize(dashboard, redash_url):
         "name": dashboard.name,
         "slug": dashboard.slug,
         "url_identifier": metr_dashboard.url_identifier if metr_dashboard else None,
-        "url": f"{redash_url}/{TEMPLATE_ORG_SLUG}/dashboard/{dashboard.slug}",
+        "url": f"{redash_url}/{TEMPLATE_ORG_SLUG}/dashboards/{dashboard.id}-{dashboard.slug}",
     }
 
 

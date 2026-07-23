@@ -85,4 +85,6 @@ class SubDashboardsReadApiTest(GlobalBaseTestCase):
 
         data = self.global_client.get("/global-api/sub-dashboards").get_json()
 
-        self.assertTrue(data["results"][0]["url"].endswith("/se_template/dashboard/{}".format(dashboard.slug)))
+        self.assertTrue(
+            data["results"][0]["url"].endswith("/se_template/dashboards/{}-{}".format(dashboard.id, dashboard.slug))
+        )
