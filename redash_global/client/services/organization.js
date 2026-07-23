@@ -1,7 +1,7 @@
 import { axios } from "./axios";
 
-const Organization = {
+const OrganizationService = {
   query: () => axios.get("organizations"),
 };
 
-export default Organization;
+export default OrganizationService;
