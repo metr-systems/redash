@@ -6,7 +6,7 @@ from redash_global.views.assignments import (
     assignments_list,
 )
 from redash_global.views.auth import login_page, logout_page
-from redash_global.views.index import index_view
+from redash_global.views.index import index_view, spa_catch_all
 from redash_global.views.organizations import organizations_list
 from redash_global.views.subdashboards import sub_dashboards_list
 
@@ -49,4 +49,14 @@ global_blueprint.add_url_rule(
     methods=["DELETE"],
     view_func=assignment_delete,
     endpoint="assignment_delete",
+)
+
+# Catch-all for client-side routes (e.g. /sub-dashboards). Must be registered
+# last so it only matches paths no more-specific rule claimed. Werkzeug ranks
+# rules by specificity, so /static, /login and /global-api/* still win.
+global_blueprint.add_url_rule(
+    "/<path:path>",
+    methods=["GET"],
+    view_func=spa_catch_all,
+    endpoint="spa_catch_all",
 )
