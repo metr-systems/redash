@@ -4,22 +4,19 @@ from flask import jsonify, request
 from flask_login import login_required
 
 from redash import models
+from redash.utils import base_url
 
 TEMPLATE_ORG_SLUG = os.environ.get("TEMPLATE_ORG_SLUG", "se_template")
 
 
-def _main_redash_url():
-    return os.environ.get("REDASH_URL", "").rstrip("/")
-
-
-def _serialize(dashboard, redash_url):
+def _serialize(dashboard, org_base_url):
     metr_dashboard = dashboard.metr_dashboard
     return {
         "id": dashboard.id,
         "name": dashboard.name,
         "slug": dashboard.slug,
         "url_identifier": metr_dashboard.url_identifier if metr_dashboard else None,
-        "url": f"{redash_url}/{TEMPLATE_ORG_SLUG}/dashboards/{dashboard.id}-{dashboard.slug}",
+        "url": f"{org_base_url}/dashboards/{dashboard.id}-{dashboard.slug}",
     }
 
 
@@ -42,12 +39,12 @@ def sub_dashboards_list():
     total = query.count()
     dashboards = query.offset((page - 1) * page_size).limit(page_size).all()
 
-    redash_url = _main_redash_url()
+    org_base_url = base_url(org)
     return jsonify(
         {
             "count": total,
             "page": page,
             "page_size": page_size,
-            "results": [_serialize(d, redash_url) for d in dashboards],
+            "results": [_serialize(d, org_base_url) for d in dashboards],
         }
     )
