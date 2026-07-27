@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from flask_login import login_required
+from sqlalchemy.exc import IntegrityError
 
 from redash import models
 from redash.models import db
@@ -52,7 +53,11 @@ def assignment_create(dashboard_id):
 
     assignment = SubDashboardAssignment(dashboard_id=dashboard_id, organization_id=organization_id)
     db.session.add(assignment)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"message": "This dashboard is already assigned to that organization."}), 409
 
     org = models.Organization.query.get(organization_id)
     return jsonify(_serialize_assignment(assignment, org)), 201
