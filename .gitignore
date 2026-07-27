@@ -30,3 +30,7 @@ client/cypress/screenshots
 client/cypress/videos
 
 redash/translations/de/LC_MESSAGES/messages.mo
+
+# redash_global styles in .less; the .css files are compiled build
+# artifacts.
+redash_global/client/**/*.css
