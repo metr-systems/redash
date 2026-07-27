@@ -7,6 +7,7 @@ import handleNavigationIntent from "@/components/ApplicationArea/handleNavigatio
 import { registerComponent } from "@/components/DynamicComponent";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
+import SubDashboardListPage from "./SubDashboardList";
 
 // Reuse Redash's application chrome, but swap the navbar for one that doesn't
 // depend on an org-scoped currentUser (which doesn't exist in Redash Global).
@@ -18,6 +19,12 @@ const routes = [
     path: "/",
     title: "Global Admin",
     render: () => <div>Work in progress</div>,
+  },
+  {
+    id: "SubDashboards.List",
+    path: "/sub-dashboards",
+    title: "Sub-Dashboards",
+    render: () => <SubDashboardListPage pageTitle="Sub-Dashboards" />,
   },
 ];
 
