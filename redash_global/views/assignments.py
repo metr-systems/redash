@@ -28,7 +28,7 @@ def _serialize_assignment(assignment, org):
 
 @login_required
 def assignments_list(dashboard_id):
-    dashboard = models.Dashboard.query.get(dashboard_id)
+    dashboard = models.Dashboard.query.get_or_404(dashboard_id)
 
     rows = (
         db.session.query(SubDashboardAssignment, models.Organization)
@@ -48,6 +48,8 @@ def assignments_list(dashboard_id):
 
 @login_required
 def assignment_create(dashboard_id):
+    models.Dashboard.query.get_or_404(dashboard_id)
+
     body = request.get_json(silent=True) or {}
     organization_id = body.get("organization_id")
 

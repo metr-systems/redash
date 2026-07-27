@@ -44,6 +44,18 @@ class SubDashboardAssignmentApiTest(GlobalBaseTestCase):
         self.assertEqual(body["organization_id"], self.org.id)
         self.assertEqual(SubDashboardAssignment.query.get(body["id"]).dashboard_id, self.dashboard.id)
 
+    def test_list_missing_dashboard_returns_404(self):
+        response = self.global_client.get("/global-api/sub-dashboards/999999/assignments")
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_create_missing_dashboard_returns_404(self):
+        response = self.global_client.post(
+            "/global-api/sub-dashboards/999999/assignments", json={"organization_id": self.org.id}
+        )
+
+        self.assertEqual(response.status_code, 404)
+
     def test_create_duplicate_returns_conflict(self):
         self._assign(self.org)
 
