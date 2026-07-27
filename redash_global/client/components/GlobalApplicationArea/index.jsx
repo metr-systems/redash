@@ -8,6 +8,7 @@ import { registerComponent } from "@/components/DynamicComponent";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
 import SubDashboardListPage from "./SubDashboardList";
+import SubDashboardAssignments from "./SubDashboardAssignments";
 
 // Reuse Redash's application chrome, but swap the navbar for one that doesn't
 // depend on an org-scoped currentUser (which doesn't exist in Redash Global).
@@ -25,6 +26,12 @@ const routes = [
     path: "/sub-dashboards",
     title: "Sub-Dashboards",
     render: () => <SubDashboardListPage pageTitle="Sub-Dashboards" />,
+  },
+  {
+    id: "SubDashboards.Assignments",
+    path: "/sub-dashboards/:dashboardId/assignments",
+    title: "Sub-Dashboard Assignments",
+    render: (currentRoute) => <SubDashboardAssignments dashboardId={currentRoute.routeParams.dashboardId} />,
   },
 ];
 
