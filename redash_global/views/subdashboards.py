@@ -1,8 +1,9 @@
 from flask import jsonify, request
 from flask_login import login_required
 
-from redash import models, settings
+from redash import models
 from redash.utils import base_url
+from redash_global import settings
 
 
 def _serialize(dashboard, org_base_url):
@@ -19,9 +20,6 @@ def _serialize(dashboard, org_base_url):
 @login_required
 def sub_dashboards_list():
     org = models.Organization.get_by_slug(settings.TEMPLATE_ORG_SLUG)
-    if org is None:
-        # prevent erroring page in case the template org does not exist
-        return jsonify({"count": 0, "page": 1, "page_size": 25, "results": []})
 
     page = int(request.args.get("page", 1))
     page_size = int(request.args.get("page_size", 25))

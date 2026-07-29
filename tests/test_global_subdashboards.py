@@ -68,16 +68,6 @@ class SubDashboardsReadApiTest(GlobalBaseTestCase):
         self.assertEqual(data["count"], 3)
         self.assertEqual(len(data["results"]), 2)
 
-    def test_list_empty_when_template_org_absent(self):
-        db.session.commit()
-
-        response = self.global_client.get("/global-api/sub-dashboards")
-
-        self.assertEqual(response.status_code, 200)
-        data = response.get_json()
-        self.assertEqual(data["count"], 0)
-        self.assertEqual(data["results"], [])
-
     def test_result_includes_link_out_url(self):
         template_org = self._create_template_org()
         dashboard = self._create_sub_dashboard(template_org, name="Linkable")

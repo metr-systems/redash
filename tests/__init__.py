@@ -18,6 +18,9 @@ os.environ["REDASH_RATELIMIT_ENABLED"] = "true"
 
 os.environ["REDASH_ENFORCE_CSRF"] = "false"
 
+# Required by Redash Global, which refuses to start without it
+os.environ["TEMPLATE_ORG_SLUG"] = "se_template"
+
 from redash import limiter, redis_connection  # noqa: E402
 from redash.app import create_app  # noqa: E402
 from redash.models import db  # noqa: E402
