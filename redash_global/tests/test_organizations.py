@@ -1,6 +1,3 @@
-from redash.models import db
-
-
 def test_requires_authentication(client):
     response = client.get("/global-api/organizations")
 
@@ -11,7 +8,6 @@ def test_requires_authentication(client):
 def test_lists_organizations_ordered_by_name(admin_client, factory):
     factory.create_org(slug="beta", name="Beta")
     factory.create_org(slug="alpha", name="Alpha")
-    db.session.commit()
 
     results = admin_client.get("/global-api/organizations").get_json()
 
@@ -23,7 +19,6 @@ def test_lists_organizations_ordered_by_name(admin_client, factory):
 
 def test_result_shape(admin_client, factory):
     org = factory.create_org(slug="acme", name="Acme")
-    db.session.commit()
 
     results = admin_client.get("/global-api/organizations").get_json()
 
