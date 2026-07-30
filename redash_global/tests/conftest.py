@@ -8,7 +8,7 @@ from redash.models import db
 from redash_global.app import create_global_app
 from redash_global.models import GlobalAdminUser
 from redash_global.security import limiter as global_limiter
-from tests.factories import Factory
+from redash_global.tests.factories import Factory
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -54,7 +54,7 @@ def redash_app():
 
 @pytest.fixture
 def factory(redash_app):
-    """The main suite's model factory, for orgs, users and dashboards."""
+    """Model factory for orgs, users, dashboards and sub-dashboard assignments."""
     return Factory()
 
 

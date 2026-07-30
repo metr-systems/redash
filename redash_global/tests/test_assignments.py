@@ -1,6 +1,5 @@
 import pytest
 
-from redash.models import db
 from redash_global.models import SubDashboardAssignment
 
 MISSING_DASHBOARD_URL = "/global-api/sub-dashboards/999999/assignments"
@@ -8,9 +7,7 @@ MISSING_DASHBOARD_URL = "/global-api/sub-dashboards/999999/assignments"
 
 @pytest.fixture
 def dashboard(factory):
-    dashboard = factory.create_dashboard(name="Template A")
-    db.session.commit()
-    return dashboard
+    return factory.create_dashboard(name="Template A")
 
 
 @pytest.fixture
@@ -19,12 +16,9 @@ def url(dashboard):
 
 
 @pytest.fixture
-def assign(dashboard):
+def assign(factory, dashboard):
     def create(org):
-        assignment = SubDashboardAssignment(dashboard_id=dashboard.id, organization_id=org.id)
-        db.session.add(assignment)
-        db.session.commit()
-        return assignment
+        return factory.create_sub_dashboard_assignment(dashboard_id=dashboard.id, organization_id=org.id)
 
     return create
 
