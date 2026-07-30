@@ -12,7 +12,7 @@ def dashboard(factory):
 
 @pytest.fixture
 def url(dashboard):
-    return "/global-api/sub-dashboards/{}/assignments".format(dashboard.id)
+    return f"/global-api/sub-dashboards/{dashboard.id}/assignments"
 
 
 @pytest.fixture
@@ -72,7 +72,7 @@ def test_create_duplicate_returns_conflict(admin_client, factory, url, assign):
 def test_delete_removes_assignment(admin_client, factory, url, assign):
     assignment = assign(factory.org)
 
-    response = admin_client.delete("{}/{}".format(url, assignment.id))
+    response = admin_client.delete(f"{url}/{assignment.id}")
 
     assert response.status_code == 204
     assert SubDashboardAssignment.query.get(assignment.id) is None
