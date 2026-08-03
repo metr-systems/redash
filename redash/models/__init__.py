@@ -148,6 +148,9 @@ class DataSource(BelongsToOrgMixin, db.Model):
             "paused": self.paused,
             "pause_reason": self.pause_reason,
             "supports_auto_limit": self.query_runner.supports_auto_limit,
+            "data_source_identifier": (
+                self.metr_data_source.data_source_identifier if self.metr_data_source else None
+            ),
         }
 
         if all:
@@ -292,6 +295,47 @@ class DataSource(BelongsToOrgMixin, db.Model):
     def groups(self):
         groups = DataSourceGroup.query.filter(DataSourceGroup.data_source == self)
         return dict([(group.group_id, group.view_only) for group in groups])
+
+
+@generic_repr("id", "data_source_id", "org_id", "data_source_identifier")
+class MetrDataSource(db.Model):
+    """
+    Extends DataSource with METR-specific fields.
+    Mirrors MetrQuery and MetrDashboard.
+
+    The identifier is filled in by hand and matched on across orgs, so a
+    deployment can find a customer org's copy of a data source without a
+    mapping table and without relying on the name.
+    """
+
+    id = primary_key("MetrDataSource")
+    data_source_id = Column(
+        key_type("DataSource"),
+        db.ForeignKey("data_sources.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True,
+        index=True,
+    )
+    org_id = Column(key_type("Organization"), nullable=False, index=True)
+    data_source_identifier = Column(db.String(100), nullable=True)
+    data_source = db.relationship(
+        DataSource,
+        backref=db.backref("metr_data_source", cascade="delete", uselist=False),
+    )
+
+    __tablename__ = "metr_data_source"
+
+    __table_args__ = (
+        # Partial unique index: enforces uniqueness on (org_id, data_source_identifier)
+        # only when data_source_identifier IS NOT NULL.
+        Index(
+            "uq_metr_data_source_org_data_source_identifier",
+            "org_id",
+            "data_source_identifier",
+            unique=True,
+            postgresql_where=Column("data_source_identifier").isnot(None),
+        ),
+    )
 
 
 @generic_repr("id", "data_source_id", "group_id", "view_only")

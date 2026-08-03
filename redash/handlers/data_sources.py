@@ -68,6 +68,20 @@ class DataSourceResource(BaseResource):
         data_source.name = req["name"]
         models.db.session.add(data_source)
 
+        if "data_source_identifier" in req:
+            # Route data_source_identifier to the MetrDataSource, mirroring how
+            # query_identifier is routed to MetrQuery in the query handler.
+            # "" is coerced to NULL so the partial unique index applies.
+            # Pass data_source=data_source so the backref is populated immediately —
+            # otherwise the cached data_source.metr_data_source = None survives the
+            # commit (session uses expire_on_commit=False) and to_dict reads stale.
+            data_source_identifier = req["data_source_identifier"] or None
+            metr_data_source = data_source.metr_data_source
+            if not metr_data_source:
+                metr_data_source = models.MetrDataSource(data_source=data_source, org_id=data_source.org_id)
+            metr_data_source.data_source_identifier = data_source_identifier
+            models.db.session.add(metr_data_source)
+
         try:
             models.db.session.commit()
         except IntegrityError as e:
