@@ -915,8 +915,14 @@ class MetrQuery(db.Model):
     )
     org_id = Column(key_type("Organization"), nullable=False, index=True)
     query_identifier = Column(db.String(100), nullable=True)
+    template_query_id = Column(
+        key_type("Query"),
+        db.ForeignKey("queries.id", ondelete="SET NULL"),
+        nullable=True,
+    )
     query = db.relationship(
         Query,
+        foreign_keys=[query_id],
         backref=db.backref("metr_query", cascade="delete", uselist=False),
     )
 
@@ -931,6 +937,13 @@ class MetrQuery(db.Model):
             "query_identifier",
             unique=True,
             postgresql_where=Column("query_identifier").isnot(None),
+        ),
+        Index(
+            "uq_metr_query_org_template_query_id",
+            "org_id",
+            "template_query_id",
+            unique=True,
+            postgresql_where=Column("template_query_id").isnot(None),
         ),
     )
 
