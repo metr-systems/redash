@@ -26,3 +26,13 @@ class GlobalAdminUser(UserMixin, TimestampMixin, db.Model):
     def get_by_username(cls, username):
         """Return the user with the given username, or None."""
         return cls.query.filter(cls.username == username).first()
+
+
+@generic_repr("id", "dashboard_id", "organization_id")
+class SubDashboardAssignment(TimestampMixin, db.Model):
+    __tablename__ = "sub_dashboard_assignments"
+    __table_args__ = (db.UniqueConstraint("dashboard_id", "organization_id", name="uq_sub_dashboard_assignment"),)
+
+    id = primary_key("SubDashboardAssignment")
+    dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id", ondelete="CASCADE"), nullable=False)
+    organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)

@@ -3,7 +3,7 @@ import os
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_talisman import talisman
-from flask_wtf.csrf import CSRFProtect
+from flask_wtf.csrf import CSRFProtect, generate_csrf
 
 from redash import settings
 
@@ -22,6 +22,15 @@ def init_app(app):
     app.config["SESSION_COOKIE_NAME"] = os.environ.get("GLOBAL_SESSION_COOKIE_NAME", "global_admin_session")
     app.config["RATELIMIT_ENABLED"] = settings.RATELIMIT_ENABLED
     limiter.init_app(app)
+
+    # Hand the SPA a readable CSRF token, mirroring redash/security.py. CSRFProtect
+    # is already active (WTF_CSRF_CHECK_DEFAULT defaults to True), so it enforces the
+    # X-CSRFToken header on the write endpoints; the SPA reads this non-HttpOnly
+    # cookie and echoes it back.
+    @app.after_request
+    def inject_csrf_token(response):
+        response.set_cookie("csrf_token", generate_csrf())
+        return response
 
     # Transport/header hardening, mirroring redash/security.py so the global
     # admin surface gets the same Secure/HttpOnly cookie flags, HTTPS + HSTS

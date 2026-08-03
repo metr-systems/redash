@@ -9,6 +9,7 @@ from redash import settings
 from redash.handlers.webpack import configure_webpack
 from redash.models.base import db
 from redash_global import security
+from redash_global import settings as global_settings
 from redash_global.views.auth import login_manager
 
 GLOBAL_TEMPLATE_PATH = Path(__file__).parent / "templates"
@@ -16,12 +17,19 @@ REDASH_TEMPLATE_PATH = Path(redash.__file__).parent / "templates"
 
 
 def _validate_required_config():
-    """Fail fast at startup if security-critical config is missing."""
+    """Fail fast at startup if required config is missing."""
     if not os.environ.get("GLOBAL_SECRET_KEY"):
         raise Exception(
             "You must set the GLOBAL_SECRET_KEY environment variable to run "
             "Redash Global. It signs the global-admin session cookie and must "
             "differ from the main Redash app's secret."
+        )
+
+    if not global_settings.TEMPLATE_ORG_SLUG:
+        raise Exception(
+            "You must set the TEMPLATE_ORG_SLUG environment variable to run "
+            "Redash Global. It names the organization that holds the "
+            "sub-dashboard templates."
         )
 
 

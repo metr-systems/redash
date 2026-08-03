@@ -7,9 +7,16 @@ dedicated `GLOBAL_SECRET_KEY`.
 
 ## Configuration
 
-`GLOBAL_SECRET_KEY` is **required** — the app refuses to start without it. It must
-differ from the main Redash app's secret. The database connection is inherited
-from Redash's settings (`SQLALCHEMY_DATABASE_URI`), so no separate DB config is needed.
+Two environment variables are **required** — the app refuses to start without either:
+
+- `GLOBAL_SECRET_KEY` — signs the global-admin session cookie. It must differ from
+  the main Redash app's secret.
+- `TEMPLATE_ORG_SLUG` — slug of the organization holding the sub-dashboard
+  templates (e.g. `se_template`). Read into `redash_global/settings.py`, which
+  holds the config only Redash Global consumes.
+
+The database connection is inherited from Redash's settings
+(`SQLALCHEMY_DATABASE_URI`), so no separate DB config is needed.
 
 ## Running CLI commands
 
