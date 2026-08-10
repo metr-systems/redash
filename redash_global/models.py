@@ -1,9 +1,11 @@
 from flask_login import UserMixin
 from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy.orm import validates
 from sqlalchemy_utils.models import generic_repr
 
 from redash.models.base import Column, db, primary_key
 from redash.models.mixins import TimestampMixin
+from redash.utils import slugify
 
 
 @generic_repr("id", "username")
@@ -36,3 +38,61 @@ class SubDashboardAssignment(TimestampMixin, db.Model):
     id = primary_key("SubDashboardAssignment")
     dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id", ondelete="CASCADE"), nullable=False)
     organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+
+
+@generic_repr("id", "url_identifier", "name")
+class ComposedDashboard(TimestampMixin, db.Model):
+    __tablename__ = "composed_dashboards"
+
+    id = primary_key("ComposedDashboard")
+    url_identifier = Column(db.String(100), unique=True, nullable=False)
+    name = Column(db.String(100), nullable=False)
+
+    entries = db.relationship(
+        "ComposedDashboardEntry",
+        backref="composed_dashboard",
+        order_by="ComposedDashboardEntry.order_index",
+        cascade="all, delete-orphan",
+    )
+    deployments = db.relationship(
+        "ComposedDashboardDeployment",
+        backref="composed_dashboard",
+        cascade="all, delete-orphan",
+    )
+
+    @validates("url_identifier")
+    def validate_url_identifier(self, key, value):
+        # TODO move to handler later
+        if not value or value != slugify(value):
+            raise ValueError(f"{value!r} is not a valid slug")
+        return value
+
+
+@generic_repr("id", "composed_dashboard_id", "template_dashboard_id", "order_index")
+class ComposedDashboardEntry(TimestampMixin, db.Model):
+    __tablename__ = "composed_dashboard_entries"
+    __table_args__ = (
+        db.UniqueConstraint("composed_dashboard_id", "template_dashboard_id", name="uq_composed_dashboard_entry"),
+    )
+
+    id = primary_key("ComposedDashboardEntry")
+    composed_dashboard_id = Column(
+        db.Integer, db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"), nullable=False
+    )
+    template_dashboard_id = Column(db.Integer, db.ForeignKey("dashboards.id", ondelete="CASCADE"), nullable=False)
+    order_index = Column(db.Integer, nullable=False)
+
+
+@generic_repr("id", "composed_dashboard_id", "organization_id", "last_deployed_at")
+class ComposedDashboardDeployment(TimestampMixin, db.Model):
+    __tablename__ = "composed_dashboard_deployments"
+    __table_args__ = (
+        db.UniqueConstraint("composed_dashboard_id", "organization_id", name="uq_composed_dashboard_deployment"),
+    )
+
+    id = primary_key("ComposedDashboardDeployment")
+    composed_dashboard_id = Column(
+        db.Integer, db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"), nullable=False
+    )
+    organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    last_deployed_at = Column(db.DateTime(True), nullable=True)

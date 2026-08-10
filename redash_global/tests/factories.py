@@ -1,8 +1,23 @@
-from redash_global.models import SubDashboardAssignment
+from redash_global.models import (
+    ComposedDashboard,
+    ComposedDashboardDeployment,
+    ComposedDashboardEntry,
+    SubDashboardAssignment,
+)
 from tests.factories import Factory as RedashFactory
-from tests.factories import ModelFactory
+from tests.factories import ModelFactory, Sequence
 
 sub_dashboard_assignment_factory = ModelFactory(SubDashboardAssignment)
+
+composed_dashboard_factory = ModelFactory(
+    ComposedDashboard,
+    url_identifier=Sequence("composed-dashboard-{}"),
+    name=Sequence("Composed Dashboard {}"),
+)
+
+composed_dashboard_entry_factory = ModelFactory(ComposedDashboardEntry, order_index=0)
+
+composed_dashboard_deployment_factory = ModelFactory(ComposedDashboardDeployment)
 
 
 class Factory(RedashFactory):
@@ -16,3 +31,19 @@ class Factory(RedashFactory):
         args = {"organization_id": self.org.id}
         args.update(kwargs)
         return sub_dashboard_assignment_factory.create(**args)
+
+    def create_composed_dashboard(self, **kwargs):
+        return composed_dashboard_factory.create(**kwargs)
+
+    def create_composed_dashboard_entry(self, **kwargs):
+        args = {"composed_dashboard_id": lambda: self.create_composed_dashboard().id}
+        args.update(kwargs)
+        return composed_dashboard_entry_factory.create(**args)
+
+    def create_composed_dashboard_deployment(self, **kwargs):
+        args = {
+            "composed_dashboard_id": lambda: self.create_composed_dashboard().id,
+            "organization_id": self.org.id,
+        }
+        args.update(kwargs)
+        return composed_dashboard_deployment_factory.create(**args)
