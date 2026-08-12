@@ -33,10 +33,6 @@ def widget_level_mapping(param_name):
     return {param_name: {"name": param_name, "type": "widget-level", "mapTo": param_name}}
 
 
-def fixed_from_url_mapping(param_name, map_to=None):
-    return {param_name: {"name": param_name, "type": "fixed-from-url", "mapTo": map_to or param_name}}
-
-
 def link_identifier(data_source, identifier):
     db.session.add(
         MetrDataSource(data_source_id=data_source.id, org_id=data_source.org_id, data_source_identifier=identifier)
@@ -174,7 +170,9 @@ class TestValidateParameters:
         factory.create_widget(
             dashboard=other_sub_dashboard,
             visualization=factory.create_visualization(query_rel=query_number),
-            options={"parameterMappings": fixed_from_url_mapping("address")},
+            options={
+                "parameterMappings": {"address": {"name": "address", "type": "fixed-from-url", "mapTo": "address"}}
+            },
         )
 
         with pytest.raises(DeploymentError):
