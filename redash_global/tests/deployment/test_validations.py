@@ -1,7 +1,7 @@
 import pytest
 
 from redash.models import MetrDashboard, MetrDataSource, db
-from redash_global.deployment.exceptions import DeploymentError
+from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
 from redash_global.deployment.validations import (
     validate_allowed_widgets_query,
     validate_composed_dashboard,
@@ -43,37 +43,43 @@ class TestValidateDataSources:
         link_identifier(widget.visualization.query_rel.data_source, "controller")
         link_identifier(factory.create_data_source(org=target_org), "controller")
 
-        validate_data_sources([sub_dashboard], target_org)
+        assert validate_data_sources([sub_dashboard], target_org) == []
 
     def test_ignores_text_only_widgets(self, factory, sub_dashboard, target_org):
         factory.create_widget(dashboard=sub_dashboard, visualization=None, text="just text")
 
-        validate_data_sources([sub_dashboard], target_org)
+        assert validate_data_sources([sub_dashboard], target_org) == []
 
-    def test_raises_when_a_query_lost_its_data_source(self, factory, sub_dashboard, target_org):
+    def test_reports_an_error_when_a_query_lost_its_data_source(self, factory, sub_dashboard, target_org):
         widget = factory.create_widget(dashboard=sub_dashboard)
         widget.visualization.query_rel.data_source.delete()
 
-        with pytest.raises(DeploymentError):
-            validate_data_sources([sub_dashboard], target_org)
+        errors = validate_data_sources([sub_dashboard], target_org)
 
-    def test_raises_when_the_data_source_has_no_identifier(self, factory, sub_dashboard, target_org):
+        assert len(errors) == 1
+        assert isinstance(errors[0], DeploymentError)
+
+    def test_reports_an_error_when_the_data_source_has_no_identifier(self, factory, sub_dashboard, target_org):
         factory.create_widget(dashboard=sub_dashboard)
 
-        with pytest.raises(DeploymentError):
-            validate_data_sources([sub_dashboard], target_org)
+        errors = validate_data_sources([sub_dashboard], target_org)
 
-    def test_raises_when_the_target_org_has_no_matching_identifier(self, factory, sub_dashboard, target_org):
+        assert len(errors) == 1
+        assert isinstance(errors[0], DeploymentError)
+
+    def test_reports_an_error_when_the_target_org_has_no_matching_identifier(self, factory, sub_dashboard, target_org):
         widget = factory.create_widget(dashboard=sub_dashboard)
         link_identifier(widget.visualization.query_rel.data_source, "controller")
 
-        with pytest.raises(DeploymentError):
-            validate_data_sources([sub_dashboard], target_org)
+        errors = validate_data_sources([sub_dashboard], target_org)
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], DeploymentError)
 
 
 class TestValidateAllowedWidgetsQuery:
     def test_passes_when_none_reference_an_allowed_widgets_query(self, sub_dashboard, other_sub_dashboard):
-        validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard])
+        assert validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard]) == []
 
     def test_passes_when_all_reference_the_same_query(self, sub_dashboard, other_sub_dashboard):
         for dashboard in (sub_dashboard, other_sub_dashboard):
@@ -86,9 +92,9 @@ class TestValidateAllowedWidgetsQuery:
             )
         db.session.flush()
 
-        validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard])
+        assert validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard]) == []
 
-    def test_raises_when_they_reference_different_queries(self, sub_dashboard, other_sub_dashboard):
+    def test_reports_an_error_when_they_reference_different_queries(self, sub_dashboard, other_sub_dashboard):
         db.session.add(
             MetrDashboard(
                 dashboard_id=sub_dashboard.id,
@@ -105,15 +111,17 @@ class TestValidateAllowedWidgetsQuery:
         )
         db.session.flush()
 
-        with pytest.raises(DeploymentError):
-            validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard])
+        errors = validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard])
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], DeploymentError)
 
 
-class TestValidateParameters:
+class TestParameterErrors:
     def test_passes_with_no_dashboard_level_parameters(self, factory, sub_dashboard):
         factory.create_widget(dashboard=sub_dashboard)
 
-        validate_parameters([sub_dashboard])
+        assert validate_parameters([sub_dashboard]) == []
 
     def test_passes_when_same_name_and_type_across_sub_dashboards(
         self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
@@ -126,7 +134,7 @@ class TestValidateParameters:
                 options={"parameterMappings": address_dashboard_level_mapping},
             )
 
-        validate_parameters([sub_dashboard, other_sub_dashboard])
+        assert validate_parameters([sub_dashboard, other_sub_dashboard]) == []
 
     def test_a_parameter_can_be_used_by_only_one_sub_dashboard(
         self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
@@ -141,9 +149,9 @@ class TestValidateParameters:
         without_param = other_sub_dashboard
         factory.create_widget(dashboard=without_param)
 
-        validate_parameters([with_param, without_param])
+        assert validate_parameters([with_param, without_param]) == []
 
-    def test_raises_when_same_name_has_different_types(
+    def test_reports_an_error_when_same_name_has_different_types(
         self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
     ):
         query_text = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
@@ -159,8 +167,10 @@ class TestValidateParameters:
             options={"parameterMappings": address_dashboard_level_mapping},
         )
 
-        with pytest.raises(DeploymentError):
-            validate_parameters([sub_dashboard, other_sub_dashboard])
+        errors = validate_parameters([sub_dashboard, other_sub_dashboard])
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], DeploymentError)
 
     def test_fixed_from_url_is_treated_as_dashboard_level(
         self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
@@ -180,8 +190,10 @@ class TestValidateParameters:
             },
         )
 
-        with pytest.raises(DeploymentError):
-            validate_parameters([sub_dashboard, other_sub_dashboard])
+        errors = validate_parameters([sub_dashboard, other_sub_dashboard])
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], DeploymentError)
 
     def test_widget_level_mappings_are_not_cross_checked(self, factory, sub_dashboard, other_sub_dashboard):
         query_text = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
@@ -201,7 +213,7 @@ class TestValidateParameters:
             },
         )
 
-        validate_parameters([sub_dashboard, other_sub_dashboard])
+        assert validate_parameters([sub_dashboard, other_sub_dashboard]) == []
 
 
 class TestValidateComposedDashboard:
@@ -231,3 +243,30 @@ class TestValidateComposedDashboard:
         db.session.flush()
 
         validate_composed_dashboard(sub_dashboards, target_org)
+
+    def test_raises_an_exception_group_aggregating_every_guards_errors(
+        self, factory, sub_dashboard, other_sub_dashboard, target_org
+    ):
+        db.session.add(
+            MetrDashboard(
+                dashboard_id=sub_dashboard.id,
+                org_id=sub_dashboard.org_id,
+                allowed_widget_query_identifier="query-a",
+            )
+        )
+        db.session.add(
+            MetrDashboard(
+                dashboard_id=other_sub_dashboard.id,
+                org_id=other_sub_dashboard.org_id,
+                allowed_widget_query_identifier="query-b",
+            )
+        )
+        factory.create_widget(dashboard=sub_dashboard)
+        db.session.flush()
+
+        with pytest.raises(DeploymentErrorGroup) as exc_info:
+            validate_composed_dashboard([sub_dashboard, other_sub_dashboard], target_org)
+
+        errors = exc_info.value.errors
+        assert len(errors) == 2
+        assert all(isinstance(error, DeploymentError) for error in errors)
