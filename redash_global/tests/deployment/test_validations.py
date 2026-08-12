@@ -30,10 +30,6 @@ def address_dashboard_level_mapping():
     return {"address": {"name": "address", "type": "dashboard-level", "mapTo": "address"}}
 
 
-def widget_level_mapping(param_name):
-    return {param_name: {"name": param_name, "type": "widget-level", "mapTo": param_name}}
-
-
 def link_identifier(data_source, identifier):
     db.session.add(
         MetrDataSource(data_source_id=data_source.id, org_id=data_source.org_id, data_source_identifier=identifier)
@@ -192,13 +188,17 @@ class TestValidateParameters:
         factory.create_widget(
             dashboard=sub_dashboard,
             visualization=factory.create_visualization(query_rel=query_text),
-            options={"parameterMappings": widget_level_mapping("address")},
+            options={
+                "parameterMappings": {"address": {"name": "address", "type": "widget-level", "mapTo": "address"}}
+            },
         )
         query_number = factory.create_query(options={"parameters": [{"name": "address", "type": "number"}]})
         factory.create_widget(
             dashboard=other_sub_dashboard,
             visualization=factory.create_visualization(query_rel=query_number),
-            options={"parameterMappings": widget_level_mapping("address")},
+            options={
+                "parameterMappings": {"address": {"name": "address", "type": "widget-level", "mapTo": "address"}}
+            },
         )
 
         validate_parameters([sub_dashboard, other_sub_dashboard])
