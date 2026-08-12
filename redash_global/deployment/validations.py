@@ -100,7 +100,7 @@ def validate_allowed_widgets_query(sub_dashboards):
     return []
 
 
-def _dashboard_level_params(widget):
+def dashboard_level_params(widget):
     """Yield (name, type) for each of *widget*'s dashboard-level
     and fixed-from-url parameter mappings.
     """
@@ -127,7 +127,7 @@ def validate_parameters(sub_dashboards):
     param_types = {}
     for sub_dashboard in sub_dashboards:
         for widget in widgets_with_query(sub_dashboard):
-            for name, param_type in _dashboard_level_params(widget):
+            for name, param_type in dashboard_level_params(widget):
                 existing_type = param_types.get(name)
                 if existing_type is not None and existing_type != param_type:
                     errors.append(
