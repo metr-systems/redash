@@ -1,20 +1,21 @@
 from redash.models import MetrDataSource
 from redash_global.deployment.exceptions import DeploymentError
 
-_DASHBOARD_LEVEL_MAPPING_TYPES = {"dashboard-level", "fixed-from-url"}
+DASHBOARD_LEVEL_MAPPING_TYPES = {"dashboard-level", "fixed-from-url"}
 
 
 def validate_composed_dashboard(sub_dashboards, target_org):
-    _validate_data_sources(sub_dashboards, target_org)
-    _validate_allowed_widgets_query(sub_dashboards)
-    _validate_parameters(sub_dashboards)
+    validate_data_sources(sub_dashboards, target_org)
+    validate_allowed_widgets_query(sub_dashboards)
+    validate_parameters(sub_dashboards)
 
 
-def _widgets_with_query(sub_dashboard):
+def widgets_with_query(sub_dashboard):
     """Widgets that have a visualization, and therefore a query. Excludes text-box widgets."""
     return [widget for widget in sub_dashboard.widgets if widget.visualization_id is not None]
 
-def _validate_data_sources(sub_dashboards, target_org):
+
+def validate_data_sources(sub_dashboards, target_org):
     """Every data source a sub-dashboard's widgets use must also exist in the target org.
     We match on MetrDataSource.data_source_identifier.
 
@@ -26,7 +27,7 @@ def _validate_data_sources(sub_dashboards, target_org):
     """
     identifiers = set()
     for sub_dashboard in sub_dashboards:
-        for widget in _widgets_with_query(sub_dashboard):
+        for widget in widgets_with_query(sub_dashboard):
             # raise if data source has been deleted
             query = widget.visualization.query_rel
             if query.data_source_id is None:
@@ -64,7 +65,7 @@ def _validate_data_sources(sub_dashboards, target_org):
         )
 
 
-def _validate_allowed_widgets_query(sub_dashboards):
+def validate_allowed_widgets_query(sub_dashboards):
     """All sub-dashboards must reference the same allowed-widgets query, if any.
     No allowed-widgets query at all is also valid.
 
@@ -88,11 +89,11 @@ def _dashboard_level_params(widget):
     mappings = (widget.options or {}).get("parameterMappings") or {}
     for param in query.parameters:
         mapping = mappings.get(param["name"])
-        if mapping and mapping.get("type") in _DASHBOARD_LEVEL_MAPPING_TYPES:
+        if mapping and mapping.get("type") in DASHBOARD_LEVEL_MAPPING_TYPES:
             yield mapping.get("mapTo") or param["name"], param.get("type")
 
 
-def _validate_parameters(sub_dashboards):
+def validate_parameters(sub_dashboards):
     """A dashboard-level parameter name must always map to exactly one type.
 
     "Dashboard-level" also covers "fixed-from-url" mappings. Sub-dashboards don't need
@@ -105,7 +106,7 @@ def _validate_parameters(sub_dashboards):
     """
     param_types = {}
     for sub_dashboard in sub_dashboards:
-        for widget in _widgets_with_query(sub_dashboard):
+        for widget in widgets_with_query(sub_dashboard):
             for name, param_type in _dashboard_level_params(widget):
                 # raise if the same parameter maps to different types
                 existing_type = param_types.get(name)
