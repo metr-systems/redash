@@ -1,7 +1,13 @@
 import pytest
 
 from redash.models import MetrDashboard, MetrDataSource, db
-from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
+from redash_global.deployment.exceptions import (
+    AllowedWidgetsQueryError,
+    DataSourceError,
+    DeploymentError,
+    DeploymentErrorGroup,
+    ParameterError,
+)
 from redash_global.deployment.validations import (
     validate_allowed_widgets_query,
     validate_composed_dashboard,
@@ -57,7 +63,7 @@ class TestValidateDataSources:
         errors = validate_data_sources([sub_dashboard], target_org)
 
         assert len(errors) == 1
-        assert isinstance(errors[0], DeploymentError)
+        assert isinstance(errors[0], DataSourceError)
 
     def test_reports_an_error_when_the_data_source_has_no_identifier(self, factory, sub_dashboard, target_org):
         factory.create_widget(dashboard=sub_dashboard)
@@ -65,7 +71,7 @@ class TestValidateDataSources:
         errors = validate_data_sources([sub_dashboard], target_org)
 
         assert len(errors) == 1
-        assert isinstance(errors[0], DeploymentError)
+        assert isinstance(errors[0], DataSourceError)
 
     def test_reports_an_error_when_the_target_org_has_no_matching_identifier(self, factory, sub_dashboard, target_org):
         widget = factory.create_widget(dashboard=sub_dashboard)
@@ -74,7 +80,7 @@ class TestValidateDataSources:
         errors = validate_data_sources([sub_dashboard], target_org)
 
         assert len(errors) == 1
-        assert isinstance(errors[0], DeploymentError)
+        assert isinstance(errors[0], DataSourceError)
 
 
 class TestValidateAllowedWidgetsQuery:
@@ -114,7 +120,7 @@ class TestValidateAllowedWidgetsQuery:
         errors = validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard])
 
         assert len(errors) == 1
-        assert isinstance(errors[0], DeploymentError)
+        assert isinstance(errors[0], AllowedWidgetsQueryError)
 
 
 class TestParameterErrors:
@@ -170,7 +176,7 @@ class TestParameterErrors:
         errors = validate_parameters([sub_dashboard, other_sub_dashboard])
 
         assert len(errors) == 1
-        assert isinstance(errors[0], DeploymentError)
+        assert isinstance(errors[0], ParameterError)
 
     def test_fixed_from_url_is_treated_as_dashboard_level(
         self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
@@ -193,7 +199,7 @@ class TestParameterErrors:
         errors = validate_parameters([sub_dashboard, other_sub_dashboard])
 
         assert len(errors) == 1
-        assert isinstance(errors[0], DeploymentError)
+        assert isinstance(errors[0], ParameterError)
 
     def test_widget_level_mappings_are_not_cross_checked(self, factory, sub_dashboard, other_sub_dashboard):
         query_text = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})

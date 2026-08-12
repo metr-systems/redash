@@ -1,5 +1,10 @@
 from redash.models import MetrDataSource
-from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
+from redash_global.deployment.exceptions import (
+    AllowedWidgetsQueryError,
+    DataSourceError,
+    DeploymentErrorGroup,
+    ParameterError,
+)
 
 DASHBOARD_LEVEL_MAPPING_TYPES = {"dashboard-level", "fixed-from-url"}
 
@@ -43,7 +48,7 @@ def validate_data_sources(sub_dashboards, target_org):
                 # Data sources can be deleted and related objects receive value NONE
                 # https://github.com/metr-systems/redash/blob/14993943bbd3a4f2ae0ce55d32b6773363bfd8f0/redash/models/__init__.py#L197
                 errors.append(
-                    DeploymentError(
+                    DataSourceError(
                         f"Query {query.id} ('{query.name}') on sub-dashboard {sub_dashboard.id} "
                         f"('{sub_dashboard.name}') has no data source"
                     )
@@ -54,7 +59,7 @@ def validate_data_sources(sub_dashboards, target_org):
             metr_data_source = query.data_source.metr_data_source
             if metr_data_source is None or metr_data_source.data_source_identifier is None:
                 errors.append(
-                    DeploymentError(
+                    DataSourceError(
                         f"Data source {query.data_source_id} used by query {query.id} ('{query.name}') "
                         f"on sub-dashboard {sub_dashboard.id} ('{sub_dashboard.name}') has no identifier"
                     )
@@ -76,7 +81,7 @@ def validate_data_sources(sub_dashboards, target_org):
     missing_identifiers = identifiers - existing_identifiers
     if missing_identifiers:
         errors.append(
-            DeploymentError(
+            DataSourceError(
                 f"Organization {target_org.id} has no data source for identifiers: {sorted(missing_identifiers)}"
             )
         )
@@ -96,7 +101,11 @@ def validate_allowed_widgets_query(sub_dashboards):
         if sub_dashboard.metr_dashboard and sub_dashboard.metr_dashboard.allowed_widget_query_identifier
     }
     if len(identifiers) > 1:
-        return [DeploymentError(f"Sub-dashboards reference different allowed-widgets queries: {sorted(identifiers)}")]
+        return [
+            AllowedWidgetsQueryError(
+                f"Sub-dashboards reference different allowed-widgets queries: {sorted(identifiers)}"
+            )
+        ]
     return []
 
 
@@ -131,7 +140,7 @@ def validate_parameters(sub_dashboards):
                 existing_type = param_types.get(name)
                 if existing_type is not None and existing_type != param_type:
                     errors.append(
-                        DeploymentError(
+                        ParameterError(
                             f"Dashboard-level parameter '{name}' is type {existing_type!r} on one "
                             f"sub-dashboard and {param_type!r} on another"
                         )
