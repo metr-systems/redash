@@ -14,11 +14,6 @@ def _widgets_with_query(sub_dashboard):
     """Widgets that have a visualization, and therefore a query. Excludes text-box widgets."""
     return [widget for widget in sub_dashboard.widgets if widget.visualization_id is not None]
 
-
-def _widget_query(widget):
-    return widget.visualization.query_rel
-
-
 def _validate_data_sources(sub_dashboards, target_org):
     """Every data source a sub-dashboard's widgets use must also exist in the target org.
     We match on MetrDataSource.data_source_identifier.
@@ -33,7 +28,7 @@ def _validate_data_sources(sub_dashboards, target_org):
     for sub_dashboard in sub_dashboards:
         for widget in _widgets_with_query(sub_dashboard):
             # raise if data source has been deleted
-            query = _widget_query(widget)
+            query = widget.visualization.query_rel
             if query.data_source_id is None:
                 # Data sources can be deleted and related objects receive value NONE
                 # https://github.com/metr-systems/redash/blob/14993943bbd3a4f2ae0ce55d32b6773363bfd8f0/redash/models/__init__.py#L197
@@ -89,7 +84,7 @@ def _dashboard_level_params(widget):
     """Yield (name, type) for each of *widget*'s dashboard-level
     and fixed-from-url parameter mappings.
     """
-    query = _widget_query(widget)
+    query = widget.visualization.query_rel
     mappings = (widget.options or {}).get("parameterMappings") or {}
     for param in query.parameters:
         mapping = mappings.get(param["name"])
