@@ -4,3 +4,7 @@ class DeploymentError(Exception):
 
 class DataSourceError(DeploymentError):
     pass
+
+
+class AllowedWidgetsQueryError(DeploymentError):
+    pass

@@ -1,5 +1,5 @@
 from redash.models import MetrDataSource
-from redash_global.deployment.exceptions import DataSourceError
+from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError
 from redash_global.deployment.utils import widgets_with_query
 
 
@@ -61,3 +61,24 @@ def validate_data_sources(sub_dashboards, target_org):
             )
         )
     return errors
+
+
+def validate_allowed_widgets_query(sub_dashboards):
+    """All sub-dashboards must reference the same allowed-widgets query, if any.
+    No allowed-widgets query at all is also valid.
+
+    We report an error when:
+    - sub-dashboards reference more than one distinct allowed-widgets query
+    """
+    identifiers = {
+        sub_dashboard.metr_dashboard.allowed_widget_query_identifier
+        for sub_dashboard in sub_dashboards
+        if sub_dashboard.metr_dashboard and sub_dashboard.metr_dashboard.allowed_widget_query_identifier
+    }
+    if len(identifiers) > 1:
+        return [
+            AllowedWidgetsQueryError(
+                f"Sub-dashboards reference different allowed-widgets queries: {sorted(identifiers)}"
+            )
+        ]
+    return []

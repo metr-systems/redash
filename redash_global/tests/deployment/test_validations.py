@@ -1,11 +1,16 @@
 import pytest
 
-from redash_global.deployment.exceptions import DataSourceError
-from redash_global.deployment.validations import validate_data_sources
+from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError
+from redash_global.deployment.validations import validate_allowed_widgets_query, validate_data_sources
 
 
 @pytest.fixture
 def sub_dashboard(factory):
+    return factory.create_dashboard()
+
+
+@pytest.fixture
+def other_sub_dashboard(factory):
     return factory.create_dashboard()
 
 
@@ -52,3 +57,35 @@ class TestValidateDataSources:
 
         assert len(errors) == 1
         assert isinstance(errors[0], DataSourceError)
+
+
+class TestValidateAllowedWidgetsQuery:
+    def test_passes_when_none_reference_an_allowed_widgets_query(self, sub_dashboard, other_sub_dashboard):
+        assert validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard]) == []
+
+    def test_passes_when_all_reference_the_same_query(self, factory, sub_dashboard, other_sub_dashboard):
+        for dashboard in (sub_dashboard, other_sub_dashboard):
+            factory.create_metr_dashboard(
+                dashboard_id=dashboard.id,
+                org_id=dashboard.org_id,
+                allowed_widget_query_identifier="shared-query",
+            )
+
+        assert validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard]) == []
+
+    def test_reports_an_error_when_they_reference_different_queries(self, factory, sub_dashboard, other_sub_dashboard):
+        factory.create_metr_dashboard(
+            dashboard_id=sub_dashboard.id,
+            org_id=sub_dashboard.org_id,
+            allowed_widget_query_identifier="query-a",
+        )
+        factory.create_metr_dashboard(
+            dashboard_id=other_sub_dashboard.id,
+            org_id=other_sub_dashboard.org_id,
+            allowed_widget_query_identifier="query-b",
+        )
+
+        errors = validate_allowed_widgets_query([sub_dashboard, other_sub_dashboard])
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], AllowedWidgetsQueryError)
