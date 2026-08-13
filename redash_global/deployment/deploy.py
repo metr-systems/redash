@@ -1,5 +1,8 @@
-from redash.models import MetrDataSource, MetrQuery, Query, Visualization, Widget, db, metrWidget
+from datetime import datetime, timezone
+
+from redash.models import Dashboard, DashboardGroup, Group, MetrDashboard, MetrDataSource, MetrQuery, Query, Visualization, Widget, db, metrWidget
 from redash_global.deployment.utils import widgets_with_query
+from redash_global.models import ComposedDashboardDeployment
 
 
 def get_target_data_sources(sub_dashboards, target_org):
@@ -143,3 +146,58 @@ def replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, data_sou
     # Anything from the old widget set that step above didn't recreate (the template dropped
     # that widget) is now genuinely orphaned.
     delete_orphaned_visualizations(old_visualization_ids)
+
+
+def create_dashboard(composed_dashboard, target_org, deploy_user):
+    dashboard = Dashboard(
+        name=composed_dashboard.name,
+        org=target_org,
+        user=deploy_user,
+        is_draft=False,
+        layout=[],
+    )
+    db.session.add(dashboard)
+    db.session.flush()
+    db.session.add(DashboardGroup(dashboard=dashboard, group=target_org.default_group))
+    db.session.add(
+        MetrDashboard(
+            dashboard=dashboard,
+            org_id=target_org.id,
+            url_identifier=composed_dashboard.url_identifier,
+        )
+    )
+    db.session.flush()
+    return dashboard
+
+
+def get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier):
+    dashboard = (
+        Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
+        .filter(
+            MetrDashboard.url_identifier == composed_dashboard.url_identifier,
+            MetrDashboard.org_id == target_org.id,
+        )
+        .first()
+    )
+    if dashboard:
+        dashboard.name = composed_dashboard.name
+    else:
+        dashboard = create_dashboard(composed_dashboard, target_org, deploy_user)
+
+    dashboard.metr_dashboard.allowed_widget_query_identifier = allowed_widgets_identifier
+    return dashboard
+
+
+def record_deployment(composed_dashboard, target_org):
+    deployment = ComposedDashboardDeployment.query.filter_by(
+        composed_dashboard_id=composed_dashboard.id, organization_id=target_org.id
+    ).first()
+    if deployment is None:
+        deployment = ComposedDashboardDeployment(
+            composed_dashboard_id=composed_dashboard.id, organization_id=target_org.id
+        )
+        db.session.add(deployment)
+    # A plain Python-side timestamp, not func.now(): this app's session uses
+    # expire_on_commit=False, so a func.now() value would stay an unresolved SQL construct on
+    # this attribute after commit instead of refreshing to the real value.
+    deployment.last_deployed_at = datetime.now(timezone.utc)

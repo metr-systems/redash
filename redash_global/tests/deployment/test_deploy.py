@@ -1,14 +1,18 @@
 import pytest
 
-from redash.models import MetrQuery, Visualization, Widget
+from redash.models import Dashboard, MetrDashboard, MetrQuery, Visualization, Widget
 from redash_global.deployment.deploy import (
     copy_allowed_widgets_query,
     copy_widget,
+    create_dashboard,
     delete_orphaned_visualizations,
     get_or_copy_query,
+    get_or_create_dashboard,
     get_target_data_sources,
+    record_deployment,
     replace_widgets,
 )
+from redash_global.models import ComposedDashboardDeployment
 
 
 @pytest.fixture
@@ -270,3 +274,92 @@ class TestReplaceWidgets:
 
         rows = sorted(w.options["position"]["row"] for w in target_dashboard.widgets.all())
         assert rows == [0, 2]
+
+
+class TestCreateDashboard:
+    def test_creates_dashboard_with_metr_dashboard(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        dashboard = create_dashboard(composed_dashboard, target_org, deploy_user)
+
+        assert dashboard.name == composed_dashboard.name
+        assert dashboard.org_id == target_org.id
+        assert dashboard.user_id == deploy_user.id
+        assert dashboard.is_draft is False
+
+    def test_adds_default_group_to_dashboard(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        dashboard = create_dashboard(composed_dashboard, target_org, deploy_user)
+
+        assert dashboard.dashboard_groups[0].group_id == target_org.default_group.id
+
+    def test_creates_metr_dashboard_with_url_identifier(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        dashboard = create_dashboard(composed_dashboard, target_org, deploy_user)
+
+        metr_dashboard = MetrDashboard.query.filter_by(dashboard_id=dashboard.id).one()
+        assert metr_dashboard.url_identifier == composed_dashboard.url_identifier
+        assert metr_dashboard.org_id == target_org.id
+
+
+class TestGetOrCreateDashboard:
+    def test_creates_new_dashboard_when_none_exists(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, None)
+
+        assert Dashboard.query.filter_by(id=dashboard.id, org_id=target_org.id).one()
+
+    def test_updates_name_when_dashboard_exists(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        first_dashboard = create_dashboard(composed_dashboard, target_org, deploy_user)
+        first_name = first_dashboard.name
+
+        composed_dashboard.name = "Updated Name"
+
+        second_dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, None)
+
+        assert second_dashboard.id == first_dashboard.id
+        assert second_dashboard.name == "Updated Name"
+        assert second_dashboard.name != first_name
+
+    def test_sets_allowed_widget_query_identifier(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, "allowed-query")
+
+        assert dashboard.metr_dashboard.allowed_widget_query_identifier == "allowed-query"
+
+
+class TestRecordDeployment:
+    def test_creates_new_deployment_record(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+
+        record_deployment(composed_dashboard, target_org)
+
+        deployment = ComposedDashboardDeployment.query.filter_by(
+            composed_dashboard_id=composed_dashboard.id, organization_id=target_org.id
+        ).one()
+        assert deployment.last_deployed_at is not None
+
+    def test_updates_existing_deployment_record(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_deployment(
+            composed_dashboard_id=composed_dashboard.id, organization_id=target_org.id
+        )
+
+        record_deployment(composed_dashboard, target_org)
+
+        deployments = ComposedDashboardDeployment.query.filter_by(
+            composed_dashboard_id=composed_dashboard.id, organization_id=target_org.id
+        )
+        assert deployments.count() == 1
