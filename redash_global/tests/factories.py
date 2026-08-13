@@ -1,4 +1,4 @@
-from redash.models import MetrDashboard, MetrDataSource
+from redash.models import MetrDashboard, MetrDataSource, MetrQuery
 from redash_global.models import (
     ComposedDashboard,
     ComposedDashboardDeployment,
@@ -23,6 +23,8 @@ composed_dashboard_deployment_factory = ModelFactory(ComposedDashboardDeployment
 metr_data_source_factory = ModelFactory(MetrDataSource)
 
 metr_dashboard_factory = ModelFactory(MetrDashboard)
+
+metr_query_factory = ModelFactory(MetrQuery)
 
 
 class Factory(RedashFactory):
@@ -65,3 +67,6 @@ class Factory(RedashFactory):
 
     def create_metr_dashboard(self, **kwargs):
         return metr_dashboard_factory.create(**kwargs)
+
+    def create_metr_query(self, **kwargs):
+        return metr_query_factory.create(**kwargs)
