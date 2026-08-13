@@ -1,7 +1,18 @@
 import pytest
 
-from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError, ParameterError
-from redash_global.deployment.validations import validate_allowed_widgets_query, validate_data_sources, validate_parameters
+from redash_global.deployment.exceptions import (
+    AllowedWidgetsQueryError,
+    DataSourceError,
+    DeploymentError,
+    DeploymentErrorGroup,
+    ParameterError,
+)
+from redash_global.deployment.validations import (
+    validate_allowed_widgets_query,
+    validate_composed_dashboard,
+    validate_data_sources,
+    validate_parameters,
+)
 
 
 @pytest.fixture
@@ -193,3 +204,51 @@ class TestParameterErrors:
         )
 
         assert validate_parameters([sub_dashboard, other_sub_dashboard]) == []
+
+
+class TestValidateComposedDashboard:
+    def test_passes_when_every_guard_passes(
+        self, factory, sub_dashboard, other_sub_dashboard, target_org, address_dashboard_level_mapping
+    ):
+        sub_dashboards = [sub_dashboard, other_sub_dashboard]
+        widgets = []
+        for dashboard in sub_dashboards:
+            factory.create_metr_dashboard(
+                dashboard_id=dashboard.id,
+                org_id=dashboard.org_id,
+                allowed_widget_query_identifier="shared-query",
+            )
+            query = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
+            widgets.append(
+                factory.create_widget(
+                    dashboard=dashboard,
+                    visualization=factory.create_visualization(query_rel=query),
+                    options={"parameterMappings": address_dashboard_level_mapping},
+                )
+            )
+        factory.create_metr_data_source_for(widgets[0].visualization.query_rel.data_source, "controller")
+        factory.create_metr_data_source_for(factory.create_data_source(org=target_org), "controller")
+
+        validate_composed_dashboard(sub_dashboards, target_org)
+
+    def test_raises_an_exception_group_aggregating_every_guards_errors(
+        self, factory, sub_dashboard, other_sub_dashboard, target_org
+    ):
+        factory.create_metr_dashboard(
+            dashboard_id=sub_dashboard.id,
+            org_id=sub_dashboard.org_id,
+            allowed_widget_query_identifier="query-a",
+        )
+        factory.create_metr_dashboard(
+            dashboard_id=other_sub_dashboard.id,
+            org_id=other_sub_dashboard.org_id,
+            allowed_widget_query_identifier="query-b",
+        )
+        factory.create_widget(dashboard=sub_dashboard)
+
+        with pytest.raises(DeploymentErrorGroup) as exc_info:
+            validate_composed_dashboard([sub_dashboard, other_sub_dashboard], target_org)
+
+        errors = exc_info.value.errors
+        assert len(errors) == 2
+        assert all(isinstance(error, DeploymentError) for error in errors)

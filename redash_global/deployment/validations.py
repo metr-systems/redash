@@ -1,8 +1,27 @@
 from redash.models import MetrDataSource
-from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError, ParameterError
+from redash_global.deployment.exceptions import (
+    AllowedWidgetsQueryError,
+    DataSourceError,
+    DeploymentErrorGroup,
+    ParameterError,
+)
 from redash_global.deployment.utils import widgets_with_query
 
 DASHBOARD_LEVEL_MAPPING_TYPES = {"dashboard-level", "fixed-from-url"}
+
+
+def validate_composed_dashboard(sub_dashboards, target_org):
+    errors = [
+        *validate_data_sources(sub_dashboards, target_org),
+        *validate_allowed_widgets_query(sub_dashboards),
+        *validate_parameters(sub_dashboards),
+    ]
+
+    if errors:
+        raise DeploymentErrorGroup(
+            "Composed dashboard validation failed",
+            errors,
+        )
 
 
 def validate_data_sources(sub_dashboards, target_org):
