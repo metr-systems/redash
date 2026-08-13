@@ -1,6 +1,8 @@
 from redash.models import MetrDataSource
-from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError
+from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError, ParameterError
 from redash_global.deployment.utils import widgets_with_query
+
+DASHBOARD_LEVEL_MAPPING_TYPES = {"dashboard-level", "fixed-from-url"}
 
 
 def validate_data_sources(sub_dashboards, target_org):
@@ -82,3 +84,44 @@ def validate_allowed_widgets_query(sub_dashboards):
             )
         ]
     return []
+
+
+def dashboard_level_params(widget):
+    """Yield (name, type) for each of *widget*'s dashboard-level
+    and fixed-from-url parameter mappings.
+    """
+    query = widget.visualization.query_rel
+    mappings = (widget.options or {}).get("parameterMappings") or {}
+    for param in query.parameters:
+        mapping = mappings.get(param["name"])
+        if mapping and mapping.get("type") in DASHBOARD_LEVEL_MAPPING_TYPES:
+            yield mapping.get("mapTo") or param["name"], param.get("type")
+
+
+def validate_parameters(sub_dashboards):
+    """A dashboard-level parameter name must always map to exactly one type.
+
+    "Dashboard-level" also covers "fixed-from-url" mappings. Sub-dashboards don't need
+    identical parameter sets - a parameter used by only some of them still becomes a
+    composed-dashboard parameter. Widget-level and static-value mappings are local to their
+    widget and need no cross-dashboard check.
+
+    We report an error when:
+    - the same dashboard-level parameter name maps to different types across sub-dashboards
+    """
+    errors = []
+    param_types = {}
+    for sub_dashboard in sub_dashboards:
+        for widget in widgets_with_query(sub_dashboard):
+            for name, param_type in dashboard_level_params(widget):
+                existing_type = param_types.get(name)
+                if existing_type is not None and existing_type != param_type:
+                    errors.append(
+                        ParameterError(
+                            f"Dashboard-level parameter '{name}' is type {existing_type!r} on one "
+                            f"sub-dashboard and {param_type!r} on another"
+                        )
+                    )
+                else:
+                    param_types[name] = param_type
+    return errors

@@ -8,3 +8,7 @@ class DataSourceError(DeploymentError):
 
 class AllowedWidgetsQueryError(DeploymentError):
     pass
+
+
+class ParameterError(DeploymentError):
+    pass

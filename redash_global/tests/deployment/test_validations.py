@@ -1,7 +1,7 @@
 import pytest
 
-from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError
-from redash_global.deployment.validations import validate_allowed_widgets_query, validate_data_sources
+from redash_global.deployment.exceptions import AllowedWidgetsQueryError, DataSourceError, ParameterError
+from redash_global.deployment.validations import validate_allowed_widgets_query, validate_data_sources, validate_parameters
 
 
 @pytest.fixture
@@ -17,6 +17,11 @@ def other_sub_dashboard(factory):
 @pytest.fixture
 def target_org(factory):
     return factory.create_org()
+
+
+@pytest.fixture
+def address_dashboard_level_mapping():
+    return {"address": {"name": "address", "type": "dashboard-level", "mapTo": "address"}}
 
 
 class TestValidateDataSources:
@@ -89,3 +94,102 @@ class TestValidateAllowedWidgetsQuery:
 
         assert len(errors) == 1
         assert isinstance(errors[0], AllowedWidgetsQueryError)
+
+
+class TestParameterErrors:
+    def test_passes_with_no_dashboard_level_parameters(self, factory, sub_dashboard):
+        factory.create_widget(dashboard=sub_dashboard)
+
+        assert validate_parameters([sub_dashboard]) == []
+
+    def test_passes_when_same_name_and_type_across_sub_dashboards(
+        self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
+    ):
+        for dashboard in (sub_dashboard, other_sub_dashboard):
+            query = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
+            factory.create_widget(
+                dashboard=dashboard,
+                visualization=factory.create_visualization(query_rel=query),
+                options={"parameterMappings": address_dashboard_level_mapping},
+            )
+
+        assert validate_parameters([sub_dashboard, other_sub_dashboard]) == []
+
+    def test_a_parameter_can_be_used_by_only_one_sub_dashboard(
+        self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
+    ):
+        with_param = sub_dashboard
+        query = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
+        factory.create_widget(
+            dashboard=with_param,
+            visualization=factory.create_visualization(query_rel=query),
+            options={"parameterMappings": address_dashboard_level_mapping},
+        )
+        without_param = other_sub_dashboard
+        factory.create_widget(dashboard=without_param)
+
+        assert validate_parameters([with_param, without_param]) == []
+
+    def test_reports_an_error_when_same_name_has_different_types(
+        self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
+    ):
+        query_text = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
+        factory.create_widget(
+            dashboard=sub_dashboard,
+            visualization=factory.create_visualization(query_rel=query_text),
+            options={"parameterMappings": address_dashboard_level_mapping},
+        )
+        query_number = factory.create_query(options={"parameters": [{"name": "address", "type": "number"}]})
+        factory.create_widget(
+            dashboard=other_sub_dashboard,
+            visualization=factory.create_visualization(query_rel=query_number),
+            options={"parameterMappings": address_dashboard_level_mapping},
+        )
+
+        errors = validate_parameters([sub_dashboard, other_sub_dashboard])
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], ParameterError)
+
+    def test_fixed_from_url_is_treated_as_dashboard_level(
+        self, factory, sub_dashboard, other_sub_dashboard, address_dashboard_level_mapping
+    ):
+        query_text = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
+        factory.create_widget(
+            dashboard=sub_dashboard,
+            visualization=factory.create_visualization(query_rel=query_text),
+            options={"parameterMappings": address_dashboard_level_mapping},
+        )
+        query_number = factory.create_query(options={"parameters": [{"name": "address", "type": "number"}]})
+        factory.create_widget(
+            dashboard=other_sub_dashboard,
+            visualization=factory.create_visualization(query_rel=query_number),
+            options={
+                "parameterMappings": {"address": {"name": "address", "type": "fixed-from-url", "mapTo": "address"}}
+            },
+        )
+
+        errors = validate_parameters([sub_dashboard, other_sub_dashboard])
+
+        assert len(errors) == 1
+        assert isinstance(errors[0], ParameterError)
+
+    def test_widget_level_mappings_are_not_cross_checked(self, factory, sub_dashboard, other_sub_dashboard):
+        query_text = factory.create_query(options={"parameters": [{"name": "address", "type": "text"}]})
+        factory.create_widget(
+            dashboard=sub_dashboard,
+            visualization=factory.create_visualization(query_rel=query_text),
+            options={
+                "parameterMappings": {"address": {"name": "address", "type": "widget-level", "mapTo": "address"}}
+            },
+        )
+        query_number = factory.create_query(options={"parameters": [{"name": "address", "type": "number"}]})
+        factory.create_widget(
+            dashboard=other_sub_dashboard,
+            visualization=factory.create_visualization(query_rel=query_number),
+            options={
+                "parameterMappings": {"address": {"name": "address", "type": "widget-level", "mapTo": "address"}}
+            },
+        )
+
+        assert validate_parameters([sub_dashboard, other_sub_dashboard]) == []
