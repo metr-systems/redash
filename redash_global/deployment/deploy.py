@@ -1,4 +1,4 @@
-from redash.models import MetrDataSource, MetrQuery, Query, db
+from redash.models import MetrDataSource, MetrQuery, Query, Visualization, Widget, db, metrWidget
 from redash_global.deployment.utils import widgets_with_query
 
 
@@ -73,3 +73,73 @@ def copy_allowed_widgets_query(sub_dashboards, target_org, deploy_user, data_sou
     query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
     query.metr_query.query_identifier = identifier
     return identifier
+
+
+def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset):
+    options = dict(template_widget.options or {})
+    position = dict(options.get("position") or {})
+    position["row"] = position.get("row", 0) + row_offset
+    options["position"] = position
+
+    visualization = None
+    if template_widget.visualization_id is not None:
+        template_query = template_widget.visualization.query_rel
+        query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+        visualization = Visualization(
+            query_rel=query,
+            type=template_widget.visualization.type,
+            name=template_widget.visualization.name,
+            description=template_widget.visualization.description,
+            options=template_widget.visualization.options,
+        )
+        db.session.add(visualization)
+        db.session.flush()
+
+    widget = Widget(
+        dashboard=dashboard,
+        visualization=visualization,
+        text=template_widget.text,
+        width=template_widget.width,
+        options=options,
+    )
+    db.session.add(widget)
+    db.session.flush()
+
+    template_metr_widget = template_widget.metr_widget
+    if template_metr_widget and template_metr_widget.tags:
+        db.session.add(metrWidget(widget=widget, tags=list(template_metr_widget.tags)))
+
+    return widget
+
+
+def delete_orphaned_visualizations(visualization_ids):
+    for visualization_id in visualization_ids:
+        visualization = Visualization.query.get(visualization_id)
+        if visualization is None or Widget.query.filter_by(visualization_id=visualization_id).first() is not None:
+            continue
+        query = visualization.query_rel
+        db.session.delete(visualization)
+        db.session.flush()
+        if not query.visualizations:
+            db.session.delete(query)
+
+
+def replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, data_source_map):
+    old_widgets = dashboard.widgets.all()
+    old_visualization_ids = {widget.visualization_id for widget in old_widgets if widget.visualization_id is not None}
+    for widget in old_widgets:
+        db.session.delete(widget)
+    db.session.flush()
+
+    row_offset = 0
+    for sub_dashboard in sub_dashboards:
+        sub_dashboard_height = 0
+        for template_widget in sub_dashboard.widgets:
+            copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset)
+            position = (template_widget.options or {}).get("position") or {}
+            sub_dashboard_height = max(sub_dashboard_height, position.get("row", 0) + position.get("sizeY", 0))
+        row_offset += sub_dashboard_height
+
+    # Anything from the old widget set that step above didn't recreate (the template dropped
+    # that widget) is now genuinely orphaned.
+    delete_orphaned_visualizations(old_visualization_ids)
