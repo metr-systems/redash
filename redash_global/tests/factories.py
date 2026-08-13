@@ -1,3 +1,4 @@
+from redash.models import MetrDataSource
 from redash_global.models import (
     ComposedDashboard,
     ComposedDashboardDeployment,
@@ -18,6 +19,8 @@ composed_dashboard_factory = ModelFactory(
 composed_dashboard_entry_factory = ModelFactory(ComposedDashboardEntry, order_index=0)
 
 composed_dashboard_deployment_factory = ModelFactory(ComposedDashboardDeployment)
+
+metr_data_source_factory = ModelFactory(MetrDataSource)
 
 
 class Factory(RedashFactory):
@@ -47,3 +50,13 @@ class Factory(RedashFactory):
         }
         args.update(kwargs)
         return composed_dashboard_deployment_factory.create(**args)
+
+    def create_metr_data_source(self, **kwargs):
+        return metr_data_source_factory.create(**kwargs)
+
+    def create_metr_data_source_for(self, data_source, identifier):
+        return self.create_metr_data_source(
+            data_source_id=data_source.id,
+            org_id=data_source.org_id,
+            data_source_identifier=identifier,
+        )
