@@ -14,6 +14,7 @@ from redash_global.deployment.deploy import (
     ordered_org_assigned_subdashboard,
     record_deployment,
     replace_widgets,
+    resolve_query_dropdown_dependencies,
 )
 from redash_global.models import ComposedDashboardDeployment
 
@@ -65,6 +66,71 @@ class TestGetTargetDataSources:
         result = get_target_data_sources([sub_dashboard], target_org)
 
         assert result == {}
+
+
+class TestResolveQueryDropdownDependencies:
+    def test_ignores_parameters_without_query_type(self, factory, target_org):
+        deploy_user = factory.create_user(org=target_org)
+        data_source_map = {}
+        query_id_map = {}
+
+        query_options = {
+            "parameters": [
+                {"name": "param1", "type": "text"},
+                {"name": "param2", "type": "date"},
+            ]
+        }
+
+        resolve_query_dropdown_dependencies(query_options, target_org, deploy_user, data_source_map, query_id_map)
+
+        assert query_id_map == {}
+
+    def test_updates_existing_query_id_in_map(self, factory, target_org):
+        deploy_user = factory.create_user(org=target_org)
+        data_source_map = {}
+        query_id_map = {123: 456}
+
+        query_options = {
+            "parameters": [
+                {"name": "param1", "type": "query", "queryId": 123},
+            ]
+        }
+
+        resolve_query_dropdown_dependencies(query_options, target_org, deploy_user, data_source_map, query_id_map)
+
+        assert query_options["parameters"][0]["queryId"] == 456
+
+    def test_copies_missing_query_dependency(self, factory, target_org):
+        template_org = factory.create_org()
+        template_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(template_ds, "postgres")
+
+        dep_dashboard = factory.create_dashboard(org=template_org)
+        dep_widget = factory.create_widget(dashboard=dep_dashboard)
+        dep_query = dep_widget.visualization.query_rel
+        dep_query.data_source = template_ds
+
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+        query_id_map = {}
+
+        query_options = {
+            "parameters": [
+                {"name": "param1", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        resolve_query_dropdown_dependencies(query_options, target_org, deploy_user, data_source_map, query_id_map)
+
+        assert query_options["parameters"][0]["queryId"] != dep_query.id
+        copied_query_id = query_options["parameters"][0]["queryId"]
+        copied_query = db.session.query(MetrQuery).filter_by(
+            template_query_id=dep_query.id, org_id=target_org.id
+        ).one()
+        assert copied_query.query_id == copied_query_id
 
 
 class TestGetOrCopyQuery:
@@ -120,6 +186,78 @@ class TestGetOrCopyQuery:
 
         assert second_result.id == first_id
         assert second_result.query_text == "SELECT 2"
+
+    def test_copies_query_with_query_based_parameter(self, factory, sub_dashboard, target_org):
+        template_org = sub_dashboard.org
+        template_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(template_ds, "postgres")
+
+        dep_dashboard = factory.create_dashboard(org=template_org)
+        dep_widget = factory.create_widget(dashboard=dep_dashboard)
+        dep_query = dep_widget.visualization.query_rel
+        dep_query.data_source = template_ds
+
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        template_query.data_source = template_ds
+        template_query.options = {
+            "parameters": [
+                {"name": "dropdown_param", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        result = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+
+        assert result.options["parameters"][0]["queryId"] != dep_query.id
+        assert result.options["parameters"][0]["type"] == "query"
+
+    def test_reuses_copied_query_for_shared_parameter_dependency(self, factory, target_org):
+        template_org = factory.create_org()
+        template_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(template_ds, "postgres")
+
+        dep_dashboard = factory.create_dashboard(org=template_org)
+        dep_widget = factory.create_widget(dashboard=dep_dashboard)
+        dep_query = dep_widget.visualization.query_rel
+        dep_query.data_source = template_ds
+
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+        query_id_map = {}
+
+        query1_dashboard = factory.create_dashboard(org=template_org)
+        query1_widget = factory.create_widget(dashboard=query1_dashboard)
+        query1 = query1_widget.visualization.query_rel
+        query1.data_source = template_ds
+        query1.options = {
+            "parameters": [
+                {"name": "dropdown_param", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        query2_dashboard = factory.create_dashboard(org=template_org)
+        query2_widget = factory.create_widget(dashboard=query2_dashboard)
+        query2 = query2_widget.visualization.query_rel
+        query2.data_source = template_ds
+        query2.options = {
+            "parameters": [
+                {"name": "dropdown_param", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        result1 = get_or_copy_query(query1, target_org, deploy_user, data_source_map, query_id_map)
+        result2 = get_or_copy_query(query2, target_org, deploy_user, data_source_map, query_id_map)
+
+        assert result1.options["parameters"][0]["queryId"] == result2.options["parameters"][0]["queryId"]
 
 
 class TestCopyAllowedWidgetsQuery:
@@ -204,6 +342,38 @@ class TestCopyWidget:
 
         assert result.text == "hello"
         assert result.visualization_id is None
+
+    def test_copies_widget_with_query_based_parameter(self, factory, sub_dashboard, target_org):
+        template_org = sub_dashboard.org
+        template_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(template_ds, "postgres")
+
+        dep_dashboard = factory.create_dashboard(org=template_org)
+        dep_widget = factory.create_widget(dashboard=dep_dashboard)
+        dep_query = dep_widget.visualization.query_rel
+        dep_query.data_source = template_ds
+
+        widget = factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = widget.visualization.query_rel
+        query.data_source = template_ds
+        query.options = {
+            "parameters": [
+                {"name": "dropdown_param", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        target_dashboard = factory.create_dashboard(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+
+        result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
+
+        assert result.visualization.query_rel.options["parameters"][0]["queryId"] != dep_query.id
 
 
 class TestDeleteOrphanedVisualizations:
@@ -450,6 +620,52 @@ class TestDeployToTargetOrg:
         result = deploy_to_target_org(composed_dashboard, target_org)
 
         assert result.error is not None
+
+    def test_deploys_dashboard_with_query_based_parameters(self, factory, sub_dashboard, target_org):
+        template_org = sub_dashboard.org
+        template_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(template_ds, "postgres")
+
+        dep_dashboard = factory.create_dashboard(org=template_org)
+        dep_widget = factory.create_widget(dashboard=dep_dashboard)
+        dep_query = dep_widget.visualization.query_rel
+        dep_query.data_source = template_ds
+
+        widget = factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = widget.visualization.query_rel
+        query.data_source = template_ds
+        query.options = {
+            "parameters": [
+                {"name": "dropdown_param", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+        factory.create_admin(org=target_org)
+
+        result = deploy_to_target_org(composed_dashboard, target_org)
+
+        assert result.error is None
+        deployed = (
+            Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
+            .filter(
+                MetrDashboard.url_identifier == composed_dashboard.url_identifier,
+                MetrDashboard.org_id == target_org.id,
+            )
+            .one()
+        )
+        deployed_query = deployed.widgets[0].visualization.query_rel
+        assert deployed_query.options["parameters"][0]["type"] == "query"
+        assert deployed_query.options["parameters"][0]["queryId"] != dep_query.id
 
 
 class TestDeployComposedDashboard:

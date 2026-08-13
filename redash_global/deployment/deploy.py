@@ -22,6 +22,23 @@ from redash_global.models import ComposedDashboardDeployment, SubDashboardAssign
 DeploymentResult = namedtuple("DeploymentResult", ["composed_dashboard", "org", "error"])
 
 
+def resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_source_map, query_id_map):
+    """Resolve query-based parameter dependencies before copying a query."""
+    for parameter in options.get("parameters", []):
+        if parameter.get("type") != "query":
+            continue
+
+        source_dep_id = parameter.get("queryId")
+        if source_dep_id in query_id_map:
+            parameter["queryId"] = query_id_map[source_dep_id]
+            continue
+
+        dependency_query = Query.query.get(source_dep_id)
+        copied_dependency = get_or_copy_query(dependency_query, target_org, deploy_user, data_source_map, query_id_map)
+        query_id_map[source_dep_id] = copied_dependency.id
+        parameter["queryId"] = copied_dependency.id
+
+
 def deploy_composed_dashboard(composed_dashboard, target_orgs):
     """Deploy/redeploy one composed dashboard to every target org.
 
@@ -50,11 +67,12 @@ def deploy_to_target_org(composed_dashboard, target_org):
 
         deploy_user = Group.members(target_org.admin_group.id).first()
         target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
+        query_id_map = {}
         allowed_widgets_identifier = copy_allowed_widgets_query(
-            sub_dashboards, target_org, deploy_user, target_data_sources_map
+            sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
         )
         dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
-        replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map)
+        replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
         record_deployment(composed_dashboard, target_org)
 
         db.session.commit()
@@ -83,7 +101,14 @@ def get_target_data_sources(sub_dashboards, target_org):
     }
 
 
-def get_or_copy_query(template_query, target_org, deploy_user, data_source_map):
+def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map=None):
+    if query_id_map is None:
+        query_id_map = {}
+
+    resolve_query_dropdown_dependencies(
+        template_query.options or {}, target_org, deploy_user, data_source_map, query_id_map
+    )
+
     identifier = template_query.data_source.metr_data_source.data_source_identifier
     target_data_source = data_source_map[identifier]
 
@@ -118,7 +143,10 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map):
     return query
 
 
-def copy_allowed_widgets_query(sub_dashboards, target_org, deploy_user, data_source_map):
+def copy_allowed_widgets_query(sub_dashboards, target_org, deploy_user, data_source_map, query_id_map=None):
+    if query_id_map is None:
+        query_id_map = {}
+
     metr_dashboard = sub_dashboards[0].metr_dashboard
     identifier = metr_dashboard.allowed_widget_query_identifier if metr_dashboard else None
     if identifier is None:
@@ -132,12 +160,15 @@ def copy_allowed_widgets_query(sub_dashboards, target_org, deploy_user, data_sou
         .first()
     )
 
-    query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+    query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map)
     query.metr_query.query_identifier = identifier
     return identifier
 
 
-def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset):
+def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset, query_id_map=None):
+    if query_id_map is None:
+        query_id_map = {}
+
     options = dict(template_widget.options or {})
     position = dict(options.get("position") or {})
     position["row"] = position.get("row", 0) + row_offset
@@ -146,7 +177,7 @@ def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source
     visualization = None
     if template_widget.visualization_id is not None:
         template_query = template_widget.visualization.query_rel
-        query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+        query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map)
         visualization = Visualization(
             query_rel=query,
             type=template_widget.visualization.type,
@@ -187,7 +218,10 @@ def delete_orphaned_visualizations(visualization_ids):
     db.session.flush()
 
 
-def replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, data_source_map):
+def replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, data_source_map, query_id_map=None):
+    if query_id_map is None:
+        query_id_map = {}
+
     old_widgets = dashboard.widgets.all()
     old_visualization_ids = {widget.visualization_id for widget in old_widgets if widget.visualization_id is not None}
     for widget in old_widgets:
@@ -198,7 +232,7 @@ def replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, data_sou
     for sub_dashboard in sub_dashboards:
         sub_dashboard_height = 0
         for template_widget in sub_dashboard.widgets:
-            copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset)
+            copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset, query_id_map)
             position = (template_widget.options or {}).get("position") or {}
             sub_dashboard_height = max(sub_dashboard_height, position.get("row", 0) + position.get("sizeY", 0))
         row_offset += sub_dashboard_height
