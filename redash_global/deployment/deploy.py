@@ -1,8 +1,55 @@
+from collections import namedtuple
 from datetime import datetime, timezone
 
 from redash.models import Dashboard, DashboardGroup, Group, MetrDashboard, MetrDataSource, MetrQuery, Query, Visualization, Widget, db, metrWidget
+from redash_global.deployment.exceptions import DeploymentError
 from redash_global.deployment.utils import widgets_with_query
-from redash_global.models import ComposedDashboardDeployment
+from redash_global.deployment.validations import validate_composed_dashboard
+from redash_global.models import ComposedDashboardDeployment, SubDashboardAssignment
+
+DeploymentResult = namedtuple("DeploymentResult", ["composed_dashboard", "org", "error"])
+
+
+def deploy_composed_dashboard(composed_dashboard, target_orgs):
+    """Deploy/redeploy one composed dashboard to every target org.
+
+    Each org is independent: one failing does not affect the rest, or roll back an org that
+    already succeeded.
+    """
+    return [deploy_to_target_org(composed_dashboard, target_org) for target_org in target_orgs]
+
+
+def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
+    """The composed dashboard's entries, filtered to those assigned to target_org, in order_index order."""
+    assigned_ids = {
+        assignment.dashboard_id for assignment in SubDashboardAssignment.query.filter_by(organization_id=target_org.id)
+    }
+    return [
+        Dashboard.query.get(entry.template_dashboard_id)
+        for entry in composed_dashboard.entries
+        if entry.template_dashboard_id in assigned_ids
+    ]
+
+
+def deploy_to_target_org(composed_dashboard, target_org):
+    try:
+        sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
+        validate_composed_dashboard(sub_dashboards, target_org)
+
+        deploy_user = Group.members(target_org.admin_group.id).first()
+        target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
+        allowed_widgets_identifier = copy_allowed_widgets_query(
+            sub_dashboards, target_org, deploy_user, target_data_sources_map
+        )
+        dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
+        replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map)
+        record_deployment(composed_dashboard, target_org)
+
+        db.session.commit()
+        return DeploymentResult(composed_dashboard, target_org, error=None)
+    except DeploymentError as error:
+        db.session.rollback()
+        return DeploymentResult(composed_dashboard, target_org, error=error)
 
 
 def get_target_data_sources(sub_dashboards, target_org):

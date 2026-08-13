@@ -6,9 +6,12 @@ from redash_global.deployment.deploy import (
     copy_widget,
     create_dashboard,
     delete_orphaned_visualizations,
+    deploy_composed_dashboard,
+    deploy_to_target_org,
     get_or_copy_query,
     get_or_create_dashboard,
     get_target_data_sources,
+    ordered_org_assigned_subdashboard,
     record_deployment,
     replace_widgets,
 )
@@ -363,3 +366,79 @@ class TestRecordDeployment:
             composed_dashboard_id=composed_dashboard.id, organization_id=target_org.id
         )
         assert deployments.count() == 1
+
+
+class TestOrderedOrgAssignedSubdashboard:
+    def test_returns_empty_list_when_no_assignments(self, factory, target_org):
+        sub_dashboard = factory.create_dashboard()
+        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
+
+        result = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
+
+        assert result == []
+
+    def test_returns_assigned_dashboards_in_order(self, factory, target_org):
+        sub_dashboard_1 = factory.create_dashboard()
+        sub_dashboard_2 = factory.create_dashboard()
+        factory.create_sub_dashboard_assignment_for(sub_dashboard_1, target_org)
+        factory.create_sub_dashboard_assignment_for(sub_dashboard_2, target_org)
+        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard_1, sub_dashboard_2])
+
+        result = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
+
+        assert result == [sub_dashboard_1, sub_dashboard_2]
+
+
+class TestDeployToTargetOrg:
+    def test_creates_deployed_dashboard(self, factory, sub_dashboard, target_org):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
+        factory.create_sub_dashboard_assignment_for(sub_dashboard, target_org)
+
+        result = deploy_to_target_org(composed_dashboard, target_org)
+
+        assert result.error is None
+        deployed = Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id).filter(
+            MetrDashboard.url_identifier == composed_dashboard.url_identifier,
+            MetrDashboard.org_id == target_org.id,
+        ).one()
+        assert deployed.name == composed_dashboard.name
+
+    def test_returns_error_on_validation_failure(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        widget.visualization.query_rel.data_source.delete()
+        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
+        factory.create_sub_dashboard_assignment_for(sub_dashboard, target_org)
+
+        result = deploy_to_target_org(composed_dashboard, target_org)
+
+        assert result.error is not None
+
+
+class TestDeployComposedDashboard:
+    def test_deploys_to_multiple_orgs(self, factory, sub_dashboard):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+
+        target_org_1 = factory.create_org()
+        target_org_2 = factory.create_org()
+        for org in (target_org_1, target_org_2):
+            target_ds = factory.create_data_source(org=org)
+            factory.create_metr_data_source_for(target_ds, "postgres")
+            factory.create_sub_dashboard_assignment_for(sub_dashboard, org)
+
+        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
+
+        results = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2])
+
+        assert len(results) == 2
+        assert all(r.error is None for r in results)
