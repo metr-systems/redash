@@ -1,7 +1,19 @@
 from collections import namedtuple
 from datetime import datetime, timezone
 
-from redash.models import Dashboard, DashboardGroup, Group, MetrDashboard, MetrDataSource, MetrQuery, Query, Visualization, Widget, db, metrWidget
+from redash.models import (
+    Dashboard,
+    DashboardGroup,
+    Group,
+    MetrDashboard,
+    MetrDataSource,
+    MetrQuery,
+    Query,
+    Visualization,
+    Widget,
+    db,
+    metrWidget,
+)
 from redash_global.deployment.exceptions import DeploymentError
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
@@ -172,6 +184,7 @@ def delete_orphaned_visualizations(visualization_ids):
         db.session.flush()
         if not query.visualizations:
             db.session.delete(query)
+    db.session.flush()
 
 
 def replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, data_source_map):

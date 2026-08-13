@@ -1,6 +1,6 @@
 import pytest
 
-from redash.models import Dashboard, MetrDashboard, MetrQuery, Visualization, Widget
+from redash.models import Dashboard, MetrDashboard, MetrQuery, Visualization, db
 from redash_global.deployment.deploy import (
     copy_allowed_widgets_query,
     copy_widget,
@@ -97,7 +97,7 @@ class TestGetOrCopyQuery:
 
         result = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
 
-        metr_query = MetrQuery.query.filter_by(query_id=result.id).one()
+        metr_query = db.session.query(MetrQuery).filter_by(query_id=result.id).one()
         assert metr_query.template_query_id == template_query.id
         assert metr_query.org_id == target_org.id
 
@@ -134,7 +134,7 @@ class TestCopyAllowedWidgetsQuery:
 
     def test_returns_identifier_when_query_copied(self, factory, sub_dashboard, target_org):
         query = factory.create_query()
-        factory.create_metr_query(query=query, query_identifier="allowed-widgets")
+        factory.create_metr_query(query=query, org_id=query.org_id, query_identifier="allowed-widgets")
         factory.create_metr_dashboard(
             dashboard_id=sub_dashboard.id,
             org_id=sub_dashboard.org_id,
@@ -229,6 +229,7 @@ class TestDeleteOrphanedVisualizations:
         delete_orphaned_visualizations([visualization.id])
 
         from redash.models import Query
+
         assert Query.query.get(query_id) is None
 
 
@@ -262,9 +263,12 @@ class TestReplaceWidgets:
             dashboard=other_sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 3}}
         )
 
-        for widget in sub_dashboard.widgets + other_sub_dashboard.widgets:
+        data_sources = set()
+        for widget in list(sub_dashboard.widgets) + list(other_sub_dashboard.widgets):
             query = widget.visualization.query_rel
-            factory.create_metr_data_source_for(query.data_source, "postgres")
+            if query.data_source_id not in data_sources:
+                factory.create_metr_data_source_for(query.data_source, "postgres")
+                data_sources.add(query.data_source_id)
 
         target_ds = factory.create_data_source(org=target_org)
         factory.create_metr_data_source_for(target_ds, "postgres")
@@ -273,7 +277,9 @@ class TestReplaceWidgets:
         target_dashboard = factory.create_dashboard(org=target_org)
         deploy_user = factory.create_user(org=target_org)
 
-        replace_widgets(target_dashboard, [sub_dashboard, other_sub_dashboard], target_org, deploy_user, data_source_map)
+        replace_widgets(
+            target_dashboard, [sub_dashboard, other_sub_dashboard], target_org, deploy_user, data_source_map
+        )
 
         rows = sorted(w.options["position"]["row"] for w in target_dashboard.widgets.all())
         assert rows == [0, 2]
@@ -371,7 +377,10 @@ class TestRecordDeployment:
 class TestOrderedOrgAssignedSubdashboard:
     def test_returns_empty_list_when_no_assignments(self, factory, target_org):
         sub_dashboard = factory.create_dashboard()
-        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
 
         result = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
 
@@ -380,9 +389,19 @@ class TestOrderedOrgAssignedSubdashboard:
     def test_returns_assigned_dashboards_in_order(self, factory, target_org):
         sub_dashboard_1 = factory.create_dashboard()
         sub_dashboard_2 = factory.create_dashboard()
-        factory.create_sub_dashboard_assignment_for(sub_dashboard_1, target_org)
-        factory.create_sub_dashboard_assignment_for(sub_dashboard_2, target_org)
-        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard_1, sub_dashboard_2])
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard_1.id, organization_id=target_org.id)
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard_2.id, organization_id=target_org.id)
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id,
+            template_dashboard_id=sub_dashboard_1.id,
+            order_index=0,
+        )
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id,
+            template_dashboard_id=sub_dashboard_2.id,
+            order_index=1,
+        )
 
         result = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
 
@@ -398,23 +417,35 @@ class TestDeployToTargetOrg:
         factory.create_metr_data_source_for(query.data_source, "postgres")
         target_ds = factory.create_data_source(org=target_org)
         factory.create_metr_data_source_for(target_ds, "postgres")
-        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
-        factory.create_sub_dashboard_assignment_for(sub_dashboard, target_org)
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+        factory.create_admin(org=target_org)
 
         result = deploy_to_target_org(composed_dashboard, target_org)
 
         assert result.error is None
-        deployed = Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id).filter(
-            MetrDashboard.url_identifier == composed_dashboard.url_identifier,
-            MetrDashboard.org_id == target_org.id,
-        ).one()
+        deployed = (
+            Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
+            .filter(
+                MetrDashboard.url_identifier == composed_dashboard.url_identifier,
+                MetrDashboard.org_id == target_org.id,
+            )
+            .one()
+        )
         assert deployed.name == composed_dashboard.name
 
     def test_returns_error_on_validation_failure(self, factory, sub_dashboard, target_org):
         widget = factory.create_widget(dashboard=sub_dashboard)
         widget.visualization.query_rel.data_source.delete()
-        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
-        factory.create_sub_dashboard_assignment_for(sub_dashboard, target_org)
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+        factory.create_admin(org=target_org)
 
         result = deploy_to_target_org(composed_dashboard, target_org)
 
@@ -434,9 +465,13 @@ class TestDeployComposedDashboard:
         for org in (target_org_1, target_org_2):
             target_ds = factory.create_data_source(org=org)
             factory.create_metr_data_source_for(target_ds, "postgres")
-            factory.create_sub_dashboard_assignment_for(sub_dashboard, org)
+            factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=org.id)
+            factory.create_admin(org=org)
 
-        composed_dashboard = factory.create_composed_dashboard_from_templates([sub_dashboard])
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
 
         results = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2])
 
