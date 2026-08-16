@@ -1,4 +1,5 @@
 from collections import namedtuple
+from copy import deepcopy
 from datetime import datetime, timezone
 
 from redash.models import (
@@ -76,6 +77,7 @@ def deploy_to_target_org(composed_dashboard, target_org):
         record_deployment(composed_dashboard, target_org)
 
         db.session.commit()
+        execute_query_parameter_dependencies(dashboard)
         return DeploymentResult(composed_dashboard, target_org, error=None)
     except DeploymentError as error:
         db.session.rollback()
@@ -105,9 +107,8 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, 
     if query_id_map is None:
         query_id_map = {}
 
-    resolve_query_dropdown_dependencies(
-        template_query.options or {}, target_org, deploy_user, data_source_map, query_id_map
-    )
+    options = deepcopy(template_query.options) if template_query.options else {}
+    resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_source_map, query_id_map)
 
     identifier = template_query.data_source.metr_data_source.data_source_identifier
     target_data_source = data_source_map[identifier]
@@ -121,7 +122,7 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, 
         query = metr_query.query
         query.name = template_query.name
         query.query_text = template_query.query_text
-        query.options = template_query.options
+        query.options = options
         query.data_source = target_data_source
         return query
 
@@ -135,7 +136,7 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, 
         user=deploy_user,
         name=template_query.name,
         query_text=template_query.query_text,
-        options=template_query.options,
+        options=options,
     )
     db.session.add(query)
     db.session.flush()
@@ -169,7 +170,7 @@ def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source
     if query_id_map is None:
         query_id_map = {}
 
-    options = dict(template_widget.options or {})
+    options = deepcopy(template_widget.options) if template_widget.options else {}
     position = dict(options.get("position") or {})
     position["row"] = position.get("row", 0) + row_offset
     options["position"] = position
@@ -183,7 +184,7 @@ def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source
             type=template_widget.visualization.type,
             name=template_widget.visualization.name,
             description=template_widget.visualization.description,
-            options=template_widget.visualization.options,
+            options=deepcopy(template_widget.visualization.options) if template_widget.visualization.options else None,
         )
         db.session.add(visualization)
         db.session.flush()
@@ -280,6 +281,25 @@ def get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed
 
     dashboard.metr_dashboard.allowed_widget_query_identifier = allowed_widgets_identifier
     return dashboard
+
+
+def execute_query_parameter_dependencies(dashboard):
+    executed_queries = set()
+
+    for widget in dashboard.widgets:
+        if widget.visualization_id:
+            query = widget.visualization.query_rel
+            for parameter in query.parameters:
+                if parameter.get("type") == "query":
+                    dep_query_id = parameter.get("queryId")
+                    if dep_query_id and dep_query_id not in executed_queries:
+                        dep_query = Query.query.get(dep_query_id)
+                        if dep_query and dep_query.data_source:
+                            try:
+                                dep_query.execute_async()
+                                executed_queries.add(dep_query_id)
+                            except Exception:
+                                pass
 
 
 def record_deployment(composed_dashboard, target_org):
