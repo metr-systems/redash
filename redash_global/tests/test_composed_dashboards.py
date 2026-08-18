@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from redash_global.models import ComposedDashboard
+from redash_global.models import ComposedDashboard, ComposedDashboardEntry
 
 LIST_URL = "/global-api/composed-dashboards"
 
@@ -15,6 +15,11 @@ def composed_dashboard(factory):
 @pytest.fixture
 def detail_url(composed_dashboard):
     return f"{LIST_URL}/{composed_dashboard.id}"
+
+
+@pytest.fixture
+def entries_url(composed_dashboard):
+    return f"{LIST_URL}/{composed_dashboard.id}/entries"
 
 
 def test_list_requires_authentication(client):
@@ -144,5 +149,172 @@ def test_delete_removes_composed_dashboard(admin_client, composed_dashboard):
 
 def test_delete_returns_404_for_missing_dashboard(admin_client):
     response = admin_client.delete(f"{LIST_URL}/999999")
+
+    assert response.status_code == 404
+
+
+def test_entries_list_requires_authentication(client, entries_url):
+    response = client.get(entries_url)
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_entries_list_returns_entries_ordered(admin_client, factory, composed_dashboard, entries_url):
+    sub1 = factory.create_dashboard(name="Sub1")
+    sub2 = factory.create_dashboard(name="Sub2")
+
+    factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub2.id, order_index=1
+    )
+    factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub1.id, order_index=0
+    )
+
+    response = admin_client.get(entries_url)
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert len(data) == 2
+    assert data[0]["template_dashboard_id"] == sub1.id
+    assert data[0]["order_index"] == 0
+    assert data[1]["template_dashboard_id"] == sub2.id
+    assert data[1]["order_index"] == 1
+
+
+def test_entries_list_returns_404_for_missing_dashboard(admin_client):
+    response = admin_client.get(f"{LIST_URL}/999999/entries")
+
+    assert response.status_code == 404
+
+
+def test_entry_create_requires_authentication(client, entries_url):
+    response = client.post(entries_url, json={"template_dashboard_id": 1})
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_entry_create_adds_entry(admin_client, factory, composed_dashboard, entries_url):
+    sub = factory.create_dashboard(name="Subdashboard")
+
+    response = admin_client.post(entries_url, json={"template_dashboard_id": sub.id})
+
+    assert response.status_code == 201
+    data = response.get_json()
+    assert data["template_dashboard_id"] == sub.id
+    assert data["order_index"] == 0
+    assert data["composed_dashboard_id"] == composed_dashboard.id
+
+    entry = ComposedDashboardEntry.query.get(data["id"])
+    assert entry is not None
+
+
+def test_entry_create_auto_increments_order_index(admin_client, factory, composed_dashboard, entries_url):
+    sub1 = factory.create_dashboard(name="Sub1")
+    sub2 = factory.create_dashboard(name="Sub2")
+
+    admin_client.post(entries_url, json={"template_dashboard_id": sub1.id})
+    response = admin_client.post(entries_url, json={"template_dashboard_id": sub2.id})
+
+    data = response.get_json()
+    assert data["order_index"] == 1
+
+
+def test_entry_create_returns_404_for_missing_dashboard(admin_client):
+    response = admin_client.post(f"{LIST_URL}/999999/entries", json={"template_dashboard_id": 1})
+
+    assert response.status_code == 404
+
+
+def test_entry_delete_requires_authentication(client, factory, composed_dashboard):
+    entry = factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=factory.create_dashboard().id
+    )
+    response = client.delete(f"{LIST_URL}/{composed_dashboard.id}/entries/{entry.id}")
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_entry_delete_removes_entry(admin_client, factory, composed_dashboard):
+    sub = factory.create_dashboard(name="Subdashboard")
+    entry = factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub.id
+    )
+
+    response = admin_client.delete(f"{LIST_URL}/{composed_dashboard.id}/entries/{entry.id}")
+
+    assert response.status_code == 204
+    assert ComposedDashboardEntry.query.get(entry.id) is None
+
+
+def test_entry_delete_returns_404_for_missing_entry(admin_client, composed_dashboard):
+    response = admin_client.delete(f"{LIST_URL}/{composed_dashboard.id}/entries/999999")
+
+    assert response.status_code == 404
+
+
+def test_entry_delete_returns_404_for_wrong_composed_dashboard(admin_client, factory, composed_dashboard):
+    other_dashboard = factory.create_composed_dashboard(name="Other", url_identifier="other")
+    sub = factory.create_dashboard(name="Subdashboard")
+    entry = factory.create_composed_dashboard_entry(
+        composed_dashboard_id=other_dashboard.id, template_dashboard_id=sub.id
+    )
+
+    response = admin_client.delete(f"{LIST_URL}/{composed_dashboard.id}/entries/{entry.id}")
+
+    assert response.status_code == 404
+
+
+def test_entries_reorder_requires_authentication(client, entries_url):
+    response = client.post(f"{entries_url}/reorder", json={"entry_ids": []})
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_entries_reorder_updates_order_indices(admin_client, factory, composed_dashboard, entries_url):
+    sub1 = factory.create_dashboard(name="Sub1")
+    sub2 = factory.create_dashboard(name="Sub2")
+    sub3 = factory.create_dashboard(name="Sub3")
+
+    entry1 = factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub1.id, order_index=0
+    )
+    entry2 = factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub2.id, order_index=1
+    )
+    entry3 = factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub3.id, order_index=2
+    )
+
+    response = admin_client.post(f"{entries_url}/reorder", json={"entry_ids": [entry3.id, entry1.id, entry2.id]})
+
+    assert response.status_code == 200
+    data = response.get_json()
+
+    assert data[0]["id"] == entry3.id
+    assert data[0]["order_index"] == 0
+    assert data[1]["id"] == entry1.id
+    assert data[1]["order_index"] == 1
+    assert data[2]["id"] == entry2.id
+    assert data[2]["order_index"] == 2
+
+
+def test_entries_reorder_returns_404_for_missing_dashboard(admin_client):
+    response = admin_client.post(f"{LIST_URL}/999999/entries/reorder", json={"entry_ids": []})
+
+    assert response.status_code == 404
+
+
+def test_entries_reorder_returns_404_for_wrong_entry(admin_client, factory, composed_dashboard):
+    other_dashboard = factory.create_composed_dashboard(name="Other", url_identifier="other")
+    sub = factory.create_dashboard(name="Subdashboard")
+    entry = factory.create_composed_dashboard_entry(
+        composed_dashboard_id=other_dashboard.id, template_dashboard_id=sub.id
+    )
+
+    response = admin_client.post(f"{LIST_URL}/{composed_dashboard.id}/entries/reorder", json={"entry_ids": [entry.id]})
 
     assert response.status_code == 404

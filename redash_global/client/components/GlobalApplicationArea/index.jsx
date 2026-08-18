@@ -8,6 +8,7 @@ import { registerComponent } from "@/components/DynamicComponent";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
 import ComposedDashboardListPage from "./ComposedDashboardList";
+import ComposedDashboardEdit from "./ComposedDashboardEdit";
 import SubDashboardListPage from "./SubDashboardList";
 import SubDashboardAssignments from "./SubDashboardAssignments";
 
@@ -27,6 +28,14 @@ const routes = [
     path: "/composed-dashboards",
     title: "Composed Dashboards",
     render: () => <ComposedDashboardListPage pageTitle="Composed Dashboards" />,
+  },
+  {
+    id: "ComposedDashboards.Edit",
+    path: "/composed-dashboards/:composedDashboardId/edit",
+    title: "Edit Composed Dashboard",
+    render: (currentRoute) => (
+      <ComposedDashboardEdit composedDashboardId={currentRoute.routeParams.composedDashboardId} />
+    ),
   },
   {
     id: "SubDashboards.List",
