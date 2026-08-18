@@ -30,6 +30,12 @@ export default function GlobalDesktopNavbar() {
       </NavbarSection>
 
       <NavbarSection>
+        <Menu.Item key="composed-dashboards">
+          <Link href="composed-dashboards">
+            <DesktopOutlinedIcon aria-label="Composed Dashboards navigation button" />
+            <span className="desktop-navbar-label">Composed Dashboards</span>
+          </Link>
+        </Menu.Item>
         <Menu.Item key="sub-dashboards">
           <Link href="sub-dashboards">
             <DesktopOutlinedIcon aria-label="Sub-Dashboards navigation button" />
