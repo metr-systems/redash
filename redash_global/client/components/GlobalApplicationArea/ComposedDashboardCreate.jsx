@@ -32,7 +32,6 @@ export default function ComposedDashboardCreateModal({ visible, onClose, onSucce
         setSaving(false);
         if (error.response?.status === 409) {
           setErrors({ urlIdentifier: "A dashboard with this URL identifier already exists." });
-          notification.error("A dashboard with this URL identifier already exists.");
         } else {
           notification.error("Failed to create composed dashboard.");
         }
