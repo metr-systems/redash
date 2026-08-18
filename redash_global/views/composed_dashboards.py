@@ -1,5 +1,6 @@
 from flask import jsonify, request
 from flask_login import login_required
+from sqlalchemy.exc import IntegrityError
 
 from redash.models import db
 from redash_global.models import ComposedDashboard, ComposedDashboardEntry
@@ -49,7 +50,11 @@ def composed_dashboard_create():
 
     composed_dashboard = ComposedDashboard(name=name, url_identifier=url_identifier)
     db.session.add(composed_dashboard)
-    db.session.commit()
+    try:
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        return jsonify({"message": "A dashboard with this URL identifier already exists."}), 409
 
     return jsonify(serialize(composed_dashboard)), 201
 
@@ -89,7 +94,7 @@ def composed_dashboard_entry_create(composed_dashboard_id):
         .filter(ComposedDashboardEntry.composed_dashboard_id == composed_dashboard_id)
         .scalar()
     )
-    next_order = (max_order or -1) + 1
+    next_order = (max_order + 1) if max_order is not None else 0
 
     entry = ComposedDashboardEntry(
         composed_dashboard_id=composed_dashboard_id,
