@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Modal } from "antd";
 
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
@@ -29,11 +30,17 @@ const listColumns = [
         type="button"
         className="btn btn-xs btn-danger"
         onClick={() => {
-          if (window.confirm(`Delete "${item.name}"?`)) {
-            ComposedDashboardService.delete(item.id).then(() => {
-              window.location.reload();
-            });
-          }
+          Modal.confirm({
+            title: "Delete Dashboard",
+            content: `Are you sure you want to delete "${item.name}"?`,
+            okText: "Delete",
+            okType: "danger",
+            onOk() {
+              ComposedDashboardService.delete(item.id).then(() => {
+                window.location.reload();
+              });
+            },
+          });
         }}
       >
         Delete
