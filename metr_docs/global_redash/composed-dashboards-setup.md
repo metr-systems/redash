@@ -110,6 +110,12 @@
 - ✅ Creates/updates `ComposedDashboardDeployment` record with `last_deployed_at` timestamp
 - ✅ Tracks deployment state per (composed dashboard, organization) pair
 
+### 9. Post-Deploy Query Parameter Dependency Execution
+
+- ✅ After the deployment transaction commits, runs each deployed widget's query that has a `type: "query"` dashboard parameter (a dropdown populated from another query's results)
+- ✅ Executes each distinct dependency query once, so cached results already exist and dropdown parameters can populate immediately when the dashboard first loads
+- ✅ Runs outside the deployment transaction — failures are silently swallowed and do not fail or roll back the deployment
+
 ---
 
 ## 🔗 Identifier-Based Matching Pattern
