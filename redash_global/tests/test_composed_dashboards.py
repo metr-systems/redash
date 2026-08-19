@@ -63,6 +63,42 @@ def test_list_paginates(admin_client, factory):
     assert data["page_size"] == 2
 
 
+def test_list_handles_invalid_page_parameter(admin_client, factory):
+    factory.create_composed_dashboard(name="Dashboard 1", url_identifier="dashboard-1")
+
+    data = admin_client.get(f"{LIST_URL}?page=invalid").get_json()
+
+    assert data["count"] == 1
+    assert data["page"] == 1
+    assert len(data["results"]) == 1
+
+
+def test_list_handles_invalid_page_size_parameter(admin_client, factory):
+    factory.create_composed_dashboard(name="Dashboard 1", url_identifier="dashboard-1")
+
+    data = admin_client.get(f"{LIST_URL}?page_size=not-a-number").get_json()
+
+    assert data["count"] == 1
+    assert data["page_size"] == 25
+    assert len(data["results"]) == 1
+
+
+def test_list_handles_negative_page(admin_client, factory):
+    factory.create_composed_dashboard(name="Dashboard 1", url_identifier="dashboard-1")
+
+    data = admin_client.get(f"{LIST_URL}?page=-1").get_json()
+
+    assert data["page"] == 1
+
+
+def test_list_handles_zero_page_size(admin_client, factory):
+    factory.create_composed_dashboard(name="Dashboard 1", url_identifier="dashboard-1")
+
+    data = admin_client.get(f"{LIST_URL}?page_size=0").get_json()
+
+    assert data["page_size"] == 1
+
+
 def test_list_returns_expected_fields(admin_client, factory):
     dashboard = factory.create_composed_dashboard(name="Test Dashboard", url_identifier="test-dashboard")
 

@@ -18,8 +18,17 @@ def serialize(composed_dashboard):
 
 @login_required
 def composed_dashboards_list():
-    page = int(request.args.get("page", 1))
-    page_size = int(request.args.get("page_size", 25))
+    try:
+        page = int(request.args.get("page", 1))
+        page = max(page, 1)
+    except (ValueError, TypeError):
+        page = 1
+
+    try:
+        page_size = int(request.args.get("page_size", 25))
+        page_size = max(page_size, 1)
+    except (ValueError, TypeError):
+        page_size = 25
 
     query = ComposedDashboard.query.order_by(ComposedDashboard.created_at.desc())
 
