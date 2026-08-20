@@ -6,6 +6,16 @@ from redash_global.views.assignments import (
     assignments_list,
 )
 from redash_global.views.auth import login_page, logout_page
+from redash_global.views.composed_dashboards import (
+    composed_dashboard_create,
+    composed_dashboard_delete,
+    composed_dashboard_detail,
+    composed_dashboard_entries_list,
+    composed_dashboard_entries_reorder,
+    composed_dashboard_entry_create,
+    composed_dashboard_entry_delete,
+    composed_dashboards_list,
+)
 from redash_global.views.index import index_view, spa_catch_all
 from redash_global.views.organizations import organizations_list
 from redash_global.views.subdashboards import sub_dashboards_list
@@ -49,6 +59,63 @@ global_blueprint.add_url_rule(
     methods=["DELETE"],
     view_func=assignment_delete,
     endpoint="assignment_delete",
+)
+
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards",
+    methods=["GET"],
+    view_func=composed_dashboards_list,
+    endpoint="composed_dashboards_list",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards",
+    methods=["POST"],
+    view_func=composed_dashboard_create,
+    endpoint="composed_dashboard_create",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards/<int:composed_dashboard_id>",
+    methods=["GET"],
+    view_func=composed_dashboard_detail,
+    endpoint="composed_dashboard_detail",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards/<int:composed_dashboard_id>",
+    methods=["DELETE"],
+    view_func=composed_dashboard_delete,
+    endpoint="composed_dashboard_delete",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards/<int:composed_dashboard_id>/entries",
+    methods=["GET"],
+    view_func=composed_dashboard_entries_list,
+    endpoint="composed_dashboard_entries_list",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards/<int:composed_dashboard_id>/entries",
+    methods=["POST"],
+    view_func=composed_dashboard_entry_create,
+    endpoint="composed_dashboard_entry_create",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards/<int:composed_dashboard_id>/entries/reorder",
+    methods=["POST"],
+    view_func=composed_dashboard_entries_reorder,
+    endpoint="composed_dashboard_entries_reorder",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards/<int:composed_dashboard_id>/entries/<int:entry_id>",
+    methods=["DELETE"],
+    view_func=composed_dashboard_entry_delete,
+    endpoint="composed_dashboard_entry_delete",
 )
 
 # Catch-all for client-side routes (e.g. /sub-dashboards). Must be registered
