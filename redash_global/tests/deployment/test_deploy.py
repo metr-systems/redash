@@ -1,14 +1,16 @@
+from unittest.mock import MagicMock, patch
+
 import pytest
 
 from redash.models import Dashboard, MetrDashboard, MetrQuery, Query, Visualization, db
 from redash_global.deployment.deploy import (
+    collect_and_execute_parameter_queries,
     copy_allowed_widgets_query,
     copy_widget,
     create_dashboard,
     delete_orphaned_visualizations,
     deploy_composed_dashboard,
     deploy_to_target_org,
-    execute_query_parameter_dependencies,
     get_or_copy_query,
     get_or_create_dashboard,
     get_target_data_sources,
@@ -18,6 +20,13 @@ from redash_global.deployment.deploy import (
     resolve_query_dropdown_dependencies,
 )
 from redash_global.models import ComposedDashboardDeployment
+
+
+@pytest.fixture
+def mock_enqueue_query():
+    with patch("redash_global.deployment.deploy.enqueue_query") as mock:
+        mock.return_value = MagicMock(wait_for_finish=MagicMock())
+        yield mock
 
 
 @pytest.fixture
@@ -678,7 +687,9 @@ class TestDeployToTargetOrg:
 
         assert result.error is not None
 
-    def test_deploys_dashboard_with_query_based_parameters(self, factory, sub_dashboard, target_org):
+    def test_deploys_dashboard_with_query_based_parameters(
+        self, factory, sub_dashboard, target_org, mock_enqueue_query
+    ):
         template_org = sub_dashboard.org
         template_ds = factory.create_data_source(org=template_org)
         factory.create_metr_data_source_for(template_ds, "postgres")
@@ -725,8 +736,8 @@ class TestDeployToTargetOrg:
         assert deployed_query.options["parameters"][0]["queryId"] != dep_query.id
 
 
-class TestExecuteQueryParameterDependencies:
-    def test_executes_dependent_queries(self, factory, target_org):
+class TestCollectAndExecuteParameterQueries:
+    def test_collects_and_executes_parameter_queries(self, factory, target_org, mock_enqueue_query):
         template_org = factory.create_org()
         template_ds = factory.create_data_source(org=template_org)
         factory.create_metr_data_source_for(template_ds, "postgres")
@@ -736,7 +747,8 @@ class TestExecuteQueryParameterDependencies:
         dep_query = dep_widget.visualization.query_rel
         dep_query.data_source = template_ds
 
-        widget = factory.create_widget(dashboard=factory.create_dashboard(org=template_org))
+        dashboard = factory.create_dashboard(org=template_org)
+        widget = factory.create_widget(dashboard=dashboard)
         query = widget.visualization.query_rel
         query.data_source = template_ds
         query.options = {
@@ -750,17 +762,11 @@ class TestExecuteQueryParameterDependencies:
         data_source_map = {"postgres": target_ds}
 
         deploy_user = factory.create_user(org=target_org)
+        query_id_map = {}
 
-        copied_query = get_or_copy_query(query, target_org, deploy_user, data_source_map, {})
-        copied_dep_query_id = copied_query.options["parameters"][0]["queryId"]
+        collect_and_execute_parameter_queries([dashboard], target_org, deploy_user, data_source_map, query_id_map)
 
-        target_dashboard = factory.create_dashboard(org=target_org)
-        visualization = factory.create_visualization(query_rel=copied_query)
-        factory.create_widget(dashboard=target_dashboard, visualization=visualization)
-        db.session.flush()
-
-        execute_query_parameter_dependencies(target_dashboard)
-
+        copied_dep_query_id = query_id_map[dep_query.id]
         copied_dep_query = Query.query.get(copied_dep_query_id)
         assert copied_dep_query is not None
 
