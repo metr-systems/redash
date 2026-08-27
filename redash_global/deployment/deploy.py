@@ -10,12 +10,12 @@ from redash.models import (
     MetrDataSource,
     MetrQuery,
     Query,
+    QueryResult,
     Visualization,
     Widget,
     db,
     metrWidget,
 )
-from redash.tasks.queries import enqueue_query
 from redash_global.deployment.exceptions import DeploymentError
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
@@ -74,9 +74,7 @@ def deploy_to_target_org(composed_dashboard, target_org):
             sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
         )
         dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
-        collect_and_execute_parameter_queries(
-            sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
-        )
+        copy_parameter_query_results(sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
         replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
         record_deployment(composed_dashboard, target_org)
 
@@ -298,13 +296,14 @@ def get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed
     return dashboard
 
 
-def collect_and_execute_parameter_queries(sub_dashboards, target_org, deploy_user, data_source_map, query_id_map):
-    """Copy and execute all parameter queries referenced by dashboard queries.
+def copy_parameter_query_results(sub_dashboards, target_org, deploy_user, data_source_map, query_id_map):
+    """Copy parameter queries and attach pre-computed results from template org.
 
-    Parameter queries must be executed before dependent queries are inserted,
+    Parameter query results must be available before dependent queries are inserted,
     so their parameter values are available when update_query_hash() is called.
+    Results are copied from the template org to avoid slow worker execution.
     """
-    parameter_queries_to_execute = []
+    parameter_queries_to_copy = []
 
     for sub_dashboard in sub_dashboards:
         for widget in widgets_with_query(sub_dashboard):
@@ -320,15 +319,28 @@ def collect_and_execute_parameter_queries(sub_dashboards, target_org, deploy_use
                                 param_query, target_org, deploy_user, data_source_map, query_id_map
                             )
                             query_id_map[param_query_id] = copied_param_query.id
-                            parameter_queries_to_execute.append(copied_param_query)
+                            parameter_queries_to_copy.append((param_query, copied_param_query))
 
-    for param_query in parameter_queries_to_execute:
-        if param_query and param_query.data_source:
-            job = enqueue_query(
-                param_query.query_text, param_query.data_source, deploy_user.id, metadata={"query_id": param_query.id}
+    for template_query, target_query in parameter_queries_to_copy:
+        if not template_query.latest_query_data:
+            raise DeploymentError(
+                f"Parameter query '{template_query.name}' (id={template_query.id}) has no cached results in template org. "
+                "Execute the query in the template org before deploying."
             )
-            if job:
-                job.wait_for_finish()
+
+        template_result = template_query.latest_query_data
+        target_result = QueryResult(
+            org=target_org,
+            data_source=target_query.data_source,
+            query_hash=template_result.query_hash,
+            query_text=template_result.query_text,
+            data=template_result.data,
+            runtime=template_result.runtime,
+            retrieved_at=template_result.retrieved_at,
+        )
+        db.session.add(target_result)
+        db.session.flush()
+        target_query.latest_query_data = target_result
 
 
 def record_deployment(composed_dashboard, target_org):

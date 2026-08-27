@@ -1,11 +1,9 @@
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from redash.models import Dashboard, MetrDashboard, MetrQuery, Query, Visualization, db
 from redash_global.deployment.deploy import (
-    collect_and_execute_parameter_queries,
     copy_allowed_widgets_query,
+    copy_parameter_query_results,
     copy_widget,
     create_dashboard,
     delete_orphaned_visualizations,
@@ -20,13 +18,6 @@ from redash_global.deployment.deploy import (
     resolve_query_dropdown_dependencies,
 )
 from redash_global.models import ComposedDashboardDeployment
-
-
-@pytest.fixture
-def mock_enqueue_query():
-    with patch("redash_global.deployment.deploy.enqueue_query") as mock:
-        mock.return_value = MagicMock(wait_for_finish=MagicMock())
-        yield mock
 
 
 @pytest.fixture
@@ -718,9 +709,7 @@ class TestDeployToTargetOrg:
 
         assert result.error is not None
 
-    def test_deploys_dashboard_with_query_based_parameters(
-        self, factory, sub_dashboard, target_org, mock_enqueue_query
-    ):
+    def test_deploys_dashboard_with_query_based_parameters(self, factory, sub_dashboard, target_org):
         template_org = sub_dashboard.org
         template_ds = factory.create_data_source(org=template_org)
         factory.create_metr_data_source_for(template_ds, "postgres")
@@ -729,6 +718,10 @@ class TestDeployToTargetOrg:
         dep_widget = factory.create_widget(dashboard=dep_dashboard)
         dep_query = dep_widget.visualization.query_rel
         dep_query.data_source = template_ds
+        # Seed parameter query with cached results
+        query_result = factory.create_query_result(data_source=template_ds)
+        dep_query.latest_query_data = query_result
+        db.session.commit()
 
         widget = factory.create_widget(
             dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
@@ -767,8 +760,8 @@ class TestDeployToTargetOrg:
         assert deployed_query.options["parameters"][0]["queryId"] != dep_query.id
 
 
-class TestCollectAndExecuteParameterQueries:
-    def test_collects_and_executes_parameter_queries(self, factory, target_org, mock_enqueue_query):
+class TestCopyParameterQueryResults:
+    def test_copies_parameter_query_results_from_template(self, factory, target_org):
         template_org = factory.create_org()
         template_ds = factory.create_data_source(org=template_org)
         factory.create_metr_data_source_for(template_ds, "postgres")
@@ -777,6 +770,9 @@ class TestCollectAndExecuteParameterQueries:
         dep_widget = factory.create_widget(dashboard=dep_dashboard)
         dep_query = dep_widget.visualization.query_rel
         dep_query.data_source = template_ds
+        template_result = factory.create_query_result(data_source=template_ds)
+        dep_query.latest_query_data = template_result
+        db.session.commit()
 
         dashboard = factory.create_dashboard(org=template_org)
         widget = factory.create_widget(dashboard=dashboard)
@@ -795,11 +791,47 @@ class TestCollectAndExecuteParameterQueries:
         deploy_user = factory.create_user(org=target_org)
         query_id_map = {}
 
-        collect_and_execute_parameter_queries([dashboard], target_org, deploy_user, data_source_map, query_id_map)
+        copy_parameter_query_results([dashboard], target_org, deploy_user, data_source_map, query_id_map)
 
         copied_dep_query_id = query_id_map[dep_query.id]
         copied_dep_query = Query.query.get(copied_dep_query_id)
         assert copied_dep_query is not None
+        assert copied_dep_query.latest_query_data is not None
+        assert copied_dep_query.latest_query_data.org_id == target_org.id
+        assert copied_dep_query.latest_query_data.data == template_result.data
+
+    def test_fails_when_parameter_query_has_no_cached_results(self, factory, target_org):
+        from redash_global.deployment.exceptions import DeploymentError
+
+        template_org = factory.create_org()
+        template_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(template_ds, "postgres")
+
+        dep_dashboard = factory.create_dashboard(org=template_org)
+        dep_widget = factory.create_widget(dashboard=dep_dashboard)
+        dep_query = dep_widget.visualization.query_rel
+        dep_query.data_source = template_ds
+        # No QueryResult created—dep_query has no cached results
+
+        dashboard = factory.create_dashboard(org=template_org)
+        widget = factory.create_widget(dashboard=dashboard)
+        query = widget.visualization.query_rel
+        query.data_source = template_ds
+        query.options = {
+            "parameters": [
+                {"name": "dropdown_param", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+        query_id_map = {}
+
+        with pytest.raises(DeploymentError, match="has no cached results in template org"):
+            copy_parameter_query_results([dashboard], target_org, deploy_user, data_source_map, query_id_map)
 
 
 class TestDeployComposedDashboard:
