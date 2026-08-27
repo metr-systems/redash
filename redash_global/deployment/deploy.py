@@ -97,6 +97,18 @@ def get_target_data_sources(sub_dashboards, target_org):
                 if metr_data_source is not None:
                     identifiers.add(metr_data_source.data_source_identifier)
 
+            # Also collect data sources from parameter queries
+            options = query.options or {}
+            for parameter in options.get("parameters", []):
+                if parameter.get("type") == "query":
+                    param_query_id = parameter.get("queryId")
+                    if param_query_id:
+                        param_query = Query.query.get(param_query_id)
+                        if param_query and param_query.data_source_id is not None:
+                            param_metr_data_source = param_query.data_source.metr_data_source
+                            if param_metr_data_source is not None:
+                                identifiers.add(param_metr_data_source.data_source_identifier)
+
     return {
         metr_data_source.data_source_identifier: metr_data_source.data_source
         for metr_data_source in MetrDataSource.query.filter(

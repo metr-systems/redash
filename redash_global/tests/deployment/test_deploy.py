@@ -77,6 +77,37 @@ class TestGetTargetDataSources:
 
         assert result == {}
 
+    def test_includes_data_sources_from_parameter_queries(self, factory, sub_dashboard, target_org):
+        template_org = sub_dashboard.org
+        main_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(main_ds, "postgres")
+
+        param_ds = factory.create_data_source(org=template_org)
+        factory.create_metr_data_source_for(param_ds, "mysql")
+
+        dep_dashboard = factory.create_dashboard(org=template_org)
+        dep_widget = factory.create_widget(dashboard=dep_dashboard)
+        dep_query = dep_widget.visualization.query_rel
+        dep_query.data_source = param_ds
+
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        query = widget.visualization.query_rel
+        query.data_source = main_ds
+        query.options = {
+            "parameters": [
+                {"name": "dropdown_param", "type": "query", "queryId": dep_query.id},
+            ]
+        }
+
+        target_main_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_main_ds, "postgres")
+        target_param_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_param_ds, "mysql")
+
+        result = get_target_data_sources([sub_dashboard], target_org)
+
+        assert result == {"postgres": target_main_ds, "mysql": target_param_ds}
+
 
 class TestResolveQueryDropdownDependencies:
     def test_ignores_parameters_without_query_type(self, factory, target_org):
