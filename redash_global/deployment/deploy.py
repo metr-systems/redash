@@ -15,7 +15,6 @@ from redash.models import (
     db,
     metrWidget,
 )
-from redash.tasks.queries import enqueue_query
 from redash_global.deployment.exceptions import DeploymentError
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
@@ -74,13 +73,11 @@ def deploy_to_target_org(composed_dashboard, target_org):
             sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
         )
         dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
-        collect_and_execute_parameter_queries(
-            sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
-        )
         replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
         record_deployment(composed_dashboard, target_org)
 
         db.session.commit()
+        execute_query_parameter_dependencies(dashboard)
         return DeploymentResult(composed_dashboard, target_org, error=None)
     except DeploymentError as error:
         db.session.rollback()
@@ -286,37 +283,23 @@ def get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed
     return dashboard
 
 
-def collect_and_execute_parameter_queries(sub_dashboards, target_org, deploy_user, data_source_map, query_id_map):
-    """Copy and execute all parameter queries referenced by dashboard queries.
+def execute_query_parameter_dependencies(dashboard):
+    executed_queries = set()
 
-    Parameter queries must be executed before dependent queries are inserted,
-    so their parameter values are available when update_query_hash() is called.
-    """
-    parameter_queries_to_execute = []
-
-    for sub_dashboard in sub_dashboards:
-        for widget in widgets_with_query(sub_dashboard):
+    for widget in dashboard.widgets:
+        if widget.visualization_id:
             query = widget.visualization.query_rel
-            options = query.options or {}
-            for parameter in options.get("parameters", []):
+            for parameter in query.parameters:
                 if parameter.get("type") == "query":
-                    param_query_id = parameter.get("queryId")
-                    if param_query_id and param_query_id not in query_id_map:
-                        param_query = Query.query.get(param_query_id)
-                        if param_query:
-                            copied_param_query = get_or_copy_query(
-                                param_query, target_org, deploy_user, data_source_map, query_id_map
-                            )
-                            query_id_map[param_query_id] = copied_param_query.id
-                            parameter_queries_to_execute.append(copied_param_query)
-
-    for param_query in parameter_queries_to_execute:
-        if param_query and param_query.data_source:
-            job = enqueue_query(
-                param_query.query_text, param_query.data_source, deploy_user.id, metadata={"query_id": param_query.id}
-            )
-            if job:
-                job.wait_for_finish()
+                    dep_query_id = parameter.get("queryId")
+                    if dep_query_id and dep_query_id not in executed_queries:
+                        dep_query = Query.query.get(dep_query_id)
+                        if dep_query and dep_query.data_source:
+                            try:
+                                dep_query.execute_async()
+                                executed_queries.add(dep_query_id)
+                            except Exception:
+                                pass
 
 
 def record_deployment(composed_dashboard, target_org):
