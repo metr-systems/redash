@@ -19,6 +19,11 @@ worker() {
   export WORKERS_COUNT=${WORKERS_COUNT:-2}
   export QUEUES=${QUEUES:-}
 
+  # supervisord must outwait the work horse, which is interrupted
+  # REDASH_WORKER_SHUTDOWN_DELAY seconds after the worker is asked to stop.
+  export REDASH_WORKER_SHUTDOWN_DELAY=${REDASH_WORKER_SHUTDOWN_DELAY:-6}
+  export WORKER_STOP_WAIT_SECS=$((REDASH_WORKER_SHUTDOWN_DELAY + 20))
+
   exec supervisord -c worker.conf
 }
 

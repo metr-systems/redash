@@ -218,6 +218,11 @@ SCHEDULED_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIM
 # Time limit (in seconds) for adhoc queries. Set this to -1 to execute without a time limit.
 ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", -1))
 
+# Seconds an in-flight job is given to finish after its worker is asked to shut down,
+# before the work horse is interrupted. Must exceed the longest query time limit above
+# for a rolling deploy to avoid aborting queries that would otherwise have completed.
+WORKER_SHUTDOWN_DELAY = int(os.environ.get("REDASH_WORKER_SHUTDOWN_DELAY", 6))
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 JOB_DEFAULT_FAILURE_TTL = int(os.environ.get("REDASH_JOB_DEFAULT_FAILURE_TTL", 7 * 24 * 60 * 60))
 
