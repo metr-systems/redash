@@ -828,5 +828,43 @@ class TestDeployComposedDashboard:
 
         results = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2])
 
-        assert len(results) == 2
-        assert all(r.error is None for r in results)
+        assert [result.org_id for result in results] == [target_org_1.id, target_org_2.id]
+        assert all(result.errors == [] for result in results)
+
+    def test_rolls_back_every_org_when_one_fails(self, factory, sub_dashboard):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+
+        deployable_org = factory.create_org()
+        target_ds = factory.create_data_source(org=deployable_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+
+        # No data source carrying the "postgres" identifier, so this org fails validation.
+        failing_org = factory.create_org()
+
+        for org in (deployable_org, failing_org):
+            factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=org.id)
+            factory.create_admin(org=org)
+
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+
+        results = deploy_composed_dashboard(composed_dashboard, [deployable_org, failing_org])
+
+        assert results[0].errors == []
+        assert results[1].errors
+
+        deployed = (
+            Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
+            .filter(
+                MetrDashboard.url_identifier == composed_dashboard.url_identifier,
+                MetrDashboard.org_id == deployable_org.id,
+            )
+            .first()
+        )
+        assert deployed is None

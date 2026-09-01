@@ -2,6 +2,8 @@ from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime, timezone
 
+from sqlalchemy.exc import SQLAlchemyError
+
 from redash.models import (
     Dashboard,
     DashboardGroup,
@@ -16,12 +18,12 @@ from redash.models import (
     metrWidget,
 )
 from redash.tasks.queries import enqueue_query
-from redash_global.deployment.exceptions import DeploymentError
+from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
 from redash_global.models import ComposedDashboardDeployment, SubDashboardAssignment
 
-DeploymentResult = namedtuple("DeploymentResult", ["composed_dashboard", "org", "error"])
+OrgResult = namedtuple("OrgResult", ["org_id", "errors"])
 
 
 def resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_source_map, query_id_map):
@@ -41,24 +43,39 @@ def resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_s
         parameter["queryId"] = copied_dependency.id
 
 
-def deploy_composed_dashboard(composed_dashboard, target_orgs):
-    """Deploy/redeploy one composed dashboard to every target org.
+def error_messages(error):
+    if isinstance(error, DeploymentErrorGroup):
+        return [str(inner) for inner in error.errors]
+    return [str(error)]
 
-    Each org is independent: one failing does not affect the rest, or roll back an org that
-    already succeeded.
-    """
+
+def deploy_composed_dashboard(composed_dashboard, target_orgs):
+    """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
     results = []
+    deployed_dashboards = []
+
     for target_org in target_orgs:
+        org_id = target_org.id
         try:
-            dashboard = deploy_to_target_org(composed_dashboard, target_org)
-            db.session.commit()
-            # Enqueued jobs live in Redis, outside the transaction, so they must not run
-            # before the commit that makes the queries they point at real.
-            execute_query_parameter_dependencies(dashboard)
-            results.append(DeploymentResult(composed_dashboard, target_org, error=None))
-        except DeploymentError as error:
-            db.session.rollback()
-            results.append(DeploymentResult(composed_dashboard, target_org, error=error))
+            # A savepoint contains a database-level failure, which would otherwise abort the
+            # whole transaction and make every statement after it fail, so one broken org
+            # does not stop the remaining ones from being attempted and reported.
+            with db.session.begin_nested():
+                dashboard = deploy_to_target_org(composed_dashboard, target_org)
+            deployed_dashboards.append(dashboard)
+            results.append(OrgResult(org_id, []))
+        except (DeploymentError, SQLAlchemyError) as error:
+            results.append(OrgResult(org_id, error_messages(error)))
+
+    if any(result.errors for result in results):
+        db.session.rollback()
+        return results
+
+    db.session.commit()
+    # Enqueued jobs live in Redis, outside the transaction, so they must not run before the
+    # commit that makes the queries they point at real - a rollback cannot take them back.
+    for dashboard in deployed_dashboards:
+        execute_query_parameter_dependencies(dashboard)
     return results
 
 
