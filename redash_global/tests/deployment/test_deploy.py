@@ -19,6 +19,7 @@ from redash_global.deployment.deploy import (
     replace_widgets,
     resolve_query_dropdown_dependencies,
 )
+from redash_global.deployment.exceptions import DeploymentErrorGroup
 from redash_global.models import ComposedDashboardDeployment
 
 
@@ -684,9 +685,8 @@ class TestDeployToTargetOrg:
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
         factory.create_admin(org=target_org)
 
-        result = deploy_to_target_org(composed_dashboard, target_org)
+        dashboard = deploy_to_target_org(composed_dashboard, target_org)
 
-        assert result.error is None
         deployed = (
             Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
             .filter(
@@ -695,9 +695,10 @@ class TestDeployToTargetOrg:
             )
             .one()
         )
+        assert deployed == dashboard
         assert deployed.name == composed_dashboard.name
 
-    def test_returns_error_on_validation_failure(self, factory, sub_dashboard, target_org):
+    def test_raises_on_validation_failure(self, factory, sub_dashboard, target_org):
         widget = factory.create_widget(dashboard=sub_dashboard)
         widget.visualization.query_rel.data_source.delete()
         composed_dashboard = factory.create_composed_dashboard()
@@ -707,9 +708,8 @@ class TestDeployToTargetOrg:
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
         factory.create_admin(org=target_org)
 
-        result = deploy_to_target_org(composed_dashboard, target_org)
-
-        assert result.error is not None
+        with pytest.raises(DeploymentErrorGroup):
+            deploy_to_target_org(composed_dashboard, target_org)
 
     def test_deploys_dashboard_with_query_based_parameters(self, factory, sub_dashboard, target_org):
         template_org = sub_dashboard.org
@@ -742,9 +742,8 @@ class TestDeployToTargetOrg:
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
         factory.create_admin(org=target_org)
 
-        result = deploy_to_target_org(composed_dashboard, target_org)
+        deploy_to_target_org(composed_dashboard, target_org)
 
-        assert result.error is None
         deployed = (
             Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
             .filter(

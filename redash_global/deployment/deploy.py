@@ -47,7 +47,19 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs):
     Each org is independent: one failing does not affect the rest, or roll back an org that
     already succeeded.
     """
-    return [deploy_to_target_org(composed_dashboard, target_org) for target_org in target_orgs]
+    results = []
+    for target_org in target_orgs:
+        try:
+            dashboard = deploy_to_target_org(composed_dashboard, target_org)
+            db.session.commit()
+            # Enqueued jobs live in Redis, outside the transaction, so they must not run
+            # before the commit that makes the queries they point at real.
+            execute_query_parameter_dependencies(dashboard)
+            results.append(DeploymentResult(composed_dashboard, target_org, error=None))
+        except DeploymentError as error:
+            db.session.rollback()
+            results.append(DeploymentResult(composed_dashboard, target_org, error=error))
+    return results
 
 
 def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
@@ -63,26 +75,20 @@ def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
 
 
 def deploy_to_target_org(composed_dashboard, target_org):
-    try:
-        sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
-        validate_composed_dashboard(sub_dashboards, target_org)
+    """Stage one org's dashboard and return it. Raises on failure; the caller owns the transaction."""
+    sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
+    validate_composed_dashboard(sub_dashboards, target_org)
 
-        deploy_user = Group.members(target_org.admin_group.id).first()
-        target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
-        query_id_map = {}
-        allowed_widgets_identifier = copy_allowed_widgets_query(
-            sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
-        )
-        dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
-        replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
-        record_deployment(composed_dashboard, target_org)
-
-        db.session.commit()
-        execute_query_parameter_dependencies(dashboard)
-        return DeploymentResult(composed_dashboard, target_org, error=None)
-    except DeploymentError as error:
-        db.session.rollback()
-        return DeploymentResult(composed_dashboard, target_org, error=error)
+    deploy_user = Group.members(target_org.admin_group.id).first()
+    target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
+    query_id_map = {}
+    allowed_widgets_identifier = copy_allowed_widgets_query(
+        sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
+    )
+    dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
+    replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
+    record_deployment(composed_dashboard, target_org)
+    return dashboard
 
 
 def get_target_data_sources(sub_dashboards, target_org):
