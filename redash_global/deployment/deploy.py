@@ -15,6 +15,7 @@ from redash.models import (
     db,
     metrWidget,
 )
+from redash.tasks.queries import enqueue_query
 from redash_global.deployment.exceptions import DeploymentError
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
@@ -308,7 +309,12 @@ def execute_query_parameter_dependencies(dashboard):
                         dep_query = Query.query.get(dep_query_id)
                         if dep_query and dep_query.data_source:
                             try:
-                                dep_query.execute_async()
+                                enqueue_query(
+                                    dep_query.query_text,
+                                    dep_query.data_source,
+                                    dep_query.user_id,
+                                    metadata={"query_id": dep_query.id},
+                                )
                                 executed_queries.add(dep_query_id)
                             except Exception:
                                 pass

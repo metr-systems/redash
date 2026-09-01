@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 import pytest
 
 from redash.models import Dashboard, MetrDashboard, MetrQuery, Query, Visualization, db
@@ -790,10 +792,18 @@ class TestExecuteQueryParameterDependencies:
         factory.create_widget(dashboard=target_dashboard, visualization=visualization)
         db.session.flush()
 
-        execute_query_parameter_dependencies(target_dashboard)
+        with patch("redash_global.deployment.deploy.enqueue_query") as enqueue:
+            execute_query_parameter_dependencies(target_dashboard)
 
         copied_dep_query = Query.query.get(copied_dep_query_id)
         assert copied_dep_query is not None
+        assert enqueue.call_count == 1
+        assert enqueue.call_args.args == (
+            copied_dep_query.query_text,
+            copied_dep_query.data_source,
+            copied_dep_query.user_id,
+        )
+        assert enqueue.call_args.kwargs["metadata"] == {"query_id": copied_dep_query.id}
 
 
 class TestDeployComposedDashboard:
