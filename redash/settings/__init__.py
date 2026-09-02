@@ -441,6 +441,15 @@ FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(os.environ.get("REDASH_FEATURE_EX
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))
 
+# PostgreSQL
+# Attempts to open a connection before a query is reported as failed, and the base
+# delay between them. psycopg2 reports a handshake that could not be completed the
+# same way it reports one that was refused, so every failure is retried rather than
+# classified; keep the attempts low enough that a misconfigured data source does not
+# multiply authentication failures against the server.
+PG_CONNECTION_ATTEMPTS = int(os.environ.get("REDASH_PG_CONNECTION_ATTEMPTS", "3"))
+PG_CONNECTION_RETRY_DELAY = float(os.environ.get("REDASH_PG_CONNECTION_RETRY_DELAY", "0.5"))
+
 # Allow Parameters in Embeds
 # WARNING: Deprecated!
 # See https://discuss.redash.io/t/support-for-parameters-in-embedded-visualizations/3337 for more details.
