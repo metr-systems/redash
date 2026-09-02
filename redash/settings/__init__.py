@@ -223,6 +223,12 @@ ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", -1)
 # for a rolling deploy to avoid aborting queries that would otherwise have completed.
 WORKER_SHUTDOWN_DELAY = int(os.environ.get("REDASH_WORKER_SHUTDOWN_DELAY", 6))
 
+# Seconds over which to spread worker startup, so that the processes of a pod do
+# not all open their first data source connection in the same instant. Must stay
+# well under 60s: the supervisor healthcheck runs on TICK_60 and reports a worker
+# that has not registered with RQ yet as unhealthy.
+WORKER_STARTUP_JITTER = float(os.environ.get("REDASH_WORKER_STARTUP_JITTER", 0))
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 JOB_DEFAULT_FAILURE_TTL = int(os.environ.get("REDASH_JOB_DEFAULT_FAILURE_TTL", 7 * 24 * 60 * 60))
 
