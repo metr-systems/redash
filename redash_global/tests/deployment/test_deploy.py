@@ -20,7 +20,7 @@ from redash_global.deployment.deploy import (
     resolve_query_dropdown_dependencies,
 )
 from redash_global.deployment.exceptions import DeploymentErrorGroup
-from redash_global.models import ComposedDashboardDeployment
+from redash_global.models import ComposedDashboardDeployment, DeploymentRun
 
 
 @pytest.fixture
@@ -806,7 +806,7 @@ class TestExecuteQueryParameterDependencies:
 
 
 class TestDeployComposedDashboard:
-    def test_deploys_to_multiple_orgs(self, factory, sub_dashboard):
+    def test_deploys_to_multiple_orgs(self, factory, sub_dashboard, admin):
         factory.create_widget(
             dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
         )
@@ -826,10 +826,12 @@ class TestDeployComposedDashboard:
             composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
         )
 
-        results = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2])
+        run = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2], admin.id)
 
-        assert [result.org_id for result in results] == [target_org_1.id, target_org_2.id]
-        assert all(result.errors == [] for result in results)
+        assert run.succeeded
+        assert run.global_admin_user_id == admin.id
+        assert [result.organization_id for result in run.results] == [target_org_1.id, target_org_2.id]
+        assert all(result.errors == [] for result in run.results)
 
     def test_rolls_back_every_org_when_one_fails(self, factory, sub_dashboard):
         factory.create_widget(
@@ -854,10 +856,17 @@ class TestDeployComposedDashboard:
             composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
         )
 
-        results = deploy_composed_dashboard(composed_dashboard, [deployable_org, failing_org])
+        run = deploy_composed_dashboard(composed_dashboard, [deployable_org, failing_org])
 
-        assert results[0].errors == []
-        assert results[1].errors
+        assert run.succeeded is False
+        assert run.results[0].organization_id == deployable_org.id
+        assert run.results[0].errors == []
+        assert run.results[1].errors
+
+        # .one() issues real SQL, so it proves the history is in the database and not merely
+        # left over in the session after the rollback that erased the deployment itself.
+        persisted = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard.id).one()
+        assert persisted.id == run.id
 
         deployed = (
             Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)

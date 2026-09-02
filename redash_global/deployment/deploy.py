@@ -21,7 +21,12 @@ from redash.tasks.queries import enqueue_query
 from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
-from redash_global.models import ComposedDashboardDeployment, SubDashboardAssignment
+from redash_global.models import (
+    ComposedDashboardDeployment,
+    DeploymentRun,
+    DeploymentRunResult,
+    SubDashboardAssignment,
+)
 
 OrgResult = namedtuple("OrgResult", ["org_id", "errors"])
 
@@ -49,8 +54,9 @@ def error_messages(error):
     return [str(error)]
 
 
-def deploy_composed_dashboard(composed_dashboard, target_orgs):
+def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by_id=None):
     """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
+    composed_dashboard_id = composed_dashboard.id
     results = []
     deployed_dashboards = []
 
@@ -67,16 +73,19 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs):
         except (DeploymentError, SQLAlchemyError) as error:
             results.append(OrgResult(org_id, error_messages(error)))
 
-    if any(result.errors for result in results):
+    succeeded = not any(result.errors for result in results)
+    if succeeded:
+        db.session.commit()
+    else:
         db.session.rollback()
-        return results
 
+    run = record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded)
     db.session.commit()
-    # Enqueued jobs live in Redis, outside the transaction, so they must not run before the
-    # commit that makes the queries they point at real - a rollback cannot take them back.
-    for dashboard in deployed_dashboards:
-        execute_query_parameter_dependencies(dashboard)
-    return results
+
+    if succeeded:
+        for dashboard in deployed_dashboards:
+            execute_query_parameter_dependencies(dashboard)
+    return run
 
 
 def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
@@ -356,3 +365,14 @@ def record_deployment(composed_dashboard, target_org):
     # expire_on_commit=False, so a func.now() value would stay an unresolved SQL construct on
     # this attribute after commit instead of refreshing to the real value.
     deployment.last_deployed_at = datetime.now(timezone.utc)
+
+
+def record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded):
+    run = DeploymentRun(
+        composed_dashboard_id=composed_dashboard_id,
+        global_admin_user_id=deployed_by_id,
+        succeeded=succeeded,
+        results=[DeploymentRunResult(organization_id=result.org_id, errors=result.errors) for result in results],
+    )
+    db.session.add(run)
+    return run
