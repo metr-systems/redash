@@ -1,9 +1,12 @@
 import textwrap
+from unittest import TestCase
 
 import mock
 from click.testing import CliRunner
 
+from redash import settings
 from redash.cli import manager
+from redash.cli.rq import worker_startup_delay
 from redash.models import DataSource, Group, Organization, User, db
 from redash.query_runner import query_runners
 from redash.utils.configuration import ConfigurationContainer
@@ -566,3 +569,21 @@ class UserCommandTests(BaseTestCase):
         self.assertEqual(result.exit_code, 0)
         db.session.add(u)
         self.assertEqual(u.group_ids, [u.org.default_group.id, u.org.admin_group.id])
+
+
+class TestWorkerStartupDelay(TestCase):
+    def test_is_skipped_when_jitter_is_disabled(self):
+        with mock.patch.object(settings, "WORKER_STARTUP_JITTER", 0):
+            self.assertEqual(0, worker_startup_delay())
+
+    def test_never_exceeds_the_configured_jitter(self):
+        with mock.patch.object(settings, "WORKER_STARTUP_JITTER", 15):
+            delays = [worker_startup_delay() for _ in range(200)]
+
+        self.assertTrue(all(0 <= delay <= 15 for delay in delays))
+
+    def test_spreads_workers_rather_than_delaying_them_all_equally(self):
+        with mock.patch.object(settings, "WORKER_STARTUP_JITTER", 15):
+            delays = {worker_startup_delay() for _ in range(200)}
+
+        self.assertGreater(len(delays), 1)

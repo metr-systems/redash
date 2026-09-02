@@ -5,7 +5,7 @@ from collections import deque
 
 import redis
 from rq import get_current_job
-from rq.exceptions import NoSuchJobError
+from rq.exceptions import NoSuchJobError, ShutDownImminentException
 from rq.job import JobStatus
 from rq.timeouts import JobTimeoutException
 
@@ -206,6 +206,9 @@ class QueryExecutor:
 
         try:
             data, error = query_runner.run_query(annotated_query, self.user)
+        except ShutDownImminentException:
+            _unlock(self.query_hash, self.data_source.id)
+            raise
         except Exception as e:
             if isinstance(e, JobTimeoutException):
                 error = TIMEOUT_MESSAGE

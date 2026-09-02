@@ -1,15 +1,17 @@
 from mock import Mock, patch
 from rq import Connection
-from rq.exceptions import NoSuchJobError
+from rq.exceptions import NoSuchJobError, ShutDownImminentException
 
-from redash import models, rq_redis_connection
+from redash import models, redis_connection, rq_redis_connection
 from redash.query_runner.pg import PostgreSQL
 from redash.tasks import Job
 from redash.tasks.queries.execution import (
     QueryExecutionError,
+    _job_lock_id,
     enqueue_query,
     execute_query,
 )
+from redash.utils import gen_query_hash
 from tests import BaseTestCase
 
 
@@ -315,3 +317,39 @@ class QueryExecutorTests(BaseTestCase):
             )
             q = models.Query.get_by_id(q.id)
             self.assertEqual(q.schedule_failures, 0)
+
+    def test_worker_shutdown_is_not_a_scheduled_failure(self, _):
+        """
+        A query aborted because its worker is shutting down is not a query failure.
+        """
+        q = self.factory.create_query(query_text="SELECT 1, 2", schedule={"interval": 300})
+        with patch.object(PostgreSQL, "run_query") as qr:
+            qr.side_effect = ShutDownImminentException("shut down imminent", {})
+
+            with self.assertRaises(ShutDownImminentException):
+                execute_query(
+                    "SELECT 1, 2",
+                    self.factory.data_source.id,
+                    {"query_id": q.id},
+                    scheduled_query_id=q.id,
+                )
+
+            q = models.Query.get_by_id(q.id)
+            self.assertEqual(q.schedule_failures, 0)
+
+    def test_worker_shutdown_releases_the_query_lock(self, _):
+        """
+        A query aborted by a worker shutdown does not leave its lock behind.
+        """
+        query_text = "SELECT 1, 2"
+        data_source = self.factory.data_source
+        lock_id = _job_lock_id(gen_query_hash(query_text), data_source.id)
+        redis_connection.set(lock_id, "some-job-id")
+
+        with patch.object(PostgreSQL, "run_query") as qr:
+            qr.side_effect = ShutDownImminentException("shut down imminent", {})
+
+            with self.assertRaises(ShutDownImminentException):
+                execute_query(query_text, data_source.id, {})
+
+        self.assertIsNone(redis_connection.get(lock_id))
