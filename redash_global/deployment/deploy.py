@@ -4,7 +4,6 @@ from datetime import datetime, timezone
 
 from flask import has_request_context
 from flask_login import current_user
-from sqlalchemy.exc import SQLAlchemyError
 
 from redash.models import (
     Dashboard,
@@ -20,7 +19,7 @@ from redash.models import (
     metrWidget,
 )
 from redash.tasks.queries import enqueue_query
-from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
+from redash_global.deployment.exceptions import DeploymentErrorGroup
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
 from redash_global.models import (
@@ -80,7 +79,7 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs):
                 dashboard = deploy_to_target_org(composed_dashboard, target_org)
             deployed_dashboards.append(dashboard)
             results.append(OrgResult(org_id, []))
-        except (DeploymentError, SQLAlchemyError) as error:
+        except Exception as error:
             results.append(OrgResult(org_id, error_messages(error)))
 
     succeeded = not any(result.errors for result in results)

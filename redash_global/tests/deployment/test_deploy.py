@@ -902,3 +902,19 @@ class TestDeployComposedDashboard:
             .first()
         )
         assert deployed is None
+
+    def test_records_unexpected_errors_instead_of_raising(self, factory):
+        target_org = factory.create_org()
+        composed_dashboard = factory.create_composed_dashboard()
+
+        # A RuntimeError stands in for the programming mistakes the narrower
+        # (DeploymentError, SQLAlchemyError) catch used to let escape, which left the run
+        # unrecorded even though recording every run is the point of the history table.
+        with patch(
+            "redash_global.deployment.deploy.deploy_to_target_org",
+            side_effect=RuntimeError("boom"),
+        ):
+            run = deploy_composed_dashboard(composed_dashboard, [target_org])
+
+        assert run.succeeded is False
+        assert run.results[0].errors == ["boom"]
