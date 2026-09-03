@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import validates
 from sqlalchemy_utils.models import generic_repr
 
@@ -96,3 +97,46 @@ class ComposedDashboardDeployment(TimestampMixin, db.Model):
     )
     organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
     last_deployed_at = Column(db.DateTime(True), nullable=True)
+
+
+@generic_repr("id", "composed_dashboard_id", "succeeded")
+class DeploymentRun(TimestampMixin, db.Model):
+    """One click of Deploy: when, who ran it, which orgs are targeted(throught results), and whether it committed.
+
+    A run is all or nothing: `succeeded` is False if any target org failed, and then no
+    org was deployed. To be recorded after the deploy's own commit/rollback so that the history
+    of a failed run is not rolled back with it.
+    """
+
+    __tablename__ = "deployment_runs"
+
+    id = primary_key("DeploymentRun")
+    composed_dashboard_id = Column(
+        db.Integer, db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"), nullable=False
+    )
+    global_admin_user_id = Column(
+        db.Integer, db.ForeignKey("global_admin_users.id", ondelete="SET NULL"), nullable=True
+    )
+    succeeded = Column(db.Boolean, nullable=False)
+
+    results = db.relationship(
+        "DeploymentRunResult",
+        backref="deployment_run",
+        cascade="all, delete-orphan",
+    )
+
+
+@generic_repr("id", "deployment_run_id", "organization_id")
+class DeploymentRunResult(TimestampMixin, db.Model):
+    """What one org contributed to one run: nothing, or the errors that failed the run.
+
+    Empty errors means this org raised no problems, not that it was deployed - in a failed
+    run every org is rolled back, including the ones with no errors of their own.
+    """
+
+    __tablename__ = "deployment_run_results"
+
+    id = primary_key("DeploymentRunResult")
+    deployment_run_id = Column(db.Integer, db.ForeignKey("deployment_runs.id", ondelete="CASCADE"), nullable=False)
+    organization_id = Column(db.Integer, db.ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    errors = Column(JSONB, nullable=False, default=list)

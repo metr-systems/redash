@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from flask_login import login_user
 
 from redash.models import Dashboard, MetrDashboard, MetrQuery, Query, Visualization, db
 from redash_global.deployment.deploy import (
@@ -19,7 +20,8 @@ from redash_global.deployment.deploy import (
     replace_widgets,
     resolve_query_dropdown_dependencies,
 )
-from redash_global.models import ComposedDashboardDeployment
+from redash_global.deployment.exceptions import DeploymentErrorGroup
+from redash_global.models import ComposedDashboardDeployment, DeploymentRun
 
 
 @pytest.fixture
@@ -684,9 +686,8 @@ class TestDeployToTargetOrg:
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
         factory.create_admin(org=target_org)
 
-        result = deploy_to_target_org(composed_dashboard, target_org)
+        dashboard = deploy_to_target_org(composed_dashboard, target_org)
 
-        assert result.error is None
         deployed = (
             Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
             .filter(
@@ -695,9 +696,10 @@ class TestDeployToTargetOrg:
             )
             .one()
         )
+        assert deployed == dashboard
         assert deployed.name == composed_dashboard.name
 
-    def test_returns_error_on_validation_failure(self, factory, sub_dashboard, target_org):
+    def test_raises_on_validation_failure(self, factory, sub_dashboard, target_org):
         widget = factory.create_widget(dashboard=sub_dashboard)
         widget.visualization.query_rel.data_source.delete()
         composed_dashboard = factory.create_composed_dashboard()
@@ -707,9 +709,8 @@ class TestDeployToTargetOrg:
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
         factory.create_admin(org=target_org)
 
-        result = deploy_to_target_org(composed_dashboard, target_org)
-
-        assert result.error is not None
+        with pytest.raises(DeploymentErrorGroup):
+            deploy_to_target_org(composed_dashboard, target_org)
 
     def test_deploys_dashboard_with_query_based_parameters(self, factory, sub_dashboard, target_org):
         template_org = sub_dashboard.org
@@ -742,9 +743,8 @@ class TestDeployToTargetOrg:
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
         factory.create_admin(org=target_org)
 
-        result = deploy_to_target_org(composed_dashboard, target_org)
+        deploy_to_target_org(composed_dashboard, target_org)
 
-        assert result.error is None
         deployed = (
             Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
             .filter(
@@ -827,7 +827,96 @@ class TestDeployComposedDashboard:
             composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
         )
 
-        results = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2])
+        run = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2])
 
-        assert len(results) == 2
-        assert all(r.error is None for r in results)
+        assert run.succeeded
+        # No request context here, the shell case: the run is recorded with nobody attributed.
+        assert run.global_admin_user_id is None
+        assert [result.organization_id for result in run.results] == [target_org_1.id, target_org_2.id]
+        assert all(result.errors == [] for result in run.results)
+
+    def test_records_the_logged_in_admin(self, app, factory, sub_dashboard, admin):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+
+        target_org = factory.create_org()
+        factory.create_metr_data_source_for(factory.create_data_source(org=target_org), "postgres")
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+        factory.create_admin(org=target_org)
+
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+
+        with app.test_request_context():
+            login_user(admin)
+            run = deploy_composed_dashboard(composed_dashboard, [target_org])
+
+        assert run.global_admin_user_id == admin.id
+
+    def test_rolls_back_every_org_when_one_fails(self, factory, sub_dashboard):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+
+        deployable_org = factory.create_org()
+        target_ds = factory.create_data_source(org=deployable_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+
+        # No data source carrying the "postgres" identifier, so this org fails validation.
+        failing_org = factory.create_org()
+
+        for org in (deployable_org, failing_org):
+            factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=org.id)
+            factory.create_admin(org=org)
+
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+
+        run = deploy_composed_dashboard(composed_dashboard, [deployable_org, failing_org])
+
+        assert run.succeeded is False
+        assert run.results[0].organization_id == deployable_org.id
+        assert run.results[0].errors == []
+        assert run.results[1].errors
+
+        # .one() issues real SQL, so it proves the history is in the database and not merely
+        # left over in the session after the rollback that erased the deployment itself.
+        persisted = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard.id).one()
+        assert persisted.id == run.id
+
+        deployed = (
+            Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
+            .filter(
+                MetrDashboard.url_identifier == composed_dashboard.url_identifier,
+                MetrDashboard.org_id == deployable_org.id,
+            )
+            .first()
+        )
+        assert deployed is None
+
+    def test_records_unexpected_errors_instead_of_raising(self, factory, caplog):
+        target_org = factory.create_org()
+        composed_dashboard = factory.create_composed_dashboard()
+
+        # A RuntimeError stands in for the programming mistakes the narrower
+        # (DeploymentError, SQLAlchemyError) catch used to let escape, which left the run
+        # unrecorded even though recording every run is the point of the history table.
+        with patch(
+            "redash_global.deployment.deploy.deploy_to_target_org",
+            side_effect=RuntimeError("boom"),
+        ):
+            run = deploy_composed_dashboard(composed_dashboard, [target_org])
+
+        assert run.succeeded is False
+        assert run.results[0].errors == ["boom"]
+        assert "Unexpected failure deploying composed dashboard" in caplog.text
+        assert "RuntimeError: boom" in caplog.text
