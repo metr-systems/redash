@@ -101,7 +101,12 @@ class ComposedDashboardDeployment(TimestampMixin, db.Model):
 
 @generic_repr("id", "composed_dashboard_id", "succeeded")
 class DeploymentRun(TimestampMixin, db.Model):
-    """One click of Deploy: who ran it and whether each target org deployed or failed."""
+    """One click of Deploy: when, who ran it, which orgs are targeted(throught results), and whether it committed.
+
+    A run is all or nothing: `succeeded` is False if any target org failed, and then no
+    org was deployed. To be recorded after the deploy's own commit/rollback so that the history
+    of a failed run is not rolled back with it.
+    """
 
     __tablename__ = "deployment_runs"
 
@@ -123,7 +128,11 @@ class DeploymentRun(TimestampMixin, db.Model):
 
 @generic_repr("id", "deployment_run_id", "organization_id")
 class DeploymentRunResult(TimestampMixin, db.Model):
-    """The outcome for one org in one run. Empty errors means it deployed cleanly."""
+    """What one org contributed to one run: nothing, or the errors that failed the run.
+
+    Empty errors means this org raised no problems, not that it was deployed - in a failed
+    run every org is rolled back, including the ones with no errors of their own.
+    """
 
     __tablename__ = "deployment_run_results"
 
