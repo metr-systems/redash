@@ -903,7 +903,7 @@ class TestDeployComposedDashboard:
         )
         assert deployed is None
 
-    def test_records_unexpected_errors_instead_of_raising(self, factory):
+    def test_records_unexpected_errors_instead_of_raising(self, factory, caplog):
         target_org = factory.create_org()
         composed_dashboard = factory.create_composed_dashboard()
 
@@ -918,3 +918,5 @@ class TestDeployComposedDashboard:
 
         assert run.succeeded is False
         assert run.results[0].errors == ["boom"]
+        assert "Unexpected failure deploying composed dashboard" in caplog.text
+        assert "RuntimeError: boom" in caplog.text

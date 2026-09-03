@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -19,7 +20,7 @@ from redash.models import (
     metrWidget,
 )
 from redash.tasks.queries import enqueue_query
-from redash_global.deployment.exceptions import DeploymentErrorGroup
+from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import validate_composed_dashboard
 from redash_global.models import (
@@ -28,6 +29,8 @@ from redash_global.models import (
     DeploymentRunResult,
     SubDashboardAssignment,
 )
+
+logger = logging.getLogger(__name__)
 
 OrgResult = namedtuple("OrgResult", ["org_id", "errors"])
 
@@ -79,7 +82,17 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs):
                 dashboard = deploy_to_target_org(composed_dashboard, target_org)
             deployed_dashboards.append(dashboard)
             results.append(OrgResult(org_id, []))
+        except DeploymentError as error:
+            results.append(OrgResult(org_id, error_messages(error)))
         except Exception as error:
+            # Not a DeploymentError, so this is a bug or an infrastructure failure rather
+            # than a dashboard the admin can fix. It still gets recorded like any other org
+            # failure.
+            logger.exception(
+                "Unexpected failure deploying composed dashboard %s to org %s",
+                composed_dashboard_id,
+                org_id,
+            )
             results.append(OrgResult(org_id, error_messages(error)))
 
     succeeded = not any(result.errors for result in results)
