@@ -1,6 +1,7 @@
 from unittest.mock import patch
 
 import pytest
+from flask_login import login_user
 
 from redash.models import Dashboard, MetrDashboard, MetrQuery, Query, Visualization, db
 from redash_global.deployment.deploy import (
@@ -806,7 +807,7 @@ class TestExecuteQueryParameterDependencies:
 
 
 class TestDeployComposedDashboard:
-    def test_deploys_to_multiple_orgs(self, factory, sub_dashboard, admin):
+    def test_deploys_to_multiple_orgs(self, factory, sub_dashboard):
         factory.create_widget(
             dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
         )
@@ -826,12 +827,36 @@ class TestDeployComposedDashboard:
             composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
         )
 
-        run = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2], admin.id)
+        run = deploy_composed_dashboard(composed_dashboard, [target_org_1, target_org_2])
 
         assert run.succeeded
-        assert run.global_admin_user_id == admin.id
+        # No request context here, the shell case: the run is recorded with nobody attributed.
+        assert run.global_admin_user_id is None
         assert [result.organization_id for result in run.results] == [target_org_1.id, target_org_2.id]
         assert all(result.errors == [] for result in run.results)
+
+    def test_records_the_logged_in_admin(self, app, factory, sub_dashboard, admin):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+
+        target_org = factory.create_org()
+        factory.create_metr_data_source_for(factory.create_data_source(org=target_org), "postgres")
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+        factory.create_admin(org=target_org)
+
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+
+        with app.test_request_context():
+            login_user(admin)
+            run = deploy_composed_dashboard(composed_dashboard, [target_org])
+
+        assert run.global_admin_user_id == admin.id
 
     def test_rolls_back_every_org_when_one_fails(self, factory, sub_dashboard):
         factory.create_widget(
