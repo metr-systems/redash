@@ -441,6 +441,7 @@ class TestJWTAuthentication(BaseTestCase):
         org_settings["auth_jwt_auth_issuer"] = ""
         org_settings["auth_jwt_auth_audience"] = ""
         org_settings["auth_jwt_auth_header_name"] = ""
+        org_settings["auth_jwt_auth_tenant_claim"] = ""
 
     def test_jwt_no_token(self):
         response = self.get_request("/data_sources", org=self.factory.org)
@@ -458,6 +459,46 @@ class TestJWTAuthentication(BaseTestCase):
             "exp": expiration_timestamp,
             "iat": issued_at_timestamp,
             "iss": self.auth_issuer,
+        }
+        with open(self.rsa_private_key) as keyfile:
+            sign_key = keyfile.read().strip()
+        token_data = jwt.encode(data, sign_key, algorithm="RS256")
+
+        response = self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
+        self.assertEqual(response.status_code, 200)
+
+    def test_jwt_from_another_tenant_is_refused(self):
+        org_settings["auth_jwt_auth_tenant_claim"] = "tenant"
+        user = self.factory.create_user()
+
+        issued_at_timestamp = time.time()
+        data = {
+            "aud": self.auth_audience,
+            "email": user.email,
+            "exp": issued_at_timestamp + 60,
+            "iat": issued_at_timestamp,
+            "iss": self.auth_issuer,
+            "tenant": "another-tenant",
+        }
+        with open(self.rsa_private_key) as keyfile:
+            sign_key = keyfile.read().strip()
+        token_data = jwt.encode(data, sign_key, algorithm="RS256")
+
+        response = self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
+        self.assertEqual(response.status_code, 302)
+
+    def test_jwt_naming_this_tenant_is_accepted(self):
+        org_settings["auth_jwt_auth_tenant_claim"] = "tenant"
+        user = self.factory.create_user()
+
+        issued_at_timestamp = time.time()
+        data = {
+            "aud": self.auth_audience,
+            "email": user.email,
+            "exp": issued_at_timestamp + 60,
+            "iat": issued_at_timestamp,
+            "iss": self.auth_issuer,
+            "tenant": self.factory.org.slug,
         }
         with open(self.rsa_private_key) as keyfile:
             sign_key = keyfile.read().strip()

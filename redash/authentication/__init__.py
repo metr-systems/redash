@@ -194,6 +194,15 @@ def jwt_token_load_user_from_request(request):
         logger.info("No email field in token, refusing to login")
         return
 
+    tenant_claim = org_settings["auth_jwt_auth_tenant_claim"]
+    if tenant_claim and payload.get(tenant_claim) != org.slug:
+        logger.info(
+            "Token was issued for %r, not for organization %r, refusing to login",
+            payload.get(tenant_claim),
+            org.slug,
+        )
+        return
+
     try:
         user = models.User.get_by_email_and_org(payload["email"], org)
     except models.NoResultFound:
