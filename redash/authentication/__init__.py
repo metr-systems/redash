@@ -164,6 +164,8 @@ def api_key_load_user_from_request(request):
 
 def jwt_token_load_user_from_request(request):
     org = current_org._get_current_object()
+    if org is None:
+        return None
 
     payload = None
 
@@ -195,7 +197,7 @@ def jwt_token_load_user_from_request(request):
     try:
         user = models.User.get_by_email_and_org(payload["email"], org)
     except models.NoResultFound:
-        user = create_and_login_user(current_org, payload["email"], payload["email"])
+        user = create_and_login_user(org, payload["email"], payload["email"])
 
     return user
 
