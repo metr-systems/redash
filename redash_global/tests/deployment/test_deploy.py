@@ -903,6 +903,54 @@ class TestDeployComposedDashboard:
         )
         assert deployed is None
 
+    def test_rolls_back_every_org_when_several_orgs_in_the_middle_fail(self, factory, sub_dashboard):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+
+        deployable_orgs = [factory.create_org() for _ in range(3)]
+        for org in deployable_orgs:
+            factory.create_metr_data_source_for(factory.create_data_source(org=org), "postgres")
+
+        # No data source carrying the "postgres" identifier, so these orgs fail validation.
+        failing_orgs = [factory.create_org() for _ in range(2)]
+
+        # The failures sit between healthy orgs: a savepoint that let its failure escape would
+        # break the orgs attempted after it, and one that swallowed it would leave the second
+        # failure unreported.
+        target_orgs = [
+            deployable_orgs[0],
+            failing_orgs[0],
+            deployable_orgs[1],
+            failing_orgs[1],
+            deployable_orgs[2],
+        ]
+        for org in target_orgs:
+            factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=org.id)
+            factory.create_admin(org=org)
+
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+
+        run = deploy_composed_dashboard(composed_dashboard, target_orgs)
+
+        assert run.succeeded is False
+        assert [result.organization_id for result in run.results] == [org.id for org in target_orgs]
+        errors_by_org = {result.organization_id: result.errors for result in run.results}
+        assert [bool(errors_by_org[org.id]) for org in target_orgs] == [False, True, False, True, False]
+
+        deployment_run = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard.id).one()
+        assert deployment_run.id == run.id
+        assert len(deployment_run.results) == len(target_orgs)
+
+        # Not one of the three healthy orgs kept a dashboard, including the ones
+        # before the first failure.
+        assert MetrDashboard.query.filter_by(url_identifier=composed_dashboard.url_identifier).count() == 0
+
     def test_records_unexpected_errors_instead_of_raising(self, factory, caplog):
         target_org = factory.create_org()
         composed_dashboard = factory.create_composed_dashboard()
