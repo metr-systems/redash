@@ -10,7 +10,7 @@ from redash_global.deployment.deploy import (
     delete_orphaned_visualizations,
     deploy_composed_dashboard,
     deploy_to_target_org,
-    execute_query_parameter_dependencies,
+    execute_query_dependencies,
     get_or_copy_query,
     get_or_create_dashboard,
     get_target_data_sources,
@@ -360,7 +360,7 @@ class TestCopyAllowedWidgetsQuery:
 
         assert result is None
 
-    def test_returns_identifier_when_query_copied(self, factory, sub_dashboard, target_org):
+    def test_returns_the_copied_query(self, factory, sub_dashboard, target_org):
         query = factory.create_query()
         factory.create_metr_query(query=query, org_id=query.org_id, query_identifier="allowed-widgets")
         factory.create_metr_dashboard(
@@ -377,7 +377,8 @@ class TestCopyAllowedWidgetsQuery:
 
         result = copy_allowed_widgets_query([sub_dashboard], target_org, deploy_user, data_source_map)
 
-        assert result == "allowed-widgets"
+        assert result.org_id == target_org.id
+        assert result.metr_query.query_identifier == "allowed-widgets"
 
 
 class TestCopyWidget:
@@ -770,7 +771,7 @@ class TestDeployToTargetOrg:
         assert deployed_query.options["parameters"][0]["queryId"] != dep_query.id
 
 
-class TestExecuteQueryParameterDependencies:
+class TestExecuteQueryDependencies:
     def test_executes_dependent_queries(self, factory, target_org):
         template_org = factory.create_org()
         template_ds = factory.create_data_source(org=template_org)
@@ -805,7 +806,7 @@ class TestExecuteQueryParameterDependencies:
         db.session.flush()
 
         with patch("redash_global.deployment.deploy.enqueue_query") as enqueue:
-            execute_query_parameter_dependencies(target_dashboard)
+            execute_query_dependencies(target_dashboard)
 
         copied_dep_query = Query.query.get(copied_dep_query_id)
         assert copied_dep_query is not None
@@ -816,6 +817,24 @@ class TestExecuteQueryParameterDependencies:
             copied_dep_query.user_id,
         )
         assert enqueue.call_args.kwargs["metadata"] == {"query_id": copied_dep_query.id}
+
+    def test_executes_the_allowed_widgets_query(self, factory, target_org):
+        target_ds = factory.create_data_source(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+        allowed_widgets_query = factory.create_query(org=target_org, data_source=target_ds, user=deploy_user)
+        dashboard = factory.create_dashboard(org=target_org)
+        db.session.flush()
+
+        with patch("redash_global.deployment.deploy.enqueue_query") as enqueue:
+            execute_query_dependencies(dashboard, allowed_widgets_query)
+
+        assert enqueue.call_count == 1
+        assert enqueue.call_args.args == (
+            allowed_widgets_query.query_text,
+            allowed_widgets_query.data_source,
+            allowed_widgets_query.user_id,
+        )
+        assert enqueue.call_args.kwargs["metadata"] == {"query_id": allowed_widgets_query.id}
 
 
 class TestDeployComposedDashboard:
