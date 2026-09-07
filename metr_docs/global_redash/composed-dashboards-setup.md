@@ -92,7 +92,8 @@
 
 - ✅ Finds or creates target dashboard by `MetrDashboard.url_identifier` + target org
 - ✅ If dashboard exists, updates its name and widgets
-- ✅ If dashboard doesn't exist, creates it with composed dashboard name
+- ✅ If dashboard doesn't exist, creates it with composed dashboard name, **unpublished** (`is_draft=True`) — the target org publishes it when they're ready
+- ✅ Redeploy never changes the published/unpublished state, so a dashboard published in the target org stays published
 
 ### 6. Orphaned Cleanup
 

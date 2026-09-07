@@ -261,7 +261,9 @@ def create_dashboard(composed_dashboard, target_org, deploy_user):
         name=composed_dashboard.name,
         org=target_org,
         user=deploy_user,
-        is_draft=False,
+        # Redeploy goes through get_or_create_dashboard,
+        # which never touches is_draft
+        is_draft=True,
         layout=[],
     )
     db.session.add(dashboard)

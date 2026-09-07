@@ -555,7 +555,7 @@ class TestCreateDashboard:
         assert dashboard.name == composed_dashboard.name
         assert dashboard.org_id == target_org.id
         assert dashboard.user_id == deploy_user.id
-        assert dashboard.is_draft is False
+        assert dashboard.is_draft is True
 
     def test_adds_default_group_to_dashboard(self, factory, target_org):
         composed_dashboard = factory.create_composed_dashboard()
@@ -599,6 +599,18 @@ class TestGetOrCreateDashboard:
         assert second_dashboard.id == first_dashboard.id
         assert second_dashboard.name == "Updated Name"
         assert second_dashboard.name != first_name
+
+    def test_keeps_published_state_when_dashboard_exists(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        first_dashboard = create_dashboard(composed_dashboard, target_org, deploy_user)
+        first_dashboard.is_draft = False
+
+        second_dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, None)
+
+        assert second_dashboard.id == first_dashboard.id
+        assert second_dashboard.is_draft is False
 
     def test_sets_allowed_widget_query_identifier(self, factory, target_org):
         composed_dashboard = factory.create_composed_dashboard()
