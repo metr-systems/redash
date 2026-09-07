@@ -319,6 +319,47 @@ class TestGetOrCopyQuery:
         assert result.options is not None
         assert isinstance(result.options, dict)
 
+    def test_clears_value_of_fixed_from_url_parameters(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        template_query.options = {
+            "parameters": [
+                {"name": "address", "type": "text", "value": "template-address"},
+                {"name": "period", "type": "text", "value": "last-month"},
+            ]
+        }
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        result = get_or_copy_query(
+            template_query, target_org, deploy_user, data_source_map, fixed_param_names={"address"}
+        )
+
+        assert result.options["parameters"][0]["value"] is None
+        assert result.options["parameters"][1]["value"] == "last-month"
+
+    def test_clears_fixed_from_url_value_when_updating_existing_query(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        template_query.options = {"parameters": [{"name": "address", "type": "text", "value": "template-address"}]}
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+        result = get_or_copy_query(
+            template_query, target_org, deploy_user, data_source_map, fixed_param_names={"address"}
+        )
+
+        assert result.options["parameters"][0]["value"] is None
+
     def test_preserves_parameter_value_when_updating_query_id(self, factory, target_org):
         template_org = factory.create_org()
         template_ds = factory.create_data_source(org=template_org)
@@ -464,6 +505,40 @@ class TestCopyWidget:
         result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
 
         assert result.visualization.query_rel.options["parameters"][0]["queryId"] != dep_query.id
+
+    def test_clears_fixed_from_url_parameter_value_on_copied_query(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(
+            dashboard=sub_dashboard,
+            options={
+                "position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1},
+                "parameterMappings": {
+                    "address": {"name": "address", "type": "fixed-from-url", "mapTo": "address", "value": None},
+                    "period": {"name": "period", "type": "widget-level", "mapTo": "period", "value": None},
+                },
+            },
+        )
+        query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        query.options = {
+            "parameters": [
+                {"name": "address", "type": "text", "value": "template-address"},
+                {"name": "period", "type": "text", "value": "last-month"},
+            ]
+        }
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        target_dashboard = factory.create_dashboard(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+
+        result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
+
+        parameters = result.visualization.query_rel.options["parameters"]
+        assert parameters[0]["value"] is None
+        assert parameters[1]["value"] == "last-month"
+        # the template itself keeps its value
+        assert query.options["parameters"][0]["value"] == "template-address"
 
 
 class TestDeleteOrphanedVisualizations:
