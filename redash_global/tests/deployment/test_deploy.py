@@ -221,6 +221,42 @@ class TestGetOrCopyQuery:
         assert second_result.id == first_id
         assert second_result.query_text == "SELECT 2"
 
+    def test_copies_schedule_from_template(self, factory, sub_dashboard, target_org):
+        schedule = {"interval": 3600, "time": None, "day_of_week": None, "until": None}
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        template_query.schedule = schedule
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        result = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+
+        assert result.schedule == schedule
+        # A copy, not the template's own dict: editing one must not change the other.
+        assert result.schedule is not template_query.schedule
+
+    def test_updates_schedule_on_redeploy(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        template_query.schedule = {"interval": 3600, "time": None, "day_of_week": None, "until": None}
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+
+        template_query.schedule = {"interval": 86400, "time": "09:00", "day_of_week": None, "until": None}
+        result = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+
+        assert result.schedule == {"interval": 86400, "time": "09:00", "day_of_week": None, "until": None}
+
     def test_copies_query_with_query_based_parameter(self, factory, sub_dashboard, target_org):
         template_org = sub_dashboard.org
         template_ds = factory.create_data_source(org=template_org)
