@@ -434,6 +434,7 @@ class TestJWTAuthentication(BaseTestCase):
         org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
         org_settings["auth_jwt_auth_audience"] = self.auth_audience
         org_settings["auth_jwt_auth_header_name"] = self.token_name
+        org_settings["auth_jwt_auth_cookie_name"] = ""
 
     def tearDown(self):
         org_settings["auth_jwt_login_enabled"] = False
@@ -519,3 +520,74 @@ class TestJWTAuthentication(BaseTestCase):
 
         keys = jwt_auth.get_public_keys("http://localhost/key.jwt")
         self.assertEqual(keys[0].key_size, 4096)
+
+
+class TestJWTProvisioningGroup(BaseTestCase):
+    def setUp(self):
+        super(TestJWTProvisioningGroup, self).setUp()
+        self.auth_audience = "My Org"
+        self.auth_issuer = "Admin"
+        self.token_name = "jwt-token"
+        self.rsa_private_key = "/tmp/jwtRS256.key"
+        self.rsa_public_key = "/tmp/jwtRS256.pem"
+
+        if not os.path.exists(self.rsa_public_key):
+            subprocess.check_output(["openssl", "genrsa", "-out", self.rsa_private_key, "4096"])
+            subprocess.check_output(
+                ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key]
+            )
+
+        org_settings["auth_jwt_login_enabled"] = True
+        org_settings["auth_jwt_auth_public_certs_url"] = "file://{}".format(self.rsa_public_key)
+        org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
+        org_settings["auth_jwt_auth_audience"] = self.auth_audience
+        org_settings["auth_jwt_auth_header_name"] = self.token_name
+        org_settings["auth_jwt_auth_cookie_name"] = ""
+
+    def tearDown(self):
+        org_settings["auth_jwt_login_enabled"] = False
+        org_settings["auth_jwt_auth_public_certs_url"] = ""
+        org_settings["auth_jwt_auth_issuer"] = ""
+        org_settings["auth_jwt_auth_audience"] = ""
+        org_settings["auth_jwt_auth_header_name"] = ""
+
+    def token_for(self, email):
+        issued_at_timestamp = time.time()
+        data = {
+            "aud": self.auth_audience,
+            "email": email,
+            "exp": issued_at_timestamp + 60,
+            "iat": issued_at_timestamp,
+            "iss": self.auth_issuer,
+        }
+        with open(self.rsa_private_key) as keyfile:
+            sign_key = keyfile.read().strip()
+        return jwt.encode(data, sign_key, algorithm="RS256")
+
+    def test_provisions_a_new_user_into_the_single_sign_on_group(self):
+        token_data = self.token_for("newcomer@example.com")
+
+        self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
+
+        user = models.User.query.filter(models.User.email == "newcomer@example.com").one()
+        sso_group = self.factory.org.sso_group
+        self.assertIsNotNone(sso_group)
+        self.assertEqual([sso_group.id], user.group_ids)
+
+    def test_leaves_the_default_group_alone(self):
+        token_data = self.token_for("newcomer@example.com")
+
+        self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
+
+        user = models.User.query.filter(models.User.email == "newcomer@example.com").one()
+        self.assertNotIn(self.factory.org.default_group.id, user.group_ids)
+
+    def test_an_existing_user_keeps_the_groups_they_have(self):
+        user = self.factory.create_user(email="already@example.com")
+        original_group_ids = list(user.group_ids)
+
+        self.get_request(
+            "/data_sources", org=self.factory.org, headers={self.token_name: self.token_for(user.email)}
+        )
+
+        self.assertEqual(original_group_ids, user.group_ids)

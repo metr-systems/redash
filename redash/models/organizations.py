@@ -78,6 +78,23 @@ class Organization(TimestampMixin, db.Model):
         return None
 
     @property
+    def sso_group(self):
+        return self.groups.filter(Group.type == Group.SSO_GROUP).first()
+
+    def get_or_create_sso_group(self):
+        group = self.sso_group
+        if group is None:
+            group = Group(
+                name="sso",
+                type=Group.SSO_GROUP,
+                org=self,
+                permissions=Group.SSO_PERMISSIONS,
+            )
+            db.session.add(group)
+            db.session.flush()
+        return group
+
+    @property
     def admin_group(self):
         return self.groups.filter(Group.name == "admin", Group.type == Group.BUILTIN_GROUP).first()
 
