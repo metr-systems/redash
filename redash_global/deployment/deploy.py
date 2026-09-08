@@ -70,15 +70,18 @@ def deploy_to_target_org(composed_dashboard, target_org):
         deploy_user = Group.members(target_org.admin_group.id).first()
         target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
         query_id_map = {}
-        allowed_widgets_identifier = copy_allowed_widgets_query(
+        allowed_widgets_query = copy_allowed_widgets_query(
             sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
+        )
+        allowed_widgets_identifier = (
+            allowed_widgets_query.metr_query.query_identifier if allowed_widgets_query else None
         )
         dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
         replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
         record_deployment(composed_dashboard, target_org)
 
         db.session.commit()
-        execute_query_parameter_dependencies(dashboard)
+        execute_query_dependencies(dashboard, allowed_widgets_query)
         return DeploymentResult(composed_dashboard, target_org, error=None)
     except DeploymentError as error:
         db.session.rollback()
@@ -178,7 +181,7 @@ def copy_allowed_widgets_query(sub_dashboards, target_org, deploy_user, data_sou
 
     query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map)
     query.metr_query.query_identifier = identifier
-    return identifier
+    return query
 
 
 def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset, query_id_map=None):
@@ -300,28 +303,33 @@ def get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed
     return dashboard
 
 
-def execute_query_parameter_dependencies(dashboard):
-    executed_queries = set()
+def execute_query_dependencies(dashboard, allowed_widgets_query=None):
+    """Enqueue the queries the dashboard needs cached results for: parameter dropdowns and allowed widgets."""
+    dependencies = [allowed_widgets_query] if allowed_widgets_query else []
 
     for widget in dashboard.widgets:
         if widget.visualization_id:
             query = widget.visualization.query_rel
             for parameter in query.parameters:
                 if parameter.get("type") == "query":
-                    dep_query_id = parameter.get("queryId")
-                    if dep_query_id and dep_query_id not in executed_queries:
-                        dep_query = Query.query.get(dep_query_id)
-                        if dep_query and dep_query.data_source:
-                            try:
-                                enqueue_query(
-                                    dep_query.query_text,
-                                    dep_query.data_source,
-                                    dep_query.user_id,
-                                    metadata={"query_id": dep_query.id},
-                                )
-                                executed_queries.add(dep_query_id)
-                            except Exception:
-                                pass
+                    dep_query = Query.query.get(parameter["queryId"]) if parameter.get("queryId") else None
+                    if dep_query:
+                        dependencies.append(dep_query)
+
+    enqueued = set()
+    for query in dependencies:
+        if query.id in enqueued or query.data_source is None:
+            continue
+        try:
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                metadata={"query_id": query.id},
+            )
+            enqueued.add(query.id)
+        except Exception:
+            pass
 
 
 def record_deployment(composed_dashboard, target_org):
