@@ -137,6 +137,7 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, 
         query.query_text = template_query.query_text
         query.options = options
         query.data_source = target_data_source
+        query.schedule = deepcopy(template_query.schedule)
         return query
 
     # Bare constructor, not Query.create(...): Query.create always adds a "Table" TABLE
@@ -150,6 +151,7 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, 
         name=template_query.name,
         query_text=template_query.query_text,
         options=options,
+        schedule=deepcopy(template_query.schedule),
     )
     db.session.add(query)
     db.session.flush()
