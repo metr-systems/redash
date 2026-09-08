@@ -7,7 +7,8 @@ from redash_global.deployment.exceptions import (
 )
 from redash_global.deployment.utils import widgets_with_query
 
-DASHBOARD_LEVEL_MAPPING_TYPES = {"dashboard-level", "fixed-from-url"}
+FIXED_FROM_URL_MAPPING_TYPE = "fixed-from-url"
+DASHBOARD_LEVEL_MAPPING_TYPES = {"dashboard-level", FIXED_FROM_URL_MAPPING_TYPE}
 
 
 def validate_composed_dashboard(sub_dashboards, target_org):

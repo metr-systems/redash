@@ -18,7 +18,10 @@ from redash.models import (
 from redash.tasks.queries import enqueue_query
 from redash_global.deployment.exceptions import DeploymentError
 from redash_global.deployment.utils import widgets_with_query
-from redash_global.deployment.validations import validate_composed_dashboard
+from redash_global.deployment.validations import (
+    FIXED_FROM_URL_MAPPING_TYPE,
+    validate_composed_dashboard,
+)
 from redash_global.models import ComposedDashboardDeployment, SubDashboardAssignment
 
 DeploymentResult = namedtuple("DeploymentResult", ["composed_dashboard", "org", "error"])
@@ -39,6 +42,23 @@ def resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_s
         copied_dependency = get_or_copy_query(dependency_query, target_org, deploy_user, data_source_map, query_id_map)
         query_id_map[source_dep_id] = copied_dependency.id
         parameter["queryId"] = copied_dependency.id
+
+
+def fixed_from_url_param_names(widget_options):
+    mappings = (widget_options or {}).get("parameterMappings") or {}
+    return {name for name, mapping in mappings.items() if (mapping or {}).get("type") == FIXED_FROM_URL_MAPPING_TYPE}
+
+
+def clear_fixed_from_url_values(options, fixed_param_names):
+    """Blank the stored value of every fixed-from-url parameter.
+
+    A fixed-from-url parameter is filled from the dashboard URL, but the template query keeps
+    whatever value it was last saved with. Copying that value over would make the deployed
+    dashboard fall back to the template org's value whenever the URL doesn't carry one.
+    """
+    for parameter in options.get("parameters", []):
+        if parameter.get("name") in fixed_param_names:
+            parameter["value"] = None
 
 
 def deploy_composed_dashboard(composed_dashboard, target_orgs):
@@ -119,12 +139,15 @@ def get_target_data_sources(sub_dashboards, target_org):
     }
 
 
-def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map=None):
+def get_or_copy_query(
+    template_query, target_org, deploy_user, data_source_map, query_id_map=None, fixed_param_names=None
+):
     if query_id_map is None:
         query_id_map = {}
 
     options = deepcopy(template_query.options) if template_query.options else {}
     resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_source_map, query_id_map)
+    clear_fixed_from_url_values(options, fixed_param_names or set())
 
     identifier = template_query.data_source.metr_data_source.data_source_identifier
     target_data_source = data_source_map[identifier]
@@ -196,7 +219,14 @@ def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source
     visualization = None
     if template_widget.visualization_id is not None:
         template_query = template_widget.visualization.query_rel
-        query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map)
+        query = get_or_copy_query(
+            template_query,
+            target_org,
+            deploy_user,
+            data_source_map,
+            query_id_map,
+            fixed_from_url_param_names(options),
+        )
         visualization = Visualization(
             query_rel=query,
             type=template_widget.visualization.type,
