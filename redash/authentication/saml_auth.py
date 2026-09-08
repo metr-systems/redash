@@ -11,6 +11,7 @@ from saml2.sigver import get_xmlsec_binary
 from redash import settings
 from redash.authentication import (
     create_and_login_user,
+    get_next_path,
     logout_and_redirect_to_index,
 )
 from redash.authentication.org_resolving import current_org
@@ -31,7 +32,7 @@ def get_saml_client(org):
 
     saml_type = org.get_setting("auth_saml_type")
     entity_id = org.get_setting("auth_saml_entity_id")
-    sso_url = org.get_setting("auth_saml_sso_url")
+    sso_url = (org.get_setting("auth_saml_sso_url") or "").replace("{org_slug}", org.slug)
     x509_cert = org.get_setting("auth_saml_x509_cert")
     metadata_url = org.get_setting("auth_saml_metadata_url")
     sp_settings = org.get_setting("auth_saml_sp_settings")
@@ -126,10 +127,11 @@ def idp_initiated(org_slug=None):
     authn_response.get_identity()
     user_info = authn_response.get_subject()
     email = user_info.text
-    name = "%s %s" % (
-        authn_response.ava["FirstName"][0],
-        authn_response.ava["LastName"][0],
-    )
+    name_parts = [
+        authn_response.ava.get(attribute, [""])[0] for attribute in ("FirstName", "LastName")
+    ]
+    named_parts = dict.fromkeys(part for part in name_parts if part)
+    name = " ".join(named_parts) or email
 
     # This is what as known as "Just In Time (JIT) provisioning".
     # What that means is that, if a user in a SAML assertion
@@ -142,7 +144,8 @@ def idp_initiated(org_slug=None):
         group_names = authn_response.ava.get("RedashGroups")
         user.update_group_assignments(group_names)
 
-    url = url_for("redash.index", org_slug=org_slug)
+    next_path = get_next_path(request.form.get("RelayState"))
+    url = url_for("redash.index", org_slug=org_slug, next=next_path or None)
 
     return redirect(url)
 
@@ -158,7 +161,10 @@ def sp_initiated(org_slug=None):
     if nameid_format is None or nameid_format == "":
         nameid_format = NAMEID_FORMAT_TRANSIENT
 
-    _, info = saml_client.prepare_for_authenticate(nameid_format=nameid_format)
+    relay_state = get_next_path(request.args.get("next"))
+    _, info = saml_client.prepare_for_authenticate(
+        nameid_format=nameid_format, relay_state=relay_state
+    )
 
     redirect_url = None
     # Select the IdP URL to send the AuthN request to
