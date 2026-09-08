@@ -23,10 +23,10 @@ def upgrade():
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('composed_dashboard_id', sa.Integer(), nullable=False),
-    sa.Column('global_admin_user_id', sa.Integer(), nullable=True),
+    sa.Column('global_admin_user_id', sa.Integer(), nullable=False),
     sa.Column('succeeded', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['composed_dashboard_id'], ['composed_dashboards.id'], ondelete='CASCADE'),
-    sa.ForeignKeyConstraint(['global_admin_user_id'], ['global_admin_users.id'], ondelete='SET NULL'),
+    sa.ForeignKeyConstraint(['global_admin_user_id'], ['global_admin_users.id'], ondelete='RESTRICT'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('deployment_run_results',

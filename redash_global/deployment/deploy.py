@@ -3,9 +3,6 @@ from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime, timezone
 
-from flask import has_request_context
-from flask_login import current_user
-
 from redash.models import (
     Dashboard,
     DashboardGroup,
@@ -58,17 +55,10 @@ def error_messages(error):
     return [str(error)]
 
 
-def current_global_admin_id():
-    """The admin running this deploy, or None when nobody is logged in (shell for example)."""
-    if not has_request_context() or not current_user.is_authenticated:
-        return None
-    return current_user.id
-
-
-def deploy_composed_dashboard(composed_dashboard, target_orgs):
+def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
     """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
     composed_dashboard_id = composed_dashboard.id
-    deployed_by_id = current_global_admin_id()
+    deployed_by_id = deployed_by.id
     results = []
     deployed_dashboards = []
 

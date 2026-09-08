@@ -115,7 +115,7 @@ class DeploymentRun(TimestampMixin, db.Model):
         db.Integer, db.ForeignKey("composed_dashboards.id", ondelete="CASCADE"), nullable=False
     )
     global_admin_user_id = Column(
-        db.Integer, db.ForeignKey("global_admin_users.id", ondelete="SET NULL"), nullable=True
+        db.Integer, db.ForeignKey("global_admin_users.id", ondelete="RESTRICT"), nullable=False
     )
     succeeded = Column(db.Boolean, nullable=False)
 
