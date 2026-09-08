@@ -269,7 +269,7 @@ def init_app(app):
     login_manager.request_loader(request_loader)
 
 
-def create_and_login_user(org, name, email, picture=None):
+def create_and_login_user(org, name, email, picture=None, group_ids=None):
     try:
         user_object = models.User.get_by_email_and_org(email, org)
         if user_object.is_disabled:
@@ -289,7 +289,7 @@ def create_and_login_user(org, name, email, picture=None):
             email=email,
             is_invitation_pending=False,
             _profile_image_url=picture,
-            group_ids=[org.default_group.id],
+            group_ids=group_ids or [org.default_group.id],
         )
         models.db.session.add(user_object)
         models.db.session.commit()

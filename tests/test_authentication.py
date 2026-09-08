@@ -434,6 +434,7 @@ class TestJWTAuthentication(BaseTestCase):
         org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
         org_settings["auth_jwt_auth_audience"] = self.auth_audience
         org_settings["auth_jwt_auth_header_name"] = self.token_name
+        org_settings["auth_jwt_auth_cookie_name"] = ""
 
     def tearDown(self):
         org_settings["auth_jwt_login_enabled"] = False
@@ -478,3 +479,23 @@ class TestJWTAuthentication(BaseTestCase):
 
         keys = jwt_auth.get_public_keys("http://localhost/key.jwt")
         self.assertEqual(keys[0].key_size, 4096)
+
+
+class TestSAMLProvisioningGroup(BaseTestCase):
+    def test_provisions_a_new_user_into_the_single_sign_on_group(self):
+        with self.app.test_request_context("/{}/".format(self.factory.org.slug)):
+            user = create_and_login_user(
+                self.factory.org,
+                "Newcomer",
+                "newcomer@example.com",
+                group_ids=[self.factory.org.get_or_create_sso_group().id],
+            )
+
+        self.assertEqual([self.factory.org.sso_group.id], user.group_ids)
+        self.assertNotIn(self.factory.org.default_group.id, user.group_ids)
+
+    def test_falls_back_to_the_default_group_when_no_group_is_named(self):
+        with self.app.test_request_context("/{}/".format(self.factory.org.slug)):
+            user = create_and_login_user(self.factory.org, "Newcomer", "other@example.com")
+
+        self.assertEqual([self.factory.org.default_group.id], user.group_ids)

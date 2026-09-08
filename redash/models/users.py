@@ -270,9 +270,11 @@ class Group(db.Model, BelongsToOrgMixin):
         "list_data_sources",
     ]
     ADMIN_PERMISSIONS = ["admin", "super_admin"]
+    SSO_PERMISSIONS = ["list_dashboards", "view_query", "execute_query"]
 
     BUILTIN_GROUP = "builtin"
     REGULAR_GROUP = "regular"
+    SSO_GROUP = "sso"
 
     id = primary_key("Group")
     data_sources = db.relationship("DataSourceGroup", back_populates="group", cascade="all")
