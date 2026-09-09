@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -16,15 +17,22 @@ from redash.models import (
     metrWidget,
 )
 from redash.tasks.queries import enqueue_query
-from redash_global.deployment.exceptions import DeploymentError
+from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import (
     FIXED_FROM_URL_MAPPING_TYPE,
     validate_composed_dashboard,
 )
-from redash_global.models import ComposedDashboardDeployment, SubDashboardAssignment
+from redash_global.models import (
+    ComposedDashboardDeployment,
+    DeploymentRun,
+    DeploymentRunResult,
+    SubDashboardAssignment,
+)
 
-DeploymentResult = namedtuple("DeploymentResult", ["composed_dashboard", "org", "error"])
+logger = logging.getLogger(__name__)
+
+OrgResult = namedtuple("OrgResult", ["org_id", "errors"])
 
 
 def resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_source_map, query_id_map):
@@ -44,6 +52,12 @@ def resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_s
         parameter["queryId"] = copied_dependency.id
 
 
+def error_messages(error):
+    if isinstance(error, DeploymentErrorGroup):
+        return [str(inner) for inner in error.errors]
+    return [str(error)]
+
+
 def fixed_from_url_param_names(widget_options):
     mappings = (widget_options or {}).get("parameterMappings") or {}
     return {name for name, mapping in mappings.items() if (mapping or {}).get("type") == FIXED_FROM_URL_MAPPING_TYPE}
@@ -61,13 +75,49 @@ def clear_fixed_from_url_values(options, fixed_param_names):
             parameter["value"] = None
 
 
-def deploy_composed_dashboard(composed_dashboard, target_orgs):
-    """Deploy/redeploy one composed dashboard to every target org.
+def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
+    """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
+    composed_dashboard_id = composed_dashboard.id
+    deployed_by_id = deployed_by.id
+    results = []
+    deployed_dashboards = []
 
-    Each org is independent: one failing does not affect the rest, or roll back an org that
-    already succeeded.
-    """
-    return [deploy_to_target_org(composed_dashboard, target_org) for target_org in target_orgs]
+    for target_org in target_orgs:
+        org_id = target_org.id
+        try:
+            # A savepoint contains a database-level failure, which would otherwise abort the
+            # whole transaction and make every statement after it fail, so one broken org
+            # does not stop the remaining ones from being attempted and reported.
+            with db.session.begin_nested():
+                dashboard, allowed_widgets_query = deploy_to_target_org(composed_dashboard, target_org)
+            deployed_dashboards.append((dashboard, allowed_widgets_query))
+            results.append(OrgResult(org_id, []))
+        except DeploymentError as error:
+            results.append(OrgResult(org_id, error_messages(error)))
+        except Exception as error:
+            # Not a DeploymentError, so this is a bug or an infrastructure failure rather
+            # than a dashboard the admin can fix. It still gets recorded like any other org
+            # failure.
+            logger.exception(
+                "Unexpected failure deploying composed dashboard %s to org %s",
+                composed_dashboard_id,
+                org_id,
+            )
+            results.append(OrgResult(org_id, error_messages(error)))
+
+    succeeded = not any(result.errors for result in results)
+    if succeeded:
+        db.session.commit()
+    else:
+        db.session.rollback()
+
+    run = record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded)
+    db.session.commit()
+
+    if succeeded:
+        for dashboard, allowed_widgets_query in deployed_dashboards:
+            execute_query_dependencies(dashboard, allowed_widgets_query)
+    return run
 
 
 def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
@@ -83,29 +133,24 @@ def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
 
 
 def deploy_to_target_org(composed_dashboard, target_org):
-    try:
-        sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
-        validate_composed_dashboard(sub_dashboards, target_org)
+    """Stage one org's dashboard and return it with its allowed-widgets query.
 
-        deploy_user = Group.members(target_org.admin_group.id).first()
-        target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
-        query_id_map = {}
-        allowed_widgets_query = copy_allowed_widgets_query(
-            sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
-        )
-        allowed_widgets_identifier = (
-            allowed_widgets_query.metr_query.query_identifier if allowed_widgets_query else None
-        )
-        dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
-        replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
-        record_deployment(composed_dashboard, target_org)
+    Raises on failure; the caller owns the transaction.
+    """
+    sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
+    validate_composed_dashboard(sub_dashboards, target_org)
 
-        db.session.commit()
-        execute_query_dependencies(dashboard, allowed_widgets_query)
-        return DeploymentResult(composed_dashboard, target_org, error=None)
-    except DeploymentError as error:
-        db.session.rollback()
-        return DeploymentResult(composed_dashboard, target_org, error=error)
+    deploy_user = Group.members(target_org.admin_group.id).first()
+    target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
+    query_id_map = {}
+    allowed_widgets_query = copy_allowed_widgets_query(
+        sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
+    )
+    allowed_widgets_identifier = allowed_widgets_query.metr_query.query_identifier if allowed_widgets_query else None
+    dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
+    replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
+    record_deployment(composed_dashboard, target_org)
+    return dashboard, allowed_widgets_query
 
 
 def get_target_data_sources(sub_dashboards, target_org):
@@ -375,3 +420,14 @@ def record_deployment(composed_dashboard, target_org):
     # expire_on_commit=False, so a func.now() value would stay an unresolved SQL construct on
     # this attribute after commit instead of refreshing to the real value.
     deployment.last_deployed_at = datetime.now(timezone.utc)
+
+
+def record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded):
+    run = DeploymentRun(
+        composed_dashboard_id=composed_dashboard_id,
+        global_admin_user_id=deployed_by_id,
+        succeeded=succeeded,
+        results=[DeploymentRunResult(organization_id=result.org_id, errors=result.errors) for result in results],
+    )
+    db.session.add(run)
+    return run
