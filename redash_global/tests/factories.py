@@ -41,6 +41,9 @@ class Factory(RedashFactory):
         args.update(kwargs)
         return sub_dashboard_assignment_factory.create(**args)
 
+    def create_deploy_user(self, org):
+        return self.create_admin(org=org, email=f"engineering+{org.slug}@metr.systems")
+
     def create_composed_dashboard(self, **kwargs):
         return composed_dashboard_factory.create(**kwargs)
 

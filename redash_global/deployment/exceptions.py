@@ -18,3 +18,7 @@ class AllowedWidgetsQueryError(DeploymentError):
 
 class ParameterError(DeploymentError):
     pass
+
+
+class DeployUserError(DeploymentError):
+    pass

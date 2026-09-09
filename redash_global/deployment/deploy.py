@@ -6,18 +6,22 @@ from datetime import datetime, timezone
 from redash.models import (
     Dashboard,
     DashboardGroup,
-    Group,
     MetrDashboard,
     MetrDataSource,
     MetrQuery,
     Query,
+    User,
     Visualization,
     Widget,
     db,
     metrWidget,
 )
 from redash.tasks.queries import enqueue_query
-from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
+from redash_global.deployment.exceptions import (
+    DeploymentError,
+    DeploymentErrorGroup,
+    DeployUserError,
+)
 from redash_global.deployment.utils import widgets_with_query
 from redash_global.deployment.validations import (
     FIXED_FROM_URL_MAPPING_TYPE,
@@ -153,7 +157,7 @@ def deploy_to_target_org(composed_dashboard, target_org):
 
     validate_composed_dashboard(sub_dashboards, target_org)
 
-    deploy_user = Group.members(target_org.admin_group.id).first()
+    deploy_user = get_deploy_user(target_org)
     target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
     query_id_map = {}
     allowed_widgets_query = copy_allowed_widgets_query(
@@ -164,6 +168,14 @@ def deploy_to_target_org(composed_dashboard, target_org):
     replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
     record_deployment(composed_dashboard, target_org)
     return dashboard, allowed_widgets_query
+
+
+def get_deploy_user(target_org):
+    email = f"engineering+{target_org.slug}@metr.systems"
+    deploy_user = User.query.filter(User.org_id == target_org.id, User.email == email).first()
+    if deploy_user is None:
+        raise DeployUserError(f"Organization {target_org.id} has no deploy user '{email}'")
+    return deploy_user
 
 
 def get_target_data_sources(sub_dashboards, target_org):
