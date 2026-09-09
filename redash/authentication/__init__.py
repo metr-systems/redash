@@ -261,6 +261,8 @@ def init_app(app):
         create_google_oauth_blueprint,
     )
 
+    metr_settings.check_jwt_login_configuration(org_settings["auth_jwt_login_enabled"])
+
     login_manager.init_app(app)
     login_manager.anonymous_user = models.AnonymousUser
     login_manager.REMEMBER_COOKIE_DURATION = settings.REMEMBER_COOKIE_DURATION

@@ -62,6 +62,25 @@ the tests had no opinion about it.
 
 ---
 
+## Validated At Startup
+
+One of these values carries a security property, so the module also refuses a
+deployment that leaves it unset. `JWT_AUTH_TENANT_CLAIM` names the claim that
+binds a token to one organization; the request loader skips the comparison when
+the name is empty, so an unset name removes cross-organization isolation with
+no error and no log line. `check_jwt_login_configuration` raises
+`MisconfiguredError` from `authentication.init_app` when JWT login is on and
+the claim is not named, so the process dies at startup instead of serving
+traffic with no isolation.
+
+Validation belongs here rather than at each use site because the value is
+deployment-wide: there is one correct answer for the whole process, and it can
+be checked once before any request arrives. A setting that has to vary per
+organization could not be checked this way, which is a further reason to keep
+that kind of value out of this module.
+
+---
+
 ## Trade-off Accepted
 
 These values can no longer be set per organization. That is correct for
