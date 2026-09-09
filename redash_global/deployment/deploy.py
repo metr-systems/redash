@@ -19,7 +19,10 @@ from redash.models import (
 from redash.tasks.queries import enqueue_query
 from redash_global.deployment.exceptions import DeploymentError, DeploymentErrorGroup
 from redash_global.deployment.utils import widgets_with_query
-from redash_global.deployment.validations import validate_composed_dashboard
+from redash_global.deployment.validations import (
+    FIXED_FROM_URL_MAPPING_TYPE,
+    validate_composed_dashboard,
+)
 from redash_global.models import (
     ComposedDashboardDeployment,
     DeploymentRun,
@@ -55,6 +58,23 @@ def error_messages(error):
     return [str(error)]
 
 
+def fixed_from_url_param_names(widget_options):
+    mappings = (widget_options or {}).get("parameterMappings") or {}
+    return {name for name, mapping in mappings.items() if (mapping or {}).get("type") == FIXED_FROM_URL_MAPPING_TYPE}
+
+
+def clear_fixed_from_url_values(options, fixed_param_names):
+    """Blank the stored value of every fixed-from-url parameter.
+
+    A fixed-from-url parameter is filled from the dashboard URL, but the template query keeps
+    whatever value it was last saved with. Copying that value over would make the deployed
+    dashboard fall back to the template org's value whenever the URL doesn't carry one.
+    """
+    for parameter in options.get("parameters", []):
+        if parameter.get("name") in fixed_param_names:
+            parameter["value"] = None
+
+
 def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
     """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
     composed_dashboard_id = composed_dashboard.id
@@ -69,8 +89,8 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
             # whole transaction and make every statement after it fail, so one broken org
             # does not stop the remaining ones from being attempted and reported.
             with db.session.begin_nested():
-                dashboard = deploy_to_target_org(composed_dashboard, target_org)
-            deployed_dashboards.append(dashboard)
+                dashboard, allowed_widgets_query = deploy_to_target_org(composed_dashboard, target_org)
+            deployed_dashboards.append((dashboard, allowed_widgets_query))
             results.append(OrgResult(org_id, []))
         except DeploymentError as error:
             results.append(OrgResult(org_id, error_messages(error)))
@@ -95,8 +115,8 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
     db.session.commit()
 
     if succeeded:
-        for dashboard in deployed_dashboards:
-            execute_query_parameter_dependencies(dashboard)
+        for dashboard, allowed_widgets_query in deployed_dashboards:
+            execute_query_dependencies(dashboard, allowed_widgets_query)
     return run
 
 
@@ -113,20 +133,24 @@ def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
 
 
 def deploy_to_target_org(composed_dashboard, target_org):
-    """Stage one org's dashboard and return it. Raises on failure; the caller owns the transaction."""
+    """Stage one org's dashboard and return it with its allowed-widgets query.
+
+    Raises on failure; the caller owns the transaction.
+    """
     sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
     validate_composed_dashboard(sub_dashboards, target_org)
 
     deploy_user = Group.members(target_org.admin_group.id).first()
     target_data_sources_map = get_target_data_sources(sub_dashboards, target_org)
     query_id_map = {}
-    allowed_widgets_identifier = copy_allowed_widgets_query(
+    allowed_widgets_query = copy_allowed_widgets_query(
         sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map
     )
+    allowed_widgets_identifier = allowed_widgets_query.metr_query.query_identifier if allowed_widgets_query else None
     dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed_widgets_identifier)
     replace_widgets(dashboard, sub_dashboards, target_org, deploy_user, target_data_sources_map, query_id_map)
     record_deployment(composed_dashboard, target_org)
-    return dashboard
+    return dashboard, allowed_widgets_query
 
 
 def get_target_data_sources(sub_dashboards, target_org):
@@ -160,12 +184,15 @@ def get_target_data_sources(sub_dashboards, target_org):
     }
 
 
-def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map=None):
+def get_or_copy_query(
+    template_query, target_org, deploy_user, data_source_map, query_id_map=None, fixed_param_names=None
+):
     if query_id_map is None:
         query_id_map = {}
 
     options = deepcopy(template_query.options) if template_query.options else {}
     resolve_query_dropdown_dependencies(options, target_org, deploy_user, data_source_map, query_id_map)
+    clear_fixed_from_url_values(options, fixed_param_names or set())
 
     identifier = template_query.data_source.metr_data_source.data_source_identifier
     target_data_source = data_source_map[identifier]
@@ -181,6 +208,7 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, 
         query.query_text = template_query.query_text
         query.options = options
         query.data_source = target_data_source
+        query.schedule = deepcopy(template_query.schedule)
         return query
 
     # Bare constructor, not Query.create(...): Query.create always adds a "Table" TABLE
@@ -194,6 +222,7 @@ def get_or_copy_query(template_query, target_org, deploy_user, data_source_map, 
         name=template_query.name,
         query_text=template_query.query_text,
         options=options,
+        schedule=deepcopy(template_query.schedule),
     )
     db.session.add(query)
     db.session.flush()
@@ -220,7 +249,7 @@ def copy_allowed_widgets_query(sub_dashboards, target_org, deploy_user, data_sou
 
     query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map)
     query.metr_query.query_identifier = identifier
-    return identifier
+    return query
 
 
 def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source_map, row_offset, query_id_map=None):
@@ -235,7 +264,14 @@ def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source
     visualization = None
     if template_widget.visualization_id is not None:
         template_query = template_widget.visualization.query_rel
-        query = get_or_copy_query(template_query, target_org, deploy_user, data_source_map, query_id_map)
+        query = get_or_copy_query(
+            template_query,
+            target_org,
+            deploy_user,
+            data_source_map,
+            query_id_map,
+            fixed_from_url_param_names(options),
+        )
         visualization = Visualization(
             query_rel=query,
             type=template_widget.visualization.type,
@@ -305,7 +341,9 @@ def create_dashboard(composed_dashboard, target_org, deploy_user):
         name=composed_dashboard.name,
         org=target_org,
         user=deploy_user,
-        is_draft=False,
+        # Redeploy goes through get_or_create_dashboard,
+        # which never touches is_draft
+        is_draft=True,
         layout=[],
     )
     db.session.add(dashboard)
@@ -340,28 +378,33 @@ def get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed
     return dashboard
 
 
-def execute_query_parameter_dependencies(dashboard):
-    executed_queries = set()
+def execute_query_dependencies(dashboard, allowed_widgets_query=None):
+    """Enqueue the queries the dashboard needs cached results for: parameter dropdowns and allowed widgets."""
+    dependencies = [allowed_widgets_query] if allowed_widgets_query else []
 
     for widget in dashboard.widgets:
         if widget.visualization_id:
             query = widget.visualization.query_rel
             for parameter in query.parameters:
                 if parameter.get("type") == "query":
-                    dep_query_id = parameter.get("queryId")
-                    if dep_query_id and dep_query_id not in executed_queries:
-                        dep_query = Query.query.get(dep_query_id)
-                        if dep_query and dep_query.data_source:
-                            try:
-                                enqueue_query(
-                                    dep_query.query_text,
-                                    dep_query.data_source,
-                                    dep_query.user_id,
-                                    metadata={"query_id": dep_query.id},
-                                )
-                                executed_queries.add(dep_query_id)
-                            except Exception:
-                                pass
+                    dep_query = Query.query.get(parameter["queryId"]) if parameter.get("queryId") else None
+                    if dep_query:
+                        dependencies.append(dep_query)
+
+    enqueued = set()
+    for query in dependencies:
+        if query.id in enqueued or query.data_source is None:
+            continue
+        try:
+            enqueue_query(
+                query.query_text,
+                query.data_source,
+                query.user_id,
+                metadata={"query_id": query.id},
+            )
+            enqueued.add(query.id)
+        except Exception:
+            pass
 
 
 def record_deployment(composed_dashboard, target_org):

@@ -218,6 +218,17 @@ SCHEDULED_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_SCHEDULED_QUERY_TIME_LIM
 # Time limit (in seconds) for adhoc queries. Set this to -1 to execute without a time limit.
 ADHOC_QUERY_TIME_LIMIT = int(os.environ.get("REDASH_ADHOC_QUERY_TIME_LIMIT", -1))
 
+# Seconds an in-flight job is given to finish after its worker is asked to shut down,
+# before the work horse is interrupted. Must exceed the longest query time limit above
+# for a rolling deploy to avoid aborting queries that would otherwise have completed.
+WORKER_SHUTDOWN_DELAY = int(os.environ.get("REDASH_WORKER_SHUTDOWN_DELAY", 6))
+
+# Seconds over which to spread worker startup, so that the processes of a pod do
+# not all open their first data source connection in the same instant. Must stay
+# well under 60s: the supervisor healthcheck runs on TICK_60 and reports a worker
+# that has not registered with RQ yet as unhealthy.
+WORKER_STARTUP_JITTER = float(os.environ.get("REDASH_WORKER_STARTUP_JITTER", 0))
+
 JOB_EXPIRY_TIME = int(os.environ.get("REDASH_JOB_EXPIRY_TIME", 3600 * 12))
 JOB_DEFAULT_FAILURE_TTL = int(os.environ.get("REDASH_JOB_DEFAULT_FAILURE_TTL", 7 * 24 * 60 * 60))
 
@@ -435,6 +446,15 @@ FEATURE_EXTENDED_ALERT_OPTIONS = parse_boolean(os.environ.get("REDASH_FEATURE_EX
 
 # BigQuery
 BIGQUERY_HTTP_TIMEOUT = int(os.environ.get("REDASH_BIGQUERY_HTTP_TIMEOUT", "600"))
+
+# PostgreSQL
+# Attempts to open a connection before a query is reported as failed, and the base
+# delay between them. psycopg2 reports a handshake that could not be completed the
+# same way it reports one that was refused, so every failure is retried rather than
+# classified; keep the attempts low enough that a misconfigured data source does not
+# multiply authentication failures against the server.
+PG_CONNECTION_ATTEMPTS = int(os.environ.get("REDASH_PG_CONNECTION_ATTEMPTS", "3"))
+PG_CONNECTION_RETRY_DELAY = float(os.environ.get("REDASH_PG_CONNECTION_RETRY_DELAY", "0.5"))
 
 # Allow Parameters in Embeds
 # WARNING: Deprecated!

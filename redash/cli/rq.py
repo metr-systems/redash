@@ -1,5 +1,8 @@
 import datetime
+import logging
+import random
 import socket
+import time
 from itertools import chain
 
 from click import argument
@@ -10,7 +13,7 @@ from sqlalchemy.orm import configure_mappers
 from supervisor_checks import check_runner
 from supervisor_checks.check_modules import base
 
-from redash import rq_redis_connection
+from redash import rq_redis_connection, settings
 from redash.tasks import (
     periodic_job_definitions,
     rq_scheduler,
@@ -29,6 +32,13 @@ def scheduler():
     rq_scheduler.run()
 
 
+def worker_startup_delay():
+    if settings.WORKER_STARTUP_JITTER <= 0:
+        return 0
+
+    return random.uniform(0, settings.WORKER_STARTUP_JITTER)
+
+
 @manager.command()
 @argument("queues", nargs=-1)
 def worker(queues):
@@ -41,6 +51,11 @@ def worker(queues):
         queues = default_queues
     else:
         queues = chain(*[queue.split(",") for queue in queues])
+
+    delay = worker_startup_delay()
+    if delay:
+        logging.info("Delaying worker startup by %.2fs to spread the connection burst.", delay)
+        time.sleep(delay)
 
     with Connection(rq_redis_connection):
         w = Worker(queues, log_job_description=False, job_monitoring_interval=5)

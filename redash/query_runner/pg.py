@@ -1,6 +1,8 @@
 import logging
 import os
+import random
 import select
+import time
 from base64 import b64decode
 from tempfile import NamedTemporaryFile
 from uuid import uuid4
@@ -8,6 +10,7 @@ from uuid import uuid4
 import psycopg2
 from psycopg2.extras import Range
 
+from redash import settings
 from redash.query_runner import (
     TYPE_BOOLEAN,
     TYPE_DATE,
@@ -53,6 +56,10 @@ types_map = {
     1002: TYPE_STRING,
     1003: TYPE_STRING,
 }
+
+
+def _retry_delay(attempt):
+    return settings.PG_CONNECTION_RETRY_DELAY * (2 ** (attempt - 1)) * (0.5 + random.random())
 
 
 def _wait(conn, timeout=None):
@@ -263,9 +270,30 @@ class PostgreSQL(BaseSQLQueryRunner):
 
         return connection
 
+    def _open_connection(self):
+        attempts = settings.PG_CONNECTION_ATTEMPTS
+        for attempt in range(1, attempts + 1):
+            connection = self._get_connection()
+            try:
+                _wait(connection, timeout=10)
+                return connection
+            except psycopg2.OperationalError as error:
+                connection.close()
+                _cleanup_ssl_certs(self.ssl_config)
+                if attempt == attempts:
+                    raise
+                delay = _retry_delay(attempt)
+                logger.warning(
+                    "Could not open connection (attempt %d/%d), retrying in %.2fs: %s",
+                    attempt,
+                    attempts,
+                    delay,
+                    error,
+                )
+                time.sleep(delay)
+
     def run_query(self, query, user):
-        connection = self._get_connection()
-        _wait(connection, timeout=10)
+        connection = self._open_connection()
 
         cursor = connection.cursor()
 

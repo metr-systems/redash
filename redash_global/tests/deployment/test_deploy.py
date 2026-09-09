@@ -10,7 +10,7 @@ from redash_global.deployment.deploy import (
     delete_orphaned_visualizations,
     deploy_composed_dashboard,
     deploy_to_target_org,
-    execute_query_parameter_dependencies,
+    execute_query_dependencies,
     get_or_copy_query,
     get_or_create_dashboard,
     get_target_data_sources,
@@ -222,6 +222,42 @@ class TestGetOrCopyQuery:
         assert second_result.id == first_id
         assert second_result.query_text == "SELECT 2"
 
+    def test_copies_schedule_from_template(self, factory, sub_dashboard, target_org):
+        schedule = {"interval": 3600, "time": None, "day_of_week": None, "until": None}
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        template_query.schedule = schedule
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        result = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+
+        assert result.schedule == schedule
+        # A copy, not the template's own dict: editing one must not change the other.
+        assert result.schedule is not template_query.schedule
+
+    def test_updates_schedule_on_redeploy(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        template_query.schedule = {"interval": 3600, "time": None, "day_of_week": None, "until": None}
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+
+        template_query.schedule = {"interval": 86400, "time": "09:00", "day_of_week": None, "until": None}
+        result = get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+
+        assert result.schedule == {"interval": 86400, "time": "09:00", "day_of_week": None, "until": None}
+
     def test_copies_query_with_query_based_parameter(self, factory, sub_dashboard, target_org):
         template_org = sub_dashboard.org
         template_ds = factory.create_data_source(org=template_org)
@@ -320,6 +356,47 @@ class TestGetOrCopyQuery:
         assert result.options is not None
         assert isinstance(result.options, dict)
 
+    def test_clears_value_of_fixed_from_url_parameters(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        template_query.options = {
+            "parameters": [
+                {"name": "address", "type": "text", "value": "template-address"},
+                {"name": "period", "type": "text", "value": "last-month"},
+            ]
+        }
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        result = get_or_copy_query(
+            template_query, target_org, deploy_user, data_source_map, fixed_param_names={"address"}
+        )
+
+        assert result.options["parameters"][0]["value"] is None
+        assert result.options["parameters"][1]["value"] == "last-month"
+
+    def test_clears_fixed_from_url_value_when_updating_existing_query(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(dashboard=sub_dashboard)
+        template_query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(template_query.data_source, "postgres")
+        template_query.options = {"parameters": [{"name": "address", "type": "text", "value": "template-address"}]}
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        deploy_user = factory.create_user(org=target_org)
+
+        get_or_copy_query(template_query, target_org, deploy_user, data_source_map)
+        result = get_or_copy_query(
+            template_query, target_org, deploy_user, data_source_map, fixed_param_names={"address"}
+        )
+
+        assert result.options["parameters"][0]["value"] is None
+
     def test_preserves_parameter_value_when_updating_query_id(self, factory, target_org):
         template_org = factory.create_org()
         template_ds = factory.create_data_source(org=template_org)
@@ -361,7 +438,7 @@ class TestCopyAllowedWidgetsQuery:
 
         assert result is None
 
-    def test_returns_identifier_when_query_copied(self, factory, sub_dashboard, target_org):
+    def test_returns_the_copied_query(self, factory, sub_dashboard, target_org):
         query = factory.create_query()
         factory.create_metr_query(query=query, org_id=query.org_id, query_identifier="allowed-widgets")
         factory.create_metr_dashboard(
@@ -378,7 +455,8 @@ class TestCopyAllowedWidgetsQuery:
 
         result = copy_allowed_widgets_query([sub_dashboard], target_org, deploy_user, data_source_map)
 
-        assert result == "allowed-widgets"
+        assert result.org_id == target_org.id
+        assert result.metr_query.query_identifier == "allowed-widgets"
 
 
 class TestCopyWidget:
@@ -465,6 +543,40 @@ class TestCopyWidget:
         result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
 
         assert result.visualization.query_rel.options["parameters"][0]["queryId"] != dep_query.id
+
+    def test_clears_fixed_from_url_parameter_value_on_copied_query(self, factory, sub_dashboard, target_org):
+        widget = factory.create_widget(
+            dashboard=sub_dashboard,
+            options={
+                "position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1},
+                "parameterMappings": {
+                    "address": {"name": "address", "type": "fixed-from-url", "mapTo": "address", "value": None},
+                    "period": {"name": "period", "type": "widget-level", "mapTo": "period", "value": None},
+                },
+            },
+        )
+        query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        query.options = {
+            "parameters": [
+                {"name": "address", "type": "text", "value": "template-address"},
+                {"name": "period", "type": "text", "value": "last-month"},
+            ]
+        }
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        target_dashboard = factory.create_dashboard(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+
+        result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
+
+        parameters = result.visualization.query_rel.options["parameters"]
+        assert parameters[0]["value"] is None
+        assert parameters[1]["value"] == "last-month"
+        # the template itself keeps its value
+        assert query.options["parameters"][0]["value"] == "template-address"
 
 
 class TestDeleteOrphanedVisualizations:
@@ -556,7 +668,7 @@ class TestCreateDashboard:
         assert dashboard.name == composed_dashboard.name
         assert dashboard.org_id == target_org.id
         assert dashboard.user_id == deploy_user.id
-        assert dashboard.is_draft is False
+        assert dashboard.is_draft is True
 
     def test_adds_default_group_to_dashboard(self, factory, target_org):
         composed_dashboard = factory.create_composed_dashboard()
@@ -600,6 +712,18 @@ class TestGetOrCreateDashboard:
         assert second_dashboard.id == first_dashboard.id
         assert second_dashboard.name == "Updated Name"
         assert second_dashboard.name != first_name
+
+    def test_keeps_published_state_when_dashboard_exists(self, factory, target_org):
+        composed_dashboard = factory.create_composed_dashboard()
+        deploy_user = factory.create_user(org=target_org)
+
+        first_dashboard = create_dashboard(composed_dashboard, target_org, deploy_user)
+        first_dashboard.is_draft = False
+
+        second_dashboard = get_or_create_dashboard(composed_dashboard, target_org, deploy_user, None)
+
+        assert second_dashboard.id == first_dashboard.id
+        assert second_dashboard.is_draft is False
 
     def test_sets_allowed_widget_query_identifier(self, factory, target_org):
         composed_dashboard = factory.create_composed_dashboard()
@@ -685,7 +809,7 @@ class TestDeployToTargetOrg:
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
         factory.create_admin(org=target_org)
 
-        dashboard = deploy_to_target_org(composed_dashboard, target_org)
+        dashboard, _ = deploy_to_target_org(composed_dashboard, target_org)
 
         deployed = (
             Dashboard.query.join(MetrDashboard, Dashboard.id == MetrDashboard.dashboard_id)
@@ -757,7 +881,7 @@ class TestDeployToTargetOrg:
         assert deployed_query.options["parameters"][0]["queryId"] != dep_query.id
 
 
-class TestExecuteQueryParameterDependencies:
+class TestExecuteQueryDependencies:
     def test_executes_dependent_queries(self, factory, target_org):
         template_org = factory.create_org()
         template_ds = factory.create_data_source(org=template_org)
@@ -792,7 +916,7 @@ class TestExecuteQueryParameterDependencies:
         db.session.flush()
 
         with patch("redash_global.deployment.deploy.enqueue_query") as enqueue:
-            execute_query_parameter_dependencies(target_dashboard)
+            execute_query_dependencies(target_dashboard)
 
         copied_dep_query = Query.query.get(copied_dep_query_id)
         assert copied_dep_query is not None
@@ -803,6 +927,24 @@ class TestExecuteQueryParameterDependencies:
             copied_dep_query.user_id,
         )
         assert enqueue.call_args.kwargs["metadata"] == {"query_id": copied_dep_query.id}
+
+    def test_executes_the_allowed_widgets_query(self, factory, target_org):
+        target_ds = factory.create_data_source(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+        allowed_widgets_query = factory.create_query(org=target_org, data_source=target_ds, user=deploy_user)
+        dashboard = factory.create_dashboard(org=target_org)
+        db.session.flush()
+
+        with patch("redash_global.deployment.deploy.enqueue_query") as enqueue:
+            execute_query_dependencies(dashboard, allowed_widgets_query)
+
+        assert enqueue.call_count == 1
+        assert enqueue.call_args.args == (
+            allowed_widgets_query.query_text,
+            allowed_widgets_query.data_source,
+            allowed_widgets_query.user_id,
+        )
+        assert enqueue.call_args.kwargs["metadata"] == {"query_id": allowed_widgets_query.id}
 
 
 class TestDeployComposedDashboard:

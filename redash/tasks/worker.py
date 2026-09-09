@@ -13,7 +13,7 @@ from rq.worker import (
     Worker,
 )
 
-from redash import statsd_client
+from redash import settings, statsd_client
 
 # HerokuWorker does not work in OSX https://github.com/getredash/redash/issues/5413
 if sys.platform == "darwin":
@@ -193,6 +193,7 @@ class HardLimitingWorker(BaseWorker):
 
 class RedashWorker(StatsdRecordingWorker, HardLimitingWorker):
     queue_class = RedashQueue
+    imminent_shutdown_delay = settings.WORKER_SHUTDOWN_DELAY
 
 
 Job = CancellableJob
