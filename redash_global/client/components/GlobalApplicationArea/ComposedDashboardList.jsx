@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { get } from "lodash";
 import Button from "antd/lib/button";
+import Input from "antd/lib/input";
 import Modal from "antd/lib/modal";
 import Table from "antd/lib/table";
 
@@ -85,14 +86,21 @@ DeploymentResultModal.defaultProps = {
 };
 
 function DeployButton({ composedDashboard }) {
+  const [confirming, setConfirming] = useState(false);
+  const [comment, setComment] = useState("");
   const [deploying, setDeploying] = useState(false);
   // The run stays on screen in a modal the admin dismisses: it carries a row per target org,
   // which is more than a notification can show before timing out.
   const [result, setResult] = useState(null);
 
+  const closeConfirm = () => {
+    setConfirming(false);
+    setComment("");
+  };
+
   const deploy = () => {
     setDeploying(true);
-    ComposedDashboardService.deploy(composedDashboard.id)
+    ComposedDashboardService.deploy(composedDashboard.id, comment)
       .then((run) => setResult({ run }))
       .catch((error) =>
         setResult({
@@ -103,25 +111,39 @@ function DeployButton({ composedDashboard }) {
           ),
         })
       )
-      .finally(() => setDeploying(false));
+      .finally(() => {
+        setDeploying(false);
+        closeConfirm();
+      });
   };
 
   return (
     <React.Fragment>
-      <Button
-        size="small"
-        type="primary"
-        loading={deploying}
-        onClick={() =>
-          Modal.confirm({
-            title: "Deploy Composed Dashboard",
-            content: `Deploy "${composedDashboard.name}" to every organization that has one of its sub-dashboards assigned? Deployment is all or nothing: if any organization fails, nothing is deployed.`,
-            okText: "Deploy",
-            onOk: deploy,
-          })
-        }>
+      <Button size="small" type="primary" onClick={() => setConfirming(true)}>
         Deploy
       </Button>
+      {/* A plain Modal, not Modal.confirm: the comment is a controlled input, which the
+          imperative confirm dialog has nowhere to keep. */}
+      <Modal
+        visible={confirming}
+        title="Deploy Composed Dashboard"
+        okText="Deploy"
+        confirmLoading={deploying}
+        onOk={deploy}
+        onCancel={closeConfirm}>
+        <p>
+          Deploy &quot;{composedDashboard.name}&quot; to every organization that has one of its sub-dashboards
+          assigned? Deployment is all or nothing: if any organization fails, nothing is deployed.
+        </p>
+        <label htmlFor={`deploy-comment-${composedDashboard.id}`}>Comment (optional)</label>
+        <Input.TextArea
+          id={`deploy-comment-${composedDashboard.id}`}
+          rows={3}
+          value={comment}
+          onChange={(event) => setComment(event.target.value)}
+          placeholder="Why this deployment? Kept with the run in the deployment history."
+        />
+      </Modal>
       <DeploymentResultModal
         composedDashboardName={composedDashboard.name}
         result={result}

@@ -450,3 +450,22 @@ def test_deploy_reports_per_org_errors_when_an_org_fails(
     assert errors_by_slug["acme"] == []
     assert errors_by_slug["broken"]
     assert MetrDashboard.query.filter_by(url_identifier="dashboard-a").count() == 0
+
+
+@pytest.mark.usefixtures("deployable_sub_dashboard")
+def test_deploy_records_the_comment(admin_client, deploy_url, composed_dashboard):
+    response = admin_client.post(deploy_url, json={"comment": "Rolling out the new funnel widget"})
+
+    assert response.get_json()["comment"] == "Rolling out the new funnel widget"
+    run = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard.id).one()
+    assert run.comment == "Rolling out the new funnel widget"
+
+
+@pytest.mark.usefixtures("deployable_sub_dashboard")
+@pytest.mark.parametrize("body", [None, {}, {"comment": ""}, {"comment": "   "}])
+def test_deploy_without_a_comment_records_none(admin_client, deploy_url, composed_dashboard, body):
+    response = admin_client.post(deploy_url, json=body)
+
+    assert response.get_json()["comment"] is None
+    run = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard.id).one()
+    assert run.comment is None

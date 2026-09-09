@@ -118,6 +118,7 @@ class DeploymentRun(TimestampMixin, db.Model):
         db.Integer, db.ForeignKey("global_admin_users.id", ondelete="RESTRICT"), nullable=False
     )
     succeeded = Column(db.Boolean, nullable=False)
+    comment = Column(db.Text, nullable=True)
 
     results = db.relationship(
         "DeploymentRunResult",

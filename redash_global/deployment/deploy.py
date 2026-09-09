@@ -79,7 +79,7 @@ def clear_fixed_from_url_values(options, fixed_param_names):
             parameter["value"] = None
 
 
-def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
+def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by, comment=None):
     """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
     composed_dashboard_id = composed_dashboard.id
     deployed_by_id = deployed_by.id
@@ -115,7 +115,7 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
     else:
         db.session.rollback()
 
-    run = record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded)
+    run = record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded, comment)
     db.session.commit()
 
     if succeeded:
@@ -438,11 +438,12 @@ def record_deployment(composed_dashboard, target_org):
     deployment.last_deployed_at = datetime.now(timezone.utc)
 
 
-def record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded):
+def record_deployment_run(composed_dashboard_id, deployed_by_id, results, succeeded, comment):
     run = DeploymentRun(
         composed_dashboard_id=composed_dashboard_id,
         global_admin_user_id=deployed_by_id,
         succeeded=succeeded,
+        comment=comment,
         results=[DeploymentRunResult(organization_id=result.org_id, errors=result.errors) for result in results],
     )
     db.session.add(run)

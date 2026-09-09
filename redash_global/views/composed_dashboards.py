@@ -160,6 +160,7 @@ def serialize_run(run, target_orgs):
         "id": run.id,
         "composed_dashboard_id": run.composed_dashboard_id,
         "succeeded": run.succeeded,
+        "comment": run.comment,
         "results": [serialize_run_result(result, orgs_by_id[result.organization_id]) for result in run.results],
     }
 
@@ -171,5 +172,8 @@ def composed_dashboard_deploy(composed_dashboard_id):
     if not target_orgs:
         return jsonify({"message": "No organization has any of this dashboard's sub-dashboards assigned."}), 400
 
-    run = deploy_composed_dashboard(composed_dashboard, target_orgs, current_user)
+    body = request.get_json(silent=True) or {}
+    comment = (body.get("comment") or "").strip() or None
+
+    run = deploy_composed_dashboard(composed_dashboard, target_orgs, current_user, comment)
     return jsonify(serialize_run(run, target_orgs))
