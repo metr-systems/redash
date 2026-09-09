@@ -10,6 +10,7 @@ from redash_global.views.composed_dashboards import (
     composed_dashboard_create,
     composed_dashboard_delete,
     composed_dashboard_deploy,
+    composed_dashboard_deployment_runs_list,
     composed_dashboard_detail,
     composed_dashboard_entries_list,
     composed_dashboard_entries_reorder,
@@ -96,6 +97,13 @@ global_blueprint.add_url_rule(
     methods=["POST"],
     view_func=composed_dashboard_deploy,
     endpoint="composed_dashboard_deploy",
+)
+
+global_blueprint.add_url_rule(
+    "/global-api/composed-dashboards/<int:composed_dashboard_id>/deployment-runs",
+    methods=["GET"],
+    view_func=composed_dashboard_deployment_runs_list,
+    endpoint="composed_dashboard_deployment_runs_list",
 )
 
 global_blueprint.add_url_rule(

@@ -9,6 +9,7 @@ import { registerComponent } from "@/components/DynamicComponent";
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
 import ComposedDashboardListPage from "./ComposedDashboardList";
 import ComposedDashboardEdit from "./ComposedDashboardEdit";
+import ComposedDashboardDeploymentsPage from "./ComposedDashboardDeployments";
 import SubDashboardListPage from "./SubDashboardList";
 import SubDashboardAssignments from "./SubDashboardAssignments";
 
@@ -35,6 +36,14 @@ const routes = [
     title: "Edit Composed Dashboard",
     render: (currentRoute) => (
       <ComposedDashboardEdit composedDashboardId={currentRoute.routeParams.composedDashboardId} />
+    ),
+  },
+  {
+    id: "ComposedDashboards.Deployments",
+    path: "/composed-dashboards/:composedDashboardId/deployments",
+    title: "Deployment History",
+    render: (currentRoute) => (
+      <ComposedDashboardDeploymentsPage composedDashboardId={currentRoute.routeParams.composedDashboardId} />
     ),
   },
   {

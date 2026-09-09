@@ -469,3 +469,119 @@ def test_deploy_without_a_comment_records_none(admin_client, deploy_url, compose
     assert response.get_json()["comment"] is None
     run = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard.id).one()
     assert run.comment is None
+
+
+@pytest.fixture
+def deployment_runs_url(composed_dashboard):
+    return f"{LIST_URL}/{composed_dashboard.id}/deployment-runs"
+
+
+def test_deployment_runs_requires_authentication(client, deployment_runs_url):
+    response = client.get(deployment_runs_url)
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_deployment_runs_returns_404_for_missing_dashboard(admin_client):
+    response = admin_client.get(f"{LIST_URL}/99999/deployment-runs")
+
+    assert response.status_code == 404
+
+
+def test_deployment_runs_is_empty_for_a_never_deployed_dashboard(admin_client, deployment_runs_url):
+    data = admin_client.get(deployment_runs_url).get_json()
+
+    assert data["count"] == 0
+    assert data["results"] == []
+
+
+def test_deployment_runs_orders_latest_first(admin_client, factory, admin, composed_dashboard, deployment_runs_url):
+    factory.create_deployment_run(
+        composed_dashboard_id=composed_dashboard.id,
+        global_admin_user_id=admin.id,
+        comment="Older",
+        created_at=datetime.datetime(2020, 1, 1),
+    )
+    factory.create_deployment_run(
+        composed_dashboard_id=composed_dashboard.id,
+        global_admin_user_id=admin.id,
+        comment="Newer",
+        created_at=datetime.datetime(2021, 1, 1),
+    )
+
+    data = admin_client.get(deployment_runs_url).get_json()
+
+    assert [run["comment"] for run in data["results"]] == ["Newer", "Older"]
+
+
+def test_deployment_runs_reports_who_ran_it_and_the_per_org_outcome(
+    admin_client, factory, admin, composed_dashboard, deployment_runs_url
+):
+    failing_org = factory.create_org(name="Broken", slug="broken")
+    healthy_org = factory.create_org(name="Acme", slug="acme")
+    run = factory.create_deployment_run(
+        composed_dashboard_id=composed_dashboard.id,
+        global_admin_user_id=admin.id,
+        succeeded=False,
+        comment="Rolling out the new funnel widget",
+    )
+    factory.create_deployment_run_result(
+        deployment_run_id=run.id, organization_id=failing_org.id, errors=["No deploy user"]
+    )
+    factory.create_deployment_run_result(deployment_run_id=run.id, organization_id=healthy_org.id, errors=[])
+
+    data = admin_client.get(deployment_runs_url).get_json()
+
+    assert data["count"] == 1
+    reported = data["results"][0]
+    assert reported["id"] == run.id
+    assert reported["succeeded"] is False
+    assert reported["comment"] == "Rolling out the new funnel widget"
+    assert reported["deployed_by"] == admin.username
+    assert reported["created_at"]
+    # Results come back by organization name, so "Acme" precedes "Broken".
+    assert [result["organization_name"] for result in reported["results"]] == ["Acme", "Broken"]
+    assert [result["organization_slug"] for result in reported["results"]] == ["acme", "broken"]
+    assert [result["errors"] for result in reported["results"]] == [[], ["No deploy user"]]
+
+
+def test_deployment_runs_excludes_other_composed_dashboards(
+    admin_client, factory, admin, composed_dashboard, deployment_runs_url
+):
+    other_dashboard = factory.create_composed_dashboard(name="Other", url_identifier="other")
+    factory.create_deployment_run(composed_dashboard_id=composed_dashboard.id, global_admin_user_id=admin.id)
+    factory.create_deployment_run(composed_dashboard_id=other_dashboard.id, global_admin_user_id=admin.id)
+
+    data = admin_client.get(deployment_runs_url).get_json()
+
+    assert data["count"] == 1
+    assert data["results"][0]["composed_dashboard_id"] == composed_dashboard.id
+
+
+def test_deployment_runs_paginates(admin_client, factory, admin, composed_dashboard, deployment_runs_url):
+    for i in range(3):
+        factory.create_deployment_run(
+            composed_dashboard_id=composed_dashboard.id,
+            global_admin_user_id=admin.id,
+            created_at=datetime.datetime(2020, 1, i + 1),
+        )
+
+    data = admin_client.get(f"{deployment_runs_url}?page=2&page_size=2").get_json()
+
+    assert data["count"] == 3
+    assert data["page"] == 2
+    assert data["page_size"] == 2
+    assert len(data["results"]) == 1
+
+
+@pytest.mark.usefixtures("deployable_sub_dashboard")
+def test_deployment_runs_lists_a_run_made_by_the_deploy_endpoint(admin_client, deploy_url, deployment_runs_url):
+    admin_client.post(deploy_url, json={"comment": "First rollout"})
+
+    data = admin_client.get(deployment_runs_url).get_json()
+
+    assert data["count"] == 1
+    assert data["results"][0]["succeeded"] is True
+    assert data["results"][0]["comment"] == "First rollout"
+    assert data["results"][0]["results"][0]["organization_slug"] == "acme"

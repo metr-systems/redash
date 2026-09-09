@@ -125,6 +125,7 @@ class DeploymentRun(TimestampMixin, db.Model):
         backref="deployment_run",
         cascade="all, delete-orphan",
     )
+    global_admin_user = db.relationship("GlobalAdminUser")
 
 
 @generic_repr("id", "deployment_run_id", "organization_id")

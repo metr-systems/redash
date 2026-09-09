@@ -4,7 +4,6 @@ import { get } from "lodash";
 import Button from "antd/lib/button";
 import Input from "antd/lib/input";
 import Modal from "antd/lib/modal";
-import Table from "antd/lib/table";
 
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
@@ -16,25 +15,7 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 
 import ComposedDashboardService from "../../services/composedDashboard";
 import ComposedDashboardCreateModal from "./ComposedDashboardCreate";
-
-const resultColumns = [
-  { title: "Organization", dataIndex: "organization_name", key: "organization_name" },
-  { title: "Slug", dataIndex: "organization_slug", key: "organization_slug" },
-  {
-    title: "Result",
-    key: "errors",
-    render: (text, result) =>
-      result.errors.length === 0 ? (
-        "No problems reported"
-      ) : (
-        <ul className="p-l-15 m-b-0">
-          {result.errors.map((error) => (
-            <li key={error}>{error}</li>
-          ))}
-        </ul>
-      ),
-  },
-];
+import DeploymentResultsTable from "./DeploymentResultsTable";
 
 function DeploymentResultModal({ composedDashboardName, result, onClose }) {
   const run = result && result.run;
@@ -60,13 +41,7 @@ function DeploymentResultModal({ composedDashboardName, result, onClose }) {
               reported no problem were rolled back too. Fix the errors and deploy again.
             </p>
           )}
-          <Table
-            rowKey="organization_id"
-            columns={resultColumns}
-            dataSource={run.results}
-            pagination={false}
-            size="small"
-          />
+          <DeploymentResultsTable results={run.results} />
         </React.Fragment>
       ) : (
         <p>{result && result.message}</p>
@@ -168,6 +143,10 @@ const listColumns = [
   Columns.custom((text, item) => item.url_identifier || "—", { title: "URL Identifier" }),
   Columns.custom(
     (text, item) => <Link href={`composed-dashboards/${item.id}/edit`}>Edit composition</Link>,
+    { title: "", width: "1%", className: "text-nowrap" }
+  ),
+  Columns.custom(
+    (text, item) => <Link href={`composed-dashboards/${item.id}/deployments`}>Deployment history</Link>,
     { title: "", width: "1%", className: "text-nowrap" }
   ),
   Columns.custom((text, item) => <DeployButton composedDashboard={item} />, {

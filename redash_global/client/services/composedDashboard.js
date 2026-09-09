@@ -6,6 +6,7 @@ const ComposedDashboardService = {
   create: (data) => axios.post("composed-dashboards", data),
   delete: (id) => axios.delete(`composed-dashboards/${id}`),
   deploy: (id, comment) => axios.post(`composed-dashboards/${id}/deploy`, { comment }),
+  deploymentRuns: (id, params) => axios.get(`composed-dashboards/${id}/deployment-runs`, { params }),
   getEntries: (id) => axios.get(`composed-dashboards/${id}/entries`),
   addEntry: (id, templateDashboardId) =>
     axios.post(`composed-dashboards/${id}/entries`, { template_dashboard_id: templateDashboardId }),

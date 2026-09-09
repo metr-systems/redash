@@ -2,10 +2,14 @@ from flask import jsonify, request
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
 
-from redash.models import db
+from redash.models import Organization, db
 from redash_global.deployment.deploy import deploy_composed_dashboard
 from redash_global.deployment.utils import deployment_target_orgs
-from redash_global.models import ComposedDashboard, ComposedDashboardEntry
+from redash_global.models import (
+    ComposedDashboard,
+    ComposedDashboardEntry,
+    DeploymentRun,
+)
 
 
 def serialize(composed_dashboard):
@@ -18,19 +22,17 @@ def serialize(composed_dashboard):
     }
 
 
+def positive_int_arg(name, default):
+    try:
+        return max(int(request.args.get(name, default)), 1)
+    except (ValueError, TypeError):
+        return default
+
+
 @login_required
 def composed_dashboards_list():
-    try:
-        page = int(request.args.get("page", 1))
-        page = max(page, 1)
-    except (ValueError, TypeError):
-        page = 1
-
-    try:
-        page_size = int(request.args.get("page_size", 25))
-        page_size = max(page_size, 1)
-    except (ValueError, TypeError):
-        page_size = 25
+    page = positive_int_arg("page", 1)
+    page_size = positive_int_arg("page_size", 25)
 
     query = ComposedDashboard.query.order_by(ComposedDashboard.created_at.desc())
 
@@ -154,14 +156,26 @@ def serialize_run_result(result, org):
     }
 
 
-def serialize_run(run, target_orgs):
-    orgs_by_id = {org.id: org for org in target_orgs}
+def orgs_by_id_for_runs(runs):
+    """The organizations named by these runs' results, keyed by id, in one query.
+
+    Resolved from the results rather than from the composed dashboard's current target orgs:
+    an old run can name an org that is no longer a target.
+    """
+    org_ids = {result.organization_id for run in runs for result in run.results}
+    return {org.id: org for org in Organization.query.filter(Organization.id.in_(org_ids))}
+
+
+def serialize_run(run, orgs_by_id):
+    results = sorted(run.results, key=lambda result: orgs_by_id[result.organization_id].name)
     return {
         "id": run.id,
         "composed_dashboard_id": run.composed_dashboard_id,
+        "created_at": run.created_at,
         "succeeded": run.succeeded,
         "comment": run.comment,
-        "results": [serialize_run_result(result, orgs_by_id[result.organization_id]) for result in run.results],
+        "deployed_by": run.global_admin_user.username,
+        "results": [serialize_run_result(result, orgs_by_id[result.organization_id]) for result in results],
     }
 
 
@@ -176,4 +190,28 @@ def composed_dashboard_deploy(composed_dashboard_id):
     comment = (body.get("comment") or "").strip() or None
 
     run = deploy_composed_dashboard(composed_dashboard, target_orgs, current_user, comment)
-    return jsonify(serialize_run(run, target_orgs))
+    return jsonify(serialize_run(run, orgs_by_id_for_runs([run])))
+
+
+@login_required
+def composed_dashboard_deployment_runs_list(composed_dashboard_id):
+    ComposedDashboard.query.get_or_404(composed_dashboard_id)
+
+    page = positive_int_arg("page", 1)
+    page_size = positive_int_arg("page_size", 25)
+
+    query = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard_id).order_by(
+        DeploymentRun.created_at.desc(), DeploymentRun.id.desc()
+    )
+    total = query.count()
+    runs = query.offset((page - 1) * page_size).limit(page_size).all()
+    orgs_by_id = orgs_by_id_for_runs(runs)
+
+    return jsonify(
+        {
+            "count": total,
+            "page": page,
+            "page_size": page_size,
+            "results": [serialize_run(run, orgs_by_id) for run in runs],
+        }
+    )
