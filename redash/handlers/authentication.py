@@ -16,7 +16,7 @@ from redash.authentication.account import (
 )
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
-from redash.settings.organization import settings as org_settings
+from redash.settings import metr as metr_settings
 from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
@@ -99,7 +99,7 @@ def render_token_login_page(template, org_slug, token, invite):
             show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
             google_auth_url=google_auth_url,
             show_saml_login=current_org.get_setting("auth_saml_enabled"),
-            show_jwt_login=bool(org_settings["auth_jwt_login_url"]),
+            show_jwt_login=bool(metr_settings.JWT_LOGIN_URL),
             show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
             show_ldap_login=settings.LDAP_LOGIN_ENABLED,
             org_slug=org_slug,
@@ -218,7 +218,7 @@ def login(org_slug=None):
         google_auth_url=google_auth_url,
         show_password_login=current_org.get_setting("auth_password_login_enabled"),
         show_saml_login=current_org.get_setting("auth_saml_enabled"),
-        show_jwt_login=bool(org_settings["auth_jwt_login_url"]),
+        show_jwt_login=bool(metr_settings.JWT_LOGIN_URL),
         show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
         show_ldap_login=settings.LDAP_LOGIN_ENABLED,
     )

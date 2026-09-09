@@ -20,6 +20,7 @@ from redash.authentication import (
     org_settings,
     sign,
 )
+from redash.settings import metr as metr_settings
 from redash.authentication.google_oauth import (
     create_and_login_user,
     verify_profile,
@@ -436,13 +437,16 @@ class TestJWTAuthentication(BaseTestCase):
         org_settings["auth_jwt_auth_header_name"] = self.token_name
         org_settings["auth_jwt_auth_cookie_name"] = ""
 
+        no_tenant_claim = patch.object(metr_settings, "JWT_AUTH_TENANT_CLAIM", "")
+        no_tenant_claim.start()
+        self.addCleanup(no_tenant_claim.stop)
+
     def tearDown(self):
         org_settings["auth_jwt_login_enabled"] = False
         org_settings["auth_jwt_auth_public_certs_url"] = ""
         org_settings["auth_jwt_auth_issuer"] = ""
         org_settings["auth_jwt_auth_audience"] = ""
         org_settings["auth_jwt_auth_header_name"] = ""
-        org_settings["auth_jwt_auth_tenant_claim"] = ""
 
     def test_jwt_no_token(self):
         response = self.get_request("/data_sources", org=self.factory.org)
@@ -468,8 +472,8 @@ class TestJWTAuthentication(BaseTestCase):
         response = self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
         self.assertEqual(response.status_code, 200)
 
+    @patch.object(metr_settings, "JWT_AUTH_TENANT_CLAIM", "tenant")
     def test_jwt_from_another_tenant_is_refused(self):
-        org_settings["auth_jwt_auth_tenant_claim"] = "tenant"
         user = self.factory.create_user()
 
         issued_at_timestamp = time.time()
@@ -488,8 +492,8 @@ class TestJWTAuthentication(BaseTestCase):
         response = self.get_request("/data_sources", org=self.factory.org, headers={self.token_name: token_data})
         self.assertEqual(response.status_code, 302)
 
+    @patch.object(metr_settings, "JWT_AUTH_TENANT_CLAIM", "tenant")
     def test_jwt_naming_this_tenant_is_accepted(self):
-        org_settings["auth_jwt_auth_tenant_claim"] = "tenant"
         user = self.factory.create_user()
 
         issued_at_timestamp = time.time()
@@ -543,6 +547,10 @@ class TestJWTProvisioningGroup(BaseTestCase):
         org_settings["auth_jwt_auth_audience"] = self.auth_audience
         org_settings["auth_jwt_auth_header_name"] = self.token_name
         org_settings["auth_jwt_auth_cookie_name"] = ""
+
+        no_tenant_claim = patch.object(metr_settings, "JWT_AUTH_TENANT_CLAIM", "")
+        no_tenant_claim.start()
+        self.addCleanup(no_tenant_claim.stop)
 
     def tearDown(self):
         org_settings["auth_jwt_login_enabled"] = False

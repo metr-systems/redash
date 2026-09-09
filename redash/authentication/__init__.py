@@ -15,6 +15,7 @@ from redash import models, settings
 from redash.authentication import jwt_auth
 from redash.authentication.org_resolving import current_org
 from redash.settings.organization import settings as org_settings
+from redash.settings import metr as metr_settings
 from redash.tasks import record_event
 
 login_manager = LoginManager()
@@ -194,7 +195,7 @@ def jwt_token_load_user_from_request(request):
         logger.info("No email field in token, refusing to login")
         return
 
-    tenant_claim = org_settings["auth_jwt_auth_tenant_claim"]
+    tenant_claim = metr_settings.JWT_AUTH_TENANT_CLAIM
     if tenant_claim and payload.get(tenant_claim) != org.slug:
         logger.info(
             "Token was issued for %r, not for organization %r, refusing to login",
