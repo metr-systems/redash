@@ -20,7 +20,7 @@ from redash_global.deployment.deploy import (
     replace_widgets,
     resolve_query_dropdown_dependencies,
 )
-from redash_global.deployment.exceptions import DeploymentErrorGroup
+from redash_global.deployment.exceptions import DeploymentErrorGroup, DeployUserError
 from redash_global.models import ComposedDashboardDeployment, DeploymentRun
 
 
@@ -808,7 +808,7 @@ class TestDeployToTargetOrg:
             composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
         )
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
-        factory.create_admin(org=target_org)
+        factory.create_deploy_user(target_org)
 
         dashboard, _ = deploy_to_target_org(composed_dashboard, target_org)
 
@@ -823,6 +823,44 @@ class TestDeployToTargetOrg:
         assert deployed == dashboard
         assert deployed.name == composed_dashboard.name
 
+    def test_deploys_as_the_engineering_admin_not_a_client_admin(self, factory, sub_dashboard, target_org):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        factory.create_metr_data_source_for(factory.create_data_source(org=target_org), "postgres")
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+        # A client admin, created before ours so that taking the org's first admin would take them.
+        factory.create_admin(org=target_org, email="client@example.com")
+        deploy_user = factory.create_deploy_user(target_org)
+
+        dashboard, _ = deploy_to_target_org(composed_dashboard, target_org)
+
+        assert dashboard.user == deploy_user
+        assert dashboard.widgets.first().visualization.query_rel.user == deploy_user
+
+    def test_raises_when_the_org_has_no_engineering_admin(self, factory, sub_dashboard, target_org):
+        factory.create_widget(
+            dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+        )
+        query = sub_dashboard.widgets[0].visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        factory.create_metr_data_source_for(factory.create_data_source(org=target_org), "postgres")
+        composed_dashboard = factory.create_composed_dashboard()
+        factory.create_composed_dashboard_entry(
+            composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+        )
+        factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+        factory.create_admin(org=target_org, email="client@example.com")
+
+        with pytest.raises(DeployUserError):
+            deploy_to_target_org(composed_dashboard, target_org)
+
     def test_raises_on_validation_failure(self, factory, sub_dashboard, target_org):
         widget = factory.create_widget(dashboard=sub_dashboard)
         widget.visualization.query_rel.data_source.delete()
@@ -831,7 +869,7 @@ class TestDeployToTargetOrg:
             composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
         )
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
-        factory.create_admin(org=target_org)
+        factory.create_deploy_user(target_org)
 
         with pytest.raises(DeploymentErrorGroup):
             deploy_to_target_org(composed_dashboard, target_org)
@@ -865,7 +903,7 @@ class TestDeployToTargetOrg:
             composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
         )
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
-        factory.create_admin(org=target_org)
+        factory.create_deploy_user(target_org)
 
         deploy_to_target_org(composed_dashboard, target_org)
 
@@ -962,7 +1000,7 @@ class TestDeployComposedDashboard:
             target_ds = factory.create_data_source(org=org)
             factory.create_metr_data_source_for(target_ds, "postgres")
             factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=org.id)
-            factory.create_admin(org=org)
+            factory.create_deploy_user(org)
 
         composed_dashboard = factory.create_composed_dashboard()
         factory.create_composed_dashboard_entry(
@@ -985,7 +1023,7 @@ class TestDeployComposedDashboard:
         target_org = factory.create_org()
         factory.create_metr_data_source_for(factory.create_data_source(org=target_org), "postgres")
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
-        factory.create_admin(org=target_org)
+        factory.create_deploy_user(target_org)
 
         composed_dashboard = factory.create_composed_dashboard()
         factory.create_composed_dashboard_entry(
@@ -1012,7 +1050,7 @@ class TestDeployComposedDashboard:
 
         for org in (deployable_org, failing_org):
             factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=org.id)
-            factory.create_admin(org=org)
+            factory.create_deploy_user(org)
 
         composed_dashboard = factory.create_composed_dashboard()
         factory.create_composed_dashboard_entry(
@@ -1067,7 +1105,7 @@ class TestDeployComposedDashboard:
         ]
         for org in target_orgs:
             factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=org.id)
-            factory.create_admin(org=org)
+            factory.create_deploy_user(org)
 
         composed_dashboard = factory.create_composed_dashboard()
         factory.create_composed_dashboard_entry(
@@ -1099,12 +1137,12 @@ class TestDeployComposedDashboard:
         assigned_org = factory.create_org()
         factory.create_metr_data_source_for(factory.create_data_source(org=assigned_org), "postgres")
         factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=assigned_org.id)
-        factory.create_admin(org=assigned_org)
+        factory.create_deploy_user(assigned_org)
 
         # Every org is targeted by default, and this one has nothing of the composed
         # dashboard assigned, so it has nothing to deploy.
         unassigned_org = factory.create_org()
-        factory.create_admin(org=unassigned_org)
+        factory.create_deploy_user(unassigned_org)
 
         composed_dashboard = factory.create_composed_dashboard()
         factory.create_composed_dashboard_entry(
