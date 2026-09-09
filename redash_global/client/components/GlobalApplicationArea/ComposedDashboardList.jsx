@@ -132,8 +132,9 @@ function DeployButton({ composedDashboard }) {
         onOk={deploy}
         onCancel={closeConfirm}>
         <p>
-          Deploy &quot;{composedDashboard.name}&quot; to every organization that has one of its sub-dashboards
-          assigned? Deployment is all or nothing: if any organization fails, nothing is deployed.
+          Deploy &quot;{composedDashboard.name}&quot; to every organization that has at least one of the
+          sub-dashboards assigned to it? Deployment is all or nothing: if any organization fails, nothing
+          is deployed.
         </p>
         <label htmlFor={`deploy-comment-${composedDashboard.id}`}>Comment (optional)</label>
         <Input.TextArea

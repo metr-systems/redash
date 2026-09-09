@@ -170,7 +170,7 @@ def composed_dashboard_deploy(composed_dashboard_id):
     composed_dashboard = ComposedDashboard.query.get_or_404(composed_dashboard_id)
     target_orgs = deployment_target_orgs(composed_dashboard)
     if not target_orgs:
-        return jsonify({"message": "No organization has any of this dashboard's sub-dashboards assigned."}), 400
+        return jsonify({"message": "No organization has any of this dashboard's sub-dashboards assigned to it."}), 400
 
     body = request.get_json(silent=True) or {}
     comment = (body.get("comment") or "").strip() or None
