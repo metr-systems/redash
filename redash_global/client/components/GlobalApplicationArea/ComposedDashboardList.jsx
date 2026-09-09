@@ -1,13 +1,13 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { filter, get } from "lodash";
+import { get } from "lodash";
 import Button from "antd/lib/button";
 import Modal from "antd/lib/modal";
+import Table from "antd/lib/table";
 
 import Link from "@/components/Link";
 import PageHeader from "@/components/PageHeader";
 import Paginator from "@/components/Paginator";
-import notification from "@/services/notification";
 import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
 import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
 import { UrlStateStorage } from "@/components/items-list/classes/StateStorage";
@@ -16,76 +16,118 @@ import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTab
 import ComposedDashboardService from "../../services/composedDashboard";
 import ComposedDashboardCreateModal from "./ComposedDashboardCreate";
 
-// A failed run comes back as a 200 with succeeded=false, and the admin has to read which orgs
-// to fix before retrying, so that notification stays up until dismissed.
-const STICKY = { duration: 0 };
+const resultColumns = [
+  { title: "Organization", dataIndex: "organization_name", key: "organization_name" },
+  { title: "Slug", dataIndex: "organization_slug", key: "organization_slug" },
+  {
+    title: "Result",
+    key: "errors",
+    render: (text, result) =>
+      result.errors.length === 0 ? (
+        "No problems reported"
+      ) : (
+        <ul className="p-l-15 m-b-0">
+          {result.errors.map((error) => (
+            <li key={error}>{error}</li>
+          ))}
+        </ul>
+      ),
+  },
+];
+
+function DeploymentResultModal({ composedDashboardName, result, onClose }) {
+  const run = result && result.run;
+
+  return (
+    <Modal
+      visible={result !== null}
+      title={`Deployment result — ${composedDashboardName}`}
+      width={720}
+      onCancel={onClose}
+      footer={<Button onClick={onClose}>Close</Button>}>
+      {run ? (
+        <React.Fragment>
+          {run.succeeded ? (
+            <p>
+              Deployed to {run.results.length} organization(s). A dashboard this deployment created is{" "}
+              <strong>unpublished</strong>, so it stays out of the target org&apos;s dashboard list until someone there
+              publishes it.
+            </p>
+          ) : (
+            <p>
+              <strong>Nothing was deployed.</strong> A deployment is all or nothing, so the organizations below that
+              reported no problem were rolled back too. Fix the errors and deploy again.
+            </p>
+          )}
+          <Table
+            rowKey="organization_id"
+            columns={resultColumns}
+            dataSource={run.results}
+            pagination={false}
+            size="small"
+          />
+        </React.Fragment>
+      ) : (
+        <p>{result && result.message}</p>
+      )}
+    </Modal>
+  );
+}
+
+DeploymentResultModal.propTypes = {
+  composedDashboardName: PropTypes.string.isRequired,
+  result: PropTypes.object,
+  onClose: PropTypes.func.isRequired,
+};
+
+DeploymentResultModal.defaultProps = {
+  result: null,
+};
 
 function DeployButton({ composedDashboard }) {
   const [deploying, setDeploying] = useState(false);
-
-  const notifyFailedRun = (run) => {
-    const failed = filter(run.results, (result) => result.errors.length > 0);
-    notification.error(
-      `"${composedDashboard.name}" was not deployed`,
-      <React.Fragment>
-        <p>
-          A deployment is all or nothing, so <strong>nothing was deployed</strong> — not even to the
-          organizations that reported no problem. Fix the following and deploy again:
-        </p>
-        <ul className="p-l-15">
-          {failed.map((result) => (
-            <li key={result.organization_id}>
-              {result.organization_name} ({result.organization_slug}): {result.errors.join("; ")}
-            </li>
-          ))}
-        </ul>
-      </React.Fragment>,
-      STICKY
-    );
-  };
+  // The run stays on screen in a modal the admin dismisses: it carries a row per target org,
+  // which is more than a notification can show before timing out.
+  const [result, setResult] = useState(null);
 
   const deploy = () => {
     setDeploying(true);
     ComposedDashboardService.deploy(composedDashboard.id)
-      .then((run) => {
-        if (run.succeeded) {
-          notification.success(
-            `"${composedDashboard.name}" deployed`,
-            `Deployed to ${run.results.length} organization(s).`
-          );
-        } else {
-          notifyFailedRun(run);
-        }
-      })
+      .then((run) => setResult({ run }))
       .catch((error) =>
-        notification.error(
-          `"${composedDashboard.name}" was not deployed`,
-          get(
+        setResult({
+          message: get(
             error,
             "response.data.message",
             "Nothing was deployed. Check the server logs for the details of what went wrong."
           ),
-          STICKY
-        )
+        })
       )
       .finally(() => setDeploying(false));
   };
 
   return (
-    <Button
-      size="small"
-      type="primary"
-      loading={deploying}
-      onClick={() =>
-        Modal.confirm({
-          title: "Deploy Composed Dashboard",
-          content: `Deploy "${composedDashboard.name}" to every organization that has one of its sub-dashboards assigned? Deployment is all or nothing: if any organization fails, nothing is deployed.`,
-          okText: "Deploy",
-          onOk: deploy,
-        })
-      }>
-      Deploy
-    </Button>
+    <React.Fragment>
+      <Button
+        size="small"
+        type="primary"
+        loading={deploying}
+        onClick={() =>
+          Modal.confirm({
+            title: "Deploy Composed Dashboard",
+            content: `Deploy "${composedDashboard.name}" to every organization that has one of its sub-dashboards assigned? Deployment is all or nothing: if any organization fails, nothing is deployed.`,
+            okText: "Deploy",
+            onOk: deploy,
+          })
+        }>
+        Deploy
+      </Button>
+      <DeploymentResultModal
+        composedDashboardName={composedDashboard.name}
+        result={result}
+        onClose={() => setResult(null)}
+      />
+    </React.Fragment>
   );
 }
 
