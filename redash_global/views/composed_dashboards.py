@@ -1,8 +1,10 @@
 from flask import jsonify, request
-from flask_login import login_required
+from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
 
 from redash.models import db
+from redash_global.deployment.deploy import deploy_composed_dashboard
+from redash_global.deployment.utils import deployment_target_orgs
 from redash_global.models import ComposedDashboard, ComposedDashboardEntry
 
 
@@ -141,3 +143,33 @@ def composed_dashboard_entries_reorder(composed_dashboard_id):
 
     db.session.commit()
     return jsonify([serialize_entry(entry) for entry in composed_dashboard.entries])
+
+
+def serialize_run_result(result, org):
+    return {
+        "organization_id": result.organization_id,
+        "organization_name": org.name,
+        "organization_slug": org.slug,
+        "errors": result.errors,
+    }
+
+
+def serialize_run(run, target_orgs):
+    orgs_by_id = {org.id: org for org in target_orgs}
+    return {
+        "id": run.id,
+        "composed_dashboard_id": run.composed_dashboard_id,
+        "succeeded": run.succeeded,
+        "results": [serialize_run_result(result, orgs_by_id[result.organization_id]) for result in run.results],
+    }
+
+
+@login_required
+def composed_dashboard_deploy(composed_dashboard_id):
+    composed_dashboard = ComposedDashboard.query.get_or_404(composed_dashboard_id)
+    target_orgs = deployment_target_orgs(composed_dashboard)
+    if not target_orgs:
+        return jsonify({"message": "No organization has any of this dashboard's sub-dashboards assigned."}), 400
+
+    run = deploy_composed_dashboard(composed_dashboard, target_orgs, current_user)
+    return jsonify(serialize_run(run, target_orgs))

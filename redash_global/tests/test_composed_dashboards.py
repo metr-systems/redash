@@ -2,7 +2,12 @@ import datetime
 
 import pytest
 
-from redash_global.models import ComposedDashboard, ComposedDashboardEntry
+from redash.models import MetrDashboard
+from redash_global.models import (
+    ComposedDashboard,
+    ComposedDashboardEntry,
+    DeploymentRun,
+)
 
 LIST_URL = "/global-api/composed-dashboards"
 
@@ -354,3 +359,94 @@ def test_entries_reorder_returns_404_for_wrong_entry(admin_client, factory, comp
     response = admin_client.post(f"{LIST_URL}/{composed_dashboard.id}/entries/reorder", json={"entry_ids": [entry.id]})
 
     assert response.status_code == 404
+
+
+@pytest.fixture
+def deploy_url(composed_dashboard):
+    return f"{LIST_URL}/{composed_dashboard.id}/deploy"
+
+
+@pytest.fixture
+def target_org(factory):
+    return factory.create_org(name="Acme", slug="acme")
+
+
+@pytest.fixture
+def deployable_sub_dashboard(factory, composed_dashboard, target_org):
+    """A sub-dashboard entry of ``composed_dashboard``, assigned to ``target_org``, that deploys cleanly."""
+    sub_dashboard = factory.create_dashboard()
+    widget = factory.create_widget(
+        dashboard=sub_dashboard, options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}}
+    )
+    factory.create_metr_data_source_for(widget.visualization.query_rel.data_source, "postgres")
+    factory.create_composed_dashboard_entry(
+        composed_dashboard_id=composed_dashboard.id, template_dashboard_id=sub_dashboard.id
+    )
+
+    factory.create_metr_data_source_for(factory.create_data_source(org=target_org), "postgres")
+    factory.create_sub_dashboard_assignment(dashboard_id=sub_dashboard.id, organization_id=target_org.id)
+    factory.create_deploy_user(target_org)
+    return sub_dashboard
+
+
+def test_deploy_requires_authentication(client, deploy_url):
+    response = client.post(deploy_url)
+
+    assert response.status_code == 302
+    assert "/login" in response.headers["Location"]
+
+
+def test_deploy_returns_404_for_missing_dashboard(admin_client):
+    response = admin_client.post(f"{LIST_URL}/99999/deploy")
+
+    assert response.status_code == 404
+
+
+def test_deploy_without_any_assigned_org_returns_bad_request(admin_client, deploy_url):
+    response = admin_client.post(deploy_url)
+
+    assert response.status_code == 400
+    assert "assigned" in response.get_json()["message"]
+
+
+@pytest.mark.usefixtures("deployable_sub_dashboard")
+def test_deploy_returns_the_run_with_a_result_per_target_org(admin_client, deploy_url, composed_dashboard):
+    response = admin_client.post(deploy_url)
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["composed_dashboard_id"] == composed_dashboard.id
+    assert data["succeeded"] is True
+    assert len(data["results"]) == 1
+    assert data["results"][0]["organization_name"] == "Acme"
+    assert data["results"][0]["organization_slug"] == "acme"
+    assert data["results"][0]["errors"] == []
+
+
+@pytest.mark.usefixtures("deployable_sub_dashboard")
+def test_deploy_records_the_run_and_the_admin_who_ran_it(admin_client, deploy_url, admin, composed_dashboard):
+    admin_client.post(deploy_url)
+
+    run = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard.id).one()
+    assert run.succeeded is True
+    assert run.global_admin_user_id == admin.id
+
+
+def test_deploy_reports_per_org_errors_when_an_org_fails(
+    admin_client, factory, deploy_url, target_org, deployable_sub_dashboard
+):
+    # No data source carrying the "postgres" identifier, so this org fails validation and,
+    # because a run is all or nothing, takes the healthy org down with it.
+    failing_org = factory.create_org(name="Broken", slug="broken")
+    factory.create_sub_dashboard_assignment(dashboard_id=deployable_sub_dashboard.id, organization_id=failing_org.id)
+    factory.create_deploy_user(failing_org)
+
+    response = admin_client.post(deploy_url)
+
+    assert response.status_code == 200
+    data = response.get_json()
+    assert data["succeeded"] is False
+    errors_by_slug = {result["organization_slug"]: result["errors"] for result in data["results"]}
+    assert errors_by_slug["acme"] == []
+    assert errors_by_slug["broken"]
+    assert MetrDashboard.query.filter_by(url_identifier="dashboard-a").count() == 0
