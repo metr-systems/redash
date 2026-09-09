@@ -89,8 +89,15 @@ def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by):
             # whole transaction and make every statement after it fail, so one broken org
             # does not stop the remaining ones from being attempted and reported.
             with db.session.begin_nested():
-                dashboard, allowed_widgets_query = deploy_to_target_org(composed_dashboard, target_org)
-            deployed_dashboards.append((dashboard, allowed_widgets_query))
+                deployed = deploy_to_target_org(composed_dashboard, target_org)
+            if deployed is None:
+                logger.info(
+                    "Skipping org %s for composed dashboard %s: no sub-dashboards assigned",
+                    org_id,
+                    composed_dashboard_id,
+                )
+                continue
+            deployed_dashboards.append(deployed)
             results.append(OrgResult(org_id, []))
         except DeploymentError as error:
             results.append(OrgResult(org_id, error_messages(error)))
@@ -135,9 +142,15 @@ def ordered_org_assigned_subdashboard(composed_dashboard, target_org):
 def deploy_to_target_org(composed_dashboard, target_org):
     """Stage one org's dashboard and return it with its allowed-widgets query.
 
+    Returns None when the org has no sub-dashboard of this composed dashboard assigned:
+    there is nothing to deploy, which is not a failure.
+
     Raises on failure; the caller owns the transaction.
     """
     sub_dashboards = ordered_org_assigned_subdashboard(composed_dashboard, target_org)
+    if not sub_dashboards:
+        return None
+
     validate_composed_dashboard(sub_dashboards, target_org)
 
     deploy_user = Group.members(target_org.admin_group.id).first()
