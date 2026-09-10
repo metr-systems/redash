@@ -1,6 +1,7 @@
 from flask import jsonify, request
 from flask_login import current_user, login_required
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload, selectinload
 
 from redash.models import Organization, db
 from redash_global.deployment.deploy import deploy_composed_dashboard
@@ -204,11 +205,15 @@ def composed_dashboard_deployment_runs_list(composed_dashboard_id):
     page = positive_int_arg("page", 1)
     page_size = positive_int_arg("page_size", 25, MAX_PAGE_SIZE)
 
-    query = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard_id).order_by(
-        DeploymentRun.created_at.desc(), DeploymentRun.id.desc()
-    )
+    query = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard_id)
     total = query.count()
-    runs = query.offset((page - 1) * page_size).limit(page_size).all()
+    runs = (
+        query.options(selectinload(DeploymentRun.results), joinedload(DeploymentRun.global_admin_user))
+        .order_by(DeploymentRun.created_at.desc(), DeploymentRun.id.desc())
+        .offset((page - 1) * page_size)
+        .limit(page_size)
+        .all()
+    )
     orgs_by_id = orgs_by_id_for_runs(runs)
 
     return jsonify(
