@@ -7,6 +7,7 @@ import handleNavigationIntent from "@/components/ApplicationArea/handleNavigatio
 import { registerComponent } from "@/components/DynamicComponent";
 
 import GlobalDesktopNavbar from "./GlobalDesktopNavbar";
+import DeploymentGuide from "./DeploymentGuide";
 import ComposedDashboardListPage from "./ComposedDashboardList";
 import ComposedDashboardEdit from "./ComposedDashboardEdit";
 import ComposedDashboardDeploymentsPage from "./ComposedDashboardDeployments";
@@ -22,7 +23,7 @@ const routes = [
     id: "Home",
     path: "/",
     title: "Global Admin",
-    render: () => <div>Work in progress</div>,
+    render: () => <DeploymentGuide />,
   },
   {
     id: "ComposedDashboards.List",
