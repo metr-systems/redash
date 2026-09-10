@@ -90,9 +90,6 @@ function ComposedDashboardDeployments({ controller }) {
               items={controller.pageItems}
               loading={!controller.isLoaded}
               columns={listColumns(setShownRun)}
-              orderByField={controller.orderByField}
-              orderByReverse={controller.orderByReverse}
-              toggleSorting={controller.toggleSorting}
             />
             <Paginator
               showPageSizeSelect

@@ -219,9 +219,6 @@ function ComposedDashboardList({ controller }) {
               items={controller.pageItems}
               loading={!controller.isLoaded}
               columns={listColumns}
-              orderByField={controller.orderByField}
-              orderByReverse={controller.orderByReverse}
-              toggleSorting={controller.toggleSorting}
             />
             <Paginator
               showPageSizeSelect
