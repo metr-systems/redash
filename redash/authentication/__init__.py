@@ -5,6 +5,7 @@ import time
 from datetime import timedelta
 from urllib.parse import urlsplit, urlunsplit
 
+import jwt
 from flask import jsonify, redirect, request, session, url_for
 from flask_babel import _
 from flask_login import LoginManager, login_user, logout_user, user_logged_in
@@ -163,51 +164,51 @@ def api_key_load_user_from_request(request):
     return user
 
 
-def jwt_token_load_user_from_request(request):
-    org = current_org._get_current_object()
-    if org is None:
-        return None
+def load_user_from_jwt(org, jwt_token):
+    """
+    Return the user a token names, or None when it names nobody we will accept.
 
-    payload = None
-
-    if org_settings["auth_jwt_auth_cookie_name"]:
-        jwt_token = request.cookies.get(org_settings["auth_jwt_auth_cookie_name"], None)
-    elif org_settings["auth_jwt_auth_header_name"]:
-        jwt_token = request.headers.get(org_settings["auth_jwt_auth_header_name"], None)
-    else:
-        return None
-
-    if jwt_token:
-        # One deployment-wide setting serves every organization, so the URL may name
-        # the organization instead of pinning one for all the others to depend on.
-        public_certs_url = org_settings["auth_jwt_auth_public_certs_url"].replace(
-            "{org_slug}", org.slug
+    Raises Unauthorized when the token is there but does not verify, which is how the
+    request loader has always reported a bad token. Callers reaching for a user of
+    their own, rather than answering a request, catch that.
+    """
+    # One deployment-wide setting serves every organization, so the URL may name
+    # the organization instead of pinning one for all the others to depend on.
+    public_certs_url = org_settings["auth_jwt_auth_public_certs_url"].replace(
+        "{org_slug}", org.slug
+    )
+    try:
+        payload, token_is_valid = jwt_auth.verify_jwt_token(
+            jwt_token,
+            expected_issuer=org_settings["auth_jwt_auth_issuer"],
+            expected_audience=org_settings["auth_jwt_auth_audience"],
+            algorithms=org_settings["auth_jwt_auth_algorithms"],
+            public_certs_url=public_certs_url,
         )
-        try:
-            payload, token_is_valid = jwt_auth.verify_jwt_token(
-                jwt_token,
-                expected_issuer=org_settings["auth_jwt_auth_issuer"],
-                expected_audience=org_settings["auth_jwt_auth_audience"],
-                algorithms=org_settings["auth_jwt_auth_algorithms"],
-                public_certs_url=public_certs_url,
-            )
-        except OSError:
-            # Reading the keys can fail over the network or off disk, and an
-            # organization with no keys to name is one we cannot authenticate for.
-            # requests.RequestException is an OSError, so both arrive here.
-            logger.warning(
-                "Could not read the signing keys at %s, refusing to login", public_certs_url
-            )
-            return None
-        if not token_is_valid:
-            raise Unauthorized("Invalid JWT token")
+    except OSError:
+        # Reading the keys can fail over the network or off disk, and an
+        # organization with no keys to name is one we cannot authenticate for.
+        # requests.RequestException is an OSError, so both arrive here.
+        logger.warning(
+            "Could not read the signing keys at %s, refusing to login", public_certs_url
+        )
+        return None
+    except jwt.PyJWTError as error:
+        # The key id is read before any key is tried, so a token too malformed to
+        # parse at all escapes the verification loop rather than failing inside it.
+        # Something we cannot read is a token we will not accept, which is the same
+        # answer as one that does not verify.
+        logger.info("Could not read the token, refusing to login: %s", error)
+        raise Unauthorized("Invalid JWT token") from error
+    if not token_is_valid:
+        raise Unauthorized("Invalid JWT token")
 
     if not payload:
-        return
+        return None
 
     if "email" not in payload:
         logger.info("No email field in token, refusing to login")
-        return
+        return None
 
     tenant_claim = metr_settings.JWT_AUTH_TENANT_CLAIM
     if tenant_claim and payload.get(tenant_claim) != org.slug:
@@ -216,19 +217,64 @@ def jwt_token_load_user_from_request(request):
             payload.get(tenant_claim),
             org.slug,
         )
-        return
+        return None
 
     try:
-        user = models.User.get_by_email_and_org(payload["email"], org)
+        return models.User.get_by_email_and_org(payload["email"], org)
     except models.NoResultFound:
-        user = create_and_login_user(
+        return create_and_login_user(
             org,
             payload["email"],
             payload["email"],
             group_ids=[org.get_or_create_sso_group().id],
         )
 
-    return user
+
+def clear_the_hand_off(response):
+    """
+    Delete the hand-off cookie, spent or not.
+
+    A token left in the browser goes on signing its owner in on every request, with
+    no session to be told they have logged out. One we refused goes on being refused
+    just as quietly. Either way the browser should stop carrying it.
+    """
+    cookie_name = org_settings["auth_jwt_auth_cookie_name"]
+    if cookie_name:
+        response.delete_cookie(cookie_name, domain=metr_settings.JWT_AUTH_COOKIE_DOMAIN or None)
+    return response
+
+
+def jwt_token_load_user_from_request(request):
+    org = current_org._get_current_object()
+    if org is None:
+        return None
+
+    cookie_name = org_settings["auth_jwt_auth_cookie_name"]
+    if cookie_name:
+        jwt_token = request.cookies.get(cookie_name, None)
+        if not jwt_token:
+            return None
+        try:
+            return load_user_from_jwt(org, jwt_token)
+        except Unauthorized:
+            # A cookie is ambient. It may be left over from before a key was
+            # rotated, or minted by another deployment sharing the parent domain,
+            # and the browser sends it either way. One we cannot use is no
+            # credential rather than a failed authentication: answering 401 would
+            # wedge every page, the login page included, until it expired.
+            logger.info("Ignoring a hand-off cookie we cannot use")
+            return None
+
+    header_name = org_settings["auth_jwt_auth_header_name"]
+    if header_name:
+        jwt_token = request.headers.get(header_name, None)
+        if not jwt_token:
+            return None
+        # A header is presented deliberately by a client waiting for an answer, so a
+        # token that does not verify is still reported as one.
+        return load_user_from_jwt(org, jwt_token)
+
+    return None
 
 
 def log_user_logged_in(app, user):

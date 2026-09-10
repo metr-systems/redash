@@ -7,7 +7,12 @@ from itsdangerous import BadSignature, SignatureExpired
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import __version__, limiter, models, settings
-from redash.authentication import current_org, get_login_url, get_next_path
+from redash.authentication import (
+    clear_the_hand_off,
+    current_org,
+    get_login_url,
+    get_next_path,
+)
 from redash.authentication.account import (
     send_password_reset_email,
     send_user_disabled_email,
@@ -227,7 +232,7 @@ def login(org_slug=None):
 @routes.route(org_scoped_rule("/logout"))
 def logout(org_slug=None):
     logout_user()
-    return redirect(get_login_url(next=None))
+    return clear_the_hand_off(redirect(get_login_url(next=None)))
 
 
 def base_href():

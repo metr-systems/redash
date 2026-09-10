@@ -25,7 +25,7 @@ from redash.authentication.google_oauth import (
     create_and_login_user,
     verify_profile,
 )
-from tests import BaseTestCase
+from tests import BaseTestCase, authenticate_request
 
 
 class TestApiKeyAuthentication(BaseTestCase):
@@ -708,3 +708,200 @@ class TestJWTKeysPerOrganization(BaseTestCase):
         )
 
         self.assertEqual(302, response.status_code)
+
+
+class TestJWTCallback(BaseTestCase):
+    """
+    The hand-off token is spent at the callback: exchanged for a session of Redash's
+    own and then deleted, so that logging out is Redash's business alone.
+    """
+
+    def setUp(self):
+        super(TestJWTCallback, self).setUp()
+        self.auth_audience = "metr-dashboards"
+        self.auth_issuer = "https://sso.metr.systems"
+        self.cookie_name = "metr_dashboards_sso"
+        self.rsa_private_key = "/tmp/jwtRS256.key"
+        self.rsa_public_key = "/tmp/jwtRS256.pem"
+
+        if not os.path.exists(self.rsa_public_key):
+            subprocess.check_output(["openssl", "genrsa", "-out", self.rsa_private_key, "4096"])
+            subprocess.check_output(
+                ["openssl", "rsa", "-pubout", "-in", self.rsa_private_key, "-out", self.rsa_public_key]
+            )
+
+        org_settings["auth_jwt_login_enabled"] = True
+        org_settings["auth_jwt_auth_public_certs_url"] = "file://{}".format(self.rsa_public_key)
+        org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
+        org_settings["auth_jwt_auth_audience"] = self.auth_audience
+        org_settings["auth_jwt_auth_cookie_name"] = self.cookie_name
+        org_settings["auth_jwt_auth_header_name"] = ""
+
+        jwt_auth.get_public_keys.key_cache.clear()
+        self.addCleanup(jwt_auth.get_public_keys.key_cache.clear)
+
+        no_tenant_claim = patch.object(metr_settings, "JWT_AUTH_TENANT_CLAIM", "")
+        no_tenant_claim.start()
+        self.addCleanup(no_tenant_claim.stop)
+
+    def tearDown(self):
+        org_settings["auth_jwt_login_enabled"] = False
+        org_settings["auth_jwt_auth_public_certs_url"] = ""
+        org_settings["auth_jwt_auth_issuer"] = ""
+        org_settings["auth_jwt_auth_audience"] = ""
+        org_settings["auth_jwt_auth_cookie_name"] = ""
+
+    def ticket_for(self, email, **extra_claims):
+        issued_at_timestamp = time.time()
+        data = {
+            "aud": self.auth_audience,
+            "email": email,
+            "exp": issued_at_timestamp + 60,
+            "iat": issued_at_timestamp,
+            "iss": self.auth_issuer,
+        }
+        data.update(extra_claims)
+        with open(self.rsa_private_key) as keyfile:
+            sign_key = keyfile.read().strip()
+        return jwt.encode(data, sign_key, algorithm="RS256")
+
+    def signed_in_email(self):
+        response = self.get_request("/api/session", org=self.factory.org)
+        if response.status_code != 200:
+            return None
+        return json.loads(response.data)["user"]["email"]
+
+    def visit_callback(self, ticket, next_path=None):
+        self.client.set_cookie(self.cookie_name, ticket)
+        path = "/{}/jwt/callback".format(self.factory.org.slug)
+        if next_path:
+            path = "{}?next={}".format(path, next_path)
+        return self.client.get(path)
+
+    def test_spending_a_ticket_signs_the_visitor_in(self):
+        user = self.factory.create_user()
+
+        self.visit_callback(self.ticket_for(user.email))
+
+        self.assertEqual(user.email, self.signed_in_email())
+
+    def test_the_session_outlives_the_ticket(self):
+        user = self.factory.create_user()
+
+        self.visit_callback(self.ticket_for(user.email))
+        self.client.delete_cookie(self.cookie_name)
+
+        self.assertEqual(user.email, self.signed_in_email())
+
+    def test_the_ticket_is_spent_rather_than_left_lying_around(self):
+        user = self.factory.create_user()
+
+        response = self.visit_callback(self.ticket_for(user.email))
+
+        spent = [
+            header
+            for header in response.headers.getlist("Set-Cookie")
+            if header.startswith(self.cookie_name + "=")
+        ]
+        self.assertEqual(1, len(spent))
+        self.assertIn("Expires=Thu, 01 Jan 1970", spent[0])
+
+    def test_it_signs_out_whoever_was_signed_in_before(self):
+        already_here = self.factory.create_user(email="already@example.com")
+        arriving = self.factory.create_user(email="arriving@example.com")
+        authenticate_request(self.client, already_here)
+
+        self.visit_callback(self.ticket_for(arriving.email))
+
+        self.assertEqual(arriving.email, self.signed_in_email())
+
+    def test_logging_out_afterwards_stays_logged_out(self):
+        user = self.factory.create_user()
+        self.visit_callback(self.ticket_for(user.email))
+
+        self.client.get("/{}/logout".format(self.factory.org.slug))
+
+        self.assertIsNone(self.signed_in_email())
+
+    def test_it_returns_the_visitor_to_the_page_they_asked_for(self):
+        user = self.factory.create_user()
+        next_path = "/{}/dashboard/overview".format(self.factory.org.slug)
+
+        response = self.visit_callback(self.ticket_for(user.email), next_path=next_path)
+
+        self.assertEqual(302, response.status_code)
+        self.assertTrue(response.headers["Location"].endswith(next_path))
+
+    def test_it_refuses_a_return_path_leaving_the_dashboards(self):
+        user = self.factory.create_user()
+
+        response = self.visit_callback(
+            self.ticket_for(user.email), next_path="https://evil.example/steal"
+        )
+
+        self.assertNotIn("evil.example", response.headers["Location"])
+
+    @patch.object(metr_settings, "JWT_AUTH_TENANT_CLAIM", "tenant")
+    def test_a_ticket_for_another_organization_is_refused(self):
+        user = self.factory.create_user()
+
+        self.visit_callback(self.ticket_for(user.email, tenant="somewhere-else"))
+
+        self.assertIsNone(self.signed_in_email())
+
+    def test_a_ticket_nobody_signed_is_refused(self):
+        self.factory.create_user()
+
+        response = self.visit_callback("not-a-token")
+
+        self.assertEqual(302, response.status_code)
+        self.assertIsNone(self.signed_in_email())
+
+    def test_a_ticket_from_somewhere_else_leaves_the_login_page_reachable(self):
+        """
+        The cookie sits on the domain every deployment shares, so a browser carries
+        one minted elsewhere to us as readily as our own.
+        """
+        foreign_key = "/tmp/jwtRS256_foreign.key"
+        if not os.path.exists(foreign_key):
+            subprocess.check_output(["openssl", "genrsa", "-out", foreign_key, "2048"])
+        user = self.factory.create_user()
+        issued_at_timestamp = time.time()
+        with open(foreign_key) as keyfile:
+            elsewhere = jwt.encode(
+                {
+                    "aud": self.auth_audience,
+                    "email": user.email,
+                    "exp": issued_at_timestamp + 60,
+                    "iat": issued_at_timestamp,
+                    "iss": self.auth_issuer,
+                },
+                keyfile.read().strip(),
+                algorithm="RS256",
+            )
+
+        self.client.set_cookie(self.cookie_name, elsewhere)
+        response = self.client.get("/{}/login".format(self.factory.org.slug))
+
+        self.assertEqual(200, response.status_code)
+
+
+class TestLogoutSpendsTheTicket(BaseTestCase):
+    def setUp(self):
+        super(TestLogoutSpendsTheTicket, self).setUp()
+        self.cookie_name = "metr_dashboards_sso"
+        org_settings["auth_jwt_auth_cookie_name"] = self.cookie_name
+        self.addCleanup(org_settings.__setitem__, "auth_jwt_auth_cookie_name", "")
+
+    def test_logging_out_clears_a_hand_off_left_behind(self):
+        self.client.set_cookie(self.cookie_name, "whatever-was-there")
+
+        response = self.client.get("/{}/logout".format(self.factory.org.slug))
+
+        cleared = [
+            header
+            for header in response.headers.getlist("Set-Cookie")
+            if header.startswith(self.cookie_name + "=")
+        ]
+        self.assertEqual(1, len(cleared))
+        self.assertIn("Expires=Thu, 01 Jan 1970", cleared[0])

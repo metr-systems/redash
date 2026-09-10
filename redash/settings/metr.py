@@ -16,6 +16,9 @@ import os
 
 JWT_LOGIN_URL = os.environ.get("REDASH_JWT_LOGIN_URL", "")
 JWT_AUTH_TENANT_CLAIM = os.environ.get("REDASH_JWT_AUTH_TENANT_CLAIM", "")
+# Deleting a cookie only works when the domain matches the one it was set with, and
+# the hand-off cookie is set on the domain both we and the identity provider share.
+JWT_AUTH_COOKIE_DOMAIN = os.environ.get("REDASH_JWT_AUTH_COOKIE_DOMAIN", "")
 
 
 class MisconfiguredError(Exception):
