@@ -599,3 +599,112 @@ class TestJWTProvisioningGroup(BaseTestCase):
         )
 
         self.assertEqual(original_group_ids, user.group_ids)
+
+
+class TestJWTKeysPerOrganization(BaseTestCase):
+    """
+    The public certificates URL may name the organization, so each one can be told
+    apart by the key that signed its tokens rather than only by a claim inside them.
+    """
+
+    def setUp(self):
+        super(TestJWTKeysPerOrganization, self).setUp()
+        self.auth_audience = "metr-dashboards"
+        self.auth_issuer = "https://sso.metr.systems"
+        self.token_name = "jwt-token"
+
+        self.signing_keys = {}
+        for slug in ("alpha", "beta"):
+            private_key = "/tmp/jwks_{}.key".format(slug)
+            public_key = "/tmp/jwks_{}.pem".format(slug)
+            if not os.path.exists(public_key):
+                subprocess.check_output(["openssl", "genrsa", "-out", private_key, "2048"])
+                subprocess.check_output(
+                    ["openssl", "rsa", "-pubout", "-in", private_key, "-out", public_key]
+                )
+            with open(private_key) as keyfile:
+                self.signing_keys[slug] = keyfile.read().strip()
+
+        org_settings["auth_jwt_login_enabled"] = True
+        org_settings["auth_jwt_auth_public_certs_url"] = "file:///tmp/jwks_{org_slug}.pem"
+        org_settings["auth_jwt_auth_issuer"] = self.auth_issuer
+        org_settings["auth_jwt_auth_audience"] = self.auth_audience
+        org_settings["auth_jwt_auth_header_name"] = self.token_name
+        org_settings["auth_jwt_auth_cookie_name"] = ""
+
+        # The cache is keyed by URL and lives for the life of the process
+        jwt_auth.get_public_keys.key_cache.clear()
+        self.addCleanup(jwt_auth.get_public_keys.key_cache.clear)
+
+        no_tenant_claim = patch.object(metr_settings, "JWT_AUTH_TENANT_CLAIM", "")
+        no_tenant_claim.start()
+        self.addCleanup(no_tenant_claim.stop)
+
+    def tearDown(self):
+        org_settings["auth_jwt_login_enabled"] = False
+        org_settings["auth_jwt_auth_public_certs_url"] = ""
+        org_settings["auth_jwt_auth_issuer"] = ""
+        org_settings["auth_jwt_auth_audience"] = ""
+        org_settings["auth_jwt_auth_header_name"] = ""
+
+    def token_signed_by(self, slug, email):
+        issued_at_timestamp = time.time()
+        data = {
+            "aud": self.auth_audience,
+            "email": email,
+            "exp": issued_at_timestamp + 60,
+            "iat": issued_at_timestamp,
+            "iss": self.auth_issuer,
+        }
+        return jwt.encode(data, self.signing_keys[slug], algorithm="RS256")
+
+    def test_a_token_is_verified_with_its_own_organizations_key(self):
+        org = self.factory.create_org(slug="alpha")
+        user = self.factory.create_user(org=org)
+
+        response = self.get_request(
+            "/data_sources",
+            org=org,
+            headers={self.token_name: self.token_signed_by("alpha", user.email)},
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_a_token_signed_for_another_organization_is_refused(self):
+        self.factory.create_org(slug="alpha")
+        beta = self.factory.create_org(slug="beta")
+        user = self.factory.create_user(org=beta)
+
+        response = self.get_request(
+            "/data_sources",
+            org=beta,
+            headers={self.token_name: self.token_signed_by("alpha", user.email)},
+        )
+
+        self.assertEqual(401, response.status_code)
+
+    def test_a_url_naming_no_organization_is_used_as_it_stands(self):
+        org_settings["auth_jwt_auth_public_certs_url"] = "file:///tmp/jwks_alpha.pem"
+        beta = self.factory.create_org(slug="beta")
+        user = self.factory.create_user(org=beta)
+
+        response = self.get_request(
+            "/data_sources",
+            org=beta,
+            headers={self.token_name: self.token_signed_by("alpha", user.email)},
+        )
+
+        self.assertEqual(200, response.status_code)
+
+    def test_an_organization_whose_keys_cannot_be_read_refuses_the_login(self):
+        org_settings["auth_jwt_auth_public_certs_url"] = "file:///tmp/absent_{org_slug}.pem"
+        org = self.factory.create_org(slug="alpha")
+        user = self.factory.create_user(org=org)
+
+        response = self.get_request(
+            "/data_sources",
+            org=org,
+            headers={self.token_name: self.token_signed_by("alpha", user.email)},
+        )
+
+        self.assertEqual(302, response.status_code)

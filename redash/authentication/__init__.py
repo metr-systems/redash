@@ -178,13 +178,27 @@ def jwt_token_load_user_from_request(request):
         return None
 
     if jwt_token:
-        payload, token_is_valid = jwt_auth.verify_jwt_token(
-            jwt_token,
-            expected_issuer=org_settings["auth_jwt_auth_issuer"],
-            expected_audience=org_settings["auth_jwt_auth_audience"],
-            algorithms=org_settings["auth_jwt_auth_algorithms"],
-            public_certs_url=org_settings["auth_jwt_auth_public_certs_url"],
+        # One deployment-wide setting serves every organization, so the URL may name
+        # the organization instead of pinning one for all the others to depend on.
+        public_certs_url = org_settings["auth_jwt_auth_public_certs_url"].replace(
+            "{org_slug}", org.slug
         )
+        try:
+            payload, token_is_valid = jwt_auth.verify_jwt_token(
+                jwt_token,
+                expected_issuer=org_settings["auth_jwt_auth_issuer"],
+                expected_audience=org_settings["auth_jwt_auth_audience"],
+                algorithms=org_settings["auth_jwt_auth_algorithms"],
+                public_certs_url=public_certs_url,
+            )
+        except OSError:
+            # Reading the keys can fail over the network or off disk, and an
+            # organization with no keys to name is one we cannot authenticate for.
+            # requests.RequestException is an OSError, so both arrive here.
+            logger.warning(
+                "Could not read the signing keys at %s, refusing to login", public_certs_url
+            )
+            return None
         if not token_is_valid:
             raise Unauthorized("Invalid JWT token")
 
