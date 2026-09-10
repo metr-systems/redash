@@ -64,20 +64,28 @@ the tests had no opinion about it.
 
 ## Validated At Startup
 
-One of these values carries a security property, so the module also refuses a
-deployment that leaves it unset. `JWT_AUTH_TENANT_CLAIM` names the claim that
-binds a token to one organization; the request loader skips the comparison when
-the name is empty, so an unset name removes cross-organization isolation with
-no error and no log line. `check_jwt_login_configuration` raises
-`MisconfiguredError` from `authentication.init_app` when JWT login is on and
-the claim is not named, so the process dies at startup instead of serving
-traffic with no isolation.
+Some of these values carry a security property, and the feature that reads them
+refuses to start when one is missing. `SSO_TENANT_CLAIM` names the claim binding
+a ticket to one organization; the comparison is skipped when the name is empty,
+so an unset name removes cross-organization isolation with no error and no log
+line. `metr_sso.init_app` raises `MisconfiguredError` in that case, so the
+process dies at startup rather than serving traffic with no isolation.
 
-Validation belongs here rather than at each use site because the value is
-deployment-wide: there is one correct answer for the whole process, and it can
-be checked once before any request arrives. A setting that has to vary per
-organization could not be checked this way, which is a further reason to keep
-that kind of value out of this module.
+The check lives with the feature rather than here because it is about how the
+values are used together, not about any one of them. What belongs here is that
+they are deployment-wide: there is one correct answer for the whole process, so
+it can be checked once before any request arrives. A setting that has to vary
+per organization could not be checked this way, which is a further reason to
+keep that kind of value out of this module.
+
+## Named For The Feature, Not The Format
+
+These are `REDASH_METR_SSO_*`, not `REDASH_JWT_*`. The earlier names were
+borrowed from Redash's own JWT support, which is a different feature -- see
+[Our Single Sign-On Is Not Redash's JWT Support](metr_sso_not_redash_jwt.md) --
+and sharing its names made two unrelated things look like one configured thing.
+`metr_sso.init_app` refuses to start on a deployment still carrying the old
+names, so the rename cannot fail silently.
 
 ---
 

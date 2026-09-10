@@ -13,6 +13,9 @@
       {% endif %}
     {% endwith %}
 
+    {# Asked for here rather than passed in, so the login handler stays untouched. #}
+    {% set metr_login_url = metr_sso_login_url() %}
+
     {% if show_google_openid %}
       <a href="{{ google_auth_url }}" class="login-button btn btn-default btn-block">
         <img src="/static/images/google_logo.svg">
@@ -24,8 +27,8 @@
       <a href="{{ url_for('saml_auth.sp_initiated', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{_('SAML Login')}}</a>
     {% endif %}
 
-    {% if show_jwt_login %}
-      <a href="{{ url_for('jwt_login.login', org_slug=org_slug, next=next) }}" class="login-button btn btn-default btn-block">{{_('Login with metr')}}</a>
+    {% if metr_login_url %}
+      <a href="{{ metr_login_url }}" class="login-button btn btn-default btn-block">{{_('Login with metr')}}</a>
     {% endif %}
 
     {% if show_remote_user_login %}
@@ -37,7 +40,7 @@
     {% endif %}
 
     {% if show_password_login %}
-    {% if show_google_openid or show_saml_login or show_jwt_login or show_remote_user_login or show_ldap_login %}
+    {% if show_google_openid or show_saml_login or metr_login_url or show_remote_user_login or show_ldap_login %}
       <hr>
     {% endif %}
 

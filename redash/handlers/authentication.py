@@ -7,12 +7,7 @@ from itsdangerous import BadSignature, SignatureExpired
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import __version__, limiter, models, settings
-from redash.authentication import (
-    clear_the_hand_off,
-    current_org,
-    get_login_url,
-    get_next_path,
-)
+from redash.authentication import current_org, get_login_url, get_next_path
 from redash.authentication.account import (
     send_password_reset_email,
     send_user_disabled_email,
@@ -21,7 +16,6 @@ from redash.authentication.account import (
 )
 from redash.handlers import routes
 from redash.handlers.base import json_response, org_scoped_rule
-from redash.settings import metr as metr_settings
 from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
@@ -104,7 +98,6 @@ def render_token_login_page(template, org_slug, token, invite):
             show_google_openid=settings.GOOGLE_OAUTH_ENABLED,
             google_auth_url=google_auth_url,
             show_saml_login=current_org.get_setting("auth_saml_enabled"),
-            show_jwt_login=bool(metr_settings.JWT_LOGIN_URL),
             show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
             show_ldap_login=settings.LDAP_LOGIN_ENABLED,
             org_slug=org_slug,
@@ -223,7 +216,6 @@ def login(org_slug=None):
         google_auth_url=google_auth_url,
         show_password_login=current_org.get_setting("auth_password_login_enabled"),
         show_saml_login=current_org.get_setting("auth_saml_enabled"),
-        show_jwt_login=bool(metr_settings.JWT_LOGIN_URL),
         show_remote_user_login=settings.REMOTE_USER_LOGIN_ENABLED,
         show_ldap_login=settings.LDAP_LOGIN_ENABLED,
     )
@@ -232,7 +224,7 @@ def login(org_slug=None):
 @routes.route(org_scoped_rule("/logout"))
 def logout(org_slug=None):
     logout_user()
-    return clear_the_hand_off(redirect(get_login_url(next=None)))
+    return redirect(get_login_url(next=None))
 
 
 def base_href():
