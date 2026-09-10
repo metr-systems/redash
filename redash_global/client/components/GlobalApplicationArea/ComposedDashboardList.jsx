@@ -192,6 +192,11 @@ function ComposedDashboardList({ controller }) {
     <div className="page-dashboard-list">
       <div className="container">
         <PageHeader title={controller.params.pageTitle} />
+        <p className="text-muted m-b-15">
+          A composed dashboard is an ordered set of template dashboards. Deploying it gives each
+          target organization one dashboard built from the sub-dashboards assigned to that
+          organization, in this order.
+        </p>
         <div className="m-b-15">
           <button
             className="btn btn-primary"
