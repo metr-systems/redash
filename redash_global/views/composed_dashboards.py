@@ -22,17 +22,21 @@ def serialize(composed_dashboard):
     }
 
 
-def positive_int_arg(name, default):
+MAX_PAGE_SIZE = 100
+
+
+def positive_int_arg(name, default, maximum=None):
     try:
-        return max(int(request.args.get(name, default)), 1)
+        value = max(int(request.args.get(name, default)), 1)
     except (ValueError, TypeError):
-        return default
+        value = default
+    return value if maximum is None else min(value, maximum)
 
 
 @login_required
 def composed_dashboards_list():
     page = positive_int_arg("page", 1)
-    page_size = positive_int_arg("page_size", 25)
+    page_size = positive_int_arg("page_size", 25, MAX_PAGE_SIZE)
 
     query = ComposedDashboard.query.order_by(ComposedDashboard.created_at.desc())
 
@@ -198,7 +202,7 @@ def composed_dashboard_deployment_runs_list(composed_dashboard_id):
     ComposedDashboard.query.get_or_404(composed_dashboard_id)
 
     page = positive_int_arg("page", 1)
-    page_size = positive_int_arg("page_size", 25)
+    page_size = positive_int_arg("page_size", 25, MAX_PAGE_SIZE)
 
     query = DeploymentRun.query.filter_by(composed_dashboard_id=composed_dashboard_id).order_by(
         DeploymentRun.created_at.desc(), DeploymentRun.id.desc()

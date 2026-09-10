@@ -104,6 +104,14 @@ def test_list_handles_zero_page_size(admin_client, factory):
     assert data["page_size"] == 1
 
 
+def test_list_caps_page_size(admin_client, factory):
+    factory.create_composed_dashboard(name="Only", url_identifier="only")
+
+    data = admin_client.get(f"{LIST_URL}?page_size=100000").get_json()
+
+    assert data["page_size"] == 100
+
+
 def test_list_returns_expected_fields(admin_client, factory):
     dashboard = factory.create_composed_dashboard(name="Test Dashboard", url_identifier="test-dashboard")
 
@@ -573,6 +581,14 @@ def test_deployment_runs_paginates(admin_client, factory, admin, composed_dashbo
     assert data["page"] == 2
     assert data["page_size"] == 2
     assert len(data["results"]) == 1
+
+
+def test_deployment_runs_caps_page_size(admin_client, factory, admin, composed_dashboard, deployment_runs_url):
+    factory.create_deployment_run(composed_dashboard_id=composed_dashboard.id, global_admin_user_id=admin.id)
+
+    data = admin_client.get(f"{deployment_runs_url}?page_size=100000").get_json()
+
+    assert data["page_size"] == 100
 
 
 @pytest.mark.usefixtures("deployable_sub_dashboard")
