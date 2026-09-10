@@ -108,8 +108,9 @@ function DeployButton({ composedDashboard }) {
         onCancel={closeConfirm}>
         <p>
           Deploy &quot;{composedDashboard.name}&quot; to every organization that has at least one of the
-          sub-dashboards assigned to it? Deployment is all or nothing: if any organization fails, nothing
-          is deployed.
+          sub-dashboards assigned to it? Organizations listed in <code>ORG_SLUGS_EXCLUDED_FROM_DEPLOYMENT</code>
+          are skipped, and so is the template organization. Deployment is all or nothing: if any
+          organization fails, nothing is deployed.
         </p>
         <label htmlFor={`deploy-comment-${composedDashboard.id}`}>Comment (optional)</label>
         <Input.TextArea
