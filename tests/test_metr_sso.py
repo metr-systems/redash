@@ -237,6 +237,57 @@ class TestRefusingATicket(HandOffTestCase):
         self.assertEqual(200, response.status_code)
 
 
+class TestArrivingOverSomebodyElse(HandOffTestCase):
+    """
+    Arriving while somebody else is signed in has to displace them completely.
+
+    Logging in over the top replaces the session and nothing else, and that was not
+    enough: on staging the previous visitor came back on the very next request, every
+    time, until they were signed out by hand. The remember cookie is the part
+    login_user leaves alone -- it only touches it when asked to remember somebody --
+    and Flask-Login rewrites the session from it, unconditionally, the moment the
+    session's own user fails to load for any reason.
+    """
+
+    def remember_cookie_headers(self, response):
+        return [
+            header
+            for header in response.headers.getlist("Set-Cookie")
+            if header.startswith("remember_token=")
+        ]
+
+    def test_provisioning_leaves_a_remember_cookie_behind(self):
+        """The precondition. If this stops holding, the test below proves nothing."""
+        response = self.spend(self.a_ticket("first@example.com"))
+
+        remembered = self.remember_cookie_headers(response)
+        self.assertEqual(1, len(remembered))
+        self.assertNotIn("Expires=Thu, 01 Jan 1970", remembered[0])
+
+    def test_it_takes_the_previous_visitors_credentials_with_them(self):
+        self.spend(self.a_ticket("first@example.com"))
+        self.client.delete_cookie(self.cookie_name)
+        arriving = self.factory.create_user(email="second@example.com")
+
+        response = self.spend(self.a_ticket(arriving.email))
+
+        cleared = self.remember_cookie_headers(response)
+        self.assertEqual(1, len(cleared), "the previous visitor was left remembered")
+        self.assertIn("Expires=Thu, 01 Jan 1970", cleared[0])
+        self.assertEqual(arriving.email, self.signed_in_email())
+
+    def test_it_leaves_its_own_arrival_alone(self):
+        """Spending a ticket for whoever is already here must not sign them out."""
+        user = self.factory.create_user()
+        self.spend(self.a_ticket(user.email))
+        self.client.delete_cookie(self.cookie_name)
+
+        response = self.spend(self.a_ticket(user.email))
+
+        self.assertEqual([], self.remember_cookie_headers(response))
+        self.assertEqual(user.email, self.signed_in_email())
+
+
 class TestKeysPerOrganization(HandOffTestCase):
     def test_each_organization_names_its_own_keys(self):
         self.configure(SSO_CALLBACK_JWKS_URL="file:///tmp/metr_sso_{org_slug}.pem")
