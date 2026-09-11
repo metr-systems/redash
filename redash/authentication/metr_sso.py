@@ -17,7 +17,7 @@ import logging
 
 import jwt
 from flask import Blueprint, redirect, request, session, url_for
-from flask_login import login_user
+from flask_login import login_user, logout_user
 
 from redash import models
 from redash.authentication import (
@@ -178,6 +178,14 @@ def callback(org_slug=None):
     # the log to distinguish it from "it refused the ticket".
     signed_in_before = session.get("_user_id")
     if signed_in_before != user.get_id():
+        # Sign the previous visitor out before signing this one in. Logging in over
+        # the top replaces the session but leaves everything else the browser is
+        # carrying for them -- notably the remember cookie, which login_user only
+        # touches when it is asked to remember somebody. That leftover is enough to
+        # put the previous visitor back on the very next request, which is what made
+        # arriving here look like it had been ignored.
+        if signed_in_before is not None:
+            logout_user()
         login_user(user)
         logger.info(
             "Spent a ticket for %r in %r, replacing session %r",
