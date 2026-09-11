@@ -107,7 +107,13 @@ def read_the_ticket(org, ticket):
         return None
 
     try:
-        return models.User.get_by_email_and_org(claims["email"], org)
+        user = models.User.get_by_email_and_org(claims["email"], org)
+        if user.is_disabled:
+            # create_and_login_user refuses a disabled user; looking one up has to
+            # refuse them too, or being disabled in Redash would stop nothing.
+            logger.info("Refusing a ticket for %r, who is disabled here", user.email)
+            return None
+        return user
     except models.NoResultFound:
         # Just-in-time provisioning, into a group of this feature's own rather than
         # the default one, which can read every data source in the organization.
@@ -154,16 +160,37 @@ def callback(org_slug=None):
     over and they would become the other person.
     """
     next_path = get_next_path(request.args.get("next"))
-    ticket = request.cookies.get(metr_settings.SSO_COOKIE_NAME) if metr_settings.SSO_COOKIE_NAME else None
+    org = current_org._get_current_object()
 
-    user = read_the_ticket(current_org._get_current_object(), ticket) if ticket else None
+    ticket = request.cookies.get(metr_settings.SSO_COOKIE_NAME) if metr_settings.SSO_COOKIE_NAME else None
+    if not ticket:
+        # Worth saying out loud: without it this is the one way through here that
+        # leaves no trace, and it looks exactly like a ticket we refused.
+        logger.info("No hand-off ticket on the request, sending %r to the login page", org.slug)
+        return clear_the_ticket(redirect(get_login_url(next=next_path or None)))
+
+    user = read_the_ticket(org, ticket)
     if user is None:
         return clear_the_ticket(redirect(get_login_url(next=next_path or None)))
 
-    if session.get("_user_id") != user.get_id():
+    # Logged on the way past because the refusals are all accounted for and the
+    # successes were not, which left "it signed in somebody else" with nothing in
+    # the log to distinguish it from "it refused the ticket".
+    signed_in_before = session.get("_user_id")
+    if signed_in_before != user.get_id():
         login_user(user)
+        logger.info(
+            "Spent a ticket for %r in %r, replacing session %r",
+            user.email,
+            org.slug,
+            signed_in_before,
+        )
+    else:
+        logger.info("Ticket for %r in %r names the session already here", user.email, org.slug)
 
-    return clear_the_ticket(redirect(next_path or url_for("redash.index", org_slug=org_slug)))
+    destination = next_path or url_for("redash.index", org_slug=org_slug)
+    logger.info("Sending %r on to %r", user.email, destination)
+    return clear_the_ticket(redirect(destination))
 
 
 def init_app(app):

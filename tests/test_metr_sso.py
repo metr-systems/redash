@@ -196,6 +196,23 @@ class TestRefusingATicket(HandOffTestCase):
 
         self.assertEqual(1, len(self.cookie_headers(response)))
 
+    def test_a_ticket_for_somebody_disabled_here_is_refused(self):
+        user = self.factory.create_user()
+        user.disabled_at = user.created_at
+        self.db.session.commit()
+
+        self.spend(self.a_ticket(user.email))
+
+        self.assertIsNone(self.signed_in_email())
+
+    def test_arriving_with_no_ticket_at_all_is_refused(self):
+        self.factory.create_user()
+
+        response = self.client.get("/{}/metr/callback".format(self.factory.org.slug))
+
+        self.assertEqual(302, response.status_code)
+        self.assertIsNone(self.signed_in_email())
+
     def test_keys_that_cannot_be_read_refuse_the_login(self):
         self.configure(SSO_CALLBACK_JWKS_URL="file:///tmp/metr_sso_absent_{org_slug}.pem")
         user = self.factory.create_user()
@@ -344,3 +361,18 @@ class TestConfiguration(BaseTestCase):
             metr_sso.init_app(Flask(__name__))
 
         self.assertIn("REDASH_METR_SSO_LOGIN_URL", str(refused.exception))
+
+
+class TestSwitchingAwayFromARememberedUser(HandOffTestCase):
+    def test_it_switches_away_from_a_user_who_was_remembered(self):
+        """
+        Provisioning remembers the user it creates -- create_and_login_user passes
+        remember=True -- so the first arrival leaves a remember cookie behind.
+        """
+        self.spend(self.a_ticket("first@example.com"))
+        self.client.delete_cookie(self.cookie_name)
+        arriving = self.factory.create_user(email="second@example.com")
+
+        self.spend(self.a_ticket(arriving.email))
+
+        self.assertEqual(arriving.email, self.signed_in_email())
