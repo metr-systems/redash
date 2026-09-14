@@ -58,6 +58,10 @@ export default function UserInfoForm(props) {
             title: t("Users:Email"),
             type: "email",
             initialValue: user.email,
+            // Single sign-on matches people by email address, so changing one here
+            // detaches the account from its core-backend user. The API refuses the
+            // change; this keeps the field from inviting it in the first place.
+            readOnly: true,
           },
           !user.isDisabled && currentUser.id !== user.id
             ? {

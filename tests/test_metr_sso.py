@@ -288,6 +288,56 @@ class TestArrivingOverSomebodyElse(HandOffTestCase):
         self.assertEqual(user.email, self.signed_in_email())
 
 
+class TestEmailIsReadOnlyWhileTheHandOffIsConfigured(HandOffTestCase):
+    """
+    Identity is the email address, so changing one here quietly detaches that account
+    from the core-backend user it belongs to: the next hand-off finds nobody and
+    provisions a second, empty one alongside it. Nothing tells anybody this happened.
+    """
+
+    def change(self, user, **params):
+        return self.make_request("post", "/api/users/{}".format(user.id), data=params)
+
+    def test_changing_an_email_is_refused(self):
+        user = self.factory.user
+        was = user.email
+
+        response = self.change(user, email="somewhere.else@example.com")
+
+        self.assertEqual(403, response.status_code)
+        self.assertEqual(was, user.email)
+
+    def test_it_says_why(self):
+        response = self.change(self.factory.user, email="somewhere.else@example.com")
+
+        self.assertIn("single sign-on", response.json["message"])
+
+    def test_everything_else_about_a_user_still_changes(self):
+        user = self.factory.user
+
+        response = self.change(user, name="A New Name")
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("A New Name", user.name)
+
+    def test_sending_the_email_it_already_has_is_not_a_change(self):
+        user = self.factory.user
+
+        response = self.change(user, email=user.email, name="A New Name")
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("A New Name", user.name)
+
+    def test_an_installation_without_the_hand_off_is_left_alone(self):
+        self.configure(SSO_LOGIN_URL="")
+        user = self.factory.user
+
+        response = self.change(user, email="somewhere.else@example.com")
+
+        self.assertEqual(200, response.status_code)
+        self.assertEqual("somewhere.else@example.com", user.email)
+
+
 class TestKeysPerOrganization(HandOffTestCase):
     def test_each_organization_names_its_own_keys(self):
         self.configure(SSO_CALLBACK_JWKS_URL="file:///tmp/metr_sso_{org_slug}.pem")
