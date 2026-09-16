@@ -6,6 +6,7 @@ import shutil
 import tempfile
 import time
 from unittest.mock import patch
+from urllib.parse import parse_qs, quote, urlsplit
 
 import jwt
 import pytest
@@ -136,23 +137,29 @@ class HandOffTestCase(BaseTestCase):
 
 
 class TestTheWayOutToCoreBackend(HandOffTestCase):
+    def handed_over(self, response):
+        return urlsplit(response.headers["Location"])
+
+    def return_path(self, response):
+        return parse_qs(self.handed_over(response).query)["next"][0]
+
     def test_it_sends_the_visitor_to_their_own_tenant(self):
         response = self.client.get(f"/{self.slug}/metr/login")
 
-        expected = f"https://{self.slug}.metr.test/sso/dashboards/?next=/{self.slug}/"
-        assert expected == response.headers["Location"]
+        assert (
+            f"https://{self.slug}.metr.test/sso/dashboards/" == self.handed_over(response)._replace(query="").geturl()
+        )
+        assert f"/{self.slug}/" == self.return_path(response)
 
     def test_the_requested_page_travels_along(self):
         response = self.client.get(f"/{self.slug}/metr/login?next=/{self.slug}/dashboard/heating")
 
-        expected = f"https://{self.slug}.metr.test/sso/dashboards/?next=/{self.slug}/dashboard/heating"
-        assert expected == response.headers["Location"]
+        assert f"/{self.slug}/dashboard/heating" == self.return_path(response)
 
     def test_it_refuses_a_return_path_leaving_the_dashboards(self):
         response = self.client.get(f"/{self.slug}/metr/login?next=https://elsewhere.example.com/")
 
-        expected = f"https://{self.slug}.metr.test/sso/dashboards/?next=/"
-        assert expected == response.headers["Location"]
+        assert "/" == self.return_path(response)
 
     def test_it_stays_put_when_no_identity_provider_is_configured(self):
         self.configure(SSO_LOGIN_URL="")
@@ -605,3 +612,13 @@ class TestATokenThatNamesNobody(HandOffTestCase):
         self.spend(self.a_token(user.email, first_name=None, last_name=None))
 
         assert user.email == self.signed_in_email()
+
+
+class TestAReturnPathWithQueryParameters(HandOffTestCase):
+    def test_every_parameter_survives_the_trip_to_core_backend(self):
+        wanted = f"/{self.slug}/dashboard/heating?p_from=2026-01-01&p_to=2026-02-01"
+
+        response = self.client.get(f"/{self.slug}/metr/login?next={quote(wanted)}")
+
+        handed_over = urlsplit(response.headers["Location"])
+        assert wanted == parse_qs(handed_over.query)["next"][0]

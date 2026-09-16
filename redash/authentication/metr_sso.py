@@ -1,4 +1,5 @@
 import logging
+from urllib.parse import urlencode
 
 import jwt
 from flask import Blueprint, flash, redirect, request, session, url_for
@@ -62,7 +63,7 @@ def login(org_slug=None):
         logger.error("Cannot start a login without REDASH_METR_SSO_LOGIN_URL being set")
         return redirect(next_path)
 
-    return redirect(f"{login_url_for(current_org)}?next={next_path}")
+    return redirect(f"{login_url_for(current_org)}?{urlencode({'next': next_path})}")
 
 
 def standard_group_for(org):
