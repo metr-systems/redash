@@ -33,6 +33,10 @@ A URL with no placeholder is used exactly as it stands, which is what a single-o
 
 The alternative — configuring one organization's URL and letting the others inherit it — makes every tenant depend on one of them, and means a new organization is not reachable until somebody edits the deployment.
 
+`{org_slug}` is filled in with the slug **core-backend** uses, which is normally the Redash organization slug and once is not: the organization Redash calls `BWB-EG` is `bwb-eg` everywhere else, including its own ingress and hosts. `metr_sso.CORE_BACKEND_SLUGS` holds that one exception, and the same function answers both the URLs and the tenant claim comparison so the two directions cannot drift. It is a lookup table rather than `str.lower()` on purpose: the tenant claim is the only thing separating one client from another, and an allow-list cannot make two organizations interchangeable the way case-folding could if two ever differed only by case.
+
+The other direction needs its own answer. core-backend builds the callback URL from the Redash organization slug, so it needs *our* spelling for that one tenant; that lives in its per-tenant environment, not here.
+
 Note what `{org_slug}` in the JWKS URL does *not* buy. core-backend signs every tenant with one private key, mounted once on its web deployment; the URL varies because its multi-tenancy serves everything from the tenant's own host, not because the key does. Addressing the keys per tenant is therefore not an isolation boundary — see [standard_group_provisioning.md](standard_group_provisioning.md) for what is.
 
 ---

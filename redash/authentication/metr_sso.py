@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 STANDARD_GROUP_TYPE = "standard"
 
+CORE_BACKEND_SLUGS = {"BWB-EG": "bwb-eg"}
+
 blueprint = Blueprint("metr_sso", __name__)
 
 
@@ -48,12 +50,16 @@ def is_enabled():
     return bool(metr_settings.SSO_LOGIN_URL)
 
 
+def core_backend_slug_for(org):
+    return CORE_BACKEND_SLUGS.get(org.slug, org.slug)
+
+
 def login_url_for(org):
-    return metr_settings.SSO_LOGIN_URL.replace("{org_slug}", org.slug)
+    return metr_settings.SSO_LOGIN_URL.replace("{org_slug}", core_backend_slug_for(org))
 
 
 def jwks_url_for(org):
-    return metr_settings.SSO_CALLBACK_JWKS_URL.replace("{org_slug}", org.slug)
+    return metr_settings.SSO_CALLBACK_JWKS_URL.replace("{org_slug}", core_backend_slug_for(org))
 
 
 @blueprint.route(org_scoped_rule("/metr/login"))
@@ -135,10 +141,12 @@ def read_the_token(org, token):
         return None
 
     named_tenant = claims.get(metr_settings.SSO_TENANT_CLAIM)
-    if named_tenant != org.slug:
+    expected_tenant = core_backend_slug_for(org)
+    if named_tenant != expected_tenant:
         logger.info(
-            "Hand-off token was issued for %r, not for organization %r, refusing it",
+            "Hand-off token was issued for %r, not for %r (organization %r), refusing it",
             named_tenant,
+            expected_tenant,
             org.slug,
         )
         return None

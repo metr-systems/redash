@@ -622,3 +622,50 @@ class TestAReturnPathWithQueryParameters(HandOffTestCase):
 
         handed_over = urlsplit(response.headers["Location"])
         assert wanted == parse_qs(handed_over.query)["next"][0]
+
+
+class TestAnOrganizationSpeltDifferentlyInCoreBackend(HandOffTestCase):
+    def a_differently_spelt_organization(self):
+        return self.factory.create_org(slug="BWB-EG")
+
+    def test_the_login_url_names_the_organization_as_core_backend_spells_it(self):
+        org = self.a_differently_spelt_organization()
+
+        response = self.client.get(f"/{org.slug}/metr/login")
+
+        assert (
+            "https://bwb-eg.metr.test/sso/dashboards/"
+            == urlsplit(response.headers["Location"])._replace(query="").geturl()
+        )
+
+    def test_a_token_naming_the_tenant_as_core_backend_spells_it_is_accepted(self):
+        org = self.a_differently_spelt_organization()
+        arriving = self.factory.create_user(org=org)
+
+        self.spend(self.a_token(arriving.email, tenant="bwb-eg"), org=org)
+
+        assert arriving.email == self.signed_in_email(org=org)
+
+    def test_a_token_naming_the_redash_spelling_is_refused(self):
+        org = self.a_differently_spelt_organization()
+        arriving = self.factory.create_user(org=org)
+
+        self.spend(self.a_token(arriving.email, tenant="BWB-EG"), org=org)
+
+        assert self.signed_in_email(org=org) is None
+
+    def test_an_organization_spelt_the_same_way_is_untouched(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+
+        assert user.email == self.signed_in_email()
+
+    def test_the_remedy_still_names_the_organization_as_redash_spells_it(self):
+        org = self.a_differently_spelt_organization()
+
+        with patch("redash.authentication.metr_sso.sentry.capture_exception") as reported:
+            self.spend(self.a_token("newcomer@example.com", tenant="bwb-eg"), org=org)
+
+        remedy = str(reported.call_args[0][0])
+        assert "create_standard_group BWB-EG" in remedy
