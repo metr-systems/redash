@@ -1,0 +1,671 @@
+import datetime
+import json
+import logging
+import os
+import shutil
+import tempfile
+import time
+from unittest.mock import patch
+from urllib.parse import parse_qs, quote, urlsplit
+
+import jwt
+import pytest
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
+from sqlalchemy.exc import IntegrityError
+
+from redash.app import create_app
+from redash.authentication import jwt_auth, metr_sso
+from redash.models import User, db
+from redash.settings import metr as metr_settings
+from tests import BaseTestCase
+
+
+def a_signing_key():
+    return rsa.generate_private_key(public_exponent=65537, key_size=2048)
+
+
+def private_pem(key):
+    return key.private_bytes(
+        serialization.Encoding.PEM,
+        serialization.PrivateFormat.PKCS8,
+        serialization.NoEncryption(),
+    ).decode()
+
+
+def public_pem(key):
+    return (
+        key.public_key()
+        .public_bytes(serialization.Encoding.PEM, serialization.PublicFormat.SubjectPublicKeyInfo)
+        .decode()
+    )
+
+
+SIGNING_KEY = a_signing_key()
+
+
+class HandOffTestCase(BaseTestCase):
+    issuer = "https://sso.metr.test"
+    audience = "metr-dashboards"
+    cookie_name = "metr_dashboards_sso"
+
+    def setUp(self):
+        super(HandOffTestCase, self).setUp()
+        self.configure(
+            SSO_LOGIN_URL="https://{org_slug}.metr.test/sso/dashboards/",
+            SSO_CALLBACK_JWKS_URL="file://" + self.a_key_file(SIGNING_KEY),
+            SSO_ISSUER=self.issuer,
+            SSO_AUDIENCE=self.audience,
+            SSO_ALGORITHMS=["RS256"],
+            SSO_COOKIE_NAME=self.cookie_name,
+            SSO_COOKIE_DOMAIN="",
+            SSO_TENANT_CLAIM="tenant",
+        )
+        jwt_auth.get_public_keys.key_cache.clear()
+        self.addCleanup(jwt_auth.get_public_keys.key_cache.clear)
+
+    def a_key_file(self, key):
+        handle, path = tempfile.mkstemp(suffix=".pem")
+        with os.fdopen(handle, "w") as key_file:
+            key_file.write(public_pem(key))
+        self.addCleanup(os.remove, path)
+        return path
+
+    def a_key_directory(self, keys_by_slug):
+        directory = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, directory)
+        for slug, key in keys_by_slug.items():
+            with open(os.path.join(directory, f"{slug}.pem"), "w") as key_file:
+                key_file.write(public_pem(key))
+        return directory
+
+    def a_token(self, email=None, key=None, org=None, **overrides):
+        issued_at = int(time.time())
+        claims = {
+            "iss": self.issuer,
+            "aud": self.audience,
+            "email": email,
+            "first_name": "Anna",
+            "last_name": "Schmidt",
+            "tenant": (org or self.factory.org).slug,
+            "iat": issued_at,
+            "exp": issued_at + 300,
+        }
+        claims.update(overrides)
+        claims = {name: value for name, value in claims.items() if value is not None}
+        return jwt.encode(claims, private_pem(key or SIGNING_KEY), algorithm="RS256")
+
+    def spend(self, token, next_path=None, org=None):
+        self.client.set_cookie(self.cookie_name, token)
+        path = f"/{(org or self.factory.org).slug}/metr/callback"
+        if next_path:
+            path = f"{path}?next={next_path}"
+        return self.client.get(path)
+
+    def hand_off_cookie_headers(self, response):
+        return [
+            header for header in response.headers.getlist("Set-Cookie") if header.startswith(self.cookie_name + "=")
+        ]
+
+    def login_path(self, org=None):
+        return f"/{(org or self.factory.org).slug}/login"
+
+    def a_standard_group(self, org=None):
+        group = self.factory.create_group(org=org or self.factory.org, name="standard", type="standard")
+        db.session.commit()
+        return group
+
+    def signed_in_groups(self, org=None):
+        response = self.client.get(f"/{(org or self.factory.org).slug}/api/session")
+        return json.loads(response.data)["user"]["groups"]
+
+    def signed_in_email(self, org=None):
+        response = self.client.get(f"/{(org or self.factory.org).slug}/api/session")
+        if response.status_code != 200:
+            return None
+        return json.loads(response.data)["user"]["email"]
+
+    def configure(self, **settings):
+        for name, value in settings.items():
+            patched = patch.object(metr_settings, name, value)
+            patched.start()
+            self.addCleanup(patched.stop)
+
+    @property
+    def slug(self):
+        return self.factory.org.slug
+
+
+class TestTheWayOutToCoreBackend(HandOffTestCase):
+    def handed_over(self, response):
+        return urlsplit(response.headers["Location"])
+
+    def return_path(self, response):
+        return parse_qs(self.handed_over(response).query)["next"][0]
+
+    def test_it_sends_the_visitor_to_their_own_tenant(self):
+        response = self.client.get(f"/{self.slug}/metr/login")
+
+        assert (
+            f"https://{self.slug}.metr.test/sso/dashboards/" == self.handed_over(response)._replace(query="").geturl()
+        )
+        assert f"/{self.slug}/" == self.return_path(response)
+
+    def test_the_requested_page_travels_along(self):
+        response = self.client.get(f"/{self.slug}/metr/login?next=/{self.slug}/dashboard/heating")
+
+        assert f"/{self.slug}/dashboard/heating" == self.return_path(response)
+
+    def test_it_refuses_a_return_path_leaving_the_dashboards(self):
+        response = self.client.get(f"/{self.slug}/metr/login?next=https://elsewhere.example.com/")
+
+        assert "/" == self.return_path(response)
+
+    def test_it_stays_put_when_no_identity_provider_is_configured(self):
+        self.configure(SSO_LOGIN_URL="")
+
+        response = self.client.get(f"/{self.slug}/metr/login")
+
+        assert f"/{self.slug}/" == response.headers["Location"]
+
+
+class TestTheLoginButton(HandOffTestCase):
+    def test_the_login_page_offers_our_provider(self):
+        response = self.client.get(f"/{self.slug}/login")
+
+        assert f"/{self.slug}/metr/login" in response.data.decode()
+
+    def test_the_requested_page_travels_along(self):
+        response = self.client.get(f"/{self.slug}/login?next=/{self.slug}/dashboard/heating")
+
+        expected = f"/{self.slug}/metr/login?next=/{self.slug}/dashboard/heating"
+        assert expected in response.data.decode()
+
+    def test_an_installation_without_the_hand_off_is_offered_nothing(self):
+        self.configure(SSO_LOGIN_URL="")
+
+        response = self.client.get(f"/{self.slug}/login")
+
+        assert "/metr/login" not in response.data.decode()
+
+
+class TestSpendingAToken(HandOffTestCase):
+    def test_it_signs_the_visitor_in(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+
+        assert user.email == self.signed_in_email()
+
+    def test_the_session_outlives_the_token(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+        self.client.delete_cookie(self.cookie_name)
+
+        assert user.email == self.signed_in_email()
+
+    def test_the_token_is_spent_rather_than_left_lying_around(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email))
+
+        cleared = self.hand_off_cookie_headers(response)
+        assert 1 == len(cleared)
+        assert "Expires=Thu, 01 Jan 1970" in cleared[0]
+
+    def test_it_returns_the_visitor_to_the_page_they_asked_for(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email), next_path=f"/{self.slug}/dashboard/heating")
+
+        assert f"/{self.slug}/dashboard/heating" == response.headers["Location"]
+
+    def test_logging_out_afterwards_stays_logged_out(self):
+        user = self.factory.create_user()
+        self.spend(self.a_token(user.email))
+
+        self.client.get(f"/{self.slug}/logout")
+
+        assert self.signed_in_email() is None
+
+
+class TestRefusingAToken(HandOffTestCase):
+    def test_a_token_nobody_signed_is_refused(self):
+        response = self.spend("this-is-not-a-token")
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_arriving_with_no_token_at_all_is_refused(self):
+        response = self.client.get(f"/{self.slug}/metr/callback")
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_token_signed_by_somewhere_else_is_refused(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email, key=a_signing_key()))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_keys_that_cannot_be_read_refuse_the_login(self):
+        user = self.factory.create_user()
+        self.configure(SSO_CALLBACK_JWKS_URL="file:///nowhere/at/all.pem")
+
+        response = self.spend(self.a_token(user.email))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_token_naming_no_email_is_refused(self):
+        response = self.spend(self.a_token())
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_refused_token_is_thrown_away_too(self):
+        response = self.spend("this-is-not-a-token")
+
+        cleared = self.hand_off_cookie_headers(response)
+        assert 1 == len(cleared)
+        assert "Expires=Thu, 01 Jan 1970" in cleared[0]
+
+    def test_the_login_page_stays_reachable_with_a_token_from_elsewhere(self):
+        self.client.set_cookie(self.cookie_name, "a-token-minted-somewhere-else")
+
+        response = self.client.get(self.login_path())
+
+        assert 200 == response.status_code
+
+
+class TestWhereTheKeysAreFetchedFrom(HandOffTestCase):
+    def an_organization_served_from_its_own_url(self):
+        key = a_signing_key()
+        org = self.factory.create_org()
+        directory = self.a_key_directory({self.slug: SIGNING_KEY, org.slug: key})
+        self.configure(SSO_CALLBACK_JWKS_URL="file://" + directory + "/{org_slug}.pem")
+        return org, key
+
+    def test_each_organization_fetches_them_from_its_own_url(self):
+        other_org, other_key = self.an_organization_served_from_its_own_url()
+        arriving = self.factory.create_user(org=other_org)
+
+        self.spend(self.a_token(arriving.email, key=other_key, org=other_org), org=other_org)
+
+        assert arriving.email == self.signed_in_email(org=other_org)
+
+    def test_a_url_naming_no_organization_is_used_as_it_stands(self):
+        user = self.factory.create_user()
+        self.configure(SSO_CALLBACK_JWKS_URL="file://" + self.a_key_file(SIGNING_KEY))
+
+        self.spend(self.a_token(user.email))
+
+        assert user.email == self.signed_in_email()
+
+
+class TestTheTenantClaim(HandOffTestCase):
+    def test_a_token_issued_for_another_organization_is_refused(self):
+        other_org = self.factory.create_org()
+        arriving = self.factory.create_user(org=other_org)
+
+        response = self.spend(self.a_token(arriving.email, org=other_org))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_token_naming_no_tenant_is_refused(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email, tenant=None))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+
+class TestConfiguration(HandOffTestCase):
+    def test_a_hand_off_without_a_tenant_claim_is_refused(self):
+        self.configure(SSO_TENANT_CLAIM="")
+
+        with pytest.raises(metr_sso.MisconfiguredError):
+            create_app()
+
+    def test_naming_the_tenant_claim_is_accepted(self):
+        app = create_app()
+
+        assert "metr_sso" in app.blueprints
+
+    def test_an_installation_not_using_the_hand_off_needs_no_configuration(self):
+        self.configure(SSO_LOGIN_URL="", SSO_TENANT_CLAIM="")
+
+        app = create_app()
+
+        assert "metr_sso" in app.blueprints
+
+
+class TestProvisioning(HandOffTestCase):
+    def test_a_newcomer_lands_in_the_standard_group(self):
+        group = self.a_standard_group()
+
+        self.spend(self.a_token("newcomer@example.com"))
+
+        assert [group.id] == self.signed_in_groups()
+
+    def test_an_organization_cannot_have_two_standard_groups(self):
+        self.a_standard_group()
+
+        with pytest.raises(IntegrityError):
+            self.a_standard_group()
+
+    def test_a_newcomer_is_named_by_the_token(self):
+        self.a_standard_group()
+
+        self.spend(self.a_token("newcomer@example.com"))
+
+        provisioned = User.query.filter(User.email == "newcomer@example.com").one()
+        assert "Anna Schmidt" == provisioned.name
+
+    def test_a_newcomer_stays_out_of_the_default_group(self):
+        self.a_standard_group()
+
+        self.spend(self.a_token("newcomer@example.com"))
+
+        assert self.factory.default_group.id not in self.signed_in_groups()
+
+    def test_somebody_already_here_keeps_the_groups_they_have(self):
+        self.a_standard_group()
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+
+        assert user.group_ids == self.signed_in_groups()
+
+
+class TestTheStandardGroupHasToExist(HandOffTestCase):
+    def test_a_newcomer_is_refused_when_the_organization_has_none(self):
+        response = self.spend(self.a_token("newcomer@example.com"))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_the_login_page_says_something_went_wrong(self):
+        self.spend(self.a_token("newcomer@example.com"))
+
+        response = self.client.get(self.login_path())
+
+        assert "Your account could not be set up" in response.data.decode()
+
+    def test_it_reports_the_organization_and_how_to_fix_it(self):
+        with patch("redash.authentication.metr_sso.sentry.capture_exception") as reported:
+            self.spend(self.a_token("newcomer@example.com"))
+
+        reported_error = str(reported.call_args[0][0])
+        assert self.slug in reported_error
+        assert "create_standard_group" in reported_error
+
+    def test_somebody_already_here_signs_in_although_the_group_is_missing(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+
+        assert user.email == self.signed_in_email()
+
+
+class TestSomebodyDisabledHere(HandOffTestCase):
+    def test_a_token_for_somebody_disabled_here_is_refused(self):
+        user = self.factory.create_user(disabled_at=datetime.datetime.utcnow())
+
+        response = self.spend(self.a_token(user.email))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+
+class TestArrivingOverSomebodyElse(HandOffTestCase):
+    def remember_cookie_headers(self, response):
+        return [header for header in response.headers.getlist("Set-Cookie") if header.startswith("remember_token=")]
+
+    def sign_in_through_the_form(self, user):
+        user.hash_password("a-password")
+        db.session.add(user)
+        db.session.commit()
+        return self.client.post(
+            self.login_path(),
+            data={"email": user.email, "password": "a-password", "remember": "y"},
+        )
+
+    def test_it_switches_identity(self):
+        self.sign_in_through_the_form(self.factory.create_user())
+        arriving = self.factory.create_user(email="arriving@example.com")
+
+        self.spend(self.a_token(arriving.email))
+
+        assert arriving.email == self.signed_in_email()
+
+    def test_it_takes_the_previous_visitors_credentials_with_them(self):
+        self.sign_in_through_the_form(self.factory.create_user())
+        arriving = self.factory.create_user(email="arriving@example.com")
+
+        response = self.spend(self.a_token(arriving.email))
+
+        cleared = self.remember_cookie_headers(response)
+        assert 1 == len(cleared), "the previous visitor was left remembered"
+        assert "Expires=Thu, 01 Jan 1970" in cleared[0]
+
+    def test_the_switch_survives_the_next_request(self):
+        self.sign_in_through_the_form(self.factory.create_user())
+        arriving = self.factory.create_user(email="arriving@example.com")
+
+        self.spend(self.a_token(arriving.email))
+        self.client.get(f"/{self.slug}/")
+
+        assert arriving.email == self.signed_in_email()
+
+    def test_a_newcomer_displaces_them_too(self):
+        self.a_standard_group()
+        self.sign_in_through_the_form(self.factory.create_user())
+
+        response = self.spend(self.a_token("newcomer@example.com"))
+
+        cleared = self.remember_cookie_headers(response)
+        assert 1 == len(cleared), "the previous visitor was left remembered"
+        assert "newcomer@example.com" == self.signed_in_email()
+
+    def test_a_token_naming_whoever_is_here_signs_nobody_out(self):
+        user = self.factory.create_user()
+        self.spend(self.a_token(user.email))
+        self.client.delete_cookie(self.cookie_name)
+
+        response = self.spend(self.a_token(user.email))
+
+        assert [] == self.remember_cookie_headers(response)
+        assert user.email == self.signed_in_email()
+
+    def test_a_handed_off_session_is_not_remembered(self):
+        user = self.factory.create_user()
+
+        response = self.spend(self.a_token(user.email))
+
+        assert [] == self.remember_cookie_headers(response)
+
+
+class TestSayingWhatTheHandOffDid(HandOffTestCase):
+    def setUp(self):
+        super(TestSayingWhatTheHandOffDid, self).setUp()
+        logging.disable(logging.NOTSET)
+        self.addCleanup(logging.disable, logging.INFO)
+
+    def test_it_names_the_person_it_signed_in(self):
+        user = self.factory.create_user()
+
+        with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
+            self.spend(self.a_token(user.email))
+
+        assert any(user.email in line for line in logged.output)
+
+    def test_it_names_the_organization_it_could_not_provision_into(self):
+        self.a_standard_group()
+
+        with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
+            self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        assert any(self.slug in line and "Cannot provision" in line for line in logged.output)
+
+    def test_it_says_when_no_token_arrived_at_all(self):
+        with self.assertLogs("redash.authentication.metr_sso", level="INFO") as logged:
+            self.client.get(f"/{self.slug}/metr/callback")
+
+        assert any("no hand-off token" in line.lower() for line in logged.output)
+
+
+class TestEmailAddressesCannotBeChangedHere(HandOffTestCase):
+    def change(self, user, **params):
+        return self.make_request("post", f"/api/users/{user.id}", user=user, data=params)
+
+    def test_changing_an_email_is_refused(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, email="somewhere-else@example.com")
+
+        assert 403 == response.status_code
+
+    def test_it_says_why(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, email="somewhere-else@example.com")
+
+        assert "single sign-on" in json.loads(response.data)["message"]
+
+    def test_sending_the_email_it_already_has_is_not_a_change(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, email=user.email, name="A New Name")
+
+        assert 200 == response.status_code
+        assert "A New Name" == user.name
+
+    def test_everything_else_about_a_user_still_changes(self):
+        user = self.factory.create_user()
+
+        response = self.change(user, name="A New Name")
+
+        assert 200 == response.status_code
+        assert "A New Name" == user.name
+
+    def test_an_installation_without_the_hand_off_is_left_alone(self):
+        self.configure(SSO_LOGIN_URL="")
+        user = self.factory.create_user()
+
+        response = self.change(user, email="somewhere-else@example.com")
+
+        assert 200 == response.status_code
+
+
+class TestATokenThatNamesNobody(HandOffTestCase):
+    def setUp(self):
+        super(TestATokenThatNamesNobody, self).setUp()
+        self.a_standard_group()
+
+    def test_a_newcomer_with_no_name_is_refused(self):
+        response = self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_newcomer_with_only_a_first_name_is_refused(self):
+        response = self.spend(self.a_token("newcomer@example.com", last_name=None))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_a_blank_name_counts_as_no_name(self):
+        response = self.spend(self.a_token("newcomer@example.com", first_name="   ", last_name="  "))
+
+        assert self.login_path() == response.headers["Location"]
+        assert self.signed_in_email() is None
+
+    def test_nobody_is_provisioned_when_the_token_names_nobody(self):
+        self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        assert 0 == User.query.filter(User.email == "newcomer@example.com").count()
+
+    def test_the_login_page_says_something_went_wrong(self):
+        self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        response = self.client.get(self.login_path())
+
+        assert "Your account could not be set up" in response.data.decode()
+
+    def test_it_reports_who_it_was_and_how_to_fix_it(self):
+        with patch("redash.authentication.metr_sso.sentry.capture_exception") as reported:
+            self.spend(self.a_token("newcomer@example.com", first_name=None, last_name=None))
+
+        reported_error = str(reported.call_args[0][0])
+        assert "newcomer@example.com" in reported_error
+        assert "core-backend" in reported_error
+
+    def test_somebody_already_here_signs_in_without_a_name_in_the_token(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email, first_name=None, last_name=None))
+
+        assert user.email == self.signed_in_email()
+
+
+class TestAReturnPathWithQueryParameters(HandOffTestCase):
+    def test_every_parameter_survives_the_trip_to_core_backend(self):
+        wanted = f"/{self.slug}/dashboard/heating?p_from=2026-01-01&p_to=2026-02-01"
+
+        response = self.client.get(f"/{self.slug}/metr/login?next={quote(wanted)}")
+
+        handed_over = urlsplit(response.headers["Location"])
+        assert wanted == parse_qs(handed_over.query)["next"][0]
+
+
+class TestAnOrganizationSpeltDifferentlyInCoreBackend(HandOffTestCase):
+    def a_differently_spelt_organization(self):
+        return self.factory.create_org(slug="BWB-EG")
+
+    def test_the_login_url_names_the_organization_as_core_backend_spells_it(self):
+        org = self.a_differently_spelt_organization()
+
+        response = self.client.get(f"/{org.slug}/metr/login")
+
+        assert (
+            "https://bwb-eg.metr.test/sso/dashboards/"
+            == urlsplit(response.headers["Location"])._replace(query="").geturl()
+        )
+
+    def test_a_token_naming_the_tenant_as_core_backend_spells_it_is_accepted(self):
+        org = self.a_differently_spelt_organization()
+        arriving = self.factory.create_user(org=org)
+
+        self.spend(self.a_token(arriving.email, tenant="bwb-eg"), org=org)
+
+        assert arriving.email == self.signed_in_email(org=org)
+
+    def test_a_token_naming_the_redash_spelling_is_refused(self):
+        org = self.a_differently_spelt_organization()
+        arriving = self.factory.create_user(org=org)
+
+        self.spend(self.a_token(arriving.email, tenant="BWB-EG"), org=org)
+
+        assert self.signed_in_email(org=org) is None
+
+    def test_an_organization_spelt_the_same_way_is_untouched(self):
+        user = self.factory.create_user()
+
+        self.spend(self.a_token(user.email))
+
+        assert user.email == self.signed_in_email()
+
+    def test_the_remedy_still_names_the_organization_as_redash_spells_it(self):
+        org = self.a_differently_spelt_organization()
+
+        with patch("redash.authentication.metr_sso.sentry.capture_exception") as reported:
+            self.spend(self.a_token("newcomer@example.com", tenant="bwb-eg"), org=org)
+
+        remedy = str(reported.call_args[0][0])
+        assert "create_standard_group BWB-EG" in remedy
