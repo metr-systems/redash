@@ -79,6 +79,19 @@ def clear_fixed_from_url_values(options, fixed_param_names):
             parameter["value"] = None
 
 
+# Map visualizations save the viewport the author last panned/zoomed to under "bounds".
+# It is a position in the template org's data, so it is meaningless — and usually far off
+# screen — for another org's addresses. Dropping it makes the deployed map fall back to
+# fitting its own markers, which is what an unsaved map does.
+MAP_VISUALIZATION_TYPES = {"MAP", "CHOROPLETH"}
+
+
+def clear_map_viewport(visualization_type, options):
+    if visualization_type in MAP_VISUALIZATION_TYPES:
+        options.pop("bounds", None)
+    return options
+
+
 def deploy_composed_dashboard(composed_dashboard, target_orgs, deployed_by, comment=None):
     """Deploy/redeploy one composed dashboard to every target org, all or nothing."""
     composed_dashboard_id = composed_dashboard.id
@@ -288,12 +301,18 @@ def copy_widget(template_widget, dashboard, target_org, deploy_user, data_source
             query_id_map,
             fixed_from_url_param_names(options),
         )
+        template_visualization = template_widget.visualization
+        visualization_options = (
+            clear_map_viewport(template_visualization.type, deepcopy(template_visualization.options))
+            if template_visualization.options
+            else None
+        )
         visualization = Visualization(
             query_rel=query,
-            type=template_widget.visualization.type,
-            name=template_widget.visualization.name,
-            description=template_widget.visualization.description,
-            options=deepcopy(template_widget.visualization.options) if template_widget.visualization.options else None,
+            type=template_visualization.type,
+            name=template_visualization.name,
+            description=template_visualization.description,
+            options=visualization_options,
         )
         db.session.add(visualization)
         db.session.flush()

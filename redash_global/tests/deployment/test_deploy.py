@@ -579,6 +579,86 @@ class TestCopyWidget:
         assert query.options["parameters"][0]["value"] == "template-address"
 
 
+    def test_clears_saved_map_bounds_on_copied_visualization(self, factory, sub_dashboard, target_org):
+        visualization = factory.create_visualization(
+            type="MAP",
+            options={
+                "latColName": "lat",
+                "lonColName": "lon",
+                "bounds": {
+                    "_southWest": {"lat": 48.0, "lng": 8.0},
+                    "_northEast": {"lat": 49.0, "lng": 9.0},
+                },
+            },
+        )
+        widget = factory.create_widget(
+            dashboard=sub_dashboard,
+            visualization=visualization,
+            options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}},
+        )
+        query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        target_dashboard = factory.create_dashboard(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+
+        result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
+
+        assert "bounds" not in result.visualization.options
+        assert result.visualization.options["latColName"] == "lat"
+        # the template itself keeps its viewport
+        assert visualization.options["bounds"]["_southWest"]["lat"] == 48.0
+
+    def test_clears_saved_choropleth_bounds_on_copied_visualization(self, factory, sub_dashboard, target_org):
+        visualization = factory.create_visualization(
+            type="CHOROPLETH",
+            options={"countryCodeType": "iso_a3", "bounds": [[48.0, 8.0], [49.0, 9.0]]},
+        )
+        widget = factory.create_widget(
+            dashboard=sub_dashboard,
+            visualization=visualization,
+            options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}},
+        )
+        query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        target_dashboard = factory.create_dashboard(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+
+        result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
+
+        assert "bounds" not in result.visualization.options
+        assert result.visualization.options["countryCodeType"] == "iso_a3"
+
+    def test_leaves_non_map_visualization_options_untouched(self, factory, sub_dashboard, target_org):
+        visualization = factory.create_visualization(
+            type="CHART",
+            options={"globalSeriesType": "line", "bounds": "not-a-map-option"},
+        )
+        widget = factory.create_widget(
+            dashboard=sub_dashboard,
+            visualization=visualization,
+            options={"position": {"row": 0, "col": 0, "sizeX": 1, "sizeY": 1}},
+        )
+        query = widget.visualization.query_rel
+        factory.create_metr_data_source_for(query.data_source, "postgres")
+        target_ds = factory.create_data_source(org=target_org)
+        factory.create_metr_data_source_for(target_ds, "postgres")
+        data_source_map = {"postgres": target_ds}
+
+        target_dashboard = factory.create_dashboard(org=target_org)
+        deploy_user = factory.create_user(org=target_org)
+
+        result = copy_widget(widget, target_dashboard, target_org, deploy_user, data_source_map, row_offset=0)
+
+        assert result.visualization.options["bounds"] == "not-a-map-option"
+
 class TestDeleteOrphanedVisualizations:
     def test_deletes_visualization_with_no_widgets(self, factory):
         visualization = factory.create_visualization()
