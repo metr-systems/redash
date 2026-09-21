@@ -17,6 +17,7 @@ class DynamicDatePicker extends React.Component {
     value: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     parameter: PropTypes.any, // eslint-disable-line react/forbid-prop-types
     onSelect: PropTypes.func,
+    disabled: PropTypes.bool,
     dynamicButtonOptions: PropTypes.shape({
       staticValueLabel: PropTypes.string,
       options: PropTypes.arrayOf(
@@ -35,6 +36,7 @@ class DynamicDatePicker extends React.Component {
     className: "",
     value: null,
     parameter: null,
+    disabled: false,
     dynamicButtonOptions: {
       options: [],
     },
@@ -63,7 +65,7 @@ class DynamicDatePicker extends React.Component {
   };
 
   render() {
-    const { type, value, className, dateOptions, dynamicButtonOptions, onSelect } = this.props;
+    const { type, value, className, dateOptions, dynamicButtonOptions, onSelect, disabled } = this.props;
     const hasDynamicValue = isDynamicDate(value);
     const isDateTime = includes(type, "datetime");
 
@@ -94,6 +96,7 @@ class DynamicDatePicker extends React.Component {
           className={classNames("redash-datepicker", type, { "dynamic-value": hasDynamicValue })}
           onSelect={onSelect}
           suffixIcon={null}
+          disabled={disabled}
           {...additionalAttributes}
         />
         <DynamicButton
@@ -102,6 +105,7 @@ class DynamicDatePicker extends React.Component {
           selectedDynamicValue={hasDynamicValue ? value : null}
           enabled={hasDynamicValue}
           onSelect={this.onDynamicValueSelect}
+          disabled={disabled}
         />
       </div>
     );
