@@ -669,3 +669,43 @@ class TestAnOrganizationSpeltDifferentlyInCoreBackend(HandOffTestCase):
 
         remedy = str(reported.call_args[0][0])
         assert "create_standard_group BWB-EG" in remedy
+
+
+class TestDeployedWithoutTheHandOffConfigured(HandOffTestCase):
+    def setUp(self):
+        super(TestDeployedWithoutTheHandOffConfigured, self).setUp()
+        self.configure(SSO_LOGIN_URL="", SSO_COOKIE_NAME="", SSO_TENANT_CLAIM="")
+
+    def test_the_callback_sets_no_nameless_cookie(self):
+        response = self.client.get(f"/{self.slug}/metr/callback")
+
+        nameless = [header for header in response.headers.getlist("Set-Cookie") if header.startswith("=")]
+        assert [] == nameless
+
+    def test_the_callback_turns_the_visitor_away(self):
+        response = self.client.get(f"/{self.slug}/metr/callback")
+
+        assert self.login_path() == response.headers["Location"]
+
+    def test_the_login_route_turns_the_visitor_away(self):
+        response = self.client.get(f"/{self.slug}/metr/login")
+
+        assert f"/{self.slug}/" == response.headers["Location"]
+
+    def test_the_login_page_offers_nothing(self):
+        response = self.client.get(self.login_path())
+
+        assert 200 == response.status_code
+        assert "/metr/login" not in response.data.decode()
+
+    def test_an_email_can_still_be_changed(self):
+        user = self.factory.create_user()
+
+        response = self.make_request("post", f"/api/users/{user.id}", user=user, data={"email": "new@example.com"})
+
+        assert 200 == response.status_code
+
+    def test_the_form_does_not_lock_the_email_field(self):
+        response = self.make_request("get", "/api/session")
+
+        assert json.loads(response.data)["client_config"]["metrSsoEnabled"] is False

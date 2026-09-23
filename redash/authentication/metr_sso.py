@@ -164,10 +164,11 @@ def read_the_token(org, token):
 
 
 def clear_the_token(response):
-    response.delete_cookie(
-        metr_settings.SSO_COOKIE_NAME,
-        domain=metr_settings.SSO_COOKIE_DOMAIN or None,
-    )
+    if metr_settings.SSO_COOKIE_NAME:
+        response.delete_cookie(
+            metr_settings.SSO_COOKIE_NAME,
+            domain=metr_settings.SSO_COOKIE_DOMAIN or None,
+        )
     return response
 
 

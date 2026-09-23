@@ -11,7 +11,7 @@ import DynamicForm from "@/components/dynamic-form/DynamicForm";
 import UserGroups from "@/components/UserGroups";
 
 import User from "@/services/user";
-import { currentUser } from "@/services/auth";
+import { clientConfig, currentUser } from "@/services/auth";
 import useImmutableCallback from "@/lib/hooks/useImmutableCallback";
 
 import useUserGroups from "../hooks/useUserGroups";
@@ -58,7 +58,7 @@ export default function UserInfoForm(props) {
             title: t("Users:Email"),
             type: "email",
             initialValue: user.email,
-            readOnly: true,
+            readOnly: clientConfig.metrSsoEnabled,
           },
           !user.isDisabled && currentUser.id !== user.id
             ? {
