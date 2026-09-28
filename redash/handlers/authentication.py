@@ -7,7 +7,7 @@ from itsdangerous import BadSignature, SignatureExpired
 from sqlalchemy.orm.exc import NoResultFound
 
 from redash import __version__, limiter, models, settings
-from redash.authentication import current_org, get_login_url, get_next_path
+from redash.authentication import current_org, get_login_url, get_next_path, metr_sso
 from redash.authentication.account import (
     send_password_reset_email,
     send_user_disabled_email,
@@ -288,6 +288,7 @@ def client_config():
         "queryRefreshIntervals": settings.QUERY_REFRESH_INTERVALS,
         "googleLoginEnabled": settings.GOOGLE_OAUTH_ENABLED,
         "ldapLoginEnabled": settings.LDAP_LOGIN_ENABLED,
+        "metrSsoEnabled": metr_sso.is_enabled(),
         "pageSize": settings.PAGE_SIZE,
         "pageSizeOptions": settings.PAGE_SIZE_OPTIONS,
         "tableCellMaxJSONSize": settings.TABLE_CELL_MAX_JSON_SIZE,
