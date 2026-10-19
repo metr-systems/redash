@@ -2,7 +2,9 @@ import datetime
 
 import pytest
 
-from redash.models import MetrDashboard
+from redash import rq_redis_connection
+from redash.models import DataSource, MetrDashboard, MetrQuery, db
+from redash.tasks.worker import Queue
 from redash_global.models import (
     ComposedDashboard,
     ComposedDashboardEntry,
@@ -458,6 +460,27 @@ def test_deploy_reports_per_org_errors_when_an_org_fails(
     assert errors_by_slug["acme"] == []
     assert errors_by_slug["broken"]
     assert MetrDashboard.query.filter_by(url_identifier="dashboard-a").count() == 0
+
+
+def test_deploy_queues_the_dropdown_queries_of_the_deployed_dashboard(
+    admin_client, factory, deploy_url, target_org, deployable_sub_dashboard
+):
+    # The dropdown has no schedule, so nothing but the deploy ever runs it. Without a result
+    # every widget filtered by it stays empty.
+    template_query = deployable_sub_dashboard.widgets[0].visualization.query_rel
+    dropdown_query = factory.create_query(data_source=template_query.data_source)
+    template_query.options = {"parameters": [{"name": "check", "type": "query", "queryId": dropdown_query.id}]}
+    db.session.commit()
+    # The test suite keeps RQ jobs in a Redis database it never flushes.
+    queue = Queue(DataSource.query.filter_by(org=target_org).one().queue_name, connection=rq_redis_connection)
+    queue.empty()
+
+    admin_client.post(deploy_url)
+
+    deployed_dropdown_query = (
+        db.session.query(MetrQuery).filter_by(org_id=target_org.id, template_query_id=dropdown_query.id).one().query
+    )
+    assert [job.meta["query_id"] for job in queue.jobs] == [deployed_dropdown_query.id]
 
 
 @pytest.mark.usefixtures("deployable_sub_dashboard")

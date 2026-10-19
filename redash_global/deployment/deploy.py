@@ -439,7 +439,7 @@ def execute_query_dependencies(dashboard, allowed_widgets_query=None):
             )
             enqueued.add(query.id)
         except Exception:
-            pass
+            logger.exception("Could not enqueue query %s for dashboard %s", query.id, dashboard.id)
 
 
 def record_deployment(composed_dashboard, target_org):

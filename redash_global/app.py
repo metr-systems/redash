@@ -5,7 +5,7 @@ from flask import Flask
 from jinja2 import ChoiceLoader, FileSystemLoader
 
 import redash
-from redash import settings
+from redash import settings, tasks
 from redash.handlers.webpack import configure_webpack
 from redash.models.base import db
 from redash_global import security
@@ -62,6 +62,9 @@ def create_global_app():
     )
 
     db.init_app(app)
+    # Deploying enqueues the dashboard's dropdown queries, and RQ resolves its Redis connection
+    # from the one Redash pushes for each request. Without it every enqueue fails.
+    tasks.init_app(app)
     security.init_app(app)
     login_manager.init_app(app)
     configure_webpack(app)
