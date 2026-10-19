@@ -8,6 +8,7 @@ import redash
 from redash import settings, tasks
 from redash.handlers.webpack import configure_webpack
 from redash.models.base import db
+from redash.utils import sentry
 from redash_global import security
 from redash_global import settings as global_settings
 from redash_global.views.auth import login_manager
@@ -36,6 +37,7 @@ def _validate_required_config():
 def create_global_app():
     """Create and configure the Redash Global Flask application."""
     _validate_required_config()
+    sentry.init()
 
     app = Flask(
         __name__,
