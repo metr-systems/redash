@@ -3,6 +3,7 @@ from unittest.mock import patch
 import pytest
 
 from redash.models import Dashboard, MetrDashboard, MetrQuery, Query, Visualization, db
+from redash.utils import gen_query_hash
 from redash_global.deployment.deploy import (
     copy_allowed_widgets_query,
     copy_widget,
@@ -10,6 +11,7 @@ from redash_global.deployment.deploy import (
     delete_orphaned_visualizations,
     deploy_composed_dashboard,
     deploy_to_target_org,
+    executable_query_text,
     execute_query_dependencies,
     get_or_copy_query,
     get_or_create_dashboard,
@@ -1063,6 +1065,28 @@ class TestExecuteQueryDependencies:
             allowed_widgets_query.user_id,
         )
         assert enqueue.call_args.kwargs["metadata"] == {"query_id": allowed_widgets_query.id}
+
+
+class TestExecutableQueryText:
+    @pytest.mark.parametrize(
+        "query_text, options",
+        [
+            ("SELECT name FROM checks", {}),
+            ("SELECT name FROM checks\n\n--SELECT * FROM checks_view", {}),
+            ("SELECT name FROM checks", {"apply_auto_limit": True}),
+            (
+                "SELECT name FROM checks WHERE kind = '{{ kind }}'",
+                {"parameters": [{"name": "kind", "type": "text", "value": "heating"}]},
+            ),
+        ],
+        ids=["plain", "trailing_comment", "auto_limit", "default_parameters"],
+    )
+    def test_hashes_to_the_query_so_its_result_is_linked(self, factory, query_text, options):
+        # The worker attaches a result to every query whose query_hash matches the hash of the
+        # executed text, so a mismatch leaves the query with no result at all.
+        query = factory.create_query(query_text=query_text, options=options)
+
+        assert gen_query_hash(executable_query_text(query)) == query.query_hash
 
 
 class TestDeployComposedDashboard:

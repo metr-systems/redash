@@ -413,6 +413,19 @@ def get_or_create_dashboard(composed_dashboard, target_org, deploy_user, allowed
     return dashboard
 
 
+def executable_query_text(query):
+    """The text Redash itself runs for query: default parameter values and auto-limit applied.
+
+    The worker attaches a result only to queries whose query_hash matches the executed text,
+    and Query.update_query_hash hashes this form, not the raw query_text. Even with no
+    parameters and auto-limit off, the SQL runners re-split the statements, which drops a
+    trailing comment, so enqueuing the raw text runs the query but leaves it without a result.
+    """
+    parameters = {parameter["name"]: parameter.get("value") for parameter in query.parameters}
+    query_text = query.parameterized.apply(parameters).query if any(parameters) else query.query_text
+    return query.data_source.query_runner.apply_auto_limit(query_text, query.options.get("apply_auto_limit", False))
+
+
 def execute_query_dependencies(dashboard, allowed_widgets_query=None):
     """Enqueue the queries the dashboard needs cached results for: parameter dropdowns and allowed widgets."""
     dependencies = [allowed_widgets_query] if allowed_widgets_query else []
@@ -432,14 +445,14 @@ def execute_query_dependencies(dashboard, allowed_widgets_query=None):
             continue
         try:
             enqueue_query(
-                query.query_text,
+                executable_query_text(query),
                 query.data_source,
                 query.user_id,
                 metadata={"query_id": query.id},
             )
             enqueued.add(query.id)
         except Exception:
-            pass
+            logger.exception("Could not enqueue query %s for dashboard %s", query.id, dashboard.id)
 
 
 def record_deployment(composed_dashboard, target_org):
